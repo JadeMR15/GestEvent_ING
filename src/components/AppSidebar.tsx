@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -7,7 +7,6 @@ import {
   Users,
   Ticket,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,6 +28,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { role, signOut, user } = useAuth();
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const isActive = (p: string) => pathname === p || pathname.startsWith(p + "/");
@@ -44,11 +44,9 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-vibrant shadow-glow">
-            <Sparkles className="h-5 w-5 text-white" />
-          </div>
+      <SidebarHeader className="border-b border-sidebar-border overflow-visible">
+        <div className="flex items-center gap-2 px-1 py-3 overflow-visible">
+          <img src="/logo.png" alt="GuestEvent" className="h-24 w-24 shrink-0 object-contain" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-base font-bold text-sidebar-foreground">GuestEvent</span>
@@ -87,7 +85,7 @@ export function AppSidebar() {
         <Button
           variant="ghost"
           size={collapsed ? "icon" : "sm"}
-          onClick={signOut}
+          onClick={async () => { await signOut(); navigate({ to: "/" }); }}
           className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
           <LogOut className="h-4 w-4" />

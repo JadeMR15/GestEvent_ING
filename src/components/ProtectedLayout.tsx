@@ -15,7 +15,7 @@ export function ProtectedLayout({ children, allow }: Props) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
+    if (!loading && !user) navigate({ to: "/" });
   }, [loading, user, navigate]);
 
   if (loading || !user || !role) {

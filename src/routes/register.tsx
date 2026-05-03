@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
@@ -53,9 +53,7 @@ function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-[8px] bg-gradient-vibrant shadow-glow">
-            <Sparkles className="h-6 w-6 text-white" />
-          </div>
+          <img src="/logo.png" alt="GuestEvent" className="mx-auto mb-3 h-44 w-auto object-contain" />
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
           <CardDescription>Rejoignez GuestEvent en quelques secondes</CardDescription>
         </CardHeader>

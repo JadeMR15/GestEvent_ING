@@ -23,9 +23,7 @@ function Landing() {
 
       <header className="relative container mx-auto flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-gradient-vibrant shadow-glow">
-            <Sparkles className="h-5 w-5 text-white" />
-          </div>
+          <img src="/logo.png" alt="GuestEvent" className="h-20 w-auto object-contain" />
           <span className="font-display text-xl italic text-[#72243E]">GuestEvent</span>
         </div>
         <div className="flex gap-2">

@@ -156,23 +156,23 @@ function DashboardPage() {
       label: role === "participant" ? "Mes inscriptions" : "Événements",
       value: stats.total,
       icon: CalendarDays,
-      color: "from-violet-500 to-fuchsia-500",
+      color: "from-[#2D5A27] to-[#3D7A35]",
     },
-    { label: "À venir", value: stats.upcoming, icon: Clock, color: "from-cyan-500 to-blue-500" },
+    { label: "À venir", value: stats.upcoming, icon: Clock, color: "from-[#2D5A27] to-[#3D7A35]" },
     {
       label: role === "participant" ? "Actives" : "Inscrits",
       value: stats.registrations,
       icon: Users,
-      color: "from-pink-500 to-rose-500",
+      color: "from-[#2D5A27] to-[#3D7A35]",
     },
-    { label: "Présences", value: stats.attended, icon: CheckCircle2, color: "from-emerald-500 to-teal-500" },
+    { label: "Présences", value: stats.attended, icon: CheckCircle2, color: "from-[#2D5A27] to-[#3D7A35]" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight not-italic">Dashboard</h1>
           <p className="text-muted-foreground">Vue d'ensemble de votre activité.</p>
         </div>
         <div className="flex gap-2">

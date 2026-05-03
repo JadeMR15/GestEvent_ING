@@ -113,14 +113,14 @@
   --ring:    #72986F;
 
   /* ── Sidebar — fond vert profond ── */
-  --sidebar:                    #204839;
-  --sidebar-foreground:         #F0F6F4;
-  --sidebar-primary:            #72986F;
+  --sidebar:                    #F2D6DC;
+  --sidebar-foreground:         #6B1A2A;
+  --sidebar-primary:            #A3293F;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent:             #426655;
-  --sidebar-accent-foreground:  #F0F6F4;
-  --sidebar-border:             #426655;
-  --sidebar-ring:               #72986F;
+  --sidebar-accent:             #E8B4BC;
+  --sidebar-accent-foreground:  #6B1A2A;
+  --sidebar-border:             #E8B4BC;
+  --sidebar-ring:               #A3293F;
 
   /* ── Gradients DA ── */
   /* Boutons / barres actives : vert */
