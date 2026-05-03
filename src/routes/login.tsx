@@ -30,11 +30,26 @@ function LoginPage() {
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword(parsed.data);
+    const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+    let target = "/events";
+    if (data.user) {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id);
+      const roleSet = new Set((roles ?? []).map((r) => r.role));
+      if (roleSet.has("admin") || roleSet.has("organizer")) {
+        target = "/dashboard";
+      }
+    }
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
     toast.success("Bienvenue !");
-    navigate({ to: "/dashboard" });
+    navigate({ to: target });
   }
 
   return (
