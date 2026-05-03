@@ -51,7 +51,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="text-base font-bold text-sidebar-foreground">GestEvent</span>
+              <span className="text-base font-bold text-sidebar-foreground">GuestEvent</span>
               <span className="text-xs text-sidebar-foreground/60 capitalize">{role ?? "guest"}</span>
             </div>
           )}

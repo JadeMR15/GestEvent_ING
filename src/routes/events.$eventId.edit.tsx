@@ -19,7 +19,7 @@ export const Route = createFileRoute("/events/$eventId/edit")({
       <EditEventPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Modifier l'événement — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Modifier l'événement — GuestEvent" }] }),
 });
 
 const schema = z.object({

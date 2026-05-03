@@ -26,7 +26,7 @@ function Landing() {
           <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-gradient-vibrant shadow-glow">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
-          <span className="font-display text-xl italic text-[#72243E]">GestEvent</span>
+          <span className="font-display text-xl italic text-[#72243E]">GuestEvent</span>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="ghost">

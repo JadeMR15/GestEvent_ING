@@ -16,7 +16,7 @@ export const Route = createFileRoute("/dashboard")({
       <DashboardPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Dashboard — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — GuestEvent" }] }),
 });
 
 interface Stats {
@@ -145,7 +145,7 @@ function DashboardPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `GestEvent_participants_${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `GuestEvent_participants_${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     setExporting(false);
