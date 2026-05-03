@@ -1,6 +1,6 @@
 
 -- Roles enum
-CREATE TYPE public.app_role AS ENUM ('admin', 'organizer', 'participant');
+CREATE TYPE public.app_role AS ENUM ('admin', 'organizer', 'participant', 'volunteer');
 
 -- Registration status enum
 CREATE TYPE public.registration_status AS ENUM ('registered', 'waitlisted', 'attended', 'cancelled');
@@ -71,13 +71,21 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+DECLARE
+  _role public.app_role;
 BEGIN
   INSERT INTO public.profiles (id, full_name)
   VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', ''));
-  
+
+  BEGIN
+    _role := (NEW.raw_user_meta_data->>'role')::public.app_role;
+  EXCEPTION WHEN invalid_text_representation THEN
+    _role := 'participant';
+  END;
+
   INSERT INTO public.user_roles (user_id, role)
-  VALUES (NEW.id, COALESCE((NEW.raw_user_meta_data->>'role')::public.app_role, 'participant'));
-  
+  VALUES (NEW.id, COALESCE(_role, 'participant'));
+
   RETURN NEW;
 END;
 $$;
