@@ -1,0 +1,73 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/login")({
+  component: LoginPage,
+  head: () => ({ meta: [{ title: "Connexion — GestEvent" }] }),
+});
+
+const schema = z.object({
+  email: z.string().trim().email("Email invalide").max(255),
+  password: z.string().min(6, "Minimum 6 caractères").max(72),
+});
+
+function LoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: { preventDefault(): void }) {
+    e.preventDefault();
+    const parsed = schema.safeParse({ email, password });
+    if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword(parsed.data);
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Bienvenue !");
+    navigate({ to: "/dashboard" });
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
+      <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-[8px] bg-gradient-vibrant shadow-glow">
+            <Sparkles className="h-6 w-6 text-white" />
+          </div>
+          <CardTitle className="text-2xl">Bon retour !</CardTitle>
+          <CardDescription>Connectez-vous à votre compte GestEvent</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Se connecter
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              Pas encore de compte ?{" "}
+              <Link to="/register" className="font-medium text-primary hover:underline">S'inscrire</Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

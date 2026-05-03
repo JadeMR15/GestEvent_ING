@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400;1,600&family=Inter:wght@400;500;600&display=swap');
+
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Fonts */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* Radius — 8px buttons · 12px cards · 20px+ badges */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.25rem;
+
+  --color-background:           var(--background);
+  --color-foreground:           var(--foreground);
+  --color-card:                 var(--card);
+  --color-card-foreground:      var(--card-foreground);
+  --color-popover:              var(--popover);
+  --color-popover-foreground:   var(--popover-foreground);
+  --color-primary:              var(--primary);
+  --color-primary-foreground:   var(--primary-foreground);
+  --color-secondary:            var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:                var(--muted);
+  --color-muted-foreground:     var(--muted-foreground);
+  --color-accent:               var(--accent);
+  --color-accent-foreground:    var(--accent-foreground);
+  --color-destructive:          var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success:              var(--success);
+  --color-success-foreground:   var(--success-foreground);
+  --color-warning:              var(--warning);
+  --color-warning-foreground:   var(--warning-foreground);
+  --color-border:               var(--border);
+  --color-input:                var(--input);
+  --color-ring:                 var(--ring);
+  --color-sidebar:              var(--sidebar);
+  --color-sidebar-foreground:   var(--sidebar-foreground);
+  --color-sidebar-primary:      var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:       var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:       var(--sidebar-border);
+  --color-sidebar-ring:         var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* ── DA Palette ── */
+  --bg-page:      #FDFAF7;
+  --bg-primary:   #EED4D8;
+  --bg-secondary: #D5E8A0;
+
+  --rose-vif:     #C87488;
+  --rose-moyen:   #D5A0A8;
+
+  --green-bouton: #72986F;
+  --green-moyen:  #426655;
+  --green-deep:   #204839;
+
+  --text-body:    #2C2C2A;
+  --text-title:   #72243E;
+  --text-hint:    #F0F6F4;
+
+  /* ── shadcn/Tailwind token mapping ── */
+  --background:         #FDFAF7;
+  --foreground:         #2C2C2A;
+
+  --card:               #FFFFFF;
+  --card-foreground:    #2C2C2A;
+
+  --popover:            #FFFFFF;
+  --popover-foreground: #2C2C2A;
+
+  /* Primary = vert bouton CTA */
+  --primary:            #72986F;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary = rose poudré */
+  --secondary:          #EED4D8;
+  --secondary-foreground: #72243E;
+
+  /* Muted = fond crème très légère */
+  --muted:              #F5F0ED;
+  --muted-foreground:   #72243E;
+
+  /* Accent = vert clair */
+  --accent:             #D5E8A0;
+  --accent-foreground:  #204839;
+
+  /* Destructive = rose vif */
+  --destructive:        #C87488;
+  --destructive-foreground: #FFFFFF;
+
+  /* Success = vert profond */
+  --success:            #72986F;
+  --success-foreground: #FFFFFF;
+
+  /* Warning = jaune-vert */
+  --warning:            #D5E8A0;
+  --warning-foreground: #204839;
+
+  /* Borders — 0.5px rose moyen */
+  --border:  #D5A0A8;
+  --input:   #EED4D8;
+  --ring:    #72986F;
+
+  /* ── Sidebar — fond vert profond ── */
+  --sidebar:                    #204839;
+  --sidebar-foreground:         #F0F6F4;
+  --sidebar-primary:            #72986F;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent:             #426655;
+  --sidebar-accent-foreground:  #F0F6F4;
+  --sidebar-border:             #426655;
+  --sidebar-ring:               #72986F;
+
+  /* ── Gradients DA ── */
+  /* Boutons / barres actives : vert */
+  --gradient-primary: linear-gradient(135deg, #72986F, #426655);
+  /* Barres décoratives cartes : rose→bordeaux */
+  --gradient-vibrant: linear-gradient(135deg, #EED4D8 0%, #C87488 60%, #72243E 100%);
+  /* Fond mesh page : chaleureux rose/vert */
+  --gradient-mesh:
+    radial-gradient(at 10% 0%,   #EED4D8aa 0px, transparent 55%),
+    radial-gradient(at 85% 15%,  #D5E8A0aa 0px, transparent 50%),
+    radial-gradient(at 50% 100%, #EED4D8aa 0px, transparent 55%);
+
+  /* Ombres */
+  --shadow-glow:    0 8px 32px -8px rgba(114, 152, 111, 0.40);
+  --shadow-elegant: 0 6px 24px -6px rgba(44, 44, 42, 0.12);
+}
+
+/* Dark mode — conserve la DA, passe sur fonds verts profonds */
+.dark {
+  --background:         #162E24;
+  --foreground:         #F0F6F4;
+  --card:               #1D3A2C;
+  --card-foreground:    #F0F6F4;
+  --popover:            #1D3A2C;
+  --popover-foreground: #F0F6F4;
+  --primary:            #8BB885;
+  --primary-foreground: #162E24;
+  --secondary:          #2E4A3A;
+  --secondary-foreground: #EED4D8;
+  --muted:              #2E4A3A;
+  --muted-foreground:   #D5A0A8;
+  --accent:             #3A5C30;
+  --accent-foreground:  #D5E8A0;
+  --destructive:        #C87488;
+  --destructive-foreground: #FFFFFF;
+  --border:             rgba(213, 160, 168, 0.25);
+  --input:              rgba(213, 160, 168, 0.18);
+  --ring:               #8BB885;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Titres → Cormorant Garamond */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--text-title);
+    line-height: 1.2;
+  }
+
+  h1 { font-size: 2.5rem;  font-style: italic; font-weight: 400; }
+  h2 { font-size: 2rem;    font-style: italic; font-weight: 400; }
+  h3 { font-size: 1.5rem;  font-style: italic; font-weight: 400; }
+}
+
+/* ── Utility classes ── */
+@utility bg-gradient-primary {
+  background-image: var(--gradient-primary);
+}
+@utility bg-gradient-vibrant {
+  background-image: var(--gradient-vibrant);
+}
+@utility bg-gradient-mesh {
+  background-image: var(--gradient-mesh);
+}
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+@utility shadow-elegant {
+  box-shadow: var(--shadow-elegant);
+}
+
+/* ── DA Component overrides ── */
+
+/* Buttons: border-radius 8px, police Inter Medium */
+button, [role="button"] {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+/* Cards: border-radius 12px, bordure rose moyen 0.5px */
+.card-da {
+  background: #FFFFFF;
+  border: 0.5px solid var(--rose-moyen);
+  border-radius: 12px;
+}
