@@ -15,7 +15,7 @@ export const Route = createFileRoute("/waitlist")({
       <WaitlistPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Waitlist — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Waitlist — GuestEvent" }] }),
 });
 
 function WaitlistPage() {

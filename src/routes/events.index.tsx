@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/events/")({
   component: () => <ProtectedLayout><EventList /></ProtectedLayout>,
-  head: () => ({ meta: [{ title: "Événements — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Événements — GuestEvent" }] }),
 });
 
 type DateFilter = "all" | "week" | "month";

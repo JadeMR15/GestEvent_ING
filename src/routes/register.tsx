@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
-  head: () => ({ meta: [{ title: "Créer un compte — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Créer un compte — GuestEvent" }] }),
 });
 
 const schema = z.object({
@@ -45,7 +45,7 @@ function RegisterPage() {
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Compte créé ! Bienvenue sur GestEvent.");
+    toast.success("Compte créé ! Bienvenue sur GuestEvent.");
     navigate({ to: "/dashboard" });
   }
 
@@ -57,7 +57,7 @@ function RegisterPage() {
             <Sparkles className="h-6 w-6 text-white" />
           </div>
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
-          <CardDescription>Rejoignez GestEvent en quelques secondes</CardDescription>
+          <CardDescription>Rejoignez GuestEvent en quelques secondes</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

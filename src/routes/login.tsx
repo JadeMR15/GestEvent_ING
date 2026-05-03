@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Connexion — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Connexion — GuestEvent" }] }),
 });
 
 const schema = z.object({
@@ -60,7 +60,7 @@ function LoginPage() {
             <Sparkles className="h-6 w-6 text-white" />
           </div>
           <CardTitle className="text-2xl">Bon retour !</CardTitle>
-          <CardDescription>Connectez-vous à votre compte GestEvent</CardDescription>
+          <CardDescription>Connectez-vous à votre compte GuestEvent</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

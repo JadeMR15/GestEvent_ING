@@ -17,7 +17,7 @@ export const Route = createFileRoute("/scanner")({
       <ScannerPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "QR Scanner — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "QR Scanner — GuestEvent" }] }),
 });
 
 const CACHE_KEY = "gestevent_qr_cache";

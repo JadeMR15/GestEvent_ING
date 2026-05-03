@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/my-tickets")({
   component: () => <ProtectedLayout><MyTicketsPage /></ProtectedLayout>,
-  head: () => ({ meta: [{ title: "Mes billets — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Mes billets — GuestEvent" }] }),
 });
 
 const STATUS_CONFIG = {
@@ -84,7 +84,7 @@ function MyTicketsPage() {
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(reg.qr_code)}" width="200" height="200" />
           <p style="font-family:monospace; font-size:11px; margin-top:8px">${reg.qr_code}</p>
         </div>
-        <div class="footer">Billet généré par GestEvent · Présentez ce QR code à l'entrée</div>
+        <div class="footer">Billet généré par GuestEvent · Présentez ce QR code à l'entrée</div>
         <br/>
         <button onclick="window.print()">Imprimer</button>
       </body>

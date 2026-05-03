@@ -23,7 +23,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/$eventId")({
   component: () => <ProtectedLayout><EventDetail /></ProtectedLayout>,
-  head: () => ({ meta: [{ title: "Événement — GestEvent" }] }),
+  head: () => ({ meta: [{ title: "Événement — GuestEvent" }] }),
 });
 
 const TIMER_SECONDS = 15 * 60;
