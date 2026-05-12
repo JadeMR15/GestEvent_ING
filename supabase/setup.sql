@@ -24,9 +24,13 @@ EXCEPTION WHEN others THEN NULL; END $$;
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT NOT NULL DEFAULT '',
+  school TEXT NOT NULL DEFAULT '',
+  association TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS school TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS association TEXT NOT NULL DEFAULT '';
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- User roles table
@@ -64,6 +68,9 @@ ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 -- Colonnes optionnelles si table existante
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'closed'));
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS cover_image_url TEXT;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS price NUMERIC(10,2) NOT NULL DEFAULT 0;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS school TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS association TEXT NOT NULL DEFAULT '';
 
 -- Registrations table
 CREATE TABLE IF NOT EXISTS public.registrations (
@@ -87,8 +94,13 @@ RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   _role public.app_role;
 BEGIN
-  INSERT INTO public.profiles (id, full_name)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', ''));
+  INSERT INTO public.profiles (id, full_name, school, association)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'school', ''),
+    COALESCE(NEW.raw_user_meta_data->>'association', '')
+  );
 
   BEGIN
     _role := (NEW.raw_user_meta_data->>'role')::public.app_role;

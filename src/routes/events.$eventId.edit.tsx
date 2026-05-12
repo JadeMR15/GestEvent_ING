@@ -29,6 +29,8 @@ const schema = z.object({
   starts_at: z.string().refine((v) => !isNaN(Date.parse(v)), "Date invalide"),
   capacity: z.number().int().min(0).max(100000),
   price: z.union([z.string(), z.number()]).transform((v) => parseFloat(String(v)) || 0).pipe(z.number().min(0)),
+  school: z.string().trim().max(120),
+  association: z.string().trim().max(120),
   status: z.enum(["draft", "published", "closed"]),
 });
 
@@ -52,6 +54,8 @@ function EditEventPage() {
     starts_at: "",
     capacity: 50,
     price: "",
+    school: "",
+    association: "",
     status: "published" as "draft" | "published" | "closed",
   });
 
@@ -70,6 +74,8 @@ function EditEventPage() {
         starts_at: ev.starts_at ? new Date(ev.starts_at).toISOString().slice(0, 16) : "",
         capacity: ev.capacity ?? 50,
         price: ev.price != null ? String(ev.price) : "",
+        school: ev.school ?? "",
+        association: ev.association ?? "",
         status: (ev.status ?? "published") as "draft" | "published" | "closed",
       });
       if (ev.cover_image_url) {
@@ -128,6 +134,8 @@ function EditEventPage() {
         ...parsed.data,
         starts_at: new Date(parsed.data.starts_at).toISOString(),
         price: parsed.data.price,
+        school: parsed.data.school,
+        association: parsed.data.association,
         cover_image_url: coverUrl,
       })
       .eq("id", eventId);
@@ -245,6 +253,17 @@ function EditEventPage() {
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="0.00"
               />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="school">École</Label>
+                <Input id="school" value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="association">Association</Label>
+                <Input id="association" value={form.association} onChange={(e) => setForm({ ...form, association: e.target.value })} />
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

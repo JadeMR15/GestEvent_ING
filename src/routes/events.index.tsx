@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarDays, MapPin, Users, Search, PlusCircle, Clock } from "lucide-react";
+import { CalendarDays, MapPin, Users, Search, PlusCircle, Clock, GraduationCap } from "lucide-react";
 import { format, isThisWeek, isThisMonth } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -25,6 +25,7 @@ function EventList() {
   const [q, setQ] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [schoolFilter, setSchoolFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,17 +49,31 @@ function EventList() {
     );
   }
 
+  const schools = Array.from(
+    new Map(events.map((e) => e.school).filter(Boolean).map((s: string) => [s.toLowerCase(), s])).values()
+  ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
   const filtered = events.filter((e) => {
     const active = getActive(e);
     const isFull = e.capacity > 0 && active.length >= e.capacity;
 
-    if (q && !e.title.toLowerCase().includes(q.toLowerCase()) && !e.location?.toLowerCase().includes(q.toLowerCase())) return false;
+    if (q) {
+      const lq = q.toLowerCase();
+      if (
+        !e.title.toLowerCase().includes(lq) &&
+        !e.location?.toLowerCase().includes(lq) &&
+        !e.school?.toLowerCase().includes(lq) &&
+        !e.association?.toLowerCase().includes(lq)
+      ) return false;
+    }
 
     if (dateFilter === "week" && !isThisWeek(new Date(e.starts_at))) return false;
     if (dateFilter === "month" && !isThisMonth(new Date(e.starts_at))) return false;
 
     if (statusFilter === "open" && isFull) return false;
     if (statusFilter === "full" && !isFull) return false;
+
+    if (schoolFilter !== "all" && e.school?.toLowerCase() !== schoolFilter.toLowerCase()) return false;
 
     return true;
   });
@@ -81,8 +96,18 @@ function EventList() {
       <div className="flex flex-wrap gap-3">
         <div className="relative min-w-56 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Titre, lieu, école, association…" className="pl-9" />
         </div>
+        <Select value={schoolFilter} onValueChange={setSchoolFilter}>
+          <SelectTrigger className="w-48">
+            <GraduationCap className="mr-2 h-4 w-4 text-muted-foreground" />
+            <SelectValue placeholder="Toutes les écoles" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les écoles</SelectItem>
+            {schools.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
           <SelectTrigger className="w-40">
             <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -157,7 +182,11 @@ function EventList() {
                   )}
 
                   <CardContent className="p-5">
-                    <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2 mt-1">{e.title}</h3>
+                    <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                      {e.school && <Badge variant="secondary" className="text-[10px] bg-[#D5E8A0] text-[#204839]"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
+                      {e.association && <Badge variant="secondary" className="text-[10px]">{e.association}</Badge>}
+                    </div>
+                    <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2">{e.title}</h3>
                     <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{e.description || "Aucune description."}</p>
                     <div className="mt-4 space-y-1.5 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">

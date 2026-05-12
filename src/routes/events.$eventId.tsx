@@ -19,7 +19,7 @@ import {
 import {
   CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
   CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
-  Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX,
+  Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -456,6 +456,21 @@ function EventDetail() {
               </div>
             )}
           </div>
+
+          {(event.school || event.association) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {event.school && (
+                <Badge variant="secondary" className="bg-[#D5E8A0] text-[#204839]">
+                  <GraduationCap className="mr-1 h-3.5 w-3.5" />{event.school}
+                </Badge>
+              )}
+              {event.association && (
+                <Badge variant="secondary">
+                  <Building2 className="mr-1 h-3.5 w-3.5" />{event.association}
+                </Badge>
+              )}
+            </div>
+          )}
 
           <p className="mt-3 text-muted-foreground">{event.description || "Aucune description."}</p>
 

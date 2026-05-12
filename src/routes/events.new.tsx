@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +26,8 @@ const schema = z.object({
   title: z.string().trim().min(3, "Titre trop court").max(100, "Titre trop long (max 100 caractères)"),
   description: z.string().trim().max(2000),
   location: z.string().trim().max(200),
+  school: z.string().trim().max(120),
+  association: z.string().trim().max(120),
   starts_at: z.string().refine((v) => !isNaN(Date.parse(v)), "Date invalide")
     .refine((v) => new Date(v) > new Date(), "La date doit être dans le futur"),
   capacity: z.number().int().min(0).max(100000),
@@ -45,11 +47,20 @@ function CreateEventPage() {
     title: "",
     description: "",
     location: "",
+    school: "",
+    association: "",
     starts_at: "",
     capacity: 50,
     price: "",
     status: "published" as "draft" | "published",
   });
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("school,association").eq("id", user.id).maybeSingle().then(({ data }) => {
+      if (data) setForm((f) => ({ ...f, school: data.school ?? "", association: data.association ?? "" }));
+    });
+  }, [user]);
 
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) { toast.error("Fichier non supporté. Utilisez JPG, PNG ou WebP."); return; }
@@ -89,6 +100,8 @@ function CreateEventPage() {
         title: parsed.data.title,
         description: parsed.data.description,
         location: parsed.data.location,
+        school: parsed.data.school,
+        association: parsed.data.association,
         starts_at: new Date(parsed.data.starts_at).toISOString(),
         capacity: parsed.data.capacity,
         price: parsed.data.price,
@@ -180,6 +193,17 @@ function CreateEventPage() {
               <div className="space-y-2">
                 <Label htmlFor="capacity">Capacité (0 = illimitée)</Label>
                 <Input id="capacity" type="number" min={0} value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="school">École</Label>
+                <Input id="school" value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="association">Association</Label>
+                <Input id="association" value={form.association} onChange={(e) => setForm({ ...form, association: e.target.value })} />
               </div>
             </div>
 
