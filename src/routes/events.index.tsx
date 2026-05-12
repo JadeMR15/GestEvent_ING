@@ -20,7 +20,6 @@ type DateFilter = "all" | "week" | "month";
 type StatusFilter = "all" | "open" | "full";
 
 function EventList() {
-  const { role } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [q, setQ] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
@@ -28,16 +27,16 @@ function EventList() {
   const [schoolFilter, setSchoolFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
+  const { role, user } = useAuth();
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("events")
-        .select("*, registrations(id,status)")
-        .order("starts_at", { ascending: true });
+      let query = supabase.from("events").select("*, registrations(id,status)").order("starts_at", { ascending: true });
+      if ((role === "organizer") && user) query = query.eq("organizer_id", user.id);
+      const { data } = await query;
       setEvents(data ?? []);
       setLoading(false);
     })();
-  }, []);
+  }, [role, user]);
 
   function getActive(e: any) {
     const now = new Date();
@@ -82,8 +81,8 @@ function EventList() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Événements</h1>
-          <p className="text-muted-foreground">Découvrez et rejoignez les prochains événements.</p>
+          <h1 className="text-3xl font-bold tracking-tight not-italic">{role === "organizer" || role === "admin" ? "Vos événements" : "Événements"}</h1>
+          <p className="text-muted-foreground">{role === "organizer" || role === "admin" ? "Gérez vos événements." : "Découvrez et rejoignez les prochains événements."}</p>
         </div>
         {(role === "organizer" || role === "admin") && (
           <Button asChild className="bg-gradient-primary shadow-glow">

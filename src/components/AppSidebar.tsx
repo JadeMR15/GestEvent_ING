@@ -37,7 +37,7 @@ export function AppSidebar() {
 
   const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
-    { title: "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
+    { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
