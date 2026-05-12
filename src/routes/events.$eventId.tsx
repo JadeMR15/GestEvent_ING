@@ -120,8 +120,8 @@ function EventDetail() {
     setRegistrations(enriched);
     setMyReg(enriched.find((r) => r.user_id === user?.id) ?? null);
 
-    const { data: vols } = await supabase.from("volunteers").select("*").eq("event_id", eventId).order("created_at").throwOnError().catch(() => ({ data: [] }));
-    setVolunteers((vols as any[]) ?? []);
+    const volResult = await supabase.from("volunteers").select("*").eq("event_id", eventId).order("created_at");
+    setVolunteers(volResult.data ?? []);
 
     setLoading(false);
   }, [eventId, user?.id]);
