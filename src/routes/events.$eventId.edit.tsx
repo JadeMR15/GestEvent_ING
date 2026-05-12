@@ -128,22 +128,25 @@ function EditEventPage() {
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
 
     setLoading(true);
-    const { error } = await supabase.rpc("update_event", {
-      _event_id: eventId,
-      _title: parsed.data.title,
-      _description: parsed.data.description,
-      _location: parsed.data.location,
-      _starts_at: new Date(parsed.data.starts_at).toISOString(),
-      _capacity: parsed.data.capacity,
-      _price: parsed.data.price,
-      _school: parsed.data.school,
-      _association: parsed.data.association,
-      _status: parsed.data.status,
-      _cover_image_url: coverUrl ?? null,
-    });
+    const { error } = await supabase
+      .from("events")
+      .update({
+        title: parsed.data.title,
+        description: parsed.data.description,
+        location: parsed.data.location,
+        starts_at: new Date(parsed.data.starts_at).toISOString(),
+        capacity: parsed.data.capacity,
+        price: parsed.data.price,
+        school: parsed.data.school,
+        association: parsed.data.association,
+        status: parsed.data.status,
+        cover_image_url: coverUrl ?? null,
+      })
+      .eq("id", eventId)
+      .eq("organizer_id", user!.id);
     setLoading(false);
 
-    if (error) { toast.error(error.message); return; }
+    if (error) { alert("Erreur : " + error.message); return; }
     toast.success("Événement mis à jour !");
     navigate({ to: "/events/$eventId", params: { eventId } });
   }
