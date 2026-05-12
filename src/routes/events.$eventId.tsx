@@ -295,6 +295,7 @@ function EventDetail() {
 
   async function addVolunteer() {
     if (!volName.trim()) { toast.error("Le nom est requis."); return; }
+    if (!volEmail.trim()) { toast.error("L'email est requis."); return; }
     setAddingVol(true);
     const { data, error } = await supabase.from("volunteers").insert({ event_id: eventId, name: volName.trim(), email: volEmail.trim() }).select().single();
     setAddingVol(false);
@@ -481,7 +482,7 @@ function EventDetail() {
         {!event.cover_image_url && <div className="h-3 bg-gradient-vibrant" />}
         <CardContent className="p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">{event.title}</h1>
+            <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
             {isOwner && (
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" asChild>
@@ -597,7 +598,7 @@ function EventDetail() {
             {/* Ajouter un bénévole */}
             <div className="flex flex-wrap gap-2">
               <Input className="flex-1 min-w-40" placeholder="Nom *" value={volName} onChange={(e) => setVolName(e.target.value)} />
-              <Input className="flex-1 min-w-40" placeholder="Email (optionnel)" value={volEmail} onChange={(e) => setVolEmail(e.target.value)} />
+              <Input className="flex-1 min-w-40" placeholder="Email *" type="email" value={volEmail} onChange={(e) => setVolEmail(e.target.value)} />
               <Button onClick={addVolunteer} disabled={addingVol} className="bg-gradient-primary shadow-glow">
                 {addingVol ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
               </Button>

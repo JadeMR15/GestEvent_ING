@@ -128,17 +128,19 @@ function EditEventPage() {
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
 
     setLoading(true);
-    const { error } = await supabase
-      .from("events")
-      .update({
-        ...parsed.data,
-        starts_at: new Date(parsed.data.starts_at).toISOString(),
-        price: parsed.data.price,
-        school: parsed.data.school,
-        association: parsed.data.association,
-        cover_image_url: coverUrl,
-      })
-      .eq("id", eventId);
+    const { error } = await supabase.rpc("update_event", {
+      _event_id: eventId,
+      _title: parsed.data.title,
+      _description: parsed.data.description,
+      _location: parsed.data.location,
+      _starts_at: new Date(parsed.data.starts_at).toISOString(),
+      _capacity: parsed.data.capacity,
+      _price: parsed.data.price,
+      _school: parsed.data.school,
+      _association: parsed.data.association,
+      _status: parsed.data.status,
+      _cover_image_url: coverUrl ?? null,
+    });
     setLoading(false);
 
     if (error) { toast.error(error.message); return; }
