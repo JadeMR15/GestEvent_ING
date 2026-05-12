@@ -1,5 +1,7 @@
 -- ============================================================
--- GestEvent — Setup complet idempotent (Supabase SQL Editor)
+-- GestEvent — Setup complet (INSTALLATION FRAÎCHE UNIQUEMENT)
+-- ⚠️  NE PAS relancer sur une base avec des données existantes
+-- ⚠️  Pour les mises à jour : utiliser migration.sql
 -- ============================================================
 
 -- Enums (ignorés si déjà existants)
