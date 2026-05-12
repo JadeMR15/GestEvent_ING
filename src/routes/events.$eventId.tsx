@@ -120,8 +120,8 @@ function EventDetail() {
     setRegistrations(enriched);
     setMyReg(enriched.find((r) => r.user_id === user?.id) ?? null);
 
-    const { data: vols } = await supabase.from("volunteers").select("*").eq("event_id", eventId).order("created_at");
-    setVolunteers(vols ?? []);
+    const { data: vols } = await supabase.from("volunteers").select("*").eq("event_id", eventId).order("created_at").throwOnError().catch(() => ({ data: [] }));
+    setVolunteers((vols as any[]) ?? []);
 
     setLoading(false);
   }, [eventId, user?.id]);
@@ -485,10 +485,8 @@ function EventDetail() {
             <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
             {isOwner && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/events/$eventId/edit" params={{ eventId }}>
-                    <Pencil className="mr-2 h-4 w-4" />Modifier
-                  </Link>
+                <Button variant="outline" size="sm" onClick={() => navigate({ to: "/events/$eventId/edit", params: { eventId } })}>
+                  <Pencil className="mr-2 h-4 w-4" />Modifier
                 </Button>
                 <Button variant="outline" size="sm" onClick={cancelEvent} disabled={acting} className="text-orange-600 hover:text-orange-600">
                   <XCircle className="mr-2 h-4 w-4" />Annuler
