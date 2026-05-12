@@ -20,6 +20,7 @@ import {
   CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
   CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
   Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
+  UserPlus, Trash2, Copy, Link as LinkIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -72,6 +73,12 @@ function EventDetail() {
   const [msgBody, setMsgBody] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
 
+  // Bénévoles
+  const [volunteers, setVolunteers] = useState<any[]>([]);
+  const [volName, setVolName] = useState("");
+  const [volEmail, setVolEmail] = useState("");
+  const [addingVol, setAddingVol] = useState(false);
+
   // Participants — recherche + actions individuelles
   const [participantSearch, setParticipantSearch] = useState("");
   const [targetParticipant, setTargetParticipant] = useState<any>(null);
@@ -112,6 +119,10 @@ function EventDetail() {
     const enriched = list.map((r) => ({ ...r, full_name: profMap[r.user_id] }));
     setRegistrations(enriched);
     setMyReg(enriched.find((r) => r.user_id === user?.id) ?? null);
+
+    const { data: vols } = await supabase.from("volunteers").select("*").eq("event_id", eventId).order("created_at");
+    setVolunteers(vols ?? []);
+
     setLoading(false);
   }, [eventId, user?.id]);
 
@@ -280,6 +291,34 @@ function EventDetail() {
     setShowParticipantEmail(false);
     setPMailSubject("");
     setPMailBody("");
+  }
+
+  async function addVolunteer() {
+    if (!volName.trim()) { toast.error("Le nom est requis."); return; }
+    setAddingVol(true);
+    const { data, error } = await supabase.from("volunteers").insert({ event_id: eventId, name: volName.trim(), email: volEmail.trim() }).select().single();
+    setAddingVol(false);
+    if (error) { toast.error(error.message); return; }
+    setVolunteers((v) => [...v, data]);
+    setVolName("");
+    setVolEmail("");
+    toast.success("Bénévole ajouté.");
+  }
+
+  async function removeVolunteer(id: string) {
+    if (!confirm("Supprimer ce bénévole ?")) return;
+    await supabase.from("volunteers").delete().eq("id", id);
+    setVolunteers((v) => v.filter((x) => x.id !== id));
+    toast.success("Bénévole supprimé.");
+  }
+
+  function volunteerUrl(token: string) {
+    return `${window.location.origin}/volunteer/${token}`;
+  }
+
+  function copyLink(token: string) {
+    navigator.clipboard.writeText(volunteerUrl(token));
+    toast.success("Lien copié !");
   }
 
   async function deleteEvent() {
@@ -541,6 +580,58 @@ function EventDetail() {
                 {myReg.attended_at ? `Scanné le ${format(new Date(myReg.attended_at), "PPP à p", { locale: fr })}` : ""}
               </p>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Bénévoles (organisateur) */}
+      {isOwner && (
+        <Card className="border-2 shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              Bénévoles ({volunteers.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Ajouter un bénévole */}
+            <div className="flex flex-wrap gap-2">
+              <Input className="flex-1 min-w-40" placeholder="Nom *" value={volName} onChange={(e) => setVolName(e.target.value)} />
+              <Input className="flex-1 min-w-40" placeholder="Email (optionnel)" value={volEmail} onChange={(e) => setVolEmail(e.target.value)} />
+              <Button onClick={addVolunteer} disabled={addingVol} className="bg-gradient-primary shadow-glow">
+                {addingVol ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+              </Button>
+            </div>
+
+            {volunteers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun bénévole pour l'instant.</p>
+            ) : (
+              <ul className="divide-y">
+                {volunteers.map((v) => (
+                  <li key={v.id} className="flex items-center gap-3 py-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{v.name}</p>
+                      {v.email && <p className="text-xs text-muted-foreground">{v.email}</p>}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="outline" size="sm" onClick={() => copyLink(v.token)} className="gap-1.5 text-xs">
+                        <Copy className="h-3.5 w-3.5" />Lien
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeVolunteer(v.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {volunteers.length > 0 && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <LinkIcon className="h-3 w-3" />
+                Le lien permet au bénévole de scanner les QR codes sans créer de compte.
+              </p>
+            )}
           </CardContent>
         </Card>
       )}
