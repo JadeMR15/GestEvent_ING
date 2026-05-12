@@ -32,7 +32,7 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "GuestEvent — Event Management Platform" },
-      { name: "description", content: "Create, manage and check in to events with QR codes and waitlists." },
+      { name: "description", content: "Create, manage and check in to events with QR codes." },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

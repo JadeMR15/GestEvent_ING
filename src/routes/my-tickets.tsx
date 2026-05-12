@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Ticket, CheckCircle2, Clock, ListOrdered, XCircle,
+  Ticket, CheckCircle2, Clock, XCircle,
   CalendarDays, MapPin, Loader2, Download, ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -22,7 +22,6 @@ export const Route = createFileRoute("/my-tickets")({
 const STATUS_CONFIG = {
   registered: { label: "Confirmé", icon: CheckCircle2, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" },
   pending:    { label: "En attente", icon: Clock, color: "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300" },
-  waitlisted: { label: "Liste d'attente", icon: ListOrdered, color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
   attended:   { label: "Présent", icon: CheckCircle2, color: "bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300" },
   cancelled:  { label: "Annulé", icon: XCircle, color: "bg-muted text-muted-foreground" },
 } as const;
@@ -123,7 +122,7 @@ function MyTicketsPage() {
             const cfg = STATUS_CONFIG[reg.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.cancelled;
             const Icon = cfg.icon;
             const isExpanded = expanded === reg.id;
-            const canCancel = reg.status === "registered" || reg.status === "pending" || reg.status === "waitlisted";
+            const canCancel = reg.status === "registered" || reg.status === "pending";
 
             return (
               <Card key={reg.id} className="border-2 shadow-elegant overflow-hidden">

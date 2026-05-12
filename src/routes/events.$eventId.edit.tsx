@@ -28,7 +28,7 @@ const schema = z.object({
   location: z.string().trim().max(200),
   starts_at: z.string().refine((v) => !isNaN(Date.parse(v)), "Date invalide"),
   capacity: z.number().int().min(0).max(100000),
-  price: z.number().min(0),
+  price: z.union([z.string(), z.number()]).transform((v) => parseFloat(String(v)) || 0).pipe(z.number().min(0)),
   status: z.enum(["draft", "published", "closed"]),
 });
 
@@ -51,7 +51,7 @@ function EditEventPage() {
     location: "",
     starts_at: "",
     capacity: 50,
-    price: 0,
+    price: "",
     status: "published" as "draft" | "published" | "closed",
   });
 
@@ -69,7 +69,7 @@ function EditEventPage() {
         location: ev.location ?? "",
         starts_at: ev.starts_at ? new Date(ev.starts_at).toISOString().slice(0, 16) : "",
         capacity: ev.capacity ?? 50,
-        price: ev.price ?? 0,
+        price: ev.price != null ? String(ev.price) : "",
         status: (ev.status ?? "published") as "draft" | "published" | "closed",
       });
       if (ev.cover_image_url) {
@@ -239,11 +239,10 @@ function EditEventPage() {
               <Label htmlFor="price">Prix (€) — 0 = Gratuit</Label>
               <Input
                 id="price"
-                type="number"
-                min={0}
-                step={0.01}
+                type="text"
+                inputMode="decimal"
                 value={form.price}
-                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="0.00"
               />
             </div>

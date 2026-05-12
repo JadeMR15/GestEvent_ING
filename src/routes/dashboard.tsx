@@ -6,9 +6,10 @@ import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Users, CheckCircle2, PlusCircle, Clock, Download, Ticket, Bell } from "lucide-react";
+import { CalendarDays, CheckCircle2, PlusCircle, Clock, Ticket, Bell, Download, Users } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import JSZip from "jszip";
 
 export const Route = createFileRoute("/dashboard")({
   component: () => (
@@ -22,13 +23,12 @@ export const Route = createFileRoute("/dashboard")({
 interface Stats {
   total: number;
   upcoming: number;
-  registrations: number;
-  attended: number;
+  revenue: number;
 }
 
 function DashboardPage() {
   const { user, role } = useAuth();
-  const [stats, setStats] = useState<Stats>({ total: 0, upcoming: 0, registrations: 0, attended: 0 });
+  const [stats, setStats] = useState<Stats>({ total: 0, upcoming: 0, revenue: 0 });
   const [recent, setRecent] = useState<any[]>([]);
   const [exporting, setExporting] = useState(false);
   const [sendingReminders, setSendingReminders] = useState(false);
@@ -42,11 +42,13 @@ function DashboardPage() {
           .select("*, events(*)")
           .eq("user_id", user.id);
         const list = regs ?? [];
+        const spent = list
+          .filter((r: any) => r.status === "registered" || r.status === "attended")
+          .reduce((acc: number, r: any) => acc + (r.events?.price ?? 0), 0);
         setStats({
           total: list.length,
-          upcoming: list.filter((r) => r.events && new Date(r.events.starts_at) > new Date()).length,
-          registrations: list.filter((r) => r.status === "registered" || r.status === "waitlisted").length,
-          attended: list.filter((r) => r.status === "attended").length,
+          upcoming: list.filter((r: any) => r.events && new Date(r.events.starts_at) > new Date()).length,
+          revenue: spent,
         });
         setRecent(list.slice(0, 5));
       } else {
@@ -56,12 +58,14 @@ function DashboardPage() {
           .eq("organizer_id", user.id)
           .order("starts_at", { ascending: false });
         const list = events ?? [];
-        const allRegs = list.flatMap((e: any) => e.registrations ?? []);
+        const revenue = list.reduce((acc: number, e: any) => {
+          const confirmed = (e.registrations ?? []).filter((r: any) => r.status === "registered" || r.status === "attended").length;
+          return acc + (e.price ?? 0) * confirmed;
+        }, 0);
         setStats({
           total: list.length,
-          upcoming: list.filter((e) => new Date(e.starts_at) > new Date()).length,
-          registrations: allRegs.filter((r: any) => r.status === "registered" || r.status === "pending").length,
-          attended: allRegs.filter((r: any) => r.status === "attended").length,
+          upcoming: list.filter((e: any) => new Date(e.starts_at) > new Date()).length,
+          revenue,
         });
         setRecent(list.slice(0, 5));
       }
@@ -106,13 +110,11 @@ function DashboardPage() {
 
     const { data: events } = await supabase
       .from("events")
-      .select("id,title")
-      .eq("organizer_id", user.id);
+      .select("id,title,starts_at,location")
+      .eq("organizer_id", user.id)
+      .order("starts_at", { ascending: true });
 
-    if (!events?.length) {
-      setExporting(false);
-      return;
-    }
+    if (!events?.length) { setExporting(false); toast.info("Aucun événement à exporter."); return; }
 
     const eventIds = events.map((e) => e.id);
     const { data: regs } = await supabase
@@ -121,34 +123,57 @@ function DashboardPage() {
       .in("event_id", eventIds)
       .order("registered_at", { ascending: true });
 
-    const regIds = (regs ?? []).map((r) => r.user_id);
+    const regIds = Array.from(new Set((regs ?? []).map((r) => r.user_id)));
     let profMap: Record<string, string> = {};
     if (regIds.length) {
       const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", regIds);
       profMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name]));
     }
 
-    const header = ["Événement", "Date", "Lieu", "Participant", "Statut", "QR Code", "Date inscription", "Scanné le"];
-    const rows = (regs ?? []).map((r) => [
+    const header = ["Participant", "Statut", "QR Code", "Date inscription", "Scanné le"];
+    const headerGlobal = ["Événement", "Date", "Lieu", ...header];
+    const dateStr = format(new Date(), "yyyy-MM-dd");
+
+    function toCSV(rows: (string | null | undefined)[][]): string {
+      return "﻿" + rows.map((r) => r.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    }
+
+    const zip = new JSZip();
+
+    for (const ev of events) {
+      const evRegs = (regs ?? []).filter((r) => r.event_id === ev.id);
+      const rows = evRegs.map((r) => [
+        profMap[r.user_id] ?? r.user_id,
+        r.status === "registered" ? "Confirmé" : r.status === "attended" ? "Présent" : r.status,
+        r.qr_code ?? "",
+        r.registered_at ? format(new Date(r.registered_at), "yyyy-MM-dd HH:mm") : "",
+        r.attended_at ? format(new Date(r.attended_at), "yyyy-MM-dd HH:mm") : "",
+      ]);
+      const name = ev.title.replace(/[^a-zA-Z0-9À-ɏ\s_-]/g, "").trim().slice(0, 50) || "evenement";
+      zip.file(`${name}_${format(new Date(ev.starts_at), "yyyy-MM-dd")}.csv`, toCSV([header, ...rows]));
+    }
+
+    const globalRows = (regs ?? []).map((r) => [
       r.events?.title ?? "",
       r.events?.starts_at ? format(new Date(r.events.starts_at), "yyyy-MM-dd HH:mm") : "",
       r.events?.location ?? "",
       profMap[r.user_id] ?? r.user_id,
-      r.status,
-      r.qr_code,
+      r.status === "registered" ? "Confirmé" : r.status === "attended" ? "Présent" : r.status,
+      r.qr_code ?? "",
       r.registered_at ? format(new Date(r.registered_at), "yyyy-MM-dd HH:mm") : "",
       r.attended_at ? format(new Date(r.attended_at), "yyyy-MM-dd HH:mm") : "",
     ]);
+    zip.file(`GuestEvent_global_${dateStr}.csv`, toCSV([headerGlobal, ...globalRows]));
 
-    const csv = [header, ...rows].map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `GuestEvent_participants_${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `GuestEvent_export_${dateStr}.zip`;
     a.click();
     URL.revokeObjectURL(url);
     setExporting(false);
+    toast.success(`Export téléchargé — ${events.length} CSV + 1 global.`);
   }
 
   const cards = [
@@ -157,15 +182,22 @@ function DashboardPage() {
       value: stats.total,
       icon: CalendarDays,
       color: "from-[#2D5A27] to-[#3D7A35]",
+      format: "number",
     },
-    { label: "À venir", value: stats.upcoming, icon: Clock, color: "from-[#2D5A27] to-[#3D7A35]" },
     {
-      label: role === "participant" ? "Actives" : "Inscrits",
-      value: stats.registrations,
-      icon: Users,
+      label: "À venir",
+      value: stats.upcoming,
+      icon: Clock,
       color: "from-[#2D5A27] to-[#3D7A35]",
+      format: "number",
     },
-    { label: "Présences", value: stats.attended, icon: CheckCircle2, color: "from-[#2D5A27] to-[#3D7A35]" },
+    {
+      label: role === "participant" ? "Dépenses" : "Fonds récoltés",
+      value: stats.revenue,
+      icon: CheckCircle2,
+      color: "from-[#2D5A27] to-[#3D7A35]",
+      format: "currency",
+    },
   ];
 
   return (
@@ -207,7 +239,11 @@ function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{c.label}</p>
-                  <p className="mt-1 text-3xl font-bold">{c.value}</p>
+                  <p className="mt-1 text-3xl font-bold">
+                    {c.format === "currency"
+                      ? `${c.value.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`
+                      : c.value}
+                  </p>
                 </div>
                 <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} shadow-glow`}>
                   <c.icon className="h-6 w-6 text-white" />
@@ -240,8 +276,6 @@ function DashboardPage() {
                 if (!ev) return null;
                 const allRegs = item.registrations ?? [];
                 const confirmed = allRegs.filter((r: any) => r.status === "registered" || r.status === "attended").length;
-                const waitlisted = allRegs.filter((r: any) => r.status === "waitlisted").length;
-
                 return (
                   <li key={item.id} className="flex items-center justify-between py-3">
                     <div>
@@ -264,20 +298,17 @@ function DashboardPage() {
                             item.status === "registered" ? "bg-emerald-100 text-emerald-700" :
                             item.status === "attended" ? "bg-violet-100 text-violet-700" :
                             item.status === "pending" ? "bg-orange-100 text-orange-700" :
-                            item.status === "waitlisted" ? "bg-blue-100 text-blue-700" :
                             ""
                           }
                         >
                           {item.status === "registered" ? "Confirmé" :
                            item.status === "attended" ? "Présent" :
                            item.status === "pending" ? "En attente" :
-                           item.status === "waitlisted" ? "Liste d'attente" :
                            item.status}
                         </Badge>
                       ) : (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Users className="h-3.5 w-3.5" />{confirmed} inscrits
-                          {waitlisted > 0 && <span>· {waitlisted} en attente</span>}
                           {ev.status === "draft" && <Badge variant="secondary" className="text-[10px]">Brouillon</Badge>}
                         </div>
                       )}

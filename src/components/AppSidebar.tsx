@@ -7,6 +7,8 @@ import {
   Users,
   Ticket,
   LogOut,
+  Download,
+  Mail,
 } from "lucide-react";
 import {
   Sidebar,
@@ -39,7 +41,11 @@ export function AppSidebar() {
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
-    { title: "Liste d'attente", url: "/waitlist", icon: Users, roles: ["admin", "organizer"] },
+  ].filter((i) => role && i.roles.includes(role));
+
+  const toolItems = [
+    { title: "Export", url: "/export", icon: Download, roles: ["admin", "organizer"] },
+    { title: "Emails envoyés", url: "/emails", icon: Mail, roles: ["admin", "organizer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   return (
@@ -74,6 +80,25 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {toolItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Outils</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {toolItems.map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <Link to={item.url} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

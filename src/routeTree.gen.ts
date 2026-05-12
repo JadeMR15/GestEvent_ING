@@ -14,6 +14,8 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ExportRouteImport } from './routes/export'
+import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
@@ -44,6 +46,16 @@ const MyTicketsRoute = MyTicketsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportRoute = ExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailsRoute = EmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -80,6 +92,8 @@ const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/emails': typeof EmailsRoute
+  '/export': typeof ExportRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
@@ -93,6 +107,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/emails': typeof EmailsRoute
+  '/export': typeof ExportRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/emails': typeof EmailsRoute
+  '/export': typeof ExportRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
@@ -122,6 +140,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/emails'
+    | '/export'
     | '/login'
     | '/my-tickets'
     | '/register'
@@ -135,6 +155,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/emails'
+    | '/export'
     | '/login'
     | '/my-tickets'
     | '/register'
@@ -148,6 +170,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/emails'
+    | '/export'
     | '/login'
     | '/my-tickets'
     | '/register'
@@ -162,6 +186,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  EmailsRoute: typeof EmailsRoute
+  ExportRoute: typeof ExportRoute
   LoginRoute: typeof LoginRoute
   MyTicketsRoute: typeof MyTicketsRoute
   RegisterRoute: typeof RegisterRoute
@@ -207,6 +233,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/export': {
+      id: '/export'
+      path: '/export'
+      fullPath: '/export'
+      preLoaderRoute: typeof ExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emails': {
+      id: '/emails'
+      path: '/emails'
+      fullPath: '/emails'
+      preLoaderRoute: typeof EmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -269,6 +309,8 @@ const EventsEventIdRouteWithChildren = EventsEventIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  EmailsRoute: EmailsRoute,
+  ExportRoute: ExportRoute,
   LoginRoute: LoginRoute,
   MyTicketsRoute: MyTicketsRoute,
   RegisterRoute: RegisterRoute,

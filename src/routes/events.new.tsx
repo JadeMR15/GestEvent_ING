@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/new")({
@@ -29,7 +29,7 @@ const schema = z.object({
   starts_at: z.string().refine((v) => !isNaN(Date.parse(v)), "Date invalide")
     .refine((v) => new Date(v) > new Date(), "La date doit être dans le futur"),
   capacity: z.number().int().min(0).max(100000),
-  price: z.number().min(0),
+  price: z.union([z.string(), z.number()]).transform((v) => parseFloat(String(v)) || 0).pipe(z.number().min(0)),
   status: z.enum(["draft", "published"]),
 });
 
@@ -37,15 +37,43 @@ function CreateEventPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
     location: "",
     starts_at: "",
     capacity: 50,
-    price: 0,
+    price: "",
     status: "published" as "draft" | "published",
   });
+
+  function handleFile(file: File) {
+    if (!file.type.startsWith("image/")) { toast.error("Fichier non supporté. Utilisez JPG, PNG ou WebP."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image trop lourde (max 5 Mo)."); return; }
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
+
+  async function uploadCover(eventId: string): Promise<string | null> {
+    if (!coverFile) return null;
+    const ext = coverFile.name.split(".").pop();
+    const path = `${eventId}/cover.${ext}`;
+    const { error } = await supabase.storage.from("event-covers").upload(path, coverFile, { upsert: true });
+    if (error) { toast.error("Erreur upload image : " + error.message); return null; }
+    const { data } = supabase.storage.from("event-covers").getPublicUrl(path);
+    return data.publicUrl;
+  }
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
@@ -54,6 +82,7 @@ function CreateEventPage() {
     if (!user) return;
 
     setLoading(true);
+
     const { data, error } = await supabase
       .from("events")
       .insert({
@@ -63,13 +92,23 @@ function CreateEventPage() {
         starts_at: new Date(parsed.data.starts_at).toISOString(),
         capacity: parsed.data.capacity,
         price: parsed.data.price,
+        status: parsed.data.status,
         organizer_id: user.id,
       })
       .select()
       .single();
-    setLoading(false);
 
-    if (error) { toast.error(error.message); return; }
+    if (error) { setLoading(false); toast.error(error.message); return; }
+
+    // Upload image et mise à jour de l'URL
+    if (coverFile) {
+      const url = await uploadCover(data.id);
+      if (url) {
+        await supabase.from("events").update({ cover_image_url: url }).eq("id", data.id);
+      }
+    }
+
+    setLoading(false);
     toast.success("Événement créé !");
     navigate({ to: "/events/$eventId", params: { eventId: data.id } });
   }
@@ -82,9 +121,50 @@ function CreateEventPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
 
+            {/* Cover image */}
+            <div className="space-y-2">
+              <Label>Photo de couverture</Label>
+              {coverPreview ? (
+                <div className="relative h-48 w-full overflow-hidden rounded-xl border border-[#D5A0A8]">
+                  <img src={coverPreview} alt="Aperçu" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setCoverFile(null); setCoverPreview(null); }}
+                    className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  className="flex h-48 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors"
+                  style={{ borderColor: dragOver ? "#72986F" : "#D5A0A8", background: dragOver ? "#D5E8A020" : "#FDFAF7" }}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EED4D8]">
+                    <ImagePlus className="h-6 w-6 text-[#72243E]" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-[#72243E]">Cliquez ou glissez une image</p>
+                    <p className="text-xs text-[#2C2C2A]/50">JPG, PNG, WebP — max 5 Mo</p>
+                  </div>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="title">Titre *</Label>
-              <Input id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Ex : Soirée de bienvenue INGE 2025" required />
+              <Input id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
             </div>
 
             <div className="space-y-2">
@@ -105,7 +185,7 @@ function CreateEventPage() {
 
             <div className="space-y-2">
               <Label htmlFor="price">Prix (€) — 0 = Gratuit</Label>
-              <Input id="price" type="number" min={0} step={0.01} value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} placeholder="0.00" />
+              <Input id="price" type="text" inputMode="decimal" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0.00" />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

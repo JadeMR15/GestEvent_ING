@@ -17,7 +17,7 @@ export const Route = createFileRoute("/events/")({
 });
 
 type DateFilter = "all" | "week" | "month";
-type StatusFilter = "all" | "open" | "full" | "waitlist";
+type StatusFilter = "all" | "open" | "full";
 
 function EventList() {
   const { role } = useAuth();
@@ -48,14 +48,9 @@ function EventList() {
     );
   }
 
-  function getWaitlist(e: any) {
-    return (e.registrations ?? []).filter((r: any) => r.status === "waitlisted");
-  }
-
   const filtered = events.filter((e) => {
     const active = getActive(e);
     const isFull = e.capacity > 0 && active.length >= e.capacity;
-    const hasWaitlist = getWaitlist(e).length > 0;
 
     if (q && !e.title.toLowerCase().includes(q.toLowerCase()) && !e.location?.toLowerCase().includes(q.toLowerCase())) return false;
 
@@ -64,7 +59,6 @@ function EventList() {
 
     if (statusFilter === "open" && isFull) return false;
     if (statusFilter === "full" && !isFull) return false;
-    if (statusFilter === "waitlist" && !hasWaitlist) return false;
 
     return true;
   });
@@ -108,7 +102,6 @@ function EventList() {
             <SelectItem value="all">Tous les statuts</SelectItem>
             <SelectItem value="open">Ouvert</SelectItem>
             <SelectItem value="full">Complet</SelectItem>
-            <SelectItem value="waitlist">Liste d'attente</SelectItem>
           </SelectContent>
         </Select>
       </div>

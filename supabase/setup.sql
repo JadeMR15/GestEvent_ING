@@ -144,6 +144,10 @@ CREATE POLICY "Events viewable by authenticated" ON public.events FOR SELECT TO 
   status = 'published' OR auth.uid() = organizer_id OR public.has_role(auth.uid(), 'admin')
 );
 
+DROP POLICY IF EXISTS "Events publicly readable" ON public.events;
+CREATE POLICY "Events publicly readable" ON public.events FOR SELECT TO anon
+  USING (status = 'published');
+
 DROP POLICY IF EXISTS "Organizers create events" ON public.events;
 CREATE POLICY "Organizers create events" ON public.events FOR INSERT TO authenticated WITH CHECK (
   (public.has_role(auth.uid(), 'organizer') OR public.has_role(auth.uid(), 'admin')) AND auth.uid() = organizer_id
@@ -165,6 +169,12 @@ CREATE POLICY "Users view own registrations" ON public.registrations FOR SELECT 
   OR EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
   OR public.has_role(auth.uid(), 'admin')
 );
+
+DROP POLICY IF EXISTS "Registrations publicly readable" ON public.registrations;
+CREATE POLICY "Registrations publicly readable" ON public.registrations FOR SELECT TO anon
+  USING (
+    EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.status = 'published')
+  );
 
 DROP POLICY IF EXISTS "Users register themselves" ON public.registrations;
 CREATE POLICY "Users register themselves" ON public.registrations FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);

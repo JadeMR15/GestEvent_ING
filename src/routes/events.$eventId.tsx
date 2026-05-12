@@ -14,8 +14,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  CalendarDays, MapPin, Users, Trash2, Loader2, Ticket, Pencil,
-  CheckCircle2, ListOrdered, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
+  CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
+  Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -63,10 +67,19 @@ function EventDetail() {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
 
-  // Message personnalisé
+  // Message personnalisé (tous)
   const [msgSubject, setMsgSubject] = useState("");
   const [msgBody, setMsgBody] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
+
+  // Participants — recherche + actions individuelles
+  const [participantSearch, setParticipantSearch] = useState("");
+  const [targetParticipant, setTargetParticipant] = useState<any>(null);
+  const [showParticipantEmail, setShowParticipantEmail] = useState(false);
+  const [pMailSubject, setPMailSubject] = useState("");
+  const [pMailBody, setPMailBody] = useState("");
+  const [sendingPMail, setSendingPMail] = useState(false);
+  const [actingParticipant, setActingParticipant] = useState<string | null>(null);
 
   // Cart state
   const [showCart, setShowCart] = useState(false);
@@ -139,11 +152,9 @@ function EventDetail() {
   if (!event) return <p className="text-muted-foreground">Événement introuvable.</p>;
 
   const active = registrations.filter((r) => r.status === "registered" || r.status === "attended");
-  const waitlist = registrations.filter((r) => r.status === "waitlisted");
   const isFull = event.capacity > 0 && active.length >= event.capacity;
   const remaining = event.capacity - active.length;
   const isOwner = user?.id === event.organizer_id || role === "admin";
-  const myWaitlistPos = waitlist.findIndex((r) => r.user_id === user?.id) + 1;
   const timerPct = (timeLeft / TIMER_SECONDS) * 100;
   const eventPrice = event.price ?? 0;
 
@@ -177,28 +188,12 @@ function EventDetail() {
     load();
   }
 
-  async function joinWaitlist() {
-    if (!user) { navigate({ to: "/login" }); return; }
-    setActing(true);
-    const { error } = await supabase.from("registrations").insert({ event_id: eventId, user_id: user.id, status: "waitlisted" });
-    setActing(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Vous avez rejoint la liste d'attente.");
-    load();
-  }
-
   async function cancelRegistration() {
     if (!myReg) return;
     if (!confirm("Annuler votre inscription ?")) return;
     setActing(true);
     const { error } = await supabase.from("registrations").delete().eq("id", myReg.id);
     if (error) { setActing(false); toast.error(error.message); return; }
-    // Notifier le 1er en liste d'attente
-    fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "waitlist", event_id: eventId }),
-    }).catch(() => {});
     setActing(false);
     toast.success("Inscription annulée.");
     load();
@@ -236,6 +231,55 @@ function EventDetail() {
     setActing(false);
     toast.success(`Événement annulé — ${data.sent ?? 0} participant(s) notifié(s) par email.`);
     load();
+  }
+
+  async function refundParticipant(reg: any) {
+    if (!confirm(`Rembourser et annuler l'inscription de ${reg.full_name || "ce participant"} ?`)) return;
+    setActingParticipant(reg.id);
+    const { error } = await supabase.from("registrations").delete().eq("id", reg.id);
+    setActingParticipant(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Inscription de ${reg.full_name || "ce participant"} annulée.`);
+    load();
+  }
+
+  async function toggleAttendance(reg: any) {
+    const newStatus = reg.status === "attended" ? "registered" : "attended";
+    setActingParticipant(reg.id);
+    const { error } = await supabase
+      .from("registrations")
+      .update({ status: newStatus, attended_at: newStatus === "attended" ? new Date().toISOString() : null })
+      .eq("id", reg.id);
+    setActingParticipant(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(newStatus === "attended" ? "Présence confirmée." : "Présence annulée.");
+    load();
+  }
+
+  async function sendParticipantEmail() {
+    if (!pMailBody.trim() || !targetParticipant) return;
+    setSendingPMail(true);
+    const res = await fetch(
+      "https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "custom",
+          event_id: eventId,
+          recipient_user_id: targetParticipant.user_id,
+          subject: pMailSubject || undefined,
+          message: pMailBody,
+        }),
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    setSendingPMail(false);
+    if (data.error) { toast.error("Erreur : " + data.error); return; }
+    toast.success(`Email envoyé à ${targetParticipant.full_name || "ce participant"}.`);
+    setShowParticipantEmail(false);
+    setPMailSubject("");
+    setPMailBody("");
   }
 
   async function deleteEvent() {
@@ -409,9 +453,6 @@ function EventDetail() {
                 <Button variant="outline" size="sm" onClick={cancelEvent} disabled={acting} className="text-orange-600 hover:text-orange-600">
                   <XCircle className="mr-2 h-4 w-4" />Annuler
                 </Button>
-                <Button variant="outline" size="sm" onClick={deleteEvent} className="text-destructive hover:text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />Supprimer
-                </Button>
               </div>
             )}
           </div>
@@ -440,25 +481,13 @@ function EventDetail() {
 
           {/* Actions */}
           <div className="mt-6">
-            {!myReg && !isFull && (
+            {!isOwner && !myReg && !isFull && (
               <Button onClick={() => setShowCart(true)} className="bg-gradient-primary shadow-glow">
                 <ShoppingCart className="mr-2 h-4 w-4" />Réserver ma place
               </Button>
             )}
             {!myReg && isFull && (
-              <Button onClick={joinWaitlist} disabled={acting} variant="outline">
-                {acting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                <ListOrdered className="mr-2 h-4 w-4" />Rejoindre la liste d'attente
-              </Button>
-            )}
-            {myReg?.status === "waitlisted" && (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
-                  <ListOrdered className="h-4 w-4 shrink-0" />
-                  <span>Vous êtes <strong>n°{myWaitlistPos}</strong> sur la liste d'attente.</span>
-                </div>
-                <Button variant="outline" size="sm" onClick={cancelRegistration} disabled={acting}>Quitter la liste d'attente</Button>
-              </div>
+              <p className="text-sm text-muted-foreground">Cet événement est complet.</p>
             )}
             {myReg?.status === "registered" && (
               <Button variant="outline" onClick={cancelRegistration} disabled={acting}>Annuler mon inscription</Button>
@@ -543,33 +572,108 @@ function EventDetail() {
         </Card>
       )}
 
+      {/* Dialog email individuel */}
+      <Dialog open={showParticipantEmail} onOpenChange={(o) => { if (!o) { setShowParticipantEmail(false); setPMailSubject(""); setPMailBody(""); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-primary" />
+              Email à {targetParticipant?.full_name || "ce participant"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            <div className="space-y-1.5">
+              <Label htmlFor="pm-subject">Objet (optionnel)</Label>
+              <Input id="pm-subject" value={pMailSubject} onChange={(e) => setPMailSubject(e.target.value)} placeholder={`Message — ${event?.title ?? ""}`} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pm-body">Message *</Label>
+              <Textarea id="pm-body" rows={5} value={pMailBody} onChange={(e) => setPMailBody(e.target.value)} placeholder="Écrivez votre message ici…" />
+            </div>
+            <Button onClick={sendParticipantEmail} disabled={sendingPMail || !pMailBody.trim()} className="w-full bg-gradient-primary shadow-glow">
+              {sendingPMail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+              Envoyer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Liste participants (organisateur) */}
       {isOwner && (
         <Card className="border-2 shadow-elegant">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Participants ({active.length}) · Liste d'attente ({waitlist.length})
+              Participants ({active.length})
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Barre de recherche */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Rechercher un participant…"
+                value={participantSearch}
+                onChange={(e) => setParticipantSearch(e.target.value)}
+              />
+            </div>
+
             {registrations.length === 0 ? (
               <p className="text-sm text-muted-foreground">Aucune inscription pour l'instant.</p>
-            ) : (
-              <ul className="divide-y">
-                {registrations.map((r) => (
-                  <li key={r.id} className="flex items-center justify-between py-2 text-sm">
-                    <span className="font-medium">{r.full_name || "Participant"}</span>
-                    <Badge
-                      variant={r.status === "registered" ? "default" : r.status === "attended" ? "secondary" : "outline"}
-                      className={r.status === "attended" ? "bg-emerald-100 text-emerald-700" : r.status === "waitlisted" ? "bg-blue-100 text-blue-700" : ""}
-                    >
-                      {r.status === "registered" ? "Confirmé" : r.status === "attended" ? "Présent" : r.status === "waitlisted" ? "Liste d'attente" : r.status}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
+            ) : (() => {
+              const filtered = registrations.filter((r) =>
+                (r.full_name || "").toLowerCase().includes(participantSearch.toLowerCase())
+              );
+              if (filtered.length === 0) return (
+                <p className="py-4 text-center text-sm text-muted-foreground">Aucun résultat pour « {participantSearch} ».</p>
+              );
+              return (
+                <ul className="divide-y">
+                  {filtered.map((r) => (
+                    <li key={r.id} className="flex items-center justify-between py-3 gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{r.full_name || "Participant"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {r.registered_at ? `Inscrit le ${new Date(r.registered_at).toLocaleDateString("fr-FR")}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge
+                          variant="secondary"
+                          className={r.status === "attended" ? "bg-emerald-100 text-emerald-700" : r.status === "registered" ? "bg-blue-100 text-blue-700" : ""}
+                        >
+                          {r.status === "registered" ? "Confirmé" : r.status === "attended" ? "Présent" : r.status}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={actingParticipant === r.id}>
+                              {actingParticipant === r.id
+                                ? <Loader2 className="h-4 w-4 animate-spin" />
+                                : <MoreVertical className="h-4 w-4" />}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => { setTargetParticipant(r); setShowParticipantEmail(true); }}>
+                              <Mail className="mr-2 h-4 w-4" />Envoyer un email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toggleAttendance(r)}>
+                              {r.status === "attended"
+                                ? <><UserX className="mr-2 h-4 w-4" />Annuler la présence</>
+                                : <><UserCheck className="mr-2 h-4 w-4" />Marquer présent</>}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => refundParticipant(r)} className="text-destructive focus:text-destructive">
+                              <RefreshCw className="mr-2 h-4 w-4" />Rembourser / Annuler
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
           </CardContent>
         </Card>
       )}
