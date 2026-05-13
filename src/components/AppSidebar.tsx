@@ -8,7 +8,7 @@ import {
   Ticket,
   LogOut,
   Download,
-  Mail,
+  BarChart2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -44,8 +44,8 @@ export function AppSidebar() {
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
+    { title: "Analyses", url: "/analytics", icon: BarChart2, roles: ["admin", "organizer"] },
     { title: "Export", url: "/export", icon: Download, roles: ["admin", "organizer"] },
-    { title: "Emails envoyés", url: "/emails", icon: Mail, roles: ["admin", "organizer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   return (

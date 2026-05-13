@@ -34,7 +34,10 @@ export const Route = createRootRoute({
       { title: "GuestEvent — Event Management Platform" },
       { name: "description", content: "Create, manage and check in to events with QR codes." },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/logo.png" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

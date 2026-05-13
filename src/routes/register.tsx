@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CalendarDays, Ticket } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ const schema = z.object({
   prenom:      z.string().trim().min(1, "Prénom requis").max(80),
   email:       z.string().trim().email("Email invalide").max(255),
   birthDate:   z.string().min(1, "Date de naissance requise"),
+  gender:      z.string().min(1, "Genre requis"),
   school:      z.string().trim().min(1, "École requise").max(120),
   association: z.string().trim().max(120).optional(),
   password:    z.string().min(6, "Minimum 6 caractères").max(72),
@@ -27,19 +29,20 @@ const schema = z.object({
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const [role, setRole]             = useState<"participant" | "organizer">("participant");
-  const [nom, setNom]               = useState("");
-  const [prenom, setPrenom]         = useState("");
-  const [email, setEmail]           = useState("");
-  const [birthDate, setBirthDate]   = useState("");
-  const [school, setSchool]         = useState("");
+  const [role, setRole]               = useState<"participant" | "organizer">("participant");
+  const [nom, setNom]                 = useState("");
+  const [prenom, setPrenom]           = useState("");
+  const [email, setEmail]             = useState("");
+  const [birthDate, setBirthDate]     = useState("");
+  const [gender, setGender]           = useState("");
+  const [school, setSchool]           = useState("");
   const [association, setAssociation] = useState("");
-  const [password, setPassword]     = useState("");
-  const [loading, setLoading]       = useState(false);
+  const [password, setPassword]       = useState("");
+  const [loading, setLoading]         = useState(false);
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
-    const parsed = schema.safeParse({ nom, prenom, email, birthDate, school, association: association || undefined, password, role });
+    const parsed = schema.safeParse({ nom, prenom, email, birthDate, gender, school, association: association || undefined, password, role });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setLoading(true);
     const fullName = `${parsed.data.prenom} ${parsed.data.nom}`;
@@ -52,6 +55,7 @@ function RegisterPage() {
           full_name:   fullName,
           role:        parsed.data.role,
           birth_date:  parsed.data.birthDate,
+          gender:      parsed.data.gender,
           school:      parsed.data.school,
           association: parsed.data.association ?? "",
         },
@@ -125,9 +129,26 @@ function RegisterPage() {
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="birthDate">Date de naissance *</Label>
-              <Input id="birthDate" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
+            {/* Date de naissance + Genre */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="birthDate">Date de naissance *</Label>
+                <Input id="birthDate" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label>Genre *</Label>
+                <Select value={gender} onValueChange={setGender} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="homme">Homme</SelectItem>
+                    <SelectItem value="femme">Femme</SelectItem>
+                    <SelectItem value="autre">Autre</SelectItem>
+                    <SelectItem value="non_renseigne">Préfère ne pas dire</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarDays, QrCode, Users, ArrowRight, Timer,
   MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight,
-  Star, Globe, Mail,
+  Star, Globe, Mail, Lock,
 } from "lucide-react";
 import { format, isThisWeek, isThisMonth, isFuture } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -49,7 +49,7 @@ function Landing() {
 
   useEffect(() => {
     (async () => {
-      const { data: evData, error: evErr } = await supabase.rpc("get_public_events");
+      const { data: evData, error: evErr } = await (supabase as any).rpc("get_public_events");
       if (evErr) console.error("Events error:", evErr.message);
       const all = (evData as any[]) ?? [];
 
@@ -460,16 +460,18 @@ function EventGrid({ events, muted = false }: { events: any[]; muted?: boolean }
                   <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   <div className="absolute right-2 top-2 flex gap-1">
+                    {e.status === "private" && <Badge className="bg-[#72243E] hover:bg-[#72243E]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} places</Badge>
+                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
                   </div>
                 </div>
               ) : (
                 <div className="relative h-2 bg-gradient-vibrant">
                   <div className="absolute -bottom-3 right-2 flex gap-1">
+                    {e.status === "private" && <Badge className="bg-[#72243E] hover:bg-[#72243E] text-[10px]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive" className="text-[10px]">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} places</Badge>
+                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
                   </div>
                 </div>

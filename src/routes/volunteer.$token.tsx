@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CalendarDays, MapPin, Camera, CameraOff, CheckCircle2,
-  XCircle, ScanLine, Loader2, AlertTriangle,
+  XCircle, ScanLine, Loader2, AlertTriangle, Users,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -28,9 +28,11 @@ function VolunteerPage() {
 
   const [loading, setLoading] = useState(true);
   const [invalid, setInvalid] = useState(false);
+  const [debugMsg, setDebugMsg] = useState("");
   const [volunteer, setVolunteer] = useState<any>(null);
   const [event, setEvent] = useState<any>(null);
 
+  const [stats, setStats] = useState<{ attended: number; total: number }>({ attended: 0, total: 0 });
   const [scanning, setScanning] = useState(false);
   const [manual, setManual] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -39,15 +41,25 @@ function VolunteerPage() {
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("volunteers")
-        .select("*, events(id, title, starts_at, location, cover_image_url)")
-        .eq("token", token)
+      const { data: vol, error } = await (supabase as any)
+        .rpc("get_volunteer_by_token", { p_token: token });
+
+      if (error) { setDebugMsg(`RPC error: ${JSON.stringify(error)}`); setInvalid(true); setLoading(false); return; }
+      if (!vol) { setDebugMsg(`Token not found: ${token}`); setInvalid(true); setLoading(false); return; }
+
+      const { data: ev, error: evErr } = await supabase
+        .from("events")
+        .select("id, title, starts_at, location, cover_image_url")
+        .eq("id", vol.event_id)
         .maybeSingle();
 
-      if (error || !data) { setInvalid(true); setLoading(false); return; }
-      setVolunteer(data);
-      setEvent(data.events);
+      if (!ev) { setDebugMsg(`Event not found: ${vol.event_id} | err: ${JSON.stringify(evErr)}`); setInvalid(true); setLoading(false); return; }
+      setVolunteer(vol);
+      setEvent(ev);
+
+      const { data: s } = await (supabase as any).rpc("get_event_checkin_stats", { p_event_id: vol.event_id });
+      if (s) setStats({ attended: s.attended ?? 0, total: s.total ?? 0 });
+
       setLoading(false);
     })();
   }, [token]);
@@ -57,7 +69,7 @@ function VolunteerPage() {
     lockRef.current = true;
     setTimeout(() => { lockRef.current = false; }, 1500);
 
-    const { data, error } = await supabase.rpc("volunteer_checkin", {
+    const { data, error } = await (supabase as any).rpc("volunteer_checkin", {
       _token: token,
       _qr_code: code.trim(),
     });
@@ -84,6 +96,7 @@ function VolunteerPage() {
 
     addHistory(true, result.name ?? "", "✓ Entrée validée");
     toast.success(`Entrée validée : ${result.name}`);
+    setStats((prev) => ({ ...prev, attended: prev.attended + 1 }));
   }, [token]);
 
   function addHistory(ok: boolean, name: string, text: string) {
@@ -130,6 +143,7 @@ function VolunteerPage() {
             <AlertTriangle className="mx-auto h-12 w-12 text-destructive" />
             <h1 className="text-xl font-bold">Lien invalide</h1>
             <p className="text-sm text-muted-foreground">Ce lien bénévole est invalide ou a expiré.</p>
+            {debugMsg && <p className="text-xs text-red-500 break-all mt-2">{debugMsg}</p>}
           </CardContent>
         </Card>
       </div>
@@ -169,6 +183,31 @@ function VolunteerPage() {
                 {event.location || "En ligne"}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Avancée des entrées */}
+        <Card className="border-2 shadow-elegant">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Users className="h-4 w-4 text-primary" />
+                Avancée des entrées
+              </div>
+              <span className="text-2xl font-bold tabular-nums">
+                {stats.attended}
+                <span className="text-base font-normal text-muted-foreground"> / {stats.total}</span>
+              </span>
+            </div>
+            <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                style={{ width: stats.total > 0 ? `${Math.round((stats.attended / stats.total) * 100)}%` : "0%" }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5 text-right">
+              {stats.total > 0 ? Math.round((stats.attended / stats.total) * 100) : 0}% des inscrits présents
+            </p>
           </CardContent>
         </Card>
 

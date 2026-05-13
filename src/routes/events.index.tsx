@@ -158,7 +158,7 @@ function EventList() {
                         {isFull ? (
                           <Badge variant="destructive">Complet</Badge>
                         ) : remaining < 10 ? (
-                          <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} places restantes</Badge>
+                          <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""} restante{remaining > 1 ? "s" : ""}</Badge>
                         ) : null}
                       </div>
                       {/* Draft badge */}
@@ -174,7 +174,7 @@ function EventList() {
                         {isFull ? (
                           <Badge variant="destructive" className="text-[10px]">Complet</Badge>
                         ) : remaining < 10 ? (
-                          <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} places</Badge>
+                          <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                         ) : null}
                       </div>
                     </div>

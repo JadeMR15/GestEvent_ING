@@ -17,11 +17,13 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ExportRouteImport } from './routes/export'
 import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
+import { Route as VolunteerTokenRouteImport } from './routes/volunteer.$token'
 import { Route as EventsNewRouteImport } from './routes/events.new'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
-import { Route as EventsEventIdEditRouteImport } from './routes/events.$eventId.edit'
+import { Route as EventsEventIdEditRouteImport } from './routes/events.$eventId_.edit'
 
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
@@ -63,6 +65,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -71,6 +78,11 @@ const IndexRoute = IndexRouteImport.update({
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolunteerTokenRoute = VolunteerTokenRouteImport.update({
+  id: '/volunteer/$token',
+  path: '/volunteer/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsNewRoute = EventsNewRouteImport.update({
@@ -84,13 +96,14 @@ const EventsEventIdRoute = EventsEventIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => EventsEventIdRoute,
+  id: '/events/$eventId_/edit',
+  path: '/events/$eventId/edit',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
@@ -99,13 +112,15 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/waitlist': typeof WaitlistRoute
-  '/events/$eventId': typeof EventsEventIdRouteWithChildren
+  '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
+  '/volunteer/$token': typeof VolunteerTokenRoute
   '/events/': typeof EventsIndexRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
@@ -114,14 +129,16 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/waitlist': typeof WaitlistRoute
-  '/events/$eventId': typeof EventsEventIdRouteWithChildren
+  '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
+  '/volunteer/$token': typeof VolunteerTokenRoute
   '/events': typeof EventsIndexRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
@@ -130,15 +147,17 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/waitlist': typeof WaitlistRoute
-  '/events/$eventId': typeof EventsEventIdRouteWithChildren
+  '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
+  '/volunteer/$token': typeof VolunteerTokenRoute
   '/events/': typeof EventsIndexRoute
-  '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/events/$eventId_/edit': typeof EventsEventIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/emails'
     | '/export'
@@ -149,11 +168,13 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/events/$eventId'
     | '/events/new'
+    | '/volunteer/$token'
     | '/events/'
     | '/events/$eventId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/emails'
     | '/export'
@@ -164,11 +185,13 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/events/$eventId'
     | '/events/new'
+    | '/volunteer/$token'
     | '/events'
     | '/events/$eventId/edit'
   id:
     | '__root__'
     | '/'
+    | '/analytics'
     | '/dashboard'
     | '/emails'
     | '/export'
@@ -179,12 +202,14 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/events/$eventId'
     | '/events/new'
+    | '/volunteer/$token'
     | '/events/'
-    | '/events/$eventId/edit'
+    | '/events/$eventId_/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
@@ -193,9 +218,11 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ScannerRoute: typeof ScannerRoute
   WaitlistRoute: typeof WaitlistRoute
-  EventsEventIdRoute: typeof EventsEventIdRouteWithChildren
+  EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
+  VolunteerTokenRoute: typeof VolunteerTokenRoute
   EventsIndexRoute: typeof EventsIndexRoute
+  EventsEventIdEditRoute: typeof EventsEventIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -256,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -268,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events/'
       preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/volunteer/$token': {
+      id: '/volunteer/$token'
+      path: '/volunteer/$token'
+      fullPath: '/volunteer/$token'
+      preLoaderRoute: typeof VolunteerTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/new': {
@@ -284,30 +325,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events/$eventId/edit': {
-      id: '/events/$eventId/edit'
-      path: '/edit'
+    '/events/$eventId_/edit': {
+      id: '/events/$eventId_/edit'
+      path: '/events/$eventId/edit'
       fullPath: '/events/$eventId/edit'
       preLoaderRoute: typeof EventsEventIdEditRouteImport
-      parentRoute: typeof EventsEventIdRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface EventsEventIdRouteChildren {
-  EventsEventIdEditRoute: typeof EventsEventIdEditRoute
-}
-
-const EventsEventIdRouteChildren: EventsEventIdRouteChildren = {
-  EventsEventIdEditRoute: EventsEventIdEditRoute,
-}
-
-const EventsEventIdRouteWithChildren = EventsEventIdRoute._addFileChildren(
-  EventsEventIdRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
@@ -316,9 +346,11 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ScannerRoute: ScannerRoute,
   WaitlistRoute: WaitlistRoute,
-  EventsEventIdRoute: EventsEventIdRouteWithChildren,
+  EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
+  VolunteerTokenRoute: VolunteerTokenRoute,
   EventsIndexRoute: EventsIndexRoute,
+  EventsEventIdEditRoute: EventsEventIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

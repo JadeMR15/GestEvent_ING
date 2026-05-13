@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -20,7 +21,7 @@ import {
   CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
   CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
   Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
-  UserPlus, Trash2, Copy, Link as LinkIcon,
+  UserPlus, Trash2, Copy, Link as LinkIcon, Share2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -47,7 +48,7 @@ function fmtExpiry(v: string) {
 
 async function sendConfirmationEmail(params: {
   toEmail: string; fullName: string; eventTitle: string;
-  eventDate: string; eventLocation: string; qrCode: string;
+  eventDate: string; eventLocation: string; qrCode: string; replyTo?: string;
 }) {
   const res = await fetch(
     "https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-confirmation-email",
@@ -88,14 +89,25 @@ function EventDetail() {
   const [sendingPMail, setSendingPMail] = useState(false);
   const [actingParticipant, setActingParticipant] = useState<string | null>(null);
 
+  // Ticket types
+  const [ticketTypes, setTicketTypes] = useState<any[]>([]);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+
   // Cart state
   const [showCart, setShowCart] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingRegIdRef = useRef<string | null>(null);
+
+  // User's actual school (for private event access check)
+  const [userSchool, setUserSchool] = useState("");
 
   // Form fields
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [regSchool, setRegSchool] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvv, setCardCvv] = useState("");
@@ -106,7 +118,7 @@ function EventDetail() {
     setEvent(ev);
     const { data: regs } = await supabase
       .from("registrations")
-      .select("id, event_id, user_id, status, qr_code, registered_at, attended_at")
+      .select("id, event_id, user_id, status, qr_code, registered_at, attended_at, ticket_type_id")
       .eq("event_id", eventId)
       .order("registered_at", { ascending: true });
     const list = regs ?? [];
@@ -116,11 +128,21 @@ function EventDetail() {
       const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
       profMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name]));
     }
-    const enriched = list.map((r) => ({ ...r, full_name: profMap[r.user_id] }));
+
+    const { data: types } = await (supabase as any)
+      .from("ticket_types")
+      .select("*")
+      .eq("event_id", eventId)
+      .order("sort_order");
+    const typeList = types ?? [];
+    setTicketTypes(typeList);
+    const typeMap: Record<string, string> = Object.fromEntries(typeList.map((t: any) => [t.id, t.name]));
+
+    const enriched = list.map((r) => ({ ...r, full_name: profMap[r.user_id], ticket_name: typeMap[r.ticket_type_id] ?? null }));
     setRegistrations(enriched);
     setMyReg(enriched.find((r) => r.user_id === user?.id) ?? null);
 
-    const volResult = await supabase.from("volunteers").select("*").eq("event_id", eventId).order("created_at");
+    const volResult = await (supabase as any).from("volunteers").select("*").eq("event_id", eventId).order("created_at");
     setVolunteers(volResult.data ?? []);
 
     setLoading(false);
@@ -128,13 +150,16 @@ function EventDetail() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle().then(({ data }) => {
+    supabase.from("profiles").select("full_name, birth_date, gender, school").eq("id", user.id).maybeSingle().then(({ data }) => {
       if (data?.full_name) {
         const parts = data.full_name.trim().split(" ");
         setPrenom(parts[0] ?? "");
         setNom(parts.slice(1).join(" ") ?? "");
         setCardName(data.full_name);
       }
+      if (data?.birth_date) setBirthDate(data.birth_date);
+      if (data?.gender) setGender(data.gender);
+      if (data?.school) { setRegSchool(data.school); setUserSchool(data.school); }
     });
   }, [user]);
 
@@ -150,6 +175,10 @@ function EventDetail() {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
           setShowCart(false);
+          if (pendingRegIdRef.current) {
+            supabase.from("registrations").delete().eq("id", pendingRegIdRef.current);
+            pendingRegIdRef.current = null;
+          }
           toast.error("Réservation expirée. Veuillez réessayer.");
           return 0;
         }
@@ -162,25 +191,87 @@ function EventDetail() {
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!event) return <p className="text-muted-foreground">Événement introuvable.</p>;
 
-  const active = registrations.filter((r) => r.status === "registered" || r.status === "attended");
-  const isFull = event.capacity > 0 && active.length >= event.capacity;
-  const remaining = event.capacity - active.length;
+  const active = registrations.filter((r) => r.status === "registered" || r.status === "attended" || r.status === "pending");
   const isOwner = user?.id === event.organizer_id || role === "admin";
   const timerPct = (timeLeft / TIMER_SECONDS) * 100;
+
+  function getTicketRemaining(ticket: any): number {
+    if (!ticket.capacity) return Infinity;
+    const used = registrations.filter(
+      (r) => r.ticket_type_id === ticket.id && ["registered", "attended", "pending"].includes(r.status)
+    ).length;
+    return Math.max(0, ticket.capacity - used);
+  }
+
+  const hasTicketTypes = ticketTypes.length > 0;
+  const isFull = hasTicketTypes
+    ? ticketTypes.every((t) => getTicketRemaining(t) <= 0)
+    : event.capacity > 0 && active.length >= event.capacity;
+  const totalCapacity = hasTicketTypes
+    ? ticketTypes.reduce((sum: number, t: any) => sum + (t.capacity || 0), 0)
+    : event.capacity;
+  const remaining = totalCapacity > 0 ? totalCapacity - active.length : 0;
+
+  const selectedTicket = ticketTypes.find((t) => t.id === selectedTicketId) ?? null;
+  const cartPrice = selectedTicket ? selectedTicket.price : (event.price ?? 0);
   const eventPrice = event.price ?? 0;
 
-  async function confirmPayment() {
+  const isPrivateBlocked =
+    event.status === "private" &&
+    !isOwner &&
+    userSchool.toLowerCase().trim() !== (event.school || "").toLowerCase().trim();
+
+  async function openCart() {
     if (!user) return;
+    if (hasTicketTypes && !selectedTicketId) { toast.error("Veuillez sélectionner un tarif."); return; }
+    setActing(true);
+    const { data, error } = await supabase
+      .from("registrations")
+      .insert({
+        event_id: eventId,
+        user_id: user.id,
+        status: "pending",
+        ...(selectedTicketId && { ticket_type_id: selectedTicketId }),
+      })
+      .select().single();
+    setActing(false);
+    if (error) {
+      if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
+      else toast.error(error.message);
+      load();
+      return;
+    }
+    pendingRegIdRef.current = data.id;
+    setShowCart(true);
+  }
+
+  async function closeCart() {
+    setShowCart(false);
+    if (pendingRegIdRef.current) {
+      await supabase.from("registrations").delete().eq("id", pendingRegIdRef.current);
+      pendingRegIdRef.current = null;
+      load();
+    }
+  }
+
+  async function confirmPayment() {
+    if (!user || !pendingRegIdRef.current) return;
     if (!prenom.trim() || !nom.trim()) { toast.error("Veuillez renseigner votre prénom et nom."); return; }
     setActing(true);
     const fullName = `${prenom.trim()} ${nom.trim()}`;
-    await supabase.from("profiles").update({ full_name: fullName }).eq("id", user.id);
+    await supabase.from("profiles").update({
+      full_name: fullName,
+      ...(regSchool.trim() && { school: regSchool.trim() }),
+    }).eq("id", user.id);
     const { data: regData, error } = await supabase
       .from("registrations")
-      .insert({ event_id: eventId, user_id: user.id, status: "registered" })
+      .update({ status: "registered" })
+      .eq("id", pendingRegIdRef.current)
       .select().single();
     if (error) { setActing(false); toast.error(error.message); return; }
+    pendingRegIdRef.current = null;
     try {
+      const { data: orgEmail } = await (supabase as any).rpc("get_event_organizer_email", { p_event_id: eventId });
       const result = await sendConfirmationEmail({
         toEmail: user.email!,
         fullName,
@@ -188,6 +279,7 @@ function EventDetail() {
         eventDate: format(new Date(event.starts_at), "PPP à p", { locale: fr }),
         eventLocation: event.location || "En ligne",
         qrCode: regData.qr_code,
+        replyTo: orgEmail || undefined,
       });
       if (result?.error) toast.success("Inscription confirmée ! (Email : " + result.error + ")");
       else toast.success("🎉 Paiement confirmé ! Email envoyé avec votre billet.");
@@ -219,7 +311,7 @@ function EventDetail() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "custom", event_id: eventId, subject: msgSubject || undefined, message: msgBody }),
+        body: JSON.stringify({ type: "custom", event_id: eventId, subject: msgSubject || undefined, message: msgBody, organizer_email: user?.email }),
       }
     );
     const data = await res.json().catch(() => ({}));
@@ -231,25 +323,56 @@ function EventDetail() {
   }
 
   async function cancelEvent() {
-    if (!confirm("Annuler l'événement ? Tous les inscrits recevront un email de notification.")) return;
+    if (!confirm("Supprimer cet événement ? Les inscrits recevront un email d'annulation. Cette action est irréversible.")) return;
     setActing(true);
-    const res = await fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "cancellation", event_id: eventId }),
-    });
-    const data = await res.json().catch(() => ({}));
+
+    // Récupérer les emails des inscrits via RPC (accès auth.users côté serveur)
+    const { data: participants } = await (supabase as any).rpc("get_participant_emails", { _event_id: eventId });
+    const list = (participants ?? []) as { user_id: string; email: string; full_name: string }[];
+
+    // Envoyer un email d'annulation à chaque inscrit (best-effort)
+    if (list.length > 0) {
+      const eventDate = event.starts_at ? format(new Date(event.starts_at), "PPP à p", { locale: fr }) : "";
+      await Promise.allSettled(
+        list.map((p) =>
+          fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-cancellation-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              toEmail: p.email,
+              fullName: p.full_name || "Participant",
+              eventTitle: event.title,
+              eventDate,
+              eventLocation: event.location || "En ligne",
+              replyTo: user?.email,
+            }),
+          })
+        )
+      );
+    }
+
+    // Supprimer l'événement
+    const { error } = await supabase.from("events").delete().eq("id", eventId);
     setActing(false);
-    toast.success(`Événement annulé — ${data.sent ?? 0} participant(s) notifié(s) par email.`);
-    load();
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Événement supprimé${list.length > 0 ? ` — ${list.length} inscrit(s) notifié(s)` : ""}.`);
+    navigate({ to: "/events" });
   }
 
   async function refundParticipant(reg: any) {
-    if (!confirm(`Rembourser et annuler l'inscription de ${reg.full_name || "ce participant"} ?`)) return;
+    if (!confirm(`Annuler l'inscription de ${reg.full_name || "ce participant"} ?`)) return;
     setActingParticipant(reg.id);
-    const { error } = await supabase.from("registrations").delete().eq("id", reg.id);
+    const { error } = await supabase
+      .from("registrations")
+      .update({ status: "cancelled" })
+      .eq("id", reg.id);
+    if (error) { setActingParticipant(null); toast.error(error.message); return; }
+    fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "cancel_participant", event_id: eventId, user_id: reg.user_id, organizer_email: user?.email }),
+    });
     setActingParticipant(null);
-    if (error) { toast.error(error.message); return; }
     toast.success(`Inscription de ${reg.full_name || "ce participant"} annulée.`);
     load();
   }
@@ -281,6 +404,7 @@ function EventDetail() {
           recipient_user_id: targetParticipant.user_id,
           subject: pMailSubject || undefined,
           message: pMailBody,
+          organizer_email: user?.email,
         }),
       }
     );
@@ -297,18 +421,31 @@ function EventDetail() {
     if (!volName.trim()) { toast.error("Le nom est requis."); return; }
     if (!volEmail.trim()) { toast.error("L'email est requis."); return; }
     setAddingVol(true);
-    const { data, error } = await supabase.from("volunteers").insert({ event_id: eventId, name: volName.trim(), email: volEmail.trim() }).select().single();
-    setAddingVol(false);
-    if (error) { toast.error(error.message); return; }
+    const { data, error } = await (supabase as any).from("volunteers").insert({ event_id: eventId, name: volName.trim(), email: volEmail.trim() }).select().single();
+    if (error) { setAddingVol(false); toast.error(error.message); return; }
     setVolunteers((v) => [...v, data]);
+    const name = volName.trim();
+    const email = volEmail.trim();
     setVolName("");
     setVolEmail("");
-    toast.success("Bénévole ajouté.");
+    fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "volunteer_invite",
+        event_id: eventId,
+        volunteer_name: name,
+        volunteer_email: email,
+        volunteer_url: volunteerUrl(data.token),
+      }),
+    });
+    setAddingVol(false);
+    toast.success("Bénévole ajouté — invitation envoyée par email.");
   }
 
   async function removeVolunteer(id: string) {
     if (!confirm("Supprimer ce bénévole ?")) return;
-    await supabase.from("volunteers").delete().eq("id", id);
+    await (supabase as any).from("volunteers").delete().eq("id", id);
     setVolunteers((v) => v.filter((x) => x.id !== id));
     toast.success("Bénévole supprimé.");
   }
@@ -320,6 +457,19 @@ function EventDetail() {
   function copyLink(token: string) {
     navigator.clipboard.writeText(volunteerUrl(token));
     toast.success("Lien copié !");
+  }
+
+  async function shareEvent() {
+    const url = window.location.href;
+    const text = `${event.title} — ${format(new Date(event.starts_at), "PPP à p", { locale: fr })}${event.location ? ` · ${event.location}` : ""}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: event.title, text, url });
+      } catch {}
+    } else {
+      navigator.clipboard.writeText(url);
+      toast.success("Lien copié !");
+    }
   }
 
   async function deleteEvent() {
@@ -334,7 +484,7 @@ function EventDetail() {
     <div className="mx-auto max-w-4xl space-y-6">
 
       {/* ===== PANIER / CART DIALOG ===== */}
-      <Dialog open={showCart} onOpenChange={(open) => { if (!open) setShowCart(false); }}>
+      <Dialog open={showCart} onOpenChange={(open) => { if (!open) closeCart(); }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -371,14 +521,17 @@ function EventDetail() {
               <MapPin className="h-3.5 w-3.5" />{event.location || "En ligne"}
             </p>
             <Separator className="my-2" />
+            {selectedTicket && (
+              <div className="text-xs text-muted-foreground mb-1">Tarif : <span className="font-medium text-foreground">{selectedTicket.name}</span></div>
+            )}
             <div className="flex justify-between text-sm">
               <span>1 place</span>
-              <span>{eventPrice > 0 ? `${eventPrice} €` : "Gratuit"}</span>
+              <span>{cartPrice > 0 ? `${cartPrice} €` : "Gratuit"}</span>
             </div>
-            {eventPrice > 0 && (
+            {cartPrice > 0 && (
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <span>{eventPrice} €</span>
+                <span>{cartPrice} €</span>
               </div>
             )}
           </div>
@@ -396,6 +549,12 @@ function EventDetail() {
                 <Input id="cn" value={nom} onChange={(e) => setNom(e.target.value)} placeholder="Dupont" />
               </div>
             </div>
+          </div>
+
+          {/* École */}
+          <div className="space-y-1.5">
+            <Label>École / Université <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
+            <Input value={regSchool} onChange={(e) => setRegSchool(e.target.value)} placeholder="Ex : ESME, Paris Saclay…" />
           </div>
 
           {/* Paiement fictif */}
@@ -460,7 +619,7 @@ function EventDetail() {
           {/* Bouton payer */}
           <Button onClick={confirmPayment} disabled={acting} className="w-full bg-gradient-primary shadow-glow h-11 text-base">
             {acting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
-            {eventPrice > 0 ? `Payer ${eventPrice} €` : "Confirmer l'inscription"}
+            {cartPrice > 0 ? `Payer ${cartPrice} €` : "Confirmer l'inscription"}
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">
@@ -483,32 +642,42 @@ function EventDetail() {
         <CardContent className="p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
-            {isOwner && (
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => navigate({ to: "/events/$eventId/edit", params: { eventId } })}>
-                  <Pencil className="mr-2 h-4 w-4" />Modifier
-                </Button>
-                <Button variant="outline" size="sm" onClick={cancelEvent} disabled={acting} className="text-orange-600 hover:text-orange-600">
-                  <XCircle className="mr-2 h-4 w-4" />Annuler
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {(event.school || event.association) && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {event.school && (
-                <Badge variant="secondary" className="bg-[#D5E8A0] text-[#204839]">
-                  <GraduationCap className="mr-1 h-3.5 w-3.5" />{event.school}
-                </Badge>
-              )}
-              {event.association && (
-                <Badge variant="secondary">
-                  <Building2 className="mr-1 h-3.5 w-3.5" />{event.association}
-                </Badge>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={shareEvent}>
+                <Share2 className="mr-2 h-4 w-4" />Partager
+              </Button>
+              {isOwner && (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/events/$eventId/edit" params={{ eventId }}>
+                      <Pencil className="mr-2 h-4 w-4" />Modifier
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={cancelEvent} disabled={acting} className="text-orange-600 hover:text-orange-600">
+                    <XCircle className="mr-2 h-4 w-4" />Annuler
+                  </Button>
+                </>
               )}
             </div>
-          )}
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {event.status === "private" && (
+              <Badge className="bg-[#72243E] text-white hover:bg-[#72243E]">
+                <Lock className="mr-1 h-3 w-3" />Privé · {event.school || "École"}
+              </Badge>
+            )}
+            {event.school && event.status !== "private" && (
+              <Badge variant="secondary" className="bg-[#D5E8A0] text-[#204839]">
+                <GraduationCap className="mr-1 h-3.5 w-3.5" />{event.school}
+              </Badge>
+            )}
+            {event.association && (
+              <Badge variant="secondary">
+                <Building2 className="mr-1 h-3.5 w-3.5" />{event.association}
+              </Badge>
+            )}
+          </div>
 
           <p className="mt-3 text-muted-foreground">{event.description || "Aucune description."}</p>
 
@@ -516,34 +685,91 @@ function EventDetail() {
             <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" />{format(new Date(event.starts_at), "PPP p", { locale: fr })}</div>
             <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{event.location || "En ligne"}</div>
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary" />{active.length} / {event.capacity > 0 ? event.capacity : "∞"}
+              <Users className="h-4 w-4 text-primary" />{active.length} / {totalCapacity > 0 ? totalCapacity : "∞"}
               {isFull ? <Badge variant="destructive" className="ml-1">Complet</Badge>
-                : remaining < 10 && event.capacity > 0 ? <Badge className="ml-1 bg-orange-500 hover:bg-orange-500">{remaining} places</Badge>
+                : remaining < 10 && totalCapacity > 0 ? <Badge className="ml-1 bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                 : null}
             </div>
           </div>
 
-          {event.capacity > 0 && (
-            <div className="mt-4"><Progress value={Math.min(100, (active.length / event.capacity) * 100)} className="h-2" /></div>
+          {totalCapacity > 0 && (
+            <div className="mt-4"><Progress value={Math.min(100, (active.length / totalCapacity) * 100)} className="h-2" /></div>
           )}
 
-          {/* Prix */}
-          {eventPrice > 0 && (
-            <p className="mt-3 text-lg font-semibold text-[#72243E]">{eventPrice} €</p>
+          {/* Tarifs */}
+          {hasTicketTypes ? (
+            <div className="mt-5 space-y-2">
+              <p className="text-sm font-semibold">Tarifs</p>
+              <div className="grid gap-2">
+                {ticketTypes.map((ticket) => {
+                  const ticketRemaining = getTicketRemaining(ticket);
+                  const isTicketFull = ticketRemaining <= 0;
+                  const isSelected = selectedTicketId === ticket.id;
+                  return (
+                    <button
+                      key={ticket.id}
+                      type="button"
+                      disabled={isTicketFull || !!myReg || isOwner}
+                      onClick={() => setSelectedTicketId(isSelected ? null : ticket.id)}
+                      className={`flex items-center justify-between rounded-lg border-2 p-3 text-left transition-all w-full ${
+                        isSelected
+                          ? "border-[#72243E] bg-[#EED4D8]"
+                          : isTicketFull
+                          ? "border-border bg-muted/30 opacity-60 cursor-not-allowed"
+                          : "border-border hover:border-[#C87488] cursor-pointer"
+                      }`}
+                    >
+                      <div>
+                        <p className="font-medium text-sm">{ticket.name}</p>
+                        {ticket.description && <p className="text-xs text-muted-foreground">{ticket.description}</p>}
+                      </div>
+                      <div className="text-right ml-4 shrink-0">
+                        <p className="font-semibold text-[#72243E]">
+                          {ticket.price > 0 ? `${ticket.price} €` : "Gratuit"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {!ticket.capacity
+                            ? "Illimité"
+                            : isTicketFull
+                            ? "Complet"
+                            : `${ticketRemaining} place${ticketRemaining > 1 ? "s" : ""}`}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#72243E]">{eventPrice} €</p>
           )}
 
           {/* Actions */}
           <div className="mt-6">
-            {!isOwner && !myReg && !isFull && (
-              <Button onClick={() => setShowCart(true)} className="bg-gradient-primary shadow-glow">
-                <ShoppingCart className="mr-2 h-4 w-4" />Réserver ma place
-              </Button>
-            )}
-            {!myReg && isFull && (
-              <p className="text-sm text-muted-foreground">Cet événement est complet.</p>
-            )}
-            {myReg?.status === "registered" && (
-              <Button variant="outline" onClick={cancelRegistration} disabled={acting}>Annuler mon inscription</Button>
+            {isPrivateBlocked ? (
+              <div className="flex items-center gap-2 rounded-lg border border-[#D5A0A8] bg-[#EED4D8]/50 px-4 py-3 text-sm text-[#72243E]">
+                <Lock className="h-4 w-4 shrink-0" />
+                Cet événement est réservé aux membres de <strong className="ml-1">{event.school}</strong>.
+              </div>
+            ) : (
+              <>
+                {!isOwner && !myReg && !isFull && (
+                  <Button
+                    onClick={openCart}
+                    disabled={acting || (hasTicketTypes && !selectedTicketId)}
+                    className="bg-gradient-primary shadow-glow"
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    {hasTicketTypes && !selectedTicketId ? "Sélectionnez un tarif" : "Réserver ma place"}
+                  </Button>
+                )}
+                {!myReg && isFull && (
+                  <p className="text-sm text-muted-foreground">Cet événement est complet.</p>
+                )}
+                {myReg?.status === "registered" && (
+                  <Button variant="outline" onClick={cancelRegistration} disabled={acting}>Annuler mon inscription</Button>
+                )}
+              </>
             )}
           </div>
         </CardContent>
@@ -728,6 +954,7 @@ function EventDetail() {
               <p className="text-sm text-muted-foreground">Aucune inscription pour l'instant.</p>
             ) : (() => {
               const filtered = registrations.filter((r) =>
+                r.status !== "cancelled" &&
                 (r.full_name || "").toLowerCase().includes(participantSearch.toLowerCase())
               );
               if (filtered.length === 0) return (
@@ -740,6 +967,7 @@ function EventDetail() {
                       <div className="min-w-0">
                         <p className="font-medium text-sm truncate">{r.full_name || "Participant"}</p>
                         <p className="text-xs text-muted-foreground">
+                          {r.ticket_name ? `${r.ticket_name} · ` : ""}
                           {r.registered_at ? `Inscrit le ${new Date(r.registered_at).toLocaleDateString("fr-FR")}` : ""}
                         </p>
                       </div>

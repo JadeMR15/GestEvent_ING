@@ -32,7 +32,7 @@ function EmailsPage() {
 
       if (!evIds?.length) { setLoading(false); return; }
 
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("email_logs")
         .select("*, events(title)")
         .in("event_id", evIds.map((e: any) => e.id))

@@ -1,5 +1,6 @@
 // @ts-nocheck — Deno runtime, ignoré par tsc
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,24 +13,27 @@ serve(async (req) => {
   }
 
   try {
-    const { toEmail, fullName, eventTitle, eventDate, eventLocation, qrCode } = await req.json();
+    const { toEmail, fullName, eventTitle, eventDate, eventLocation, qrCode, replyTo } = await req.json();
 
-    const apiKey = Deno.env.get("RESEND_API_KEY");
-    if (!apiKey) throw new Error("RESEND_API_KEY non configurée");
+    const apiKey = Deno.env.get("BREVO_API_KEY");
+    if (!apiKey) throw new Error("BREVO_API_KEY non configurée");
+
+    const organizerEmail: string | undefined = replyTo || undefined;
 
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCode)}&size=250x250`;
 
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "api-key": apiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "GestEvent <onboarding@resend.dev>",
-        to: [toEmail],
+        sender: { name: "GuestEvent", email: "olivia.peret@esme.fr" },
+        to: [{ email: toEmail, name: fullName }],
         subject: `🎟️ Votre billet — ${eventTitle}`,
-        html: `
+        ...(organizerEmail && { replyTo: { email: organizerEmail } }),
+        htmlContent: `
           <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;color:#2C2C2A">
             <div style="background:linear-gradient(135deg,#EED4D8,#C87488);padding:32px;border-radius:12px 12px 0 0;text-align:center">
               <h1 style="font-family:Georgia,serif;font-size:32px;font-style:italic;color:#72243E;margin:0">
@@ -49,7 +53,7 @@ serve(async (req) => {
                 <p style="font-family:monospace;font-size:11px;color:#888;margin:8px 0 0">${qrCode}</p>
               </div>
               <p style="margin-top:24px;font-size:13px;color:#888;text-align:center">
-                Présentez ce QR code à l'entrée · GestEvent
+                Présentez ce QR code à l'entrée · GuestEvent
               </p>
             </div>
           </div>
@@ -62,6 +66,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: res.ok ? 200 : 400,
     });
+
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

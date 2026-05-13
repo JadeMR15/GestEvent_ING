@@ -80,6 +80,25 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.volunteer_checkin(UUID, TEXT) TO anon, authenticated;
 
+-- RPC : récupérer les emails des inscrits d'un événement (accès à auth.users via SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION public.get_participant_emails(_event_id UUID)
+RETURNS TABLE(user_id UUID, email TEXT, full_name TEXT)
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    r.user_id,
+    u.email::TEXT,
+    COALESCE(p.full_name, '')
+  FROM public.registrations r
+  JOIN auth.users u ON u.id = r.user_id
+  LEFT JOIN public.profiles p ON p.id = r.user_id
+  WHERE r.event_id = _event_id
+    AND r.status IN ('registered', 'attended');
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.get_participant_emails(UUID) TO authenticated;
+
 -- Mise à jour du trigger handle_new_user pour stocker school et association
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
@@ -111,3 +130,90 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+-- ============================================================
+-- Tarifs multiples par événement
+-- ============================================================
+
+-- Table ticket_types
+CREATE TABLE IF NOT EXISTS public.ticket_types (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id    UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
+  name        TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  price       NUMERIC(10,2) NOT NULL DEFAULT 0,
+  capacity    INTEGER NOT NULL DEFAULT 0,
+  sort_order  INTEGER NOT NULL DEFAULT 0
+);
+
+ALTER TABLE public.ticket_types ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "ticket_types_select" ON public.ticket_types FOR SELECT USING (true);
+CREATE POLICY "ticket_types_insert" ON public.ticket_types FOR INSERT TO authenticated WITH CHECK (
+  EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
+  OR public.has_role(auth.uid(), 'admin')
+);
+CREATE POLICY "ticket_types_update" ON public.ticket_types FOR UPDATE TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
+  OR public.has_role(auth.uid(), 'admin')
+);
+CREATE POLICY "ticket_types_delete" ON public.ticket_types FOR DELETE TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
+  OR public.has_role(auth.uid(), 'admin')
+);
+
+-- Colonne ticket_type_id sur registrations
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS ticket_type_id UUID REFERENCES public.ticket_types(id) ON DELETE SET NULL;
+
+-- ============================================================
+-- Statut "private" — événements réservés à une école
+-- ============================================================
+
+-- Mettre à jour la contrainte CHECK pour ajouter 'private'
+ALTER TABLE public.events DROP CONSTRAINT IF EXISTS events_status_check;
+ALTER TABLE public.events ADD CONSTRAINT events_status_check
+  CHECK (status IN ('draft', 'published', 'closed', 'private'));
+
+-- Mise à jour de la politique RLS pour les événements (utilisateurs authentifiés)
+DROP POLICY IF EXISTS "Events viewable by authenticated" ON public.events;
+CREATE POLICY "Events viewable by authenticated" ON public.events
+  FOR SELECT TO authenticated USING (
+    status IN ('published', 'closed')
+    OR (
+      status = 'private' AND EXISTS (
+        SELECT 1 FROM public.profiles p
+        WHERE p.id = auth.uid()
+          AND lower(trim(p.school)) = lower(trim(events.school))
+          AND p.school != ''
+      )
+    )
+    OR auth.uid() = organizer_id
+    OR public.has_role(auth.uid(), 'admin')
+  );
+
+-- Recréer get_public_events pour inclure les événements privés accessibles
+CREATE OR REPLACE FUNCTION public.get_public_events()
+RETURNS SETOF public.events
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT e.*
+  FROM public.events e
+  WHERE
+    e.status IN ('published', 'closed')
+    OR (
+      e.status = 'private'
+      AND auth.uid() IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM public.profiles p
+        WHERE p.id = auth.uid()
+          AND lower(trim(p.school)) = lower(trim(e.school))
+          AND p.school != ''
+      )
+    )
+    OR (auth.uid() IS NOT NULL AND e.organizer_id = auth.uid())
+    OR (auth.uid() IS NOT NULL AND public.has_role(auth.uid(), 'admin'))
+  ORDER BY e.starts_at ASC;
+$$;
+GRANT EXECUTE ON FUNCTION public.get_public_events() TO authenticated, anon;

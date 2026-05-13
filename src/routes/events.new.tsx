@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ImagePlus, X } from "lucide-react";
+import { Loader2, ImagePlus, X, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/new")({
@@ -22,6 +22,14 @@ export const Route = createFileRoute("/events/new")({
   head: () => ({ meta: [{ title: "Créer un événement — GuestEvent" }] }),
 });
 
+type TicketDraft = {
+  uid: string;
+  name: string;
+  description: string;
+  price: string;
+  capacity: string;
+};
+
 const schema = z.object({
   title: z.string().trim().min(3, "Titre trop court").max(100, "Titre trop long (max 100 caractères)"),
   description: z.string().trim().max(2000),
@@ -30,9 +38,7 @@ const schema = z.object({
   association: z.string().trim().max(120),
   starts_at: z.string().refine((v) => !isNaN(Date.parse(v)), "Date invalide")
     .refine((v) => new Date(v) > new Date(), "La date doit être dans le futur"),
-  capacity: z.number().int().min(0).max(100000),
-  price: z.union([z.string(), z.number()]).transform((v) => parseFloat(String(v)) || 0).pipe(z.number().min(0)),
-  status: z.enum(["draft", "published"]),
+  status: z.enum(["draft", "published", "private"]),
 });
 
 function CreateEventPage() {
@@ -50,14 +56,15 @@ function CreateEventPage() {
     school: "",
     association: "",
     starts_at: "",
-    capacity: 50,
-    price: "",
-    status: "published" as "draft" | "published",
+    status: "published" as "draft" | "published" | "private",
   });
+  const [tickets, setTickets] = useState<TicketDraft[]>([
+    { uid: crypto.randomUUID(), name: "Tarif standard", description: "", price: "0", capacity: "50" },
+  ]);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("school,association").eq("id", user.id).maybeSingle().then(({ data }) => {
+    (supabase as any).from("profiles").select("school,association").eq("id", user.id).maybeSingle().then(({ data }: any) => {
       if (data) setForm((f) => ({ ...f, school: data.school ?? "", association: data.association ?? "" }));
     });
   }, [user]);
@@ -86,15 +93,37 @@ function CreateEventPage() {
     return data.publicUrl;
   }
 
+  function addTicket() {
+    setTickets((t) => [...t, { uid: crypto.randomUUID(), name: "", description: "", price: "0", capacity: "50" }]);
+  }
+
+  function removeTicket(uid: string) {
+    if (tickets.length <= 1) { toast.error("Il faut au moins un tarif."); return; }
+    setTickets((t) => t.filter((x) => x.uid !== uid));
+  }
+
+  function updateTicket(uid: string, field: keyof TicketDraft, value: string) {
+    setTickets((t) => t.map((x) => (x.uid === uid ? { ...x, [field]: value } : x)));
+  }
+
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     if (!user) return;
 
+    for (const t of tickets) {
+      if (!t.name.trim()) { toast.error("Chaque tarif doit avoir un nom."); return; }
+      if (isNaN(parseFloat(t.price)) || parseFloat(t.price) < 0) { toast.error("Prix invalide."); return; }
+      if (isNaN(parseInt(t.capacity)) || parseInt(t.capacity) < 0) { toast.error("Capacité invalide."); return; }
+    }
+
     setLoading(true);
 
-    const { data, error } = await supabase
+    const totalCapacity = tickets.reduce((sum, t) => sum + (parseInt(t.capacity) || 0), 0);
+    const minPrice = Math.min(...tickets.map((t) => parseFloat(t.price) || 0));
+
+    const { data, error } = await (supabase as any)
       .from("events")
       .insert({
         title: parsed.data.title,
@@ -103,9 +132,9 @@ function CreateEventPage() {
         school: parsed.data.school,
         association: parsed.data.association,
         starts_at: new Date(parsed.data.starts_at).toISOString(),
-        capacity: parsed.data.capacity,
-        price: parsed.data.price,
-        status: parsed.data.status,
+        capacity: totalCapacity,
+        price: minPrice,
+        status: parsed.data.status as string,
         organizer_id: user.id,
       })
       .select()
@@ -113,12 +142,20 @@ function CreateEventPage() {
 
     if (error) { setLoading(false); toast.error(error.message); return; }
 
-    // Upload image et mise à jour de l'URL
+    await (supabase as any).from("ticket_types").insert(
+      tickets.map((t, i) => ({
+        event_id: data.id,
+        name: t.name.trim(),
+        description: t.description.trim(),
+        price: parseFloat(t.price) || 0,
+        capacity: parseInt(t.capacity) || 0,
+        sort_order: i,
+      }))
+    );
+
     if (coverFile) {
       const url = await uploadCover(data.id);
-      if (url) {
-        await supabase.from("events").update({ cover_image_url: url }).eq("id", data.id);
-      }
+      if (url) await supabase.from("events").update({ cover_image_url: url }).eq("id", data.id);
     }
 
     setLoading(false);
@@ -191,8 +228,8 @@ function CreateEventPage() {
                 <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Adresse ou URL" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="capacity">Capacité (0 = illimitée)</Label>
-                <Input id="capacity" type="number" min={0} value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} />
+                <Label htmlFor="starts_at">Date & heure *</Label>
+                <Input id="starts_at" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} required />
               </div>
             </div>
 
@@ -207,31 +244,90 @@ function CreateEventPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="price">Prix (€) — 0 = Gratuit</Label>
-              <Input id="price" type="text" inputMode="decimal" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0.00" />
+            {/* Tarifs */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Tarifs *</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addTicket}>
+                  <Plus className="mr-1 h-4 w-4" />Ajouter un tarif
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {tickets.map((ticket, i) => (
+                  <div key={ticket.uid} className="rounded-lg border border-[#D5A0A8] bg-[#FDFAF7] p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-[#72243E]">Tarif {i + 1}</p>
+                      {tickets.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeTicket(ticket.uid)}
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Nom *</Label>
+                        <Input
+                          value={ticket.name}
+                          onChange={(e) => updateTicket(ticket.uid, "name", e.target.value)}
+                          placeholder="ex : Tarif étudiant"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Prix (€) — 0 = Gratuit</Label>
+                        <Input
+                          type="text"
+                          inputMode="decimal"
+                          value={ticket.price}
+                          onChange={(e) => updateTicket(ticket.uid, "price", e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Capacité (0 = illimitée)</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={ticket.capacity}
+                          onChange={(e) => updateTicket(ticket.uid, "capacity", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Commentaire <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
+                        <Input
+                          value={ticket.description}
+                          onChange={(e) => updateTicket(ticket.uid, "description", e.target.value)}
+                          placeholder="ex : Sur présentation de la carte étudiant"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="starts_at">Date & heure *</Label>
-                <Input id="starts_at" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Statut de publication</Label>
-                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as "draft" | "published" })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="published">Publié (visible par tous)</SelectItem>
-                    <SelectItem value="draft">Brouillon (non visible)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label>Statut de publication</Label>
+              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as "draft" | "published" | "private" })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="published">Publié (visible par tous)</SelectItem>
+                  <SelectItem value="private">Privé (réservé à l'école)</SelectItem>
+                  <SelectItem value="draft">Brouillon (non visible)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {form.status === "draft" ? "Enregistrer en brouillon" : "Publier l'événement"}
+              {form.status === "draft" ? "Enregistrer en brouillon" : form.status === "private" ? "Publier (privé)" : "Publier l'événement"}
             </Button>
           </form>
         </CardContent>
