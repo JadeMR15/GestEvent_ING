@@ -51,7 +51,7 @@ function Landing() {
     (async () => {
       const { data: evData, error: evErr } = await (supabase as any).rpc("get_public_events");
       if (evErr) console.error("Events error:", evErr.message);
-      const all = (evData as any[]) ?? [];
+      const all = evData ?? [];
 
       // Récupérer les counts de registrations séparément
       let regsMap: Record<string, any[]> = {};

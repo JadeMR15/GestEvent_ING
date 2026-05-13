@@ -21,7 +21,7 @@ import {
   CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
   CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
   Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
-  UserPlus, Trash2, Copy, Link as LinkIcon, Share2,
+  UserPlus, Trash2, Copy, Link as LinkIcon, Share2, Minus, Plus, Check,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -93,6 +93,14 @@ function EventDetail() {
   const [ticketTypes, setTicketTypes] = useState<any[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
+  // Achat multi-places
+  const [myGuestRegs, setMyGuestRegs] = useState<any[]>([]);
+  const [quantity, setQuantity] = useState(1);
+  const [friends, setFriends] = useState<{ prenom: string; nom: string; email: string }[]>([]);
+
+  // Partage
+  const [copied, setCopied] = useState(false);
+
   // Cart state
   const [showCart, setShowCart] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -118,7 +126,7 @@ function EventDetail() {
     setEvent(ev);
     const { data: regs } = await supabase
       .from("registrations")
-      .select("id, event_id, user_id, status, qr_code, registered_at, attended_at, ticket_type_id")
+      .select("id, event_id, user_id, status, qr_code, registered_at, attended_at, ticket_type_id, guest_name, guest_email")
       .eq("event_id", eventId)
       .order("registered_at", { ascending: true });
     const list = regs ?? [];
@@ -128,7 +136,6 @@ function EventDetail() {
       const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
       profMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name]));
     }
-
     const { data: types } = await (supabase as any)
       .from("ticket_types")
       .select("*")
@@ -138,13 +145,14 @@ function EventDetail() {
     setTicketTypes(typeList);
     const typeMap: Record<string, string> = Object.fromEntries(typeList.map((t: any) => [t.id, t.name]));
 
-    const enriched = list.map((r) => ({ ...r, full_name: profMap[r.user_id], ticket_name: typeMap[r.ticket_type_id] ?? null }));
+    const enriched = list.map((r) => ({ ...r, full_name: r.guest_name || profMap[r.user_id], ticket_name: typeMap[r.ticket_type_id] ?? null }));
     setRegistrations(enriched);
-    setMyReg(enriched.find((r) => r.user_id === user?.id) ?? null);
+    const myRegs = enriched.filter((r) => r.user_id === user?.id);
+    setMyReg(myRegs.find((r) => !r.guest_email) ?? null);
+    setMyGuestRegs(myRegs.filter((r) => !!r.guest_email));
 
     const volResult = await (supabase as any).from("volunteers").select("*").eq("event_id", eventId).order("created_at");
     setVolunteers(volResult.data ?? []);
-
     setLoading(false);
   }, [eventId, user?.id]);
 
@@ -215,6 +223,12 @@ function EventDetail() {
   const selectedTicket = ticketTypes.find((t) => t.id === selectedTicketId) ?? null;
   const cartPrice = selectedTicket ? selectedTicket.price : (event.price ?? 0);
   const eventPrice = event.price ?? 0;
+  const maxQty = event.capacity > 0 ? Math.min(remaining, 10) : 10;
+
+  function handleQuantityChange(newQty: number) {
+    setQuantity(newQty);
+    setFriends(Array.from({ length: newQty - 1 }, (_, i) => friends[i] ?? { prenom: "", nom: "", email: "" }));
+  }
 
   const isPrivateBlocked =
     event.status === "private" &&
@@ -257,6 +271,11 @@ function EventDetail() {
   async function confirmPayment() {
     if (!user || !pendingRegIdRef.current) return;
     if (!prenom.trim() || !nom.trim()) { toast.error("Veuillez renseigner votre prénom et nom."); return; }
+    for (let i = 0; i < friends.length; i++) {
+      const f = friends[i];
+      if (!f.prenom.trim() || !f.nom.trim()) { toast.error(`Prénom et nom requis pour l'ami ${i + 1}.`); return; }
+      if (!f.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) { toast.error(`Email invalide pour l'ami ${i + 1}.`); return; }
+    }
     setActing(true);
     const fullName = `${prenom.trim()} ${nom.trim()}`;
     await supabase.from("profiles").update({
@@ -270,35 +289,50 @@ function EventDetail() {
       .select().single();
     if (error) { setActing(false); toast.error(error.message); return; }
     pendingRegIdRef.current = null;
-    try {
-      const { data: orgEmail } = await (supabase as any).rpc("get_event_organizer_email", { p_event_id: eventId });
-      const result = await sendConfirmationEmail({
-        toEmail: user.email!,
-        fullName,
-        eventTitle: event.title,
-        eventDate: format(new Date(event.starts_at), "PPP à p", { locale: fr }),
-        eventLocation: event.location || "En ligne",
-        qrCode: regData.qr_code,
-        replyTo: orgEmail || undefined,
-      });
-      if (result?.error) toast.success("Inscription confirmée ! (Email : " + result.error + ")");
-      else toast.success("🎉 Paiement confirmé ! Email envoyé avec votre billet.");
-    } catch {
-      toast.success("🎉 Inscription confirmée ! Votre QR code est disponible ci-dessous.");
+
+    let guestRegs: any[] = [];
+    if (friends.length > 0) {
+      const { data: gd, error: ge } = await supabase
+        .from("registrations")
+        .insert(friends.map((f) => ({
+          event_id: eventId,
+          user_id: user.id,
+          status: "registered" as const,
+          guest_name: `${f.prenom.trim()} ${f.nom.trim()}`,
+          guest_email: f.email.trim().toLowerCase(),
+        })))
+        .select();
+      if (ge) toast.error("Erreur inscriptions amis : " + ge.message);
+      else guestRegs = gd ?? [];
     }
+
+    const emailDate = format(new Date(event.starts_at), "PPP à p", { locale: fr });
+    const emailLoc = event.location || "En ligne";
+    try {
+      await sendConfirmationEmail({ toEmail: user.email!, fullName, eventTitle: event.title, eventDate: emailDate, eventLocation: emailLoc, qrCode: regData.qr_code });
+    } catch {}
+    for (const gr of guestRegs) {
+      try {
+        await sendConfirmationEmail({ toEmail: gr.guest_email, fullName: gr.guest_name, eventTitle: event.title, eventDate: emailDate, eventLocation: emailLoc, qrCode: gr.qr_code });
+      } catch {}
+    }
+
+    const total = 1 + guestRegs.length;
+    toast.success(`🎉 ${total} place${total > 1 ? "s confirmées" : " confirmée"} ! Emails envoyés.`);
     setActing(false);
     setShowCart(false);
+    setQuantity(1);
+    setFriends([]);
     load();
   }
 
-  async function cancelRegistration() {
-    if (!myReg) return;
-    if (!confirm("Annuler votre inscription ?")) return;
+  async function cancelRegistration(regId: string, label: string) {
+    if (!confirm(`Annuler la place de ${label} ?`)) return;
     setActing(true);
-    const { error } = await supabase.from("registrations").delete().eq("id", myReg.id);
+    const { error } = await supabase.from("registrations").delete().eq("id", regId);
     if (error) { setActing(false); toast.error(error.message); return; }
     setActing(false);
-    toast.success("Inscription annulée.");
+    toast.success(`Place de ${label} annulée.`);
     load();
   }
 
@@ -463,13 +497,11 @@ function EventDetail() {
     const url = window.location.href;
     const text = `${event.title} — ${format(new Date(event.starts_at), "PPP à p", { locale: fr })}${event.location ? ` · ${event.location}` : ""}`;
     if (navigator.share) {
-      try {
-        await navigator.share({ title: event.title, text, url });
-      } catch {}
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Lien copié !");
+      try { await navigator.share({ title: event.title, text, url }); return; } catch {}
     }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function deleteEvent() {
@@ -525,16 +557,35 @@ function EventDetail() {
               <div className="text-xs text-muted-foreground mb-1">Tarif : <span className="font-medium text-foreground">{selectedTicket.name}</span></div>
             )}
             <div className="flex justify-between text-sm">
-              <span>1 place</span>
-              <span>{cartPrice > 0 ? `${cartPrice} €` : "Gratuit"}</span>
+              <span>{quantity} place{quantity > 1 ? "s" : ""}</span>
+              <span>{eventPrice > 0 ? `${eventPrice * quantity} €` : "Gratuit"}</span>
             </div>
             {cartPrice > 0 && (
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <span>{cartPrice} €</span>
+                <span>{eventPrice * quantity} €</span>
               </div>
             )}
           </div>
+
+          {/* Nombre de places */}
+          {(event.capacity === 0 || remaining > 1) && (
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">Nombre de places</p>
+              <div className="flex items-center gap-3">
+                <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => handleQuantityChange(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="w-8 text-center font-semibold text-lg">{quantity}</span>
+                <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => handleQuantityChange(Math.min(maxQty, quantity + 1))} disabled={quantity >= maxQty}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+                {event.capacity > 0 && (
+                  <span className="text-xs text-muted-foreground">{remaining} place{remaining > 1 ? "s" : ""} disponible{remaining > 1 ? "s" : ""}</span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Informations personnelles */}
           <div className="space-y-3">
@@ -556,6 +607,42 @@ function EventDetail() {
             <Label>École / Université <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
             <Input value={regSchool} onChange={(e) => setRegSchool(e.target.value)} placeholder="Ex : ESME, Paris Saclay…" />
           </div>
+
+          {/* Informations amis */}
+          {friends.map((f, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-[#D5A0A8]/60 bg-[#FDFAF7] p-4">
+              <p className="text-sm font-semibold text-[#72243E] flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />Ami(e) {i + 1}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Prénom *</Label>
+                  <Input
+                    value={f.prenom}
+                    onChange={(e) => { const nf = [...friends]; nf[i] = { ...nf[i], prenom: e.target.value }; setFriends(nf); }}
+                    placeholder="Sophie"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Nom *</Label>
+                  <Input
+                    value={f.nom}
+                    onChange={(e) => { const nf = [...friends]; nf[i] = { ...nf[i], nom: e.target.value }; setFriends(nf); }}
+                    placeholder="Martin"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Email * <span className="text-xs text-muted-foreground font-normal">(recevra son billet par email)</span></Label>
+                <Input
+                  type="email"
+                  value={f.email}
+                  onChange={(e) => { const nf = [...friends]; nf[i] = { ...nf[i], email: e.target.value }; setFriends(nf); }}
+                  placeholder="sophie.martin@email.com"
+                />
+              </div>
+            </div>
+          ))}
 
           {/* Paiement fictif */}
           <div className="space-y-3">
@@ -619,7 +706,7 @@ function EventDetail() {
           {/* Bouton payer */}
           <Button onClick={confirmPayment} disabled={acting} className="w-full bg-gradient-primary shadow-glow h-11 text-base">
             {acting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
-            {cartPrice > 0 ? `Payer ${cartPrice} €` : "Confirmer l'inscription"}
+            {eventPrice > 0 ? `Payer ${eventPrice * quantity} €` : `Confirmer ${quantity > 1 ? `les ${quantity} inscriptions` : "l'inscription"}`}
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">
@@ -644,7 +731,8 @@ function EventDetail() {
             <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={shareEvent}>
-                <Share2 className="mr-2 h-4 w-4" />Partager
+                {copied ? <Check className="mr-2 h-4 w-4 text-emerald-500" /> : <Share2 className="mr-2 h-4 w-4" />}
+                {copied ? "Copié !" : "Partager"}
               </Button>
               {isOwner && (
                 <>
@@ -745,7 +833,7 @@ function EventDetail() {
           )}
 
           {/* Actions */}
-          <div className="mt-6">
+          <div className="mt-6 space-y-3">
             {isPrivateBlocked ? (
               <div className="flex items-center gap-2 rounded-lg border border-[#D5A0A8] bg-[#EED4D8]/50 px-4 py-3 text-sm text-[#72243E]">
                 <Lock className="h-4 w-4 shrink-0" />
@@ -766,8 +854,42 @@ function EventDetail() {
                 {!myReg && isFull && (
                   <p className="text-sm text-muted-foreground">Cet événement est complet.</p>
                 )}
-                {myReg?.status === "registered" && (
-                  <Button variant="outline" onClick={cancelRegistration} disabled={acting}>Annuler mon inscription</Button>
+                {(myReg || myGuestRegs.length > 0) && (
+                  <div className="rounded-xl border bg-muted/30 p-4 space-y-2">
+                    <p className="text-sm font-semibold mb-3">Mes places</p>
+                    {myReg && (
+                      <div className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Ticket className="h-4 w-4 text-primary shrink-0" />
+                          <span className="font-medium">Ma place</span>
+                          <Badge variant="secondary" className={myReg.status === "attended" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
+                            {myReg.status === "attended" ? "Présent" : "Confirmé"}
+                          </Badge>
+                        </div>
+                        {myReg.status === "registered" && (
+                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0" onClick={() => cancelRegistration(myReg.id, "moi")} disabled={acting}>
+                            <XCircle className="h-4 w-4 mr-1" />Annuler
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    {myGuestRegs.map((gr) => (
+                      <div key={gr.id} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border">
+                        <div className="flex items-center gap-2 text-sm min-w-0">
+                          <UserPlus className="h-4 w-4 text-[#72243E] shrink-0" />
+                          <span className="font-medium truncate">{gr.guest_name}</span>
+                          <Badge variant="secondary" className={gr.status === "attended" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
+                            {gr.status === "attended" ? "Présent" : "Confirmé"}
+                          </Badge>
+                        </div>
+                        {gr.status === "registered" && (
+                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0" onClick={() => cancelRegistration(gr.id, gr.guest_name)} disabled={acting}>
+                            <XCircle className="h-4 w-4 mr-1" />Annuler
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </>
             )}
@@ -790,6 +912,35 @@ function EventDetail() {
             <Badge className="capitalize"><CheckCircle2 className="mr-1 h-3 w-3" />Inscription confirmée</Badge>
             <p className="text-xs text-muted-foreground">Présentez ce code à l'entrée · également envoyé par email.</p>
             <code className="rounded bg-muted px-2 py-1 text-xs">{myReg.qr_code}</code>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* QR codes des amis */}
+      {myGuestRegs.length > 0 && (
+        <Card className="border-2 shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Ticket className="h-5 w-5 text-primary" />Billets de vos amis ({myGuestRegs.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {myGuestRegs.map((gr) => (
+              <div key={gr.id} className="flex flex-col items-center gap-2 border-b pb-5 last:border-0 last:pb-0">
+                <div className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4 text-[#72243E]" />
+                  <p className="font-semibold text-sm">{gr.guest_name}</p>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Mail className="h-3 w-3" />{gr.guest_email} · billet envoyé par email
+                </p>
+                <div className="rounded-xl bg-white p-3 shadow-elegant">
+                  <QRCodeCanvas value={gr.qr_code} size={140} />
+                </div>
+                <Badge className="capitalize"><CheckCircle2 className="mr-1 h-3 w-3" />Inscription confirmée</Badge>
+                <code className="rounded bg-muted px-2 py-1 text-xs">{gr.qr_code}</code>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}

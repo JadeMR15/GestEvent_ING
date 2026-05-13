@@ -14,8 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_logs: {
+        Row: {
+          id: string
+          event_id: string
+          recipient_email: string
+          type: string
+          status: string
+          sent_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          recipient_email: string
+          type: string
+          status?: string
+          sent_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          recipient_email?: string
+          type?: string
+          status?: string
+          sent_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
+          association: string | null
           capacity: number
           cover_image_url: string | null
           created_at: string
@@ -24,12 +63,14 @@ export type Database = {
           location: string
           organizer_id: string
           price: number
+          school: string | null
           starts_at: string
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          association?: string | null
           capacity?: number
           cover_image_url?: string | null
           created_at?: string
@@ -38,12 +79,14 @@ export type Database = {
           location?: string
           organizer_id: string
           price?: number
+          school?: string | null
           starts_at: string
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          association?: string | null
           capacity?: number
           cover_image_url?: string | null
           created_at?: string
@@ -52,6 +95,7 @@ export type Database = {
           location?: string
           organizer_id?: string
           price?: number
+          school?: string | null
           starts_at?: string
           status?: string
           title?: string
@@ -61,21 +105,27 @@ export type Database = {
       }
       profiles: {
         Row: {
+          association: string | null
           created_at: string
           full_name: string
           id: string
+          school: string | null
           updated_at: string
         }
         Insert: {
+          association?: string | null
           created_at?: string
           full_name?: string
           id: string
+          school?: string | null
           updated_at?: string
         }
         Update: {
+          association?: string | null
           created_at?: string
           full_name?: string
           id?: string
+          school?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -85,6 +135,8 @@ export type Database = {
           attended_at: string | null
           event_id: string
           expires_at: string | null
+          guest_email: string | null
+          guest_name: string | null
           id: string
           qr_code: string
           registered_at: string
@@ -95,6 +147,8 @@ export type Database = {
           attended_at?: string | null
           event_id: string
           expires_at?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           qr_code?: string
           registered_at?: string
@@ -105,6 +159,8 @@ export type Database = {
           attended_at?: string | null
           event_id?: string
           expires_at?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           qr_code?: string
           registered_at?: string
@@ -147,6 +203,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_events: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          association: string | null
+          capacity: number
+          cover_image_url: string | null
+          created_at: string
+          description: string
+          id: string
+          location: string
+          organizer_id: string
+          price: number
+          school: string | null
+          starts_at: string
+          status: string
+          title: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

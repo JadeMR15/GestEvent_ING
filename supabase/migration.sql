@@ -99,6 +99,18 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.get_participant_emails(UUID) TO authenticated;
 
+-- Colonnes pour les places achetées pour des amis (guest) sur registrations
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS guest_name TEXT;
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS guest_email TEXT;
+
+-- Autoriser plusieurs inscriptions par utilisateur (places pour amis)
+-- L'ancienne contrainte UNIQUE(event_id, user_id) bloque les places guest
+ALTER TABLE public.registrations DROP CONSTRAINT IF EXISTS registrations_event_id_user_id_key;
+-- Index partiel : une seule inscription personnelle par user/event, mais plusieurs places guest autorisées
+CREATE UNIQUE INDEX IF NOT EXISTS registrations_personal_unique
+  ON public.registrations(event_id, user_id)
+  WHERE guest_email IS NULL;
+
 -- Mise à jour du trigger handle_new_user pour stocker school et association
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
