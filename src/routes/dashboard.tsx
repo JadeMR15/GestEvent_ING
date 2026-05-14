@@ -191,13 +191,13 @@ function DashboardPage() {
       color: "from-[#2D5A27] to-[#3D7A35]",
       format: "number",
     },
-    {
-      label: role === "participant" ? "Dépenses" : "Fonds récoltés",
+    ...(role !== "participant" ? [{
+      label: "Fonds récoltés",
       value: stats.revenue,
       icon: CheckCircle2,
       color: "from-[#2D5A27] to-[#3D7A35]",
-      format: "currency",
-    },
+      format: "currency" as const,
+    }] : []),
   ];
 
   return (
