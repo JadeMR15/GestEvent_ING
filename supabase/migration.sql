@@ -316,3 +316,54 @@ ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS document_url TEXT;
 
 -- Nombre maximum de places par personne (0 = illimité)
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS max_per_person INTEGER NOT NULL DEFAULT 0;
+
+-- ============================================================
+-- Trigger : vérification atomique de la capacité avant INSERT
+-- Empêche les doubles réservations en cas de race condition
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.check_registration_capacity()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+  _event_capacity  INTEGER;
+  _ticket_capacity INTEGER;
+  _event_taken     INTEGER;
+  _ticket_taken    INTEGER;
+BEGIN
+  -- Ignorer les inscriptions annulées
+  IF NEW.status = 'cancelled' THEN RETURN NEW; END IF;
+
+  -- Vérifier la capacité globale de l'événement
+  SELECT capacity INTO _event_capacity FROM public.events WHERE id = NEW.event_id;
+  IF _event_capacity > 0 THEN
+    SELECT COUNT(*) INTO _event_taken
+      FROM public.registrations
+     WHERE event_id = NEW.event_id
+       AND status IN ('registered', 'attended', 'pending');
+    IF _event_taken >= _event_capacity THEN
+      RAISE EXCEPTION 'event_full';
+    END IF;
+  END IF;
+
+  -- Vérifier la capacité du type de billet si applicable
+  IF NEW.ticket_type_id IS NOT NULL THEN
+    SELECT capacity INTO _ticket_capacity FROM public.ticket_types WHERE id = NEW.ticket_type_id;
+    IF _ticket_capacity > 0 THEN
+      SELECT COUNT(*) INTO _ticket_taken
+        FROM public.registrations
+       WHERE ticket_type_id = NEW.ticket_type_id
+         AND status IN ('registered', 'attended', 'pending');
+      IF _ticket_taken >= _ticket_capacity THEN
+        RAISE EXCEPTION 'event_full';
+      END IF;
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_registration_capacity ON public.registrations;
+CREATE TRIGGER enforce_registration_capacity
+  BEFORE INSERT ON public.registrations
+  FOR EACH ROW EXECUTE FUNCTION public.check_registration_capacity();
