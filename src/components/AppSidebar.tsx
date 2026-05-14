@@ -22,6 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,7 @@ export function AppSidebar() {
   const toolItems = [
     { title: "Analyses", url: "/analytics", icon: BarChart2, roles: ["admin", "organizer"] },
     { title: "Finances", url: "/finance", icon: Euro, roles: ["admin", "organizer"] },
-    { title: "Export", url: "/export", icon: Download, roles: ["admin", "organizer"] },
+    { title: "Exporter", url: "/export", icon: Download, roles: ["admin", "organizer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   return (
@@ -56,9 +57,11 @@ export function AppSidebar() {
         <div className="flex items-center gap-2 px-1 py-3 overflow-visible">
           <img src="/logo.png" alt="GuestEvent" className="h-24 w-24 shrink-0 object-contain" />
           {!collapsed && (
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <span className="text-base font-bold text-sidebar-foreground">GuestEvent</span>
-              <span className="text-xs text-sidebar-foreground/60 capitalize">{role ?? "guest"}</span>
+              <span className="text-xs text-sidebar-foreground/60">
+                {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
+              </span>
             </div>
           )}
         </div>
@@ -104,6 +107,9 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        <div className={`flex py-1 ${collapsed ? "justify-center" : "justify-start px-1"}`}>
+          <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" />
+        </div>
         {!collapsed && user && (
           <div className="px-2 pb-2 text-xs text-sidebar-foreground/60 truncate">
             {user.email}

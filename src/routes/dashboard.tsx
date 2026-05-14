@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, CheckCircle2, PlusCircle, Clock, Ticket, Bell, Download, Users } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import JSZip from "jszip";
 
@@ -191,13 +192,13 @@ function DashboardPage() {
       color: "from-[#2D5A27] to-[#3D7A35]",
       format: "number",
     },
-    {
-      label: role === "participant" ? "Dépenses" : "Fonds récoltés",
+    ...(role !== "participant" ? [{
+      label: "Fonds récoltés",
       value: stats.revenue,
       icon: CheckCircle2,
       color: "from-[#2D5A27] to-[#3D7A35]",
-      format: "currency",
-    },
+      format: "currency" as const,
+    }] : []),
   ];
 
   return (
@@ -221,7 +222,7 @@ function DashboardPage() {
               </Button>
               <Button variant="outline" onClick={exportCSV} disabled={exporting}>
                 <Download className="mr-2 h-4 w-4" />
-                {exporting ? "Export…" : "Export CSV"}
+                {exporting ? "Export…" : "Exporter CSV"}
               </Button>
               <Button asChild className="bg-gradient-primary shadow-glow">
                 <Link to="/events/new"><PlusCircle className="mr-2 h-4 w-4" />Nouvel événement</Link>
@@ -287,7 +288,7 @@ function DashboardPage() {
                         {ev.title}
                       </Link>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(ev.starts_at), "PPP")} · {ev.location || "En ligne"}
+                        {format(new Date(ev.starts_at), "PPP", { locale: fr })} · {ev.location || "En ligne"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

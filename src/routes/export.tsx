@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/export")({
@@ -131,7 +132,7 @@ function ExportPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Export</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Exporter</h1>
           <p className="text-muted-foreground">Téléchargez les données de vos événements en CSV.</p>
         </div>
         <Button onClick={exportAll} disabled={loadingAll || events.length === 0} className="bg-gradient-primary shadow-glow">
@@ -154,7 +155,7 @@ function ExportPage() {
                   <div>
                     <p className="font-medium">{ev.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(ev.starts_at), "PPP")} · {ev.location || "En ligne"}
+                      {format(new Date(ev.starts_at), "PPP", { locale: fr })} · {ev.location || "En ligne"}
                     </p>
                   </div>
                   <Button

@@ -242,6 +242,12 @@ function EditEventPage() {
 
     if (error) { setLoading(false); toast.error("Erreur : " + error.message); return; }
 
+    // Mémoriser école/association dans le profil et localStorage
+    localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: parsed.data.school, association: parsed.data.association }));
+    if (parsed.data.school || parsed.data.association) {
+      await supabase.from("profiles").update({ school: parsed.data.school, association: parsed.data.association }).eq("id", user!.id);
+    }
+
     // Géocodage par adresse complète
     if (parsed.data.city || parsed.data.location) {
       const coords = await geocodeAddress(parsed.data.location, parsed.data.city);
@@ -377,11 +383,11 @@ function EditEventPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="school">École</Label>
-                <Input id="school" value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} />
+                <Input id="school" value={form.school} onChange={(e) => { const v = e.target.value; setForm((f) => { localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: v, association: f.association })); return { ...f, school: v }; }); }} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="association">Association</Label>
-                <Input id="association" value={form.association} onChange={(e) => setForm({ ...form, association: e.target.value })} />
+                <Input id="association" value={form.association} onChange={(e) => { const v = e.target.value; setForm((f) => { localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: f.school, association: v })); return { ...f, association: v }; }); }} />
               </div>
             </div>
 

@@ -96,8 +96,20 @@ function CreateEventPage() {
 
   useEffect(() => {
     if (!user) return;
+    const saved = localStorage.getItem("ge_organizer_identity");
+    if (saved) {
+      try {
+        const { school, association } = JSON.parse(saved);
+        if (school || association) { setForm((f) => ({ ...f, school: school ?? "", association: association ?? "" })); return; }
+      } catch { /* ignore */ }
+    }
     (supabase as any).from("profiles").select("school,association").eq("id", user.id).maybeSingle().then(({ data }: any) => {
-      if (data) setForm((f) => ({ ...f, school: data.school ?? "", association: data.association ?? "" }));
+      if (data) {
+        const s = data.school ?? "";
+        const a = data.association ?? "";
+        setForm((f) => ({ ...f, school: s, association: a }));
+        if (s || a) localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: s, association: a }));
+      }
     });
   }, [user]);
 
@@ -193,6 +205,12 @@ function CreateEventPage() {
       .single();
 
     if (error) { setLoading(false); toast.error(error.message); return; }
+
+    // Mémoriser école/association dans le profil et localStorage
+    localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: parsed.data.school, association: parsed.data.association }));
+    if (parsed.data.school || parsed.data.association) {
+      await supabase.from("profiles").update({ school: parsed.data.school, association: parsed.data.association }).eq("id", user.id);
+    }
 
     // Géocodage par adresse complète
     if (parsed.data.city || parsed.data.location) {
@@ -337,11 +355,11 @@ function CreateEventPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="school">École</Label>
-                <Input id="school" value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} />
+                <Input id="school" value={form.school} onChange={(e) => { const v = e.target.value; setForm((f) => { const next = { ...f, school: v }; localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: v, association: f.association })); return next; }); }} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="association">Association</Label>
-                <Input id="association" value={form.association} onChange={(e) => setForm({ ...form, association: e.target.value })} />
+                <Input id="association" value={form.association} onChange={(e) => { const v = e.target.value; setForm((f) => { const next = { ...f, association: v }; localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: f.school, association: v })); return next; }); }} />
               </div>
             </div>
 

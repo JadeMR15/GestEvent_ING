@@ -12,6 +12,7 @@ import {
   CalendarDays, MapPin, Loader2, Download, ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/my-tickets")({
@@ -186,7 +187,7 @@ function MyTicketsPage() {
                       </div>
                       <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
-                          <CalendarDays className="h-3.5 w-3.5" />{format(new Date(ev.starts_at), "PPP p")}
+                          <CalendarDays className="h-3.5 w-3.5" />{format(new Date(ev.starts_at), "PPP p", { locale: fr })}
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="h-3.5 w-3.5" />{ev.location || "En ligne"}
@@ -266,7 +267,7 @@ function MyTicketsPage() {
               <Card key={reg.id} className="border opacity-60">
                 <CardContent className="flex items-center justify-between p-4 text-sm">
                   <span className="font-medium line-through">{ev.title}</span>
-                  <span className="text-muted-foreground">{format(new Date(ev.starts_at), "PPP")}</span>
+                  <span className="text-muted-foreground">{format(new Date(ev.starts_at), "PPP", { locale: fr })}</span>
                 </CardContent>
               </Card>
             );

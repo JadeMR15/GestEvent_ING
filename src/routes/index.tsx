@@ -277,7 +277,7 @@ function Landing() {
             {[
               { icon: CalendarDays, title: "Création rapide",  desc: "Créez et publiez en quelques secondes avec gestion de capacité, description et image de couverture.", color: "bg-[#EED4D8]", iconColor: "text-[#72243E]" },
               { icon: Timer,        title: "Timer 15 min",     desc: "Chaque réservation bloque la place 15 minutes. Le premier à confirmer gagne — zéro doublon.", color: "bg-[#D5E8A0]", iconColor: "text-[#204839]" },
-              { icon: QrCode,       title: "QR Check-in",      desc: "Un QR unique par inscription. Scan caméra ou saisie manuelle le jour J pour un accueil fluide.", color: "bg-gradient-primary", iconColor: "text-white" },
+              { icon: QrCode,       title: "Scan QR",           desc: "Un QR unique par inscription. Scan caméra ou saisie manuelle le jour J pour un accueil fluide.", color: "bg-gradient-primary", iconColor: "text-white" },
               { icon: Users,        title: "Inscriptions simples",  desc: "Un clic pour réserver sa place. Confirmation immédiate avec QR code et email récapitulatif.", color: "bg-[#EED4D8]", iconColor: "text-[#72243E]" },
               { icon: TrendingUp,   title: "Tableau de bord",  desc: "Visualisez vos inscriptions, taux de remplissage et présences en temps réel.", color: "bg-[#D5E8A0]", iconColor: "text-[#204839]" },
               { icon: Shield,       title: "Rôles & accès",    desc: "Admin, organisateur, participant ou bénévole — chaque rôle a ses permissions adaptées.", color: "bg-gradient-primary", iconColor: "text-white" },
