@@ -58,7 +58,9 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-base font-bold text-sidebar-foreground">GuestEvent</span>
-              <span className="text-xs text-sidebar-foreground/60 capitalize">{role ?? "guest"}</span>
+              <span className="text-xs text-sidebar-foreground/60">
+              {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
+            </span>
             </div>
           )}
         </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, CheckCircle2, PlusCircle, Clock, Ticket, Bell, Download, Users } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import JSZip from "jszip";
 
@@ -287,7 +288,7 @@ function DashboardPage() {
                         {ev.title}
                       </Link>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(ev.starts_at), "PPP")} · {ev.location || "En ligne"}
+                        {format(new Date(ev.starts_at), "PPP", { locale: fr })} · {ev.location || "En ligne"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

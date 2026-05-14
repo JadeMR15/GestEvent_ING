@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/export")({
@@ -154,7 +155,7 @@ function ExportPage() {
                   <div>
                     <p className="font-medium">{ev.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(ev.starts_at), "PPP")} · {ev.location || "En ligne"}
+                      {format(new Date(ev.starts_at), "PPP", { locale: fr })} · {ev.location || "En ligne"}
                     </p>
                   </div>
                   <Button

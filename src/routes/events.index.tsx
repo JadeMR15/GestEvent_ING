@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarDays, MapPin, Users, Search, PlusCircle, Clock, GraduationCap, Map as MapIcon, List, ArrowUpDown } from "lucide-react";
 import { format, isThisWeek, isThisMonth } from "date-fns";
+import { fr } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 
 const EventMap = lazy(() => import("@/components/EventMap"));
@@ -258,7 +259,7 @@ function EventList() {
                     <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{e.description || "Aucune description."}</p>
                     <div className="mt-4 space-y-1.5 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">
-                        <CalendarDays className="h-4 w-4" />{format(new Date(e.starts_at), "PPP p")}
+                        <CalendarDays className="h-4 w-4" />{format(new Date(e.starts_at), "PPP p", { locale: fr })}
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <MapPin className="h-4 w-4" />
