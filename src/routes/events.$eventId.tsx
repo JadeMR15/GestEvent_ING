@@ -109,7 +109,6 @@ function EventDetail() {
   // Cart state
   const [showCart, setShowCart] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingRegIdsRef = useRef<string[]>([]);
   const ticketAllocationRef = useRef<string[]>([]); // ticket_type_id par slot (index 0 = perso, 1+ = amis)
 
@@ -185,28 +184,24 @@ function EventDetail() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Timer
+  // Timer — effet 1 : démarrer/arrêter le compte à rebours
   useEffect(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
     if (!showCart) { setTimeLeft(TIMER_SECONDS); return; }
     setTimeLeft(TIMER_SECONDS);
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          setShowCart(false);
-          if (pendingRegIdsRef.current.length > 0) {
-            supabase.from("registrations").delete().in("id", pendingRegIdsRef.current);
-            pendingRegIdsRef.current = [];
-          }
-          toast.error("Réservation expirée. Veuillez réessayer.");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timerRef.current!);
+    const id = setInterval(() => setTimeLeft((t) => Math.max(0, t - 1)), 1000);
+    return () => clearInterval(id);
   }, [showCart]);
+
+  // Timer — effet 2 : gérer l'expiration quand timeLeft atteint 0
+  useEffect(() => {
+    if (!showCart || timeLeft > 0) return;
+    setShowCart(false);
+    if (pendingRegIdsRef.current.length > 0) {
+      supabase.from("registrations").delete().in("id", pendingRegIdsRef.current);
+      pendingRegIdsRef.current = [];
+    }
+    toast.error("Réservation expirée. Veuillez réessayer.");
+  }, [timeLeft, showCart]);
 
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
