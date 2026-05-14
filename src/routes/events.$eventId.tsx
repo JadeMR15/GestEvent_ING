@@ -891,15 +891,25 @@ function EventDetail() {
                   })()}
                 </div>
               ))}
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-gradient-to-b from-background to-transparent" />
               {/* Gradient + title overlay */}
               {allMedia[activeMediaIdx]?.type === "image" && (
-                <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               )}
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 p-5">
+              <div className={`pointer-events-none absolute left-0 right-0 z-30 p-5 ${allMedia.length >= 2 ? "bottom-[72px]" : "bottom-0"}`}>
                 <h1 className="text-3xl font-bold leading-tight text-white drop-shadow-md sm:text-4xl">{event.title}</h1>
                 <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/80">
                   <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{format(new Date(event.starts_at), "PPP à p", { locale: fr })}</span>
-                  {event.location && <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{event.location}</span>}
+                  {event.location && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.location, event.city].filter(Boolean).join(", "))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pointer-events-auto flex items-center gap-1.5 hover:underline"
+                    >
+                      <MapPin className="h-3.5 w-3.5" />{event.location}
+                    </a>
+                  )}
                 </p>
               </div>
               {/* Nav arrows */}
@@ -917,39 +927,29 @@ function EventDetail() {
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
-                  {/* Dot indicators */}
-                  <div className="absolute bottom-4 right-4 z-40 flex gap-1.5">
-                    {allMedia.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveMediaIdx(i)}
-                        className={`h-2 rounded-full bg-white transition-all ${i === activeMediaIdx ? "w-6 opacity-100" : "w-2 opacity-40 hover:opacity-70"}`}
-                      />
-                    ))}
-                  </div>
                 </>
               )}
+              {/* Miniatures intégrées — fondu naturel via le dégradé de l'image */}
+              {allMedia.length >= 2 && (
+                <div className="absolute bottom-0 left-0 right-0 z-30 flex gap-1.5 overflow-x-auto px-2 py-2">
+                  {allMedia.map((m, i) => (
+                    <button
+                      key={m.id || i}
+                      onClick={() => setActiveMediaIdx(i)}
+                      className={`h-14 w-20 shrink-0 overflow-hidden rounded border-2 transition-all ${i === activeMediaIdx ? "border-white opacity-100" : "border-transparent opacity-40 hover:opacity-70"}`}
+                    >
+                      {m.type === "image" ? (
+                        <img src={m.url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-black">
+                          <PlayCircle className="h-6 w-6 text-white/70" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            {/* Thumbnail strip */}
-            {allMedia.length >= 2 && (
-              <div className="flex gap-1.5 overflow-x-auto bg-black/90 p-2">
-                {allMedia.map((m, i) => (
-                  <button
-                    key={m.id || i}
-                    onClick={() => setActiveMediaIdx(i)}
-                    className={`h-14 w-20 shrink-0 overflow-hidden rounded border-2 transition-all ${i === activeMediaIdx ? "border-white opacity-100" : "border-transparent opacity-40 hover:opacity-70"}`}
-                  >
-                    {m.type === "image" ? (
-                      <img src={m.url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-black">
-                        <PlayCircle className="h-6 w-6 text-white/70" />
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         );
       })()}
@@ -1015,7 +1015,19 @@ function EventDetail() {
 
           <div className="mt-5 grid gap-2 text-sm sm:grid-cols-3">
             <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" />{format(new Date(event.starts_at), "PPP p", { locale: fr })}</div>
-            <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{event.location || "En ligne"}</div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              {event.location ? (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.location, event.city].filter(Boolean).join(", "))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline text-primary"
+                >
+                  {event.location}
+                </a>
+              ) : "En ligne"}
+            </div>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />{active.length} / {totalCapacity > 0 ? totalCapacity : "∞"}
               {isFull ? <Badge variant="destructive" className="ml-1">Complet</Badge>

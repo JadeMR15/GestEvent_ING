@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarDays, QrCode, Users, ArrowRight, Timer,
   MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight,
-  Star, Globe, Mail, Lock,
+  Star, Globe, Mail, Lock, Instagram, Facebook, Youtube,
 } from "lucide-react";
 import { format, isThisWeek, isThisMonth, isFuture } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -107,6 +107,7 @@ function Landing() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)", overflowX: "clip" }}>
+      <div className="pointer-events-none fixed inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/cracki.webp')", opacity: 0.12 }} />
       <div className="pointer-events-none fixed inset-0 bg-gradient-mesh opacity-60" />
 
       {/* ── Header ── */}
@@ -138,9 +139,9 @@ function Landing() {
 
       {/* ── Hero ── */}
       <section className="relative px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
-        <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/cracki.webp')", opacity: 0.18 }} />
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 10% 50%, #C8748870 0%, transparent 55%), radial-gradient(ellipse at 50% 80%, #EED4D860 0%, transparent 50%), radial-gradient(ellipse at 85% 40%, #D5E8A045 0%, transparent 55%)" }} />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#FDFAF7]/50 via-transparent to-[#FDFAF7]/70" />
+<div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 10% 50%, #C8748870 0%, transparent 55%), radial-gradient(ellipse at 50% 80%, #EED4D860 0%, transparent 50%), radial-gradient(ellipse at 85% 40%, #D5E8A045 0%, transparent 55%)" }} />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#FDFAF7]/50 via-transparent to-[#FDFAF7]" />
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[#FDFAF7]" />
 
         <div ref={heroAnim.ref} className="relative container mx-auto">
           <div className={`mx-auto max-w-3xl text-center ${heroAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
@@ -192,7 +193,9 @@ function Landing() {
 
 
       {/* ── Events section ── */}
-      <section id="evenements" className="relative container mx-auto px-6 py-20">
+      <section id="evenements" className="relative py-20">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "linear-gradient(to bottom, #FDFAF7 0%, rgba(253,250,247,0.8) 40%, transparent 100%)" }} />
+        <div className="relative z-10 container mx-auto px-6">
         <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Prochains événements</h2>
           <p className="mt-2 text-[#2C2C2A]/60">Tous les événements publiés, accessibles sans connexion.</p>
@@ -259,10 +262,12 @@ function Landing() {
             </Button>
           </div>
         )}
+        </div>
       </section>
 
       {/* ── Features ── */}
-      <section id="fonctionnalites" className="relative bg-white/50 py-24">
+      <section id="fonctionnalites" className="relative py-24">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
           <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
             <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Tout ce dont vous avez besoin</h2>
@@ -318,7 +323,7 @@ function Landing() {
       {/* ── Footer ── */}
       <footer id="contact" className="relative border-t border-[#D5A0A8]/30 bg-white/60 backdrop-blur py-12">
         <div className="container mx-auto px-6">
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo.png" alt="GuestEvent" className="h-10 w-auto" />
@@ -336,9 +341,33 @@ function Landing() {
               </ul>
             </div>
             <div>
+              <h4 className="text-sm font-semibold text-[#72243E] mb-3 uppercase tracking-wide">À propos</h4>
+              <ul className="space-y-2 text-sm text-[#2C2C2A]/70">
+                <li><Link to="/about" hash="organisateur" className="hover:text-[#72243E] transition-colors">Organisateur</Link></li>
+                <li><Link to="/about" hash="participant" className="hover:text-[#72243E] transition-colors">Participant</Link></li>
+                <li><Link to="/about" hash="benevole" className="hover:text-[#72243E] transition-colors">Bénévole</Link></li>
+              </ul>
+            </div>
+            <div>
               <h4 className="text-sm font-semibold text-[#72243E] mb-3 uppercase tracking-wide">Contact</h4>
-              <div className="flex items-center gap-2 text-sm text-[#2C2C2A]/70">
+              <div className="flex items-center gap-2 text-sm text-[#2C2C2A]/70 mb-4">
                 <Mail className="h-4 w-4" /><span>support@guestevent.app</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <a href="https://instagram.com/guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="Instagram">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="https://facebook.com/guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="Facebook">
+                  <Facebook className="h-5 w-5" />
+                </a>
+                <a href="https://youtube.com/@guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="YouTube">
+                  <Youtube className="h-5 w-5" />
+                </a>
+                <a href="https://tiktok.com/@guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="TikTok">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
+                  </svg>
+                </a>
               </div>
             </div>
           </div>
@@ -360,7 +389,7 @@ const HOW_CARDS = [
 
 function StackedHowItWorks() {
   return (
-    <section style={{ background: "var(--bg-page)", paddingTop: "4rem" }}>
+    <section style={{ background: "transparent", paddingTop: "4rem" }}>
       <div style={{
         position:   "sticky",
         top:        110,
@@ -368,7 +397,7 @@ function StackedHowItWorks() {
         width:      "100%",
         textAlign:  "center",
         padding:    "1rem 0 1.5rem",
-        background: "var(--bg-page)",
+        background: "linear-gradient(to bottom, var(--bg-page) 70%, transparent 100%)",
       }}>
         <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>
           Comment ça marche ?
