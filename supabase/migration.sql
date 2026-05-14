@@ -229,3 +229,90 @@ AS $$
   ORDER BY e.starts_at ASC;
 $$;
 GRANT EXECUTE ON FUNCTION public.get_public_events() TO authenticated, anon;
+
+-- ============================================================
+-- Ville + coordonnées géographiques sur les événements
+-- ============================================================
+
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS city TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+
+-- ============================================================
+-- Galerie médias (photos & vidéos) par événement
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.event_media (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id    UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
+  url         TEXT NOT NULL,
+  type        TEXT NOT NULL DEFAULT 'image' CHECK (type IN ('image', 'video')),
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  caption     TEXT NOT NULL DEFAULT '',
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.event_media ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "event_media_select" ON public.event_media;
+CREATE POLICY "event_media_select" ON public.event_media FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "event_media_insert" ON public.event_media;
+CREATE POLICY "event_media_insert" ON public.event_media FOR INSERT TO authenticated WITH CHECK (
+  EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
+  OR public.has_role(auth.uid(), 'admin')
+);
+
+DROP POLICY IF EXISTS "event_media_update" ON public.event_media;
+CREATE POLICY "event_media_update" ON public.event_media FOR UPDATE TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
+  OR public.has_role(auth.uid(), 'admin')
+);
+
+DROP POLICY IF EXISTS "event_media_delete" ON public.event_media;
+CREATE POLICY "event_media_delete" ON public.event_media FOR DELETE TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.events e WHERE e.id = event_id AND e.organizer_id = auth.uid())
+  OR public.has_role(auth.uid(), 'admin')
+);
+
+-- ============================================================
+-- Table payouts (demandes de virement)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.payouts (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organizer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  amount       NUMERIC(10,2) NOT NULL,
+  status       TEXT NOT NULL DEFAULT 'pending'
+               CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  iban         TEXT NOT NULL DEFAULT '',
+  note         TEXT NOT NULL DEFAULT '',
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  processed_at TIMESTAMPTZ
+);
+
+ALTER TABLE public.payouts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "payouts_select" ON public.payouts;
+CREATE POLICY "payouts_select" ON public.payouts FOR SELECT TO authenticated USING (
+  organizer_id = auth.uid() OR public.has_role(auth.uid(), 'admin')
+);
+
+DROP POLICY IF EXISTS "payouts_insert" ON public.payouts;
+CREATE POLICY "payouts_insert" ON public.payouts FOR INSERT TO authenticated WITH CHECK (
+  organizer_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS "payouts_update" ON public.payouts;
+CREATE POLICY "payouts_update" ON public.payouts FOR UPDATE TO authenticated USING (
+  public.has_role(auth.uid(), 'admin')
+);
+
+-- ============================================================
+-- Document requis par les organisateurs
+-- ============================================================
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS required_document TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS document_url TEXT;
+
+-- Nombre maximum de places par personne (0 = illimité)
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS max_per_person INTEGER NOT NULL DEFAULT 0;

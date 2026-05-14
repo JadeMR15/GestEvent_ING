@@ -22,6 +22,7 @@ import {
   CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
   Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
   UserPlus, Trash2, Copy, Link as LinkIcon, Share2, Minus, Plus, Check,
+  ChevronLeft, ChevronRight, PlayCircle, Upload, FileText, X,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -91,7 +92,7 @@ function EventDetail() {
 
   // Ticket types
   const [ticketTypes, setTicketTypes] = useState<any[]>([]);
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [cartItems, setCartItems] = useState<Record<string, number>>({});
 
   // Achat multi-places
   const [myGuestRegs, setMyGuestRegs] = useState<any[]>([]);
@@ -101,14 +102,22 @@ function EventDetail() {
   // Partage
   const [copied, setCopied] = useState(false);
 
+  // Media gallery carousel
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
+  const [activeMediaIdx, setActiveMediaIdx] = useState(0);
+
   // Cart state
   const [showCart, setShowCart] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pendingRegIdRef = useRef<string | null>(null);
+  const pendingRegIdsRef = useRef<string[]>([]);
+  const ticketAllocationRef = useRef<string[]>([]); // ticket_type_id par slot (index 0 = perso, 1+ = amis)
 
   // User's actual school (for private event access check)
   const [userSchool, setUserSchool] = useState("");
+
+  // Document requis
+  const [docFile, setDocFile] = useState<File | null>(null);
 
   // Form fields
   const [prenom, setPrenom] = useState("");
@@ -126,7 +135,7 @@ function EventDetail() {
     setEvent(ev);
     const { data: regs } = await supabase
       .from("registrations")
-      .select("id, event_id, user_id, status, qr_code, registered_at, attended_at, ticket_type_id, guest_name, guest_email")
+      .select("id, event_id, user_id, status, qr_code, registered_at, attended_at, ticket_type_id, guest_name, guest_email, document_url")
       .eq("event_id", eventId)
       .order("registered_at", { ascending: true });
     const list = regs ?? [];
@@ -153,6 +162,9 @@ function EventDetail() {
 
     const volResult = await (supabase as any).from("volunteers").select("*").eq("event_id", eventId).order("created_at");
     setVolunteers(volResult.data ?? []);
+    const { data: media } = await (supabase as any).from("event_media").select("*").eq("event_id", eventId).order("sort_order");
+    setMediaItems(media ?? []);
+    setActiveMediaIdx(0);
     setLoading(false);
   }, [eventId, user?.id]);
 
@@ -183,9 +195,9 @@ function EventDetail() {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
           setShowCart(false);
-          if (pendingRegIdRef.current) {
-            supabase.from("registrations").delete().eq("id", pendingRegIdRef.current);
-            pendingRegIdRef.current = null;
+          if (pendingRegIdsRef.current.length > 0) {
+            supabase.from("registrations").delete().in("id", pendingRegIdsRef.current);
+            pendingRegIdsRef.current = [];
           }
           toast.error("Réservation expirée. Veuillez réessayer.");
           return 0;
@@ -195,6 +207,7 @@ function EventDetail() {
     }, 1000);
     return () => clearInterval(timerRef.current!);
   }, [showCart]);
+
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!event) return <p className="text-muted-foreground">Événement introuvable.</p>;
@@ -219,11 +232,32 @@ function EventDetail() {
     ? ticketTypes.reduce((sum: number, t: any) => sum + (t.capacity || 0), 0)
     : event.capacity;
   const remaining = totalCapacity > 0 ? totalCapacity - active.length : 0;
-
-  const selectedTicket = ticketTypes.find((t) => t.id === selectedTicketId) ?? null;
-  const cartPrice = selectedTicket ? selectedTicket.price : (event.price ?? 0);
   const eventPrice = event.price ?? 0;
-  const maxQty = event.capacity > 0 ? Math.min(remaining, 10) : 10;
+  const maxPerPerson = event.max_per_person ?? 0;
+  const alreadyBooked = (myReg ? 1 : 0) + myGuestRegs.length;
+  const maxQty = (() => {
+    let m = event.capacity > 0 ? Math.min(remaining, 10) : 10;
+    if (maxPerPerson > 0) m = Math.min(m, maxPerPerson - alreadyBooked);
+    return Math.max(0, m);
+  })();
+
+  // Multi-ticket cart totals
+  const totalCartQty = hasTicketTypes
+    ? Object.values(cartItems).reduce((s, q) => s + q, 0)
+    : quantity;
+  const totalCartPrice = hasTicketTypes
+    ? Object.entries(cartItems).reduce((s, [tid, qty]) => {
+        const t = ticketTypes.find((t) => t.id === tid);
+        return s + (t?.price ?? 0) * qty;
+      }, 0)
+    : eventPrice * quantity;
+
+  function updateCartItem(ticketId: string, qty: number) {
+    setCartItems((prev) => {
+      if (qty <= 0) { const n = { ...prev }; delete n[ticketId]; return n; }
+      return { ...prev, [ticketId]: qty };
+    });
+  }
 
   function handleQuantityChange(newQty: number) {
     setQuantity(newQty);
@@ -237,69 +271,115 @@ function EventDetail() {
 
   async function openCart() {
     if (!user) return;
-    if (hasTicketTypes && !selectedTicketId) { toast.error("Veuillez sélectionner un tarif."); return; }
-    setActing(true);
-    const { data, error } = await supabase
-      .from("registrations")
-      .insert({
-        event_id: eventId,
-        user_id: user.id,
-        status: "pending",
-        ...(selectedTicketId && { ticket_type_id: selectedTicketId }),
-      })
-      .select().single();
-    setActing(false);
-    if (error) {
-      if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
-      else toast.error(error.message);
-      load();
+    if (hasTicketTypes && totalCartQty === 0) { toast.error("Sélectionnez au moins une place."); return; }
+    if (maxPerPerson > 0 && alreadyBooked + totalCartQty > maxPerPerson) {
+      toast.error(`Maximum ${maxPerPerson} place${maxPerPerson > 1 ? "s" : ""} par personne pour cet événement.`);
       return;
     }
-    pendingRegIdRef.current = data.id;
+    setActing(true);
+
+    if (hasTicketTypes) {
+      // Aplatir les sélections : [tid_slot1, tid_slot2, ...] — slot 0 = perso, reste = amis
+      const allocation = Object.entries(cartItems)
+        .filter(([, q]) => q > 0)
+        .flatMap(([tid, qty]) => Array(qty).fill(tid));
+      ticketAllocationRef.current = allocation;
+
+      // Créer UNE SEULE pending registration personnelle
+      const { data, error } = await supabase
+        .from("registrations")
+        .insert({ event_id: eventId, user_id: user.id, status: "pending", ticket_type_id: allocation[0] })
+        .select().single();
+      setActing(false);
+      if (error) {
+        if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
+        else toast.error(error.message);
+        load(); return;
+      }
+      pendingRegIdsRef.current = [data.id];
+    } else {
+      const { data, error } = await supabase
+        .from("registrations")
+        .insert({ event_id: eventId, user_id: user.id, status: "pending" })
+        .select().single();
+      setActing(false);
+      if (error) {
+        if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
+        else toast.error(error.message);
+        load(); return;
+      }
+      pendingRegIdsRef.current = [data.id];
+    }
+
+    if (totalCartQty > 1) {
+      setFriends(Array.from({ length: totalCartQty - 1 }, (_, i) => friends[i] ?? { prenom: "", nom: "", email: "" }));
+    }
     setShowCart(true);
   }
 
   async function closeCart() {
     setShowCart(false);
-    if (pendingRegIdRef.current) {
-      await supabase.from("registrations").delete().eq("id", pendingRegIdRef.current);
-      pendingRegIdRef.current = null;
+    if (pendingRegIdsRef.current.length > 0) {
+      await supabase.from("registrations").delete().in("id", pendingRegIdsRef.current);
+      pendingRegIdsRef.current = [];
       load();
     }
   }
 
   async function confirmPayment() {
-    if (!user || !pendingRegIdRef.current) return;
+    if (!user || pendingRegIdsRef.current.length === 0) return;
     if (!prenom.trim() || !nom.trim()) { toast.error("Veuillez renseigner votre prénom et nom."); return; }
-    for (let i = 0; i < friends.length; i++) {
+    if (event.required_document && !docFile) {
+      toast.error(`Veuillez uploader votre ${event.required_document}.`);
+      return;
+    }
+    const friendsNeeded = hasTicketTypes ? ticketAllocationRef.current.length - 1 : quantity - 1;
+    for (let i = 0; i < friendsNeeded; i++) {
       const f = friends[i];
       if (!f.prenom.trim() || !f.nom.trim()) { toast.error(`Prénom et nom requis pour l'ami ${i + 1}.`); return; }
       if (!f.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) { toast.error(`Email invalide pour l'ami ${i + 1}.`); return; }
     }
     setActing(true);
+
+    let documentUrl: string | null = null;
+    if (docFile) {
+      const ext = docFile.name.split(".").pop() ?? "pdf";
+      const path = `documents/${eventId}/${user.id}_${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("event-covers").upload(path, docFile, { upsert: true });
+      if (uploadErr) { setActing(false); toast.error("Erreur upload document : " + uploadErr.message); return; }
+      const { data: urlData } = supabase.storage.from("event-covers").getPublicUrl(path);
+      documentUrl = urlData.publicUrl;
+    }
+
     const fullName = `${prenom.trim()} ${nom.trim()}`;
     await supabase.from("profiles").update({
       full_name: fullName,
       ...(regSchool.trim() && { school: regSchool.trim() }),
     }).eq("id", user.id);
+
+    // Confirmer la première place (personnelle)
     const { data: regData, error } = await supabase
       .from("registrations")
-      .update({ status: "registered" })
-      .eq("id", pendingRegIdRef.current)
+      .update({ status: "registered", ...(documentUrl && { document_url: documentUrl }) })
+      .eq("id", pendingRegIdsRef.current[0])
       .select().single();
     if (error) { setActing(false); toast.error(error.message); return; }
-    pendingRegIdRef.current = null;
 
     let guestRegs: any[] = [];
-    if (friends.length > 0) {
+    const extraSlots = hasTicketTypes ? ticketAllocationRef.current.length - 1 : quantity - 1;
+
+    if (extraSlots > 0) {
       const { data: gd, error: ge } = await supabase
         .from("registrations")
-        .insert(friends.map((f) => ({
+        .insert(friends.slice(0, extraSlots).map((f, i) => ({
           event_id: eventId,
           user_id: user.id,
           status: "registered" as const,
           guest_name: `${f.prenom.trim()} ${f.nom.trim()}`,
           guest_email: f.email.trim().toLowerCase(),
+          ...(hasTicketTypes && ticketAllocationRef.current[i + 1]
+            ? { ticket_type_id: ticketAllocationRef.current[i + 1] }
+            : {}),
         })))
         .select();
       if (ge) toast.error("Erreur inscriptions amis : " + ge.message);
@@ -323,6 +403,10 @@ function EventDetail() {
     setShowCart(false);
     setQuantity(1);
     setFriends([]);
+    setDocFile(null);
+    setCartItems({});
+    pendingRegIdsRef.current = [];
+    ticketAllocationRef.current = [];
     load();
   }
 
@@ -504,6 +588,15 @@ function EventDetail() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  function getEmbedUrl(url: string): { kind: "youtube" | "vimeo" | "direct" | null; src: string } {
+    const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if (yt) return { kind: "youtube", src: `https://www.youtube.com/embed/${yt[1]}` };
+    const vimeo = url.match(/(?:vimeo\.com\/)(\d+)/);
+    if (vimeo) return { kind: "vimeo", src: `https://player.vimeo.com/video/${vimeo[1]}` };
+    if (/\.(mp4|webm|ogg)(\?|$)/i.test(url)) return { kind: "direct", src: url };
+    return { kind: null, src: url };
+  }
+
   async function deleteEvent() {
     if (!confirm("Supprimer cet événement ? Cette action est irréversible.")) return;
     const { error } = await supabase.from("events").delete().eq("id", eventId);
@@ -553,23 +646,41 @@ function EventDetail() {
               <MapPin className="h-3.5 w-3.5" />{event.location || "En ligne"}
             </p>
             <Separator className="my-2" />
-            {selectedTicket && (
-              <div className="text-xs text-muted-foreground mb-1">Tarif : <span className="font-medium text-foreground">{selectedTicket.name}</span></div>
-            )}
-            <div className="flex justify-between text-sm">
-              <span>{quantity} place{quantity > 1 ? "s" : ""}</span>
-              <span>{eventPrice > 0 ? `${eventPrice * quantity} €` : "Gratuit"}</span>
-            </div>
-            {cartPrice > 0 && (
-              <div className="flex justify-between font-semibold">
-                <span>Total</span>
-                <span>{eventPrice * quantity} €</span>
-              </div>
+            {hasTicketTypes ? (
+              <>
+                {Object.entries(cartItems).filter(([, q]) => q > 0).map(([tid, qty]) => {
+                  const t = ticketTypes.find((t) => t.id === tid);
+                  return (
+                    <div key={tid} className="flex justify-between text-sm">
+                      <span>{qty}× {t?.name}</span>
+                      <span>{(t?.price ?? 0) > 0 ? `${(t?.price ?? 0) * qty} €` : "Gratuit"}</span>
+                    </div>
+                  );
+                })}
+                <Separator className="my-1" />
+                <div className="flex justify-between font-semibold text-sm">
+                  <span>Total ({totalCartQty} place{totalCartQty > 1 ? "s" : ""})</span>
+                  <span>{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span>{quantity} place{quantity > 1 ? "s" : ""}</span>
+                  <span>{eventPrice > 0 ? `${eventPrice * quantity} €` : "Gratuit"}</span>
+                </div>
+                {eventPrice > 0 && (
+                  <div className="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>{eventPrice * quantity} €</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
-          {/* Nombre de places */}
-          {(event.capacity === 0 || remaining > 1) && (
+          {/* Nombre de places (uniquement pour événements sans types de billets) */}
+          {!hasTicketTypes && (event.capacity === 0 || remaining > 1) && (
             <div className="space-y-2">
               <p className="text-sm font-semibold">Nombre de places</p>
               <div className="flex items-center gap-3">
@@ -608,7 +719,7 @@ function EventDetail() {
             <Input value={regSchool} onChange={(e) => setRegSchool(e.target.value)} placeholder="Ex : ESME, Paris Saclay…" />
           </div>
 
-          {/* Informations amis */}
+          {/* Informations amis / places supplémentaires */}
           {friends.map((f, i) => (
             <div key={i} className="space-y-3 rounded-xl border border-[#D5A0A8]/60 bg-[#FDFAF7] p-4">
               <p className="text-sm font-semibold text-[#72243E] flex items-center gap-2">
@@ -643,6 +754,39 @@ function EventDetail() {
               </div>
             </div>
           ))}
+
+          {/* Document requis */}
+          {event.required_document && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                <FileText className="h-4 w-4 text-[#72243E]" />
+                Document requis : <span className="text-[#72243E]">{event.required_document}</span>
+              </Label>
+              {docFile ? (
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span className="flex-1 truncate text-sm text-emerald-700">{docFile.name}</span>
+                  <button type="button" onClick={() => setDocFile(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#D5A0A8] bg-[#FDFAF7] px-4 py-5 transition-colors hover:border-[#72243E]">
+                  <Upload className="h-5 w-5 text-[#72243E]" />
+                  <span className="text-center text-xs text-[#72243E]">
+                    Cliquer pour uploader votre <strong>{event.required_document}</strong>
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG — max 10 Mo</span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,image/jpeg,image/png,image/webp"
+                    onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              )}
+            </div>
+          )}
 
           {/* Paiement fictif */}
           <div className="space-y-3">
@@ -706,7 +850,7 @@ function EventDetail() {
           {/* Bouton payer */}
           <Button onClick={confirmPayment} disabled={acting} className="w-full bg-gradient-primary shadow-glow h-11 text-base">
             {acting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
-            {eventPrice > 0 ? `Payer ${eventPrice * quantity} €` : `Confirmer ${quantity > 1 ? `les ${quantity} inscriptions` : "l'inscription"}`}
+            {totalCartPrice > 0 ? `Payer ${totalCartPrice} €` : `Confirmer ${totalCartQty > 1 ? `les ${totalCartQty} inscriptions` : "l'inscription"}`}
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">
@@ -715,17 +859,97 @@ function EventDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* Cover image */}
-      {event.cover_image_url && (
-        <div className="relative h-56 w-full overflow-hidden rounded-2xl shadow-elegant sm:h-72">
-          <img src={event.cover_image_url} alt={event.title} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        </div>
-      )}
+      {/* Hero media carousel */}
+      {(() => {
+        const allMedia = [
+          ...(event.cover_image_url ? [{ id: "cover", url: event.cover_image_url, type: "image", caption: "" }] : []),
+          ...mediaItems,
+        ];
+        if (allMedia.length === 0) return <div className="h-2 w-full rounded-xl bg-gradient-vibrant" />;
+        return (
+          <div className="overflow-hidden rounded-2xl shadow-elegant">
+            <div className="relative h-64 w-full bg-black sm:h-[500px]">
+              {allMedia.map((m, i) => (
+                <div
+                  key={m.id || i}
+                  className={`absolute inset-0 transition-opacity duration-700 ${i === activeMediaIdx ? "z-10 opacity-100" : "z-0 opacity-0"}`}
+                >
+                  {m.type === "image" ? (
+                    <img src={m.url} alt={m.caption || event.title} className="h-full w-full object-cover" />
+                  ) : (() => {
+                    const embed = getEmbedUrl(m.url);
+                    if (embed.kind === "youtube" || embed.kind === "vimeo") return (
+                      <iframe src={embed.src} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                    );
+                    return <video src={m.url} controls className="h-full w-full bg-black object-contain" />;
+                  })()}
+                </div>
+              ))}
+              {/* Gradient + title overlay */}
+              {allMedia[activeMediaIdx]?.type === "image" && (
+                <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+              )}
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 p-5">
+                <h1 className="text-3xl font-bold leading-tight text-white drop-shadow-md sm:text-4xl">{event.title}</h1>
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/80">
+                  <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{format(new Date(event.starts_at), "PPP à p", { locale: fr })}</span>
+                  {event.location && <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{event.location}</span>}
+                </p>
+              </div>
+              {/* Nav arrows */}
+              {allMedia.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setActiveMediaIdx((i) => (i - 1 + allMedia.length) % allMedia.length)}
+                    className="absolute left-3 top-1/2 z-40 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/70"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => setActiveMediaIdx((i) => (i + 1) % allMedia.length)}
+                    className="absolute right-3 top-1/2 z-40 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/70"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                  {/* Dot indicators */}
+                  <div className="absolute bottom-4 right-4 z-40 flex gap-1.5">
+                    {allMedia.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveMediaIdx(i)}
+                        className={`h-2 rounded-full bg-white transition-all ${i === activeMediaIdx ? "w-6 opacity-100" : "w-2 opacity-40 hover:opacity-70"}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {/* Thumbnail strip */}
+            {allMedia.length >= 2 && (
+              <div className="flex gap-1.5 overflow-x-auto bg-black/90 p-2">
+                {allMedia.map((m, i) => (
+                  <button
+                    key={m.id || i}
+                    onClick={() => setActiveMediaIdx(i)}
+                    className={`h-14 w-20 shrink-0 overflow-hidden rounded border-2 transition-all ${i === activeMediaIdx ? "border-white opacity-100" : "border-transparent opacity-40 hover:opacity-70"}`}
+                  >
+                    {m.type === "image" ? (
+                      <img src={m.url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-black">
+                        <PlayCircle className="h-6 w-6 text-white/70" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Event card */}
       <Card className="overflow-hidden border-2 shadow-elegant">
-        {!event.cover_image_url && <div className="h-3 bg-gradient-vibrant" />}
         <CardContent className="p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
@@ -765,9 +989,23 @@ function EventDetail() {
                 <Building2 className="mr-1 h-3.5 w-3.5" />{event.association}
               </Badge>
             )}
+            {event.required_document && (
+              <Badge variant="outline" className="border-[#D5A0A8] text-[#72243E]">
+                <FileText className="mr-1 h-3 w-3" />Document requis : {event.required_document}
+              </Badge>
+            )}
+            {maxPerPerson > 0 && (
+              <Badge variant="outline" className="border-[#D5A0A8] text-[#72243E]">
+                <Users className="mr-1 h-3 w-3" />{maxPerPerson} place{maxPerPerson > 1 ? "s" : ""} max / personne
+              </Badge>
+            )}
           </div>
 
-          <p className="mt-3 text-muted-foreground">{event.description || "Aucune description."}</p>
+          {event.description ? (
+            <p className="mt-4 text-base leading-relaxed whitespace-pre-line text-foreground/80">{event.description}</p>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground italic">Aucune description.</p>
+          )}
 
           <div className="mt-5 grid gap-2 text-sm sm:grid-cols-3">
             <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" />{format(new Date(event.starts_at), "PPP p", { locale: fr })}</div>
@@ -792,41 +1030,52 @@ function EventDetail() {
                 {ticketTypes.map((ticket) => {
                   const ticketRemaining = getTicketRemaining(ticket);
                   const isTicketFull = ticketRemaining <= 0;
-                  const isSelected = selectedTicketId === ticket.id;
+                  const qty = cartItems[ticket.id] ?? 0;
                   return (
-                    <button
+                    <div
                       key={ticket.id}
-                      type="button"
-                      disabled={isTicketFull || !!myReg || isOwner}
-                      onClick={() => setSelectedTicketId(isSelected ? null : ticket.id)}
-                      className={`flex items-center justify-between rounded-lg border-2 p-3 text-left transition-all w-full ${
-                        isSelected
-                          ? "border-[#72243E] bg-[#EED4D8]"
-                          : isTicketFull
-                          ? "border-border bg-muted/30 opacity-60 cursor-not-allowed"
-                          : "border-border hover:border-[#C87488] cursor-pointer"
+                      className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all ${
+                        qty > 0 ? "border-[#72243E] bg-[#EED4D8]/20" : isTicketFull ? "border-border opacity-60" : "border-border"
                       }`}
                     >
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-medium text-sm">{ticket.name}</p>
                         {ticket.description && <p className="text-xs text-muted-foreground">{ticket.description}</p>}
-                      </div>
-                      <div className="text-right ml-4 shrink-0">
-                        <p className="font-semibold text-[#72243E]">
+                        <p className="mt-0.5 font-semibold text-sm text-[#72243E]">
                           {ticket.price > 0 ? `${ticket.price} €` : "Gratuit"}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          {!ticket.capacity
-                            ? "Illimité"
-                            : isTicketFull
-                            ? "Complet"
-                            : `${ticketRemaining} place${ticketRemaining > 1 ? "s" : ""}`}
-                        </p>
                       </div>
-                    </button>
+                      <div className="ml-4 shrink-0">
+                        {isTicketFull ? (
+                          <Badge variant="destructive" className="text-xs">Complet</Badge>
+                        ) : myReg || isOwner ? (
+                          <p className="text-xs text-muted-foreground">
+                            {!ticket.capacity ? "Illimité" : `${ticketRemaining} place${ticketRemaining > 1 ? "s" : ""}`}
+                          </p>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Button type="button" variant="outline" size="icon" className="h-7 w-7"
+                              onClick={() => updateCartItem(ticket.id, qty - 1)} disabled={qty === 0}>
+                              <Minus className="h-3.5 w-3.5" />
+                            </Button>
+                            <span className="w-5 text-center text-sm font-semibold">{qty}</span>
+                            <Button type="button" variant="outline" size="icon" className="h-7 w-7"
+                              onClick={() => updateCartItem(ticket.id, qty + 1)} disabled={qty >= ticketRemaining || (maxPerPerson > 0 && totalCartQty >= maxPerPerson)}>
+                              <Plus className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
+              {totalCartQty > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">{totalCartQty} place{totalCartQty > 1 ? "s" : ""}</span>
+                  <span className="font-semibold text-[#72243E]">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
+                </div>
+              )}
             </div>
           ) : (
             eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#72243E]">{eventPrice} €</p>
@@ -844,11 +1093,11 @@ function EventDetail() {
                 {!isOwner && !myReg && !isFull && (
                   <Button
                     onClick={openCart}
-                    disabled={acting || (hasTicketTypes && !selectedTicketId)}
+                    disabled={acting || (hasTicketTypes && totalCartQty === 0)}
                     className="bg-gradient-primary shadow-glow"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
-                    {hasTicketTypes && !selectedTicketId ? "Sélectionnez un tarif" : "Réserver ma place"}
+                    {hasTicketTypes && totalCartQty === 0 ? "Sélectionnez des places" : `Réserver${totalCartQty > 1 ? ` (${totalCartQty})` : ""}`}
                   </Button>
                 )}
                 {!myReg && isFull && (
@@ -1121,6 +1370,12 @@ function EventDetail() {
                           {r.ticket_name ? `${r.ticket_name} · ` : ""}
                           {r.registered_at ? `Inscrit le ${new Date(r.registered_at).toLocaleDateString("fr-FR")}` : ""}
                         </p>
+                        {r.document_url && (
+                          <a href={r.document_url} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-[#72243E] hover:underline mt-0.5">
+                            <FileText className="h-3 w-3" />Voir le document
+                          </a>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <Badge

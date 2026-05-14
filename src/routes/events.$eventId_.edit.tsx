@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImageIcon, Link2, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ImagePlus, Loader2, Plus, PlayCircle, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/$eventId_/edit")({
@@ -24,17 +24,46 @@ export const Route = createFileRoute("/events/$eventId_/edit")({
 
 type TicketDraft = {
   uid: string;
-  id?: string; // existing DB id
+  id?: string;
   name: string;
   description: string;
   price: string;
   capacity: string;
 };
 
+type MediaDraft = {
+  uid: string;
+  type: "image" | "video";
+  file?: File;
+  preview: string;
+  savedUrl?: string;
+  videoUrl?: string;
+  caption: string;
+};
+
+async function geocodeAddress(location: string, city: string): Promise<{ lat: number; lon: number } | null> {
+  const query = [location.trim(), city.trim()].filter(Boolean).join(", ");
+  if (!query) return null;
+  const tryQuery = async (q: string) => {
+    try {
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`,
+        { headers: { "Accept-Language": "fr", "User-Agent": "GuestEvent/1.0" } }
+      );
+      const data = await r.json();
+      if (data?.[0]) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+    } catch {}
+    return null;
+  };
+  return (await tryQuery(query)) ?? (city.trim() ? await tryQuery(city.trim()) : null);
+}
+
 const schema = z.object({
   title: z.string().trim().min(3, "Titre trop court").max(100, "Titre trop long (max 100 caractères)"),
   description: z.string().trim().max(2000),
   location: z.string().trim().max(200),
+  city: z.string().trim().max(100),
+  required_document: z.string().trim().max(200),
   starts_at: z.string().refine((v) => !isNaN(Date.parse(v)), "Date invalide"),
   school: z.string().trim().max(120),
   association: z.string().trim().max(120),
@@ -45,22 +74,23 @@ function EditEventPage() {
   const { eventId } = useParams({ from: "/events/$eventId_/edit" });
   const { user, role } = useAuth();
   const navigate = useNavigate();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [coverUrl, setCoverUrl] = useState<string | null>(null);
-  const [urlInput, setUrlInput] = useState("");
-  const [imageMode, setImageMode] = useState<"upload" | "url">("upload");
+  const [mediaDragOver, setMediaDragOver] = useState(false);
+  const [gallery, setGallery] = useState<MediaDraft[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
     location: "",
+    city: "",
     starts_at: "",
     school: "",
     association: "",
+    required_document: "",
+    max_per_person: "0",
     status: "published" as "draft" | "published" | "closed" | "private",
   });
   const [tickets, setTickets] = useState<TicketDraft[]>([
@@ -79,82 +109,65 @@ function EditEventPage() {
         title: ev.title,
         description: ev.description ?? "",
         location: ev.location ?? "",
+        city: ev.city ?? "",
+        required_document: ev.required_document ?? "",
+        max_per_person: String(ev.max_per_person ?? 0),
         starts_at: ev.starts_at ? new Date(ev.starts_at).toISOString().slice(0, 16) : "",
         school: ev.school ?? "",
         association: ev.association ?? "",
         status: (ev.status ?? "published") as "draft" | "published" | "closed" | "private",
       });
-      if (ev.cover_image_url) {
-        setCoverPreview(ev.cover_image_url);
-        setCoverUrl(ev.cover_image_url);
-      }
 
       // Load existing ticket types
-      const { data: types } = await (supabase as any)
-        .from("ticket_types")
-        .select("*")
-        .eq("event_id", eventId)
-        .order("sort_order");
-
+      const { data: types } = await (supabase as any).from("ticket_types").select("*").eq("event_id", eventId).order("sort_order");
       if (types && types.length > 0) {
-        setTickets(
-          types.map((t: any) => ({
-            uid: crypto.randomUUID(),
-            id: t.id,
-            name: t.name,
-            description: t.description ?? "",
-            price: String(t.price ?? 0),
-            capacity: String(t.capacity ?? 0),
-          }))
-        );
+        setTickets(types.map((t: any) => ({ uid: crypto.randomUUID(), id: t.id, name: t.name, description: t.description ?? "", price: String(t.price ?? 0), capacity: String(t.capacity ?? 0) })));
       } else {
-        // Legacy event: convert price/capacity to a single ticket
-        setTickets([{
-          uid: crypto.randomUUID(),
-          name: "Tarif standard",
-          description: "",
-          price: String(ev.price ?? 0),
-          capacity: String(ev.capacity ?? 50),
-        }]);
+        setTickets([{ uid: crypto.randomUUID(), name: "Tarif standard", description: "", price: String(ev.price ?? 0), capacity: String(ev.capacity ?? 50) }]);
       }
 
+      // Load existing media gallery
+      const { data: mediaData } = await (supabase as any).from("event_media").select("*").eq("event_id", eventId).order("sort_order");
+      const existingMedia: MediaDraft[] = (mediaData ?? []).map((m: any) => ({
+        uid: crypto.randomUUID(),
+        type: m.type as "image" | "video",
+        preview: m.url,
+        savedUrl: m.url,
+        videoUrl: m.type === "video" ? m.url : undefined,
+        caption: m.caption ?? "",
+      }));
+
+      // If no event_media but has a cover image, show it in gallery
+      if (existingMedia.length === 0 && ev.cover_image_url) {
+        existingMedia.push({ uid: crypto.randomUUID(), type: "image", preview: ev.cover_image_url, savedUrl: ev.cover_image_url, caption: "" });
+      }
+
+      setGallery(existingMedia);
       setFetching(false);
     })();
   }, [eventId, user?.id, role, navigate]);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image trop grande (max 5 Mo)"); return; }
+  function handleMediaFiles(files: FileList) {
+    Array.from(files).forEach((file) => {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
+      if (!isImage && !isVideo) { toast.error(`${file.name} : format non supporté.`); return; }
+      if (isImage && file.size > 10 * 1024 * 1024) { toast.error(`${file.name} trop lourd (max 10 Mo pour les images).`); return; }
+      if (isVideo && file.size > 500 * 1024 * 1024) { toast.error(`${file.name} trop lourd (max 500 Mo pour les vidéos).`); return; }
+      const type: "image" | "video" = isVideo ? "video" : "image";
+      setGallery((g) => [...g, { uid: crypto.randomUUID(), type, file, preview: URL.createObjectURL(file), caption: "" }]);
+    });
+  }
 
-    const preview = URL.createObjectURL(file);
-    setCoverPreview(preview);
-    setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user!.id}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("event-covers").upload(path, file, { upsert: true });
-    setUploading(false);
-    if (error) {
-      toast.error(`Erreur upload : ${error.message}`);
-      setCoverPreview(null);
+  function addVideo() {
+    const url = videoUrl.trim();
+    if (!url) return;
+    if (!url.includes("youtube.com") && !url.includes("youtu.be") && !url.includes("vimeo.com") && !/\.(mp4|webm|ogg)/i.test(url)) {
+      toast.error("URL non reconnue. Utilisez YouTube, Vimeo ou un lien .mp4/.webm.");
       return;
     }
-    const { data } = supabase.storage.from("event-covers").getPublicUrl(path);
-    setCoverUrl(data.publicUrl);
-  }
-
-  function applyUrl() {
-    const v = urlInput.trim();
-    if (!v) return;
-    setCoverPreview(v);
-    setCoverUrl(v);
-  }
-
-  function removeCover() {
-    setCoverPreview(null);
-    setCoverUrl(null);
-    setUrlInput("");
-    if (fileRef.current) fileRef.current.value = "";
+    setGallery((g) => [...g, { uid: crypto.randomUUID(), type: "video", preview: url, videoUrl: url, caption: "" }]);
+    setVideoUrl("");
   }
 
   function addTicket() {
@@ -186,6 +199,27 @@ function EditEventPage() {
     const totalCapacity = tickets.reduce((sum, t) => sum + (parseInt(t.capacity) || 0), 0);
     const minPrice = Math.min(...tickets.map((t) => parseFloat(t.price) || 0));
 
+    // Upload new image files and build final media list
+    const uploadedMedia: { url: string; type: "image" | "video"; sort_order: number; caption: string }[] = [];
+    for (let i = 0; i < gallery.length; i++) {
+      const item = gallery[i];
+      if (item.type === "video" && item.videoUrl) {
+        uploadedMedia.push({ url: item.videoUrl, type: "video", sort_order: i, caption: item.caption });
+      } else if (item.file) {
+        const ext = item.file.name.split(".").pop() ?? "jpg";
+        const path = `${user!.id}/media_${Date.now()}_${i}.${ext}`;
+        const { error } = await supabase.storage.from("event-covers").upload(path, item.file, { upsert: true });
+        if (error) { toast.error(`Erreur upload : ${error.message}`); continue; }
+        const { data: pd } = supabase.storage.from("event-covers").getPublicUrl(path);
+        uploadedMedia.push({ url: pd.publicUrl, type: item.type, sort_order: i, caption: item.caption });
+      } else if (item.savedUrl) {
+        uploadedMedia.push({ url: item.savedUrl, type: item.type, sort_order: i, caption: item.caption });
+      }
+    }
+
+    const firstImage = uploadedMedia.find((m) => m.type === "image");
+    const newCoverUrl = firstImage?.url ?? null;
+
     const { error } = await (supabase as any)
       .from("events")
       .update({
@@ -195,28 +229,36 @@ function EditEventPage() {
         starts_at: new Date(parsed.data.starts_at).toISOString(),
         capacity: totalCapacity,
         price: minPrice,
+        city: parsed.data.city,
+        required_document: parsed.data.required_document,
+        max_per_person: parseInt(form.max_per_person) || 0,
         school: parsed.data.school,
         association: parsed.data.association,
         status: parsed.data.status,
-        cover_image_url: coverUrl ?? null,
+        cover_image_url: newCoverUrl,
       })
       .eq("id", eventId)
       .eq("organizer_id", user!.id);
 
     if (error) { setLoading(false); toast.error("Erreur : " + error.message); return; }
 
-    // Replace ticket types: delete all then re-insert
+    // Géocodage par adresse complète
+    if (parsed.data.city || parsed.data.location) {
+      const coords = await geocodeAddress(parsed.data.location, parsed.data.city);
+      if (coords) await (supabase as any).from("events").update({ latitude: coords.lat, longitude: coords.lon }).eq("id", eventId);
+    }
+
+    // Replace ticket types
     await (supabase as any).from("ticket_types").delete().eq("event_id", eventId);
     await (supabase as any).from("ticket_types").insert(
-      tickets.map((t, i) => ({
-        event_id: eventId,
-        name: t.name.trim(),
-        description: t.description.trim(),
-        price: parseFloat(t.price) || 0,
-        capacity: parseInt(t.capacity) || 0,
-        sort_order: i,
-      }))
+      tickets.map((t, i) => ({ event_id: eventId, name: t.name.trim(), description: t.description.trim(), price: parseFloat(t.price) || 0, capacity: parseInt(t.capacity) || 0, sort_order: i }))
     );
+
+    // Replace event_media
+    await (supabase as any).from("event_media").delete().eq("event_id", eventId);
+    if (uploadedMedia.length > 0) {
+      await (supabase as any).from("event_media").insert(uploadedMedia.map((m) => ({ ...m, event_id: eventId })));
+    }
 
     setLoading(false);
     toast.success("Événement mis à jour !");
@@ -224,11 +266,7 @@ function EditEventPage() {
   }
 
   if (fetching) {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      </div>
-    );
+    return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
 
   return (
@@ -239,43 +277,75 @@ function EditEventPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Cover image */}
+            {/* Photos & vidéos */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Image de couverture</Label>
-                <div className="flex gap-1 rounded-lg border p-0.5 text-xs">
-                  <button type="button" onClick={() => setImageMode("upload")} className={`flex items-center gap-1 rounded px-2 py-1 transition-colors ${imageMode === "upload" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                    <ImageIcon className="h-3 w-3" />Fichier
-                  </button>
-                  <button type="button" onClick={() => setImageMode("url")} className={`flex items-center gap-1 rounded px-2 py-1 transition-colors ${imageMode === "url" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                    <Link2 className="h-3 w-3" />URL
-                  </button>
-                </div>
-              </div>
-              {coverPreview ? (
-                <div className="relative">
-                  <img src={coverPreview} alt="Aperçu" className="h-40 w-full rounded-lg object-cover" />
-                  <Button type="button" variant="destructive" size="icon" className="absolute right-2 top-2 h-7 w-7" onClick={removeCover}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                  {uploading && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/30">
-                      <Loader2 className="h-6 w-6 animate-spin text-white" />
+              <Label>
+                Photos & vidéos
+                <span className="ml-1 text-xs font-normal text-muted-foreground">(la 1ère photo devient la couverture)</span>
+              </Label>
+
+              {gallery.length > 0 && (
+                <div className="flex flex-wrap gap-2 rounded-xl border bg-muted/20 p-2">
+                  {gallery.map((item, i) => (
+                    <div key={item.uid} className="relative h-20 w-28 overflow-hidden rounded-lg border border-[#D5A0A8]">
+                      {item.type === "image" ? (
+                        <img src={item.preview} alt="" className="h-full w-full object-cover" />
+                      ) : item.file ? (
+                        <video src={item.preview} className="h-full w-full object-cover" muted playsInline />
+                      ) : (
+                        <div className="flex h-full flex-col items-center justify-center gap-1 bg-black/80">
+                          <PlayCircle className="h-6 w-6 text-white" />
+                          <span className="w-full truncate px-1 text-center text-[10px] text-white/70">Vidéo</span>
+                        </div>
+                      )}
+                      {i === 0 && item.type === "image" && (
+                        <span className="absolute bottom-0 left-0 right-0 bg-[#72243E]/80 py-0.5 text-center text-[9px] text-white">
+                          Couverture
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setGallery((g) => g.filter((x) => x.uid !== item.uid))}
+                        className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white transition-colors hover:bg-black/80"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
-                  )}
-                </div>
-              ) : imageMode === "upload" ? (
-                <button type="button" onClick={() => fileRef.current?.click()} className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary">
-                  <ImageIcon className="h-8 w-8" />
-                  <span>Cliquer pour uploader (max 5 Mo)</span>
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <Input placeholder="https://exemple.com/image.jpg" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyUrl(); } }} />
-                  <Button type="button" variant="outline" onClick={applyUrl}>Aperçu</Button>
+                  ))}
                 </div>
               )}
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+
+              <div
+                onClick={() => mediaInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setMediaDragOver(true); }}
+                onDragLeave={() => setMediaDragOver(false)}
+                onDrop={(e) => { e.preventDefault(); setMediaDragOver(false); if (e.dataTransfer.files.length) handleMediaFiles(e.dataTransfer.files); }}
+                className="flex h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors"
+                style={{ borderColor: mediaDragOver ? "#72243E" : "#D5A0A8", background: mediaDragOver ? "#EED4D820" : "#FDFAF7" }}
+              >
+                <ImagePlus className="h-5 w-5 text-[#72243E]" />
+                <p className="text-center text-xs text-[#72243E]">Photos (JPG, PNG, WebP) ou vidéos (MP4, WebM) — cliquez ou glissez</p>
+              </div>
+              <input
+                ref={mediaInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
+                multiple
+                className="hidden"
+                onChange={(e) => { if (e.target.files) handleMediaFiles(e.target.files); }}
+              />
+
+              <div className="flex gap-2">
+                <Input
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addVideo(); } }}
+                  placeholder="Lien vidéo YouTube ou Vimeo"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={addVideo} className="shrink-0">
+                  <Plus className="mr-1 h-4 w-4" />Ajouter
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -290,13 +360,18 @@ function EditEventPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="location">Lieu</Label>
-                <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Adresse ou URL" />
+                <Label htmlFor="location">Lieu <span className="text-muted-foreground font-normal text-xs">(adresse complète)</span></Label>
+                <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Ex : 10 rue de la Paix, Paris" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="starts_at">Date & heure *</Label>
-                <Input id="starts_at" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} required />
+                <Label htmlFor="city">Ville <span className="text-muted-foreground font-normal text-xs">(pour la carte)</span></Label>
+                <Input id="city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Ex : Paris, Lyon, Bordeaux…" />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="starts_at">Date & heure *</Label>
+              <Input id="starts_at" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} required />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -324,13 +399,7 @@ function EditEventPage() {
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-semibold text-[#72243E]">Tarif {i + 1}</p>
                       {tickets.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeTicket(ticket.uid)}
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        >
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeTicket(ticket.uid)} className="h-7 w-7 text-muted-foreground hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
@@ -338,44 +407,47 @@ function EditEventPage() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Nom *</Label>
-                        <Input
-                          value={ticket.name}
-                          onChange={(e) => updateTicket(ticket.uid, "name", e.target.value)}
-                          placeholder="ex : Tarif étudiant"
-                        />
+                        <Input value={ticket.name} onChange={(e) => updateTicket(ticket.uid, "name", e.target.value)} placeholder="ex : Tarif étudiant" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs">Prix (€) — 0 = Gratuit</Label>
-                        <Input
-                          type="text"
-                          inputMode="decimal"
-                          value={ticket.price}
-                          onChange={(e) => updateTicket(ticket.uid, "price", e.target.value)}
-                          placeholder="0.00"
-                        />
+                        <Input type="text" inputMode="decimal" value={ticket.price} onChange={(e) => updateTicket(ticket.uid, "price", e.target.value)} placeholder="0.00" />
                       </div>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Capacité (0 = illimitée)</Label>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={ticket.capacity}
-                          onChange={(e) => updateTicket(ticket.uid, "capacity", e.target.value)}
-                        />
+                        <Input type="number" min={0} value={ticket.capacity} onChange={(e) => updateTicket(ticket.uid, "capacity", e.target.value)} />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">Commentaire <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
-                        <Input
-                          value={ticket.description}
-                          onChange={(e) => updateTicket(ticket.uid, "description", e.target.value)}
-                          placeholder="ex : Sur présentation de la carte étudiant"
-                        />
+                        <Label className="text-xs">Commentaire <span className="font-normal text-muted-foreground">(optionnel)</span></Label>
+                        <Input value={ticket.description} onChange={(e) => updateTicket(ticket.uid, "description", e.target.value)} placeholder="ex : Sur présentation de la carte étudiant" />
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="required_document">Document requis <span className="font-normal text-xs text-muted-foreground">(vide = aucun)</span></Label>
+                <Input
+                  id="required_document"
+                  value={form.required_document}
+                  onChange={(e) => setForm({ ...form, required_document: e.target.value })}
+                  placeholder="Ex : Carte étudiante, CNI…"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="max_per_person">Places max / personne <span className="font-normal text-xs text-muted-foreground">(0 = illimité)</span></Label>
+                <Input
+                  id="max_per_person"
+                  type="number"
+                  min={0}
+                  value={form.max_per_person}
+                  onChange={(e) => setForm({ ...form, max_per_person: e.target.value })}
+                />
               </div>
             </div>
 
@@ -395,7 +467,7 @@ function EditEventPage() {
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={loading || uploading} className="flex-1 bg-gradient-primary shadow-glow">
+              <Button type="submit" disabled={loading} className="flex-1 bg-gradient-primary shadow-glow">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Enregistrer les modifications
               </Button>

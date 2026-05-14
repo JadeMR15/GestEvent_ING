@@ -14,6 +14,7 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as ExportRouteImport } from './routes/export'
 import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -48,6 +49,11 @@ const MyTicketsRoute = MyTicketsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExportRoute = ExportRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
+  '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
+  '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
+  '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/emails'
     | '/export'
+    | '/finance'
     | '/login'
     | '/my-tickets'
     | '/register'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/emails'
     | '/export'
+    | '/finance'
     | '/login'
     | '/my-tickets'
     | '/register'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/emails'
     | '/export'
+    | '/finance'
     | '/login'
     | '/my-tickets'
     | '/register'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
+  FinanceRoute: typeof FinanceRoute
   LoginRoute: typeof LoginRoute
   MyTicketsRoute: typeof MyTicketsRoute
   RegisterRoute: typeof RegisterRoute
@@ -260,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/export': {
@@ -341,6 +361,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
+  FinanceRoute: FinanceRoute,
   LoginRoute: LoginRoute,
   MyTicketsRoute: MyTicketsRoute,
   RegisterRoute: RegisterRoute,
