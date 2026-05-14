@@ -307,13 +307,13 @@ function AnalyticsPage() {
             <Card className="border-2 shadow-elegant">
               <CardHeader><CardTitle>Taux de remplissage (%)</CardTitle></CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={fillRateData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#d1fae5" horizontal={false} />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
-                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={fillRateData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#d1fae5" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
                     <Tooltip formatter={(v) => [`${v}%`, "Remplissage"]} />
-                    <Bar dataKey="Taux (%)" radius={[0, 4, 4, 0]}>
+                    <Bar dataKey="Taux (%)" radius={[4, 4, 0, 0]}>
                       {fillRateData.map((e, i) => <Cell key={i} fill={e["Taux (%)"] >= 90 ? "#059669" : e["Taux (%)"] >= 50 ? "#10b981" : "#a7f3d0"} />)}
                     </Bar>
                   </BarChart>
