@@ -155,7 +155,7 @@ function AnalyticsPage() {
     pending: "En attente", waitlisted: "Liste d'attente",
   };
   const statusData = Object.entries(
-    filteredRegs.reduce((acc, r) => { acc[r.status] = (acc[r.status] ?? 0) + 1; return acc; }, {} as Record<string, number>)
+    filteredRegs.filter((r) => r.status !== "pending").reduce((acc, r) => { acc[r.status] = (acc[r.status] ?? 0) + 1; return acc; }, {} as Record<string, number>)
   ).map(([s, v]) => ({ name: statusLabels[s] ?? s, value: v }));
 
   const fillRateData = events.filter((ev) => ev.capacity > 0).map((ev) => {
