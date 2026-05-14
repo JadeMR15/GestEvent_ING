@@ -184,6 +184,17 @@ function EventDetail() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Realtime : recharger dès qu'une inscription change sur cet événement
+  useEffect(() => {
+    const channel = supabase
+      .channel(`registrations:${eventId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "registrations", filter: `event_id=eq.${eventId}` },
+        () => { load(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [eventId, load]);
+
   // Timer — effet 1 : démarrer/arrêter le compte à rebours
   useEffect(() => {
     if (!showCart) { setTimeLeft(TIMER_SECONDS); return; }
