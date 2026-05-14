@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -12,7 +12,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend,
 } from "recharts";
-import { Users, TrendingUp, Euro, CalendarDays, BarChart2, UserCircle } from "lucide-react";
+import { Users, TrendingUp, Euro, CalendarDays, BarChart2, UserCircle, ArrowLeft } from "lucide-react";
 import { format, subDays, eachDayOfInterval } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -78,6 +78,7 @@ function AnalyticsPage() {
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState("global");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -220,18 +221,9 @@ function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analyses</h1>
-          <p className="text-muted-foreground">Visualisez les performances de vos événements.</p>
-        </div>
-        <Select value={selectedEventId} onValueChange={setSelectedEventId}>
-          <SelectTrigger className="w-56"><SelectValue placeholder="Tous les événements" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les événements</SelectItem>
-            {events.map((e) => <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>)}
-          </SelectContent>
-        </Select>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Analyses</h1>
+        <p className="text-muted-foreground">Visualisez les performances de vos événements.</p>
       </div>
 
       {/* Stat cards */}
@@ -242,7 +234,7 @@ function AnalyticsPage() {
         <StatCard icon={Euro} label="Revenus estimés" value={`${totalRevenue} €`} />
       </div>
 
-      <Tabs defaultValue="global" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); if (v !== "global") setSelectedEventId("all"); }} className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="global" className="gap-2"><BarChart2 className="h-4 w-4" />Vue globale</TabsTrigger>
           <TabsTrigger value="events" className="gap-2"><CalendarDays className="h-4 w-4" />Par événement</TabsTrigger>
@@ -251,6 +243,16 @@ function AnalyticsPage() {
 
         {/* ═══════════ VUE GLOBALE ═══════════ */}
         <TabsContent value="global" className="space-y-4">
+          {selectedEventId !== "all" && (
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setSelectedEventId("all")}>
+                <ArrowLeft className="h-4 w-4" />Tous les événements
+              </Button>
+              <span className="text-sm font-medium text-muted-foreground">
+                {events.find((e) => e.id === selectedEventId)?.title}
+              </span>
+            </div>
+          )}
           <Card className="border-2 shadow-elegant">
             <CardHeader><CardTitle>Inscriptions — 30 derniers jours</CardTitle></CardHeader>
             <CardContent>
@@ -330,7 +332,11 @@ function AnalyticsPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {eventCards.map(({ ev, inscrits, presents, tauxPresence, revenu, fillRate, evTimeline }) => (
-                <Card key={ev.id} className="border-2 shadow-elegant flex flex-col">
+                <Card
+                  key={ev.id}
+                  className="border-2 shadow-elegant flex flex-col cursor-pointer transition-shadow hover:shadow-lg"
+                  onClick={() => { setSelectedEventId(ev.id); setActiveTab("global"); }}
+                >
                   <CardContent className="p-5 space-y-4 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <div>

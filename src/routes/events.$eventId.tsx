@@ -867,8 +867,9 @@ function EventDetail() {
 
       {/* Hero media carousel */}
       {(() => {
+        const coverAlreadyInMedia = mediaItems.some((m) => m.url === event.cover_image_url);
         const allMedia = [
-          ...(event.cover_image_url ? [{ id: "cover", url: event.cover_image_url, type: "image", caption: "" }] : []),
+          ...(!coverAlreadyInMedia && event.cover_image_url ? [{ id: "cover", url: event.cover_image_url, type: "image", caption: "" }] : []),
           ...mediaItems,
         ];
         if (allMedia.length === 0) return <div className="h-2 w-full rounded-xl bg-gradient-vibrant" />;
