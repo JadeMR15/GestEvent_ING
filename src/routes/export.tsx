@@ -131,7 +131,7 @@ function ExportPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Export</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Exporter</h1>
           <p className="text-muted-foreground">Téléchargez les données de vos événements en CSV.</p>
         </div>
         <Button onClick={exportAll} disabled={loadingAll || events.length === 0} className="bg-gradient-primary shadow-glow">

@@ -833,7 +833,7 @@ function EventDetail() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="ccvv">CVV</Label>
+                  <Label htmlFor="ccvv">Cryptogramme</Label>
                   <Input
                     id="ccvv"
                     value={cardCvv}

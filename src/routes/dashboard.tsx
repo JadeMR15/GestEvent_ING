@@ -221,7 +221,7 @@ function DashboardPage() {
               </Button>
               <Button variant="outline" onClick={exportCSV} disabled={exporting}>
                 <Download className="mr-2 h-4 w-4" />
-                {exporting ? "Export…" : "Export CSV"}
+                {exporting ? "Export…" : "Exporter CSV"}
               </Button>
               <Button asChild className="bg-gradient-primary shadow-glow">
                 <Link to="/events/new"><PlusCircle className="mr-2 h-4 w-4" />Nouvel événement</Link>

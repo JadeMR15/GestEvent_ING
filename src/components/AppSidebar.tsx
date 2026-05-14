@@ -47,7 +47,7 @@ export function AppSidebar() {
   const toolItems = [
     { title: "Analyses", url: "/analytics", icon: BarChart2, roles: ["admin", "organizer"] },
     { title: "Finances", url: "/finance", icon: Euro, roles: ["admin", "organizer"] },
-    { title: "Export", url: "/export", icon: Download, roles: ["admin", "organizer"] },
+    { title: "Exporter", url: "/export", icon: Download, roles: ["admin", "organizer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   return (
