@@ -59,6 +59,19 @@ function EmptyState({ message }: { message: string }) {
   return <p className="py-8 text-center text-sm text-muted-foreground">{message}</p>;
 }
 
+function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) {
+  if (percent < 0.04) return null;
+  const RADIAN = Math.PI / 180;
+  const r = innerRadius + (outerRadius - innerRadius) * 0.55;
+  const x = cx + r * Math.cos(-midAngle * RADIAN);
+  const y = cy + r * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700}>
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+}
+
 function AnalyticsPage() {
   const { user, role } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
@@ -279,7 +292,7 @@ function AnalyticsPage() {
                 {statusData.length === 0 ? <EmptyState message="Aucune donnée." /> : (
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
-                      <Pie data={statusData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" paddingAngle={3}>
+                      <Pie data={statusData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" paddingAngle={3} labelLine={false} label={<PieLabel />}>
                         {statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
                       <Tooltip formatter={(v, n) => [`${v} inscription(s)`, n]} /><Legend />
