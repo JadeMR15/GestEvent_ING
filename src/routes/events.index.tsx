@@ -244,7 +244,7 @@ function EventList() {
                     <div className="relative h-36 w-full overflow-hidden bg-muted">
                       <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                      <div className="absolute right-2 top-2">
+                      <div className="absolute right-2 bottom-2">
                         {isFull ? <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none h-5">Complet</Badge>
                           : remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px] px-1.5 py-0 leading-none h-5">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                           : null}
