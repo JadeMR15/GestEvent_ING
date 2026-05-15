@@ -82,16 +82,27 @@ export default function EventMap({ events }: { events: any[] }) {
 
       map.addLayer(clusterGroup);
 
-      if (eventsWithCoords.length === 0) {
-        map.setView([46.2, 2.2], 6);
-      } else if (eventsWithCoords.length === 1) {
-        map.setView([eventsWithCoords[0].latitude, eventsWithCoords[0].longitude], 14);
-      } else {
-        const bounds = L.latLngBounds(
-          eventsWithCoords.map((e: any) => [e.latitude, e.longitude] as [number, number])
-        );
-        map.fitBounds(bounds, { padding: [48, 48] });
-      }
+      const setView = () => {
+        if (eventsWithCoords.length === 0) {
+          map.setView([46.2, 2.2], 6);
+        } else if (eventsWithCoords.length === 1) {
+          map.setView([eventsWithCoords[0].latitude, eventsWithCoords[0].longitude], 14);
+        } else {
+          const bounds = L.latLngBounds(
+            eventsWithCoords.map((e: any) => [e.latitude, e.longitude] as [number, number])
+          );
+          map.fitBounds(bounds, { padding: [48, 48] });
+        }
+      };
+
+      // invalidateSize force Leaflet à recalculer les dimensions du conteneur
+      // (nécessaire quand la carte est dans un tab ou un div initialement caché)
+      setTimeout(() => {
+        if (!cancelled) {
+          map.invalidateSize();
+          setView();
+        }
+      }, 100);
     });
 
     return () => {
