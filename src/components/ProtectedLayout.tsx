@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
@@ -41,7 +41,13 @@ export function ProtectedLayout({ children, allow }: Props) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        <div className="flex flex-1 flex-col min-w-0">
+          <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/80 backdrop-blur px-4 py-3 md:hidden">
+            <SidebarTrigger />
+            <span className="text-sm font-semibold text-[#6B0F2C]">Plav'</span>
+          </header>
+          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        </div>
       </div>
     </SidebarProvider>
   );
