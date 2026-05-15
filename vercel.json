@@ -1,9 +1,5 @@
 {
-  "build": {
-    "env": {
-      "NITRO_PRESET": "static"
-    }
-  },
-  "outputDirectory": ".output/public",
+  "buildCommand": "npm run build && node scripts/generate-index.mjs",
+  "outputDirectory": "dist/client",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
