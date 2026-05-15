@@ -112,7 +112,7 @@ function Landing() {
       <div className="pointer-events-none fixed inset-0 bg-gradient-mesh opacity-60" />
 
       {/* ── Header ── */}
-      <header className="relative z-10 w-full border-b border-[#D5A0A8]/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
+      <header className="relative z-50 w-full border-b border-[#D5A0A8]/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <img src="/logo2.png" alt="Plav'" className="h-10 md:h-20 w-auto object-contain" />
@@ -245,13 +245,13 @@ function Landing() {
             {upcoming.length > 0 && (
               <>
                 {past.length > 0 && <p className="mb-4 text-sm font-medium text-[#0F7A4B] uppercase tracking-wide">À venir</p>}
-                <EventGrid events={upcoming} />
+                <EventGrid events={upcoming} user={user} />
               </>
             )}
             {past.length > 0 && (
               <>
                 <p className="mt-10 mb-4 text-sm font-medium text-[#2C2C2A]/40 uppercase tracking-wide">Passés</p>
-                <EventGrid events={past} muted />
+                <EventGrid events={past} muted user={user} />
               </>
             )}
           </>
@@ -468,7 +468,7 @@ function StackedHowItWorks() {
   );
 }
 
-function EventGrid({ events, muted = false }: { events: any[]; muted?: boolean }) {
+function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boolean; user: any }) {
   function getActive(e: any) {
     const now = new Date();
     return (e.registrations ?? []).filter((r: any) =>
@@ -485,7 +485,7 @@ function EventGrid({ events, muted = false }: { events: any[]; muted?: boolean }
         const remaining = e.capacity - taken;
 
         return (
-          <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }}>
+          <Link key={e.id} to={user ? "/events/$eventId" : "/login"} params={user ? { eventId: e.id } : undefined}>
             <Card className={`group h-full overflow-hidden border transition-all duration-300 hover:shadow-glow hover:-translate-y-1 ${muted ? "opacity-60" : ""}`}>
               {e.cover_image_url ? (
                 <div className="relative h-40 w-full overflow-hidden bg-muted">
