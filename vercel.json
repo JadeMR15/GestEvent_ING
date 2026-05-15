@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build && node scripts/generate-index.mjs",
-  "outputDirectory": "dist/client",
+  "buildCommand": "vite build --config vite.csr.config.ts",
+  "outputDirectory": "dist/csr",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
