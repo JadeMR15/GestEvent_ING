@@ -116,7 +116,7 @@ function Landing() {
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <img src="/logo2.png" alt="Plav'" className="h-20 w-auto object-contain" />
-            <BrandName className="h-12" />
+            <BrandName className="h-20" />
           </div>
           <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-[#6B0F2C]">
             <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
@@ -328,7 +328,7 @@ function Landing() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo2.png" alt="Plav'" className="h-10 w-auto" />
-                <BrandName className="h-8" />
+                <BrandName className="h-12" />
               </div>
               <p className="text-sm text-[#2C2C2A]/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>

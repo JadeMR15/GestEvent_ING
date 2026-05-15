@@ -59,7 +59,7 @@ export function AppSidebar() {
           <img src="/logo2.png" alt="Plav'" className="h-24 w-24 shrink-0 object-contain" />
           {!collapsed && (
             <div className="flex flex-col flex-1">
-              <BrandName className="h-8" />
+              <BrandName className="h-14" />
               <span className="text-xs text-sidebar-foreground/60">
                 {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
               </span>
