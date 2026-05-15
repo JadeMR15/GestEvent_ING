@@ -115,8 +115,8 @@ function Landing() {
       <header className="relative z-10 w-full border-b border-[#D5A0A8]/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <img src="/logo2.png" alt="Plav'" className="h-20 w-auto object-contain" />
-            <BrandName className="h-20" />
+            <img src="/logo2.png" alt="Plav'" className="h-10 md:h-20 w-auto object-contain" />
+            <BrandName className="h-10 md:h-20" />
           </div>
           <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-[#6B0F2C]">
             <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
@@ -174,18 +174,18 @@ function Landing() {
           </div>
 
           {/* Stats */}
-          <div className={`mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-4 ${heroAnim.visible ? "animate-fade-up delay-300" : "opacity-0"}`}>
+          <div className={`mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3 ${heroAnim.visible ? "animate-fade-up delay-300" : "opacity-0"}`}>
             {[
               { value: stats.events, label: "Événements publiés", icon: CalendarDays },
               { value: stats.participants, label: "Participants inscrits", icon: Users },
               { value: stats.organizers, label: "Organisateurs actifs", icon: Star },
             ].map((s) => (
-              <div key={s.label} className="rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-5 text-center backdrop-blur shadow-elegant">
-                <s.icon className="mx-auto mb-2 h-5 w-5 text-[#0F7A4B]" />
-                <p className="text-3xl font-semibold" style={{ color: "var(--text-title)" }}>
+              <div key={s.label} className="rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-3 sm:p-5 text-center backdrop-blur shadow-elegant">
+                <s.icon className="mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5 text-[#0F7A4B]" />
+                <p className="text-xl sm:text-3xl font-semibold" style={{ color: "var(--text-title)" }}>
                   {eventsLoading ? "—" : s.value}
                 </p>
-                <p className="mt-1 text-xs text-[#2C2C2A]/60">{s.label}</p>
+                <p className="mt-1 text-[10px] sm:text-xs text-[#2C2C2A]/60 leading-tight">{s.label}</p>
               </div>
             ))}
           </div>
@@ -425,16 +425,16 @@ function StackedHowItWorks() {
               boxShadow:       "0 20px 60px -10px rgba(0,0,0,0.35)",
             }}
           >
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "100%" }}>
-              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "2.5rem" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 h-full">
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(1.5rem, 5vw, 2.5rem)" }}>
                 <div>
-                  <span style={{ display: "block", fontSize: 88, lineHeight: 0.85, color: card.accent, opacity: 0.12, fontWeight: 800, userSelect: "none" }}>
+                  <span style={{ display: "block", fontSize: "clamp(48px, 12vw, 88px)", lineHeight: 0.85, color: card.accent, opacity: 0.12, fontWeight: 800, userSelect: "none" }}>
                     {card.step}
                   </span>
-                  <h3 style={{ marginTop: "0.5rem", fontSize: "2rem", fontWeight: 700, color: "white", lineHeight: 1.25 }}>
+                  <h3 style={{ marginTop: "0.5rem", fontSize: "clamp(1.25rem, 4vw, 2rem)", fontWeight: 700, color: "white", lineHeight: 1.25 }}>
                     {card.title}
                   </h3>
-                  <p style={{ marginTop: "1rem", fontSize: "0.9rem", lineHeight: 1.75, color: `${card.accent}cc` }}>
+                  <p style={{ marginTop: "1rem", fontSize: "0.85rem", lineHeight: 1.65, color: `${card.accent}cc` }}>
                     {card.desc}
                   </p>
                 </div>
@@ -450,7 +450,7 @@ function StackedHowItWorks() {
                   </Link>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.07 }}>
+              <div className="hidden sm:flex" style={{ alignItems: "center", justifyContent: "center", opacity: 0.07 }}>
                 <card.icon style={{ width: 150, height: 150, color: card.accent }} strokeWidth={0.55} />
               </div>
             </div>

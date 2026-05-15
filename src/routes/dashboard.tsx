@@ -208,7 +208,7 @@ function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight not-italic">Dashboard</h1>
           <p className="text-muted-foreground">Vue d'ensemble de votre activité.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {role === "participant" && (
             <Button asChild variant="outline">
               <Link to="/my-tickets"><Ticket className="mr-2 h-4 w-4" />Mes billets</Link>
