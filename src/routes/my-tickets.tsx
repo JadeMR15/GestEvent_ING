@@ -103,7 +103,7 @@ function MyTicketsPage() {
 <body>
   <div class="ticket">
     <div class="header">
-      <div class="brand">✦ Plav' ✦</div>
+      <div class="brand"><img src="${window.location.origin}/police.png" alt="Plav'" style="height:28px;object-fit:contain;filter:brightness(0) invert(1)" /></div>
       <div class="event-title">${title}</div>
     </div>
     <div class="body">
@@ -128,7 +128,7 @@ function MyTicketsPage() {
       <div class="instructions">Présentez ce QR code à l'entrée de l'événement</div>
     </div>
     <div class="footer">
-      <div class="footer-brand">Plav'</div>
+      <div class="footer-brand"><img src="${window.location.origin}/police.png" alt="Plav'" style="height:20px;object-fit:contain" /></div>
       <div class="footer-note">Billet officiel<br>Ne pas dupliquer</div>
     </div>
   </div>

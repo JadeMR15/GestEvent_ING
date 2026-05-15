@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,7 +116,7 @@ function Landing() {
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <img src="/logo2.png" alt="Plav'" className="h-20 w-auto object-contain" />
-            <span className="font-display text-3xl italic text-[#6B0F2C]">Plav'</span>
+            <BrandName className="h-8" />
           </div>
           <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-[#6B0F2C]">
             <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
@@ -327,7 +328,7 @@ function Landing() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo2.png" alt="Plav'" className="h-10 w-auto" />
-                <span className="font-display text-lg italic text-[#6B0F2C]">Plav'</span>
+                <BrandName className="h-6" />
               </div>
               <p className="text-sm text-[#2C2C2A]/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
@@ -372,7 +373,7 @@ function Landing() {
             </div>
           </div>
           <div className="mt-8 border-t border-[#D5A0A8]/30 pt-6 text-center text-xs text-[#2C2C2A]/40">
-            © {new Date().getFullYear()} Plav'. Tous droits réservés.
+            © {new Date().getFullYear()} <BrandName className="h-3.5 align-middle" />. Tous droits réservés.
           </div>
         </div>
       </footer>
