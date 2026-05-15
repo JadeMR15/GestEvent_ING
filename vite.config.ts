@@ -6,4 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig({ vite: { server: { host: true } } });
+export default defineConfig({
+  cloudflare: process.env.VERCEL ? false : undefined,
+  vite: { server: { host: true } },
+});
