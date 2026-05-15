@@ -1,4 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { BrandName } from "@/components/BrandName";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -58,7 +59,7 @@ export function AppSidebar() {
           <img src="/logo2.png" alt="Plav'" className="h-24 w-24 shrink-0 object-contain" />
           {!collapsed && (
             <div className="flex flex-col flex-1">
-              <span className="text-base font-bold text-sidebar-foreground">Plav'</span>
+              <BrandName className="h-5" />
               <span className="text-xs text-sidebar-foreground/60">
                 {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
               </span>
