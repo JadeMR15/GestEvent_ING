@@ -305,7 +305,7 @@ function Landing() {
         <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-2xl rounded-[20px] bg-gradient-primary p-12 text-center shadow-glow">
-              <img src="/logo2.png" alt="" className="mx-auto mb-4 h-12 w-12 object-contain" />
+              <img src="/logo2.png" alt="" className="mx-auto mb-6 h-28 w-28 object-contain drop-shadow-lg brightness-0 invert" />
               <h2 className="text-4xl font-bold text-white">Prêt à organiser ta prochaine soirée ?</h2>
               <p className="mt-4 text-white/80">Rejoins des dizaines d'assos qui font confiance à Plav' pour leurs événements.</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
