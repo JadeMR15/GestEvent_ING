@@ -150,7 +150,7 @@ function Landing() {
               <img src="/logo2.png" alt="" className="h-4 w-4 object-contain" />
               Organise, gère, scanne — en un seul endroit
             </div>
-            <h1 className="text-5xl tracking-tight md:text-7xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>
+            <h1 className="text-5xl tracking-tight md:text-7xl font-extrabold" style={{ color: "var(--text-title)" }}>
               Tes soirées{" "}
               <span className="bg-gradient-vibrant bg-clip-text text-transparent">enflammées</span>
             </h1>
@@ -182,7 +182,7 @@ function Landing() {
             ].map((s) => (
               <div key={s.label} className="rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-5 text-center backdrop-blur shadow-elegant">
                 <s.icon className="mx-auto mb-2 h-5 w-5 text-[#0F7A4B]" />
-                <p className="text-3xl font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-title)" }}>
+                <p className="text-3xl font-semibold" style={{ color: "var(--text-title)" }}>
                   {eventsLoading ? "—" : s.value}
                 </p>
                 <p className="mt-1 text-xs text-[#2C2C2A]/60">{s.label}</p>
@@ -198,7 +198,7 @@ function Landing() {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "linear-gradient(to bottom, #FDFAF7 0%, rgba(253,250,247,0.8) 40%, transparent 100%)" }} />
         <div className="relative z-10 container mx-auto px-6">
         <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-          <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Prochaines soirées</h2>
+          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Prochaines soirées</h2>
           <p className="mt-2 text-[#2C2C2A]/60">Toutes les soirées publiées, accessibles sans connexion.</p>
         </div>
 
@@ -271,7 +271,7 @@ function Landing() {
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
           <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-          <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Tout ce qu'il te faut</h2>
+          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Tout ce qu'il te faut</h2>
             <p className="mt-3 text-[#2C2C2A]/60 max-w-xl mx-auto">Une plateforme de billetterie étudiante pensée pour les assos qui organisent et les étudiants qui veulent vivre des soirées de ouf.</p>
           </div>
           <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
@@ -289,7 +289,7 @@ function Landing() {
                 <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-[8px] ${f.color}`}>
                   <f.icon className={`h-5 w-5 ${f.iconColor}`} />
                 </div>
-                <h3 style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)", fontSize: "1.1rem" }}>{f.title}</h3>
+                <h3 style={{ color: "var(--text-title)", fontSize: "1.1rem", fontWeight: 600 }}>{f.title}</h3>
                 <p className="mt-2 text-sm text-[#2C2C2A]/70">{f.desc}</p>
               </div>
             ))}
@@ -306,7 +306,7 @@ function Landing() {
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-2xl rounded-[20px] bg-gradient-primary p-12 text-center shadow-glow">
               <img src="/logo2.png" alt="" className="mx-auto mb-4 h-12 w-12 object-contain" />
-              <h2 className="text-4xl text-white" style={{ fontFamily: "var(--font-display)", fontStyle: "italic" }}>Prêt à organiser ta prochaine soirée ?</h2>
+              <h2 className="text-4xl font-bold text-white">Prêt à organiser ta prochaine soirée ?</h2>
               <p className="mt-4 text-white/80">Rejoins des dizaines d'assos qui font confiance à Plav' pour leurs événements.</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg" className="bg-white text-[#6B0F2C] hover:bg-white/90">
@@ -400,7 +400,7 @@ function StackedHowItWorks() {
         padding:    "1rem 0 1.5rem",
         background: "linear-gradient(to bottom, var(--bg-page) 70%, transparent 100%)",
       }}>
-        <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>
+        <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>
           Comment ça marche ?
         </h2>
       </div>
@@ -428,10 +428,10 @@ function StackedHowItWorks() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "100%" }}>
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "2.5rem" }}>
                 <div>
-                  <span style={{ display: "block", fontFamily: "var(--font-display)", fontSize: 88, lineHeight: 0.85, color: card.accent, opacity: 0.12, fontWeight: 700, userSelect: "none" }}>
+                  <span style={{ display: "block", fontSize: 88, lineHeight: 0.85, color: card.accent, opacity: 0.12, fontWeight: 800, userSelect: "none" }}>
                     {card.step}
                   </span>
-                  <h3 style={{ marginTop: "0.5rem", fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: "2rem", color: "white", lineHeight: 1.25 }}>
+                  <h3 style={{ marginTop: "0.5rem", fontSize: "2rem", fontWeight: 700, color: "white", lineHeight: 1.25 }}>
                     {card.title}
                   </h3>
                   <p style={{ marginTop: "1rem", fontSize: "0.9rem", lineHeight: 1.75, color: `${card.accent}cc` }}>

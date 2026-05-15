@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400;1,600&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
 @import "tailwindcss" source(none);
 @source "../src";
@@ -8,8 +8,8 @@
 
 @theme inline {
   /* Fonts */
-  --font-display: 'Cormorant Garamond', serif;
-  --font-body:    'Inter', sans-serif;
+  --font-display: 'DM Sans', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
 
   /* Radius — 8px buttons · 12px cards · 20px+ badges */
   --radius-sm: 0.375rem;
@@ -180,9 +180,9 @@
     line-height: 1.2;
   }
 
-  h1 { font-size: 2.5rem;  font-weight: 400; }
-  h2 { font-size: 2rem;    font-weight: 400; }
-  h3 { font-size: 1.5rem;  font-weight: 400; }
+  h1 { font-size: 2.5rem;  font-weight: 800; }
+  h2 { font-size: 2rem;    font-weight: 700; }
+  h3 { font-size: 1.5rem;  font-weight: 600; }
 }
 
 /* ── Utility classes ── */
