@@ -16,6 +16,13 @@ export default function EventMap({ events }: { events: any[] }) {
     if (!containerRef.current || typeof window === "undefined") return;
 
     let cancelled = false;
+    let ro: ResizeObserver | null = null;
+
+    // Nettoie tout résidu Leaflet sur le container avant d'init
+    const el = containerRef.current as any;
+    if (el._leaflet_id) {
+      delete el._leaflet_id;
+    }
 
     Promise.all([import("leaflet"), import("leaflet.markercluster")]).then(([mod]) => {
       if (cancelled || !containerRef.current) return;
@@ -42,7 +49,6 @@ export default function EventMap({ events }: { events: any[] }) {
 
       const eventsWithCoords = events.filter((e) => e.latitude && e.longitude);
 
-      // Cluster group — custom style to match brand colors
       const clusterGroup = (L as any).markerClusterGroup({
         maxClusterRadius: 60,
         iconCreateFunction: (cluster: any) => {
@@ -95,18 +101,32 @@ export default function EventMap({ events }: { events: any[] }) {
         }
       };
 
-      // invalidateSize force Leaflet à recalculer les dimensions du conteneur
-      // (nécessaire quand la carte est dans un tab ou un div initialement caché)
-      setTimeout(() => {
+      // ResizeObserver : dès que le container a des dimensions réelles, on
+      // recalcule la taille de la carte. Couvre le cas lazy+Suspense où le
+      // layout n'est pas encore stable quand useEffect se déclenche.
+      ro = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          map.invalidateSize();
+          setView();
+          ro?.disconnect();
+          ro = null;
+        }
+      });
+      if (containerRef.current) ro.observe(containerRef.current);
+
+      // Fallback au cas où ResizeObserver ne se déclenche pas (déjà dimensionné)
+      requestAnimationFrame(() => {
         if (!cancelled) {
           map.invalidateSize();
           setView();
         }
-      }, 100);
+      });
     });
 
     return () => {
       cancelled = true;
+      ro?.disconnect();
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
