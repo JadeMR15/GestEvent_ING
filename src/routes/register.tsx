@@ -71,7 +71,7 @@ function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
         <CardHeader className="text-center">
-          <img src="/logo2.png" alt="Plav'" className="mx-auto mb-3 h-44 w-auto object-contain" />
+          <img src="/logo2.png" alt="Plav'" className="mx-auto mb-3 h-24 sm:h-44 w-auto object-contain" />
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
           <CardDescription>Rejoins Plav' en quelques secondes</CardDescription>
         </CardHeader>
@@ -113,7 +113,7 @@ function RegisterPage() {
             </div>
 
             {/* Nom / Prénom */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="nom">Nom *</Label>
                 <Input id="nom" value={nom} onChange={(e) => setNom(e.target.value)} required />
@@ -130,7 +130,7 @@ function RegisterPage() {
             </div>
 
             {/* Date de naissance + Genre */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="birthDate">Date de naissance *</Label>
                 <Input id="birthDate" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />

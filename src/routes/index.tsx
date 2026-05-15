@@ -202,29 +202,31 @@ function Landing() {
           <p className="mt-2 text-[#2C2C2A]/60">Toutes les soirées publiées, accessibles sans connexion.</p>
         </div>
 
-        <div className={`mx-auto mb-8 flex max-w-3xl flex-wrap gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
+        <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
           <div className="relative min-w-0 flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white/80 backdrop-blur" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white/80 backdrop-blur w-full" />
           </div>
-          <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-            <SelectTrigger className="w-40 bg-white/80 backdrop-blur">
-              <Clock className="mr-2 h-4 w-4 text-muted-foreground" /><SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes dates</SelectItem>
-              <SelectItem value="week">Cette semaine</SelectItem>
-              <SelectItem value="month">Ce mois</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-            <SelectTrigger className="w-40 bg-white/80 backdrop-blur"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous statuts</SelectItem>
-              <SelectItem value="open">Places disponibles</SelectItem>
-              <SelectItem value="full">Complet</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-3">
+            <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
+              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur">
+                <Clock className="mr-2 h-4 w-4 text-muted-foreground" /><SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes dates</SelectItem>
+                <SelectItem value="week">Cette semaine</SelectItem>
+                <SelectItem value="month">Ce mois</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous statuts</SelectItem>
+                <SelectItem value="open">Places disponibles</SelectItem>
+                <SelectItem value="full">Complet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {eventsLoading ? (
