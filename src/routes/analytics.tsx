@@ -22,7 +22,7 @@ export const Route = createFileRoute("/analytics")({
       <AnalyticsPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Analyses — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Analyses — Plav'" }] }),
 });
 
 const COLORS = ["#10b981", "#059669", "#a7f3d0", "#C87488", "#6366f1", "#f59e0b", "#888"];

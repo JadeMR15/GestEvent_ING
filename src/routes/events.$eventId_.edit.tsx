@@ -19,7 +19,7 @@ export const Route = createFileRoute("/events/$eventId_/edit")({
       <EditEventPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Modifier l'événement — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Modifier la soirée — Plav'" }] }),
 });
 
 type TicketDraft = {
@@ -48,7 +48,7 @@ async function geocodeAddress(location: string, city: string): Promise<{ lat: nu
     try {
       const r = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`,
-        { headers: { "Accept-Language": "fr", "User-Agent": "GuestEvent/1.0" } }
+        { headers: { "Accept-Language": "fr", "User-Agent": "Plav/1.0" } }
       );
       const data = await r.json();
       if (data?.[0]) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
@@ -305,7 +305,7 @@ function EditEventPage() {
                         </div>
                       )}
                       {i === 0 && item.type === "image" && (
-                        <span className="absolute bottom-0 left-0 right-0 bg-[#72243E]/80 py-0.5 text-center text-[9px] text-white">
+                        <span className="absolute bottom-0 left-0 right-0 bg-[#6B0F2C]/80 py-0.5 text-center text-[9px] text-white">
                           Couverture
                         </span>
                       )}
@@ -327,10 +327,10 @@ function EditEventPage() {
                 onDragLeave={() => setMediaDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setMediaDragOver(false); if (e.dataTransfer.files.length) handleMediaFiles(e.dataTransfer.files); }}
                 className="flex h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors"
-                style={{ borderColor: mediaDragOver ? "#72243E" : "#D5A0A8", background: mediaDragOver ? "#EED4D820" : "#FDFAF7" }}
+                style={{ borderColor: mediaDragOver ? "#6B0F2C" : "#D5A0A8", background: mediaDragOver ? "#EED4D820" : "#FDFAF7" }}
               >
-                <ImagePlus className="h-5 w-5 text-[#72243E]" />
-                <p className="text-center text-xs text-[#72243E]">Photos (JPG, PNG, WebP) ou vidéos (MP4, WebM) — cliquez ou glissez</p>
+                <ImagePlus className="h-5 w-5 text-[#6B0F2C]" />
+                <p className="text-center text-xs text-[#6B0F2C]">Photos (JPG, PNG, WebP) ou vidéos (MP4, WebM) — cliquez ou glissez</p>
               </div>
               <input
                 ref={mediaInputRef}
@@ -403,7 +403,7 @@ function EditEventPage() {
                 {tickets.map((ticket, i) => (
                   <div key={ticket.uid} className="rounded-lg border border-[#D5A0A8] bg-[#FDFAF7] p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-[#72243E]">Tarif {i + 1}</p>
+                      <p className="text-sm font-semibold text-[#6B0F2C]">Tarif {i + 1}</p>
                       {tickets.length > 1 && (
                         <Button type="button" variant="ghost" size="icon" onClick={() => removeTicket(ticket.uid)} className="h-7 w-7 text-muted-foreground hover:text-destructive">
                           <Trash2 className="h-4 w-4" />

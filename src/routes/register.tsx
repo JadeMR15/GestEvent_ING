@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
-  head: () => ({ meta: [{ title: "Créer un compte — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Créer un compte — Plav'" }] }),
 });
 
 const schema = z.object({
@@ -63,7 +63,7 @@ function RegisterPage() {
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Compte créé ! Bienvenue sur GuestEvent.");
+    toast.success("Compte créé ! Bienvenue sur Plav' !");
     navigate({ to: "/dashboard" });
   }
 
@@ -71,9 +71,9 @@ function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
         <CardHeader className="text-center">
-          <img src="/logo.png" alt="GuestEvent" className="mx-auto mb-3 h-44 w-auto object-contain" />
+          <img src="/logo2.png" alt="Plav'" className="mx-auto mb-3 h-44 w-auto object-contain" />
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
-          <CardDescription>Rejoignez GuestEvent en quelques secondes</CardDescription>
+          <CardDescription>Rejoins Plav' en quelques secondes</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,8 +83,8 @@ function RegisterPage() {
               <Label>Je suis</Label>
               <div className="grid grid-cols-2 gap-3">
                 {([
-                  { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "#EED4D8", border: "#C87488", text: "#72243E" },
-                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "#D5E8A0", border: "#72986F", text: "#204839" },
+                  { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "#EED4D8", border: "#C87488", text: "#6B0F2C" },
+                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "#D5E8A0", border: "#0F7A4B", text: "#073D25" },
                 ] as const).map((opt) => {
                   const selected = role === opt.value;
                   return (

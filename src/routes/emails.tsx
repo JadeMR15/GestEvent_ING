@@ -14,7 +14,7 @@ export const Route = createFileRoute("/emails")({
       <EmailsPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Emails envoyés — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Emails envoyés — Plav'" }] }),
 });
 
 function EmailsPage() {

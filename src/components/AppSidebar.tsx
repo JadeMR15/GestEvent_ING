@@ -55,10 +55,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border overflow-visible">
         <div className="flex items-center gap-2 px-1 py-3 overflow-visible">
-          <img src="/logo.png" alt="GuestEvent" className="h-24 w-24 shrink-0 object-contain" />
+          <img src="/logo2.png" alt="Plav'" className="h-24 w-24 shrink-0 object-contain" />
           {!collapsed && (
             <div className="flex flex-col flex-1">
-              <span className="text-base font-bold text-sidebar-foreground">GuestEvent</span>
+              <span className="text-base font-bold text-sidebar-foreground">Plav'</span>
               <span className="text-xs text-sidebar-foreground/60">
                 {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
               </span>

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/export")({
       <ExportPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Export — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Export — Plav'" }] }),
 });
 
 const HEADER = ["Participant", "Statut", "QR Code", "Date inscription", "Scanné le"];
@@ -115,13 +115,13 @@ function ExportPage() {
       r.events?.location ?? "",
       ...buildRow(r, profMap),
     ]);
-    zip.file(`GuestEvent_global_${dateStr}.csv`, "﻿" + toCSV([HEADER_GLOBAL, ...globalRows]));
+    zip.file(`Plav_global_${dateStr}.csv`, "﻿" + toCSV([HEADER_GLOBAL, ...globalRows]));
 
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `GuestEvent_export_${dateStr}.zip`;
+    a.download = `Plav_export_${dateStr}.zip`;
     a.click();
     URL.revokeObjectURL(url);
     setLoadingAll(false);

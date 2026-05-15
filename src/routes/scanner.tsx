@@ -20,7 +20,7 @@ export const Route = createFileRoute("/scanner")({
       <ScannerPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "QR Scanner — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "QR Scanner — Plav'" }] }),
 });
 
 const CACHE_KEY = "gestevent_qr_cache";
@@ -340,7 +340,7 @@ function ScannerPage() {
               </div>
               <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#C87488] to-[#72243E] transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-[#C87488] to-[#6B0F2C] transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>

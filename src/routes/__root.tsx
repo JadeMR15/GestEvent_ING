@@ -31,12 +31,12 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GuestEvent — Event Management Platform" },
-      { name: "description", content: "Create, manage and check in to events with QR codes." },
+      { title: "Plav' — Billetterie étudiante" },
+      { name: "description", content: "Organise tes soirées étudiantes, gère les inscriptions et scanne les billets QR." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/png", href: "/logo.png" },
+      { rel: "icon", type: "image/png", href: "/logo2.png" },
     ],
   }),
   shellComponent: RootShell,

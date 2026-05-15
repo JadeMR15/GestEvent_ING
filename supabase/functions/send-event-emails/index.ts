@@ -12,7 +12,7 @@ async function sendEmail(apiKey: string, to: string, subject: string, html: stri
     method: "POST",
     headers: { "api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
-      sender: { name: "GuestEvent", email: "olivia.peret@esme.fr" },
+      sender: { name: "Plav'", email: "olivia.peret@esme.fr" },
       to: [{ email: to }],
       subject,
       htmlContent: html,
@@ -24,12 +24,12 @@ async function sendEmail(apiKey: string, to: string, subject: string, html: stri
 function baseHtml(content: string, organizerEmail?: string) {
   const footer = organizerEmail
     ? `<div style="margin-top:24px;padding-top:16px;border-top:1px solid #D5A0A8;text-align:center;font-size:12px;color:#888">
-        Pour contacter l'organisateur : <a href="mailto:${organizerEmail}" style="color:#72243E;font-weight:600">${organizerEmail}</a>
+        Pour contacter l'organisateur : <a href="mailto:${organizerEmail}" style="color:#6B0F2C;font-weight:600">${organizerEmail}</a>
       </div>`
     : "";
   return `<div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;color:#2C2C2A">
     <div style="background:linear-gradient(135deg,#EED4D8,#C87488);padding:24px;border-radius:12px 12px 0 0;text-align:center">
-      <span style="font-family:Georgia,serif;font-size:22px;font-style:italic;color:#72243E">GuestEvent</span>
+      <span style="font-family:Georgia,serif;font-size:22px;font-style:italic;color:#6B0F2C">Plav'</span>
     </div>
     <div style="background:#FDFAF7;padding:32px;border:1px solid #D5A0A8;border-top:none;border-radius:0 0 12px 12px">
       ${content}
@@ -78,12 +78,12 @@ serve(async (req) => {
       await sendEmail(RESEND, email, `🎟️ Une place s'est libérée — ${ev.title}`,
         baseHtml(`
           <p>Bonjour <strong>${name}</strong>,</p>
-          <p style="color:#72243E;font-weight:600">Une place vient de se libérer pour <strong>${ev.title}</strong> !</p>
+          <p style="color:#6B0F2C;font-weight:600">Une place vient de se libérer pour <strong>${ev.title}</strong> !</p>
           <div style="background:#EED4D8;border-radius:8px;padding:16px;margin:16px 0">
             <p style="margin:4px 0">📅 <strong>${dateStr}</strong></p>
             <p style="margin:4px 0">📍 <strong>${ev.location || "En ligne"}</strong></p>
           </div>
-          <p>Connectez-vous rapidement sur GuestEvent pour confirmer votre inscription avant que la place ne soit prise.</p>
+          <p>Connectez-vous rapidement sur Plav' pour confirmer votre inscription avant que la place ne soit prise.</p>
         `, organizerEmail), organizerEmail);
       return new Response(JSON.stringify({ ok: true, sent: 1 }), { headers: { ...cors, "Content-Type": "application/json" } });
     }
@@ -203,11 +203,11 @@ serve(async (req) => {
             <p style="margin:4px 0">📍 <strong>${ev.location || "En ligne"}</strong></p>
           </div>
           <div style="text-align:center;margin:24px 0">
-            <a href="${volunteer_url}" style="background:linear-gradient(135deg,#C87488,#72243E);color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;font-size:15px">
+            <a href="${volunteer_url}" style="background:linear-gradient(135deg,#C87488,#6B0F2C);color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;font-size:15px">
               Accéder à mon espace bénévole
             </a>
           </div>
-          <p style="font-size:12px;color:#888">Ou copiez ce lien : <a href="${volunteer_url}" style="color:#72243E">${volunteer_url}</a></p>
+          <p style="font-size:12px;color:#888">Ou copiez ce lien : <a href="${volunteer_url}" style="color:#6B0F2C">${volunteer_url}</a></p>
         `, organizerEmail), organizerEmail);
       return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, "Content-Type": "application/json" } });
     }

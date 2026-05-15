@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/my-tickets")({
   component: () => <ProtectedLayout><MyTicketsPage /></ProtectedLayout>,
-  head: () => ({ meta: [{ title: "Mes billets — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Mes billets — Plav'" }] }),
 });
 
 const STATUS_CONFIG = {
@@ -77,7 +77,7 @@ function MyTicketsPage() {
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Helvetica Neue',Arial,sans-serif;background:#F0EAE4;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px}
     .ticket{width:100%;max-width:480px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 12px 48px rgba(114,36,62,.18)}
-    .header{background:linear-gradient(135deg,#EED4D8 0%,#C87488 60%,#72243E 100%);padding:36px 32px 28px;text-align:center}
+    .header{background:linear-gradient(135deg,#EED4D8 0%,#C87488 60%,#6B0F2C 100%);padding:36px 32px 28px;text-align:center}
     .brand{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:14px;font-weight:600}
     .event-title{font-family:Georgia,serif;font-size:26px;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 1px 4px rgba(0,0,0,.15)}
     .body{padding:24px 32px 0}
@@ -93,9 +93,9 @@ function MyTicketsPage() {
     .qr-code{font-family:monospace;font-size:9px;color:#C8B0B8;text-align:center;max-width:260px;word-break:break-all;line-height:1.5}
     .instructions{font-size:12px;color:#888;text-align:center;line-height:1.5}
     .footer{background:linear-gradient(135deg,#FDFAF7,#F5EEE8);border-top:1px solid #EED4D8;padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
-    .footer-brand{font-family:Georgia,serif;font-style:italic;font-size:15px;color:#72243E;font-weight:600}
+    .footer-brand{font-family:Georgia,serif;font-style:italic;font-size:15px;color:#6B0F2C;font-weight:600}
     .footer-note{font-size:10px;color:#B08090;text-align:right;line-height:1.4}
-    .btn{display:block;margin:24px auto 0;padding:14px 40px;background:linear-gradient(135deg,#C87488,#72243E);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.02em;box-shadow:0 4px 16px rgba(114,36,62,.3)}
+    .btn{display:block;margin:24px auto 0;padding:14px 40px;background:linear-gradient(135deg,#C87488,#6B0F2C);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.02em;box-shadow:0 4px 16px rgba(114,36,62,.3)}
     .btn:hover{opacity:.92}
     @media print{body{background:#fff;padding:0}.ticket{box-shadow:none;border-radius:0;max-width:100%}.tear::before,.tear::after{background:#fff}.btn{display:none}}
   </style>
@@ -103,7 +103,7 @@ function MyTicketsPage() {
 <body>
   <div class="ticket">
     <div class="header">
-      <div class="brand">✦ GuestEvent ✦</div>
+      <div class="brand">✦ Plav' ✦</div>
       <div class="event-title">${title}</div>
     </div>
     <div class="body">
@@ -128,7 +128,7 @@ function MyTicketsPage() {
       <div class="instructions">Présentez ce QR code à l'entrée de l'événement</div>
     </div>
     <div class="footer">
-      <div class="footer-brand">GuestEvent</div>
+      <div class="footer-brand">Plav'</div>
       <div class="footer-note">Billet officiel<br>Ne pas dupliquer</div>
     </div>
   </div>

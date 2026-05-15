@@ -61,12 +61,12 @@
   --rose-vif:     #C87488;
   --rose-moyen:   #D5A0A8;
 
-  --green-bouton: #72986F;
-  --green-moyen:  #426655;
-  --green-deep:   #204839;
+  --green-bouton: #0F7A4B;
+  --green-moyen:  #0A5E39;
+  --green-deep:   #073D25;
 
   --text-body:    #2C2C2A;
-  --text-title:   #72243E;
+  --text-title:   #6B0F2C;
   --text-hint:    #F0F6F4;
 
   /* ── shadcn/Tailwind token mapping ── */
@@ -79,54 +79,54 @@
   --popover:            #FFFFFF;
   --popover-foreground: #2C2C2A;
 
-  /* Primary = vert bouton CTA */
-  --primary:            #72986F;
+  /* Primary = vert forêt CTA */
+  --primary:            #0F7A4B;
   --primary-foreground: #FFFFFF;
 
   /* Secondary = rose poudré */
   --secondary:          #EED4D8;
-  --secondary-foreground: #72243E;
+  --secondary-foreground: #6B0F2C;
 
   /* Muted = fond crème très légère */
   --muted:              #F5F0ED;
-  --muted-foreground:   #72243E;
+  --muted-foreground:   #6B0F2C;
 
   /* Accent = vert clair */
   --accent:             #D5E8A0;
-  --accent-foreground:  #204839;
+  --accent-foreground:  #073D25;
 
   /* Destructive = rose vif */
   --destructive:        #C87488;
   --destructive-foreground: #FFFFFF;
 
-  /* Success = vert profond */
-  --success:            #72986F;
+  /* Success = vert forêt */
+  --success:            #0F7A4B;
   --success-foreground: #FFFFFF;
 
   /* Warning = jaune-vert */
   --warning:            #D5E8A0;
-  --warning-foreground: #204839;
+  --warning-foreground: #073D25;
 
   /* Borders — 0.5px rose moyen */
   --border:  #D5A0A8;
   --input:   #EED4D8;
-  --ring:    #72986F;
+  --ring:    #0F7A4B;
 
-  /* ── Sidebar — fond vert profond ── */
+  /* ── Sidebar — bordeaux sombre ── */
   --sidebar:                    #F2D6DC;
-  --sidebar-foreground:         #6B1A2A;
-  --sidebar-primary:            #A3293F;
+  --sidebar-foreground:         #6B0F2C;
+  --sidebar-primary:            #6B0F2C;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent:             #E8B4BC;
-  --sidebar-accent-foreground:  #6B1A2A;
+  --sidebar-accent-foreground:  #6B0F2C;
   --sidebar-border:             #E8B4BC;
-  --sidebar-ring:               #A3293F;
+  --sidebar-ring:               #6B0F2C;
 
   /* ── Gradients DA ── */
-  /* Boutons / barres actives : vert */
-  --gradient-primary: linear-gradient(135deg, #72986F, #426655);
+  /* Boutons / barres actives : vert forêt */
+  --gradient-primary: linear-gradient(135deg, #0F7A4B, #0A5E39);
   /* Barres décoratives cartes : rose→bordeaux */
-  --gradient-vibrant: linear-gradient(135deg, #EED4D8 0%, #C87488 60%, #72243E 100%);
+  --gradient-vibrant: linear-gradient(135deg, #EED4D8 0%, #C87488 60%, #6B0F2C 100%);
   /* Fond mesh page : chaleureux rose/vert */
   --gradient-mesh:
     radial-gradient(at 10% 0%,   #EED4D8aa 0px, transparent 55%),
@@ -134,7 +134,7 @@
     radial-gradient(at 50% 100%, #EED4D8aa 0px, transparent 55%);
 
   /* Ombres */
-  --shadow-glow:    0 8px 32px -8px rgba(114, 152, 111, 0.40);
+  --shadow-glow:    0 8px 32px -8px rgba(15, 122, 75, 0.40);
   --shadow-elegant: 0 6px 24px -6px rgba(44, 44, 42, 0.12);
 }
 

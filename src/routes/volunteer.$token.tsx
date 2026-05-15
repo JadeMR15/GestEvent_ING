@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/volunteer/$token")({
   component: VolunteerPage,
-  head: () => ({ meta: [{ title: "Accès bénévole — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Accès bénévole — Plav'" }] }),
 });
 
 type ScanResult = { ok: boolean; already?: boolean; name?: string; event?: string; error?: string };
@@ -156,7 +156,7 @@ function VolunteerPage() {
 
         {/* Header */}
         <div className="flex items-center gap-3 py-2">
-          <img src="/logo.png" alt="GuestEvent" className="h-10 w-10 object-contain" />
+          <img src="/logo2.png" alt="Plav'" className="h-10 w-10 object-contain" />
           <div>
             <p className="text-xs text-muted-foreground">Accès bénévole</p>
             <p className="font-semibold">{volunteer.name || "Bénévole"}</p>

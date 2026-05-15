@@ -27,14 +27,14 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        sender: { name: "GuestEvent", email: "olivia.peret@esme.fr" },
+        sender: { name: "Plav'", email: "olivia.peret@esme.fr" },
         to: [{ email: toEmail, name: fullName }],
         subject: `Événement annulé — ${eventTitle}`,
         ...(organizerEmail && { replyTo: { email: organizerEmail } }),
         htmlContent: `
           <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;color:#2C2C2A">
             <div style="background:linear-gradient(135deg,#EED4D8,#C87488);padding:32px;border-radius:12px 12px 0 0;text-align:center">
-              <h1 style="font-family:Georgia,serif;font-size:28px;color:#72243E;margin:0">
+              <h1 style="font-family:Georgia,serif;font-size:28px;color:#6B0F2C;margin:0">
                 Événement annulé
               </h1>
             </div>
@@ -42,7 +42,7 @@ serve(async (req) => {
               <p style="margin:0 0 8px">Bonjour <strong>${fullName}</strong>,</p>
               <p style="margin:0 0 24px">Nous vous informons que l'événement auquel vous étiez inscrit(e) a été <strong>annulé</strong>.</p>
               <div style="background:#EED4D8;border-radius:8px;padding:16px;margin-bottom:24px">
-                <p style="margin:4px 0;font-size:18px;font-weight:600;color:#72243E">${eventTitle}</p>
+                <p style="margin:4px 0;font-size:18px;font-weight:600;color:#6B0F2C">${eventTitle}</p>
                 <p style="margin:8px 0 4px">📅 ${eventDate}</p>
                 <p style="margin:4px 0">📍 ${eventLocation}</p>
               </div>
@@ -50,7 +50,7 @@ serve(async (req) => {
                 Votre inscription a été automatiquement annulée. Si vous avez payé, un remboursement sera effectué dans les meilleurs délais.
               </p>
               <p style="margin-top:24px;font-size:13px;color:#888;text-align:center">
-                Nous nous excusons pour la gêne occasionnée · GuestEvent
+                Nous nous excusons pour la gêne occasionnée · Plav'
               </p>
             </div>
           </div>

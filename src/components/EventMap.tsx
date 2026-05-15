@@ -48,7 +48,7 @@ export default function EventMap({ events }: { events: any[] }) {
         iconCreateFunction: (cluster: any) => {
           const count = cluster.getChildCount();
           return L.divIcon({
-            html: `<div style="background:#72243E;color:white;font-weight:700;font-size:13px;font-family:Inter,sans-serif;width:36px;height:36px;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(114,36,62,.5);display:flex;align-items:center;justify-content:center">${count}</div>`,
+            html: `<div style="background:#6B0F2C;color:white;font-weight:700;font-size:13px;font-family:Inter,sans-serif;width:36px;height:36px;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(114,36,62,.5);display:flex;align-items:center;justify-content:center">${count}</div>`,
             className: "",
             iconSize: [36, 36],
             iconAnchor: [18, 18],
@@ -57,7 +57,7 @@ export default function EventMap({ events }: { events: any[] }) {
       });
 
       const pin = L.divIcon({
-        html: `<div style="background:#72243E;width:18px;height:18px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 8px rgba(114,36,62,.55)"></div>`,
+        html: `<div style="background:#6B0F2C;width:18px;height:18px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 8px rgba(114,36,62,.55)"></div>`,
         iconSize: [18, 18],
         iconAnchor: [9, 9],
         popupAnchor: [0, -13],
@@ -73,7 +73,7 @@ export default function EventMap({ events }: { events: any[] }) {
             <p style="font-weight:600;font-size:14px;margin:0 0 4px;color:#2C2C2A">${e.title}</p>
             <p style="font-size:12px;color:#888;margin:0 0 2px">📅 ${dateStr}</p>
             ${e.city ? `<p style="font-size:12px;color:#888;margin:0 0 8px">📍 ${e.city}</p>` : ""}
-            <a href="/events/${e.id}" style="color:#72243E;font-weight:600;font-size:13px;text-decoration:none">Voir l'événement →</a>
+            <a href="/events/${e.id}" style="color:#6B0F2C;font-weight:600;font-size:13px;text-decoration:none">Voir l'événement →</a>
           </div>`,
           { maxWidth: 260 }
         );

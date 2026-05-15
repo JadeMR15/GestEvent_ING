@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Connexion — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Connexion — Plav'" }] }),
 });
 
 const schema = z.object({
@@ -56,9 +56,9 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
         <CardHeader className="text-center">
-          <img src="/logo.png" alt="GuestEvent" className="mx-auto mb-3 h-44 w-auto object-contain" />
+          <img src="/logo2.png" alt="Plav'" className="mx-auto mb-3 h-44 w-auto object-contain" />
           <CardTitle className="text-2xl">Bon retour !</CardTitle>
-          <CardDescription>Connectez-vous à votre compte GuestEvent</CardDescription>
+          <CardDescription>Connecte-toi à ton compte Plav'</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
-  head: () => ({ meta: [{ title: "À propos — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "À propos — Plav'" }] }),
 });
 
 const roles = [
@@ -14,7 +14,7 @@ const roles = [
     icon: ClipboardList,
     title: "Organisateur",
     color: "bg-[#EED4D8]",
-    iconColor: "text-[#72243E]",
+    iconColor: "text-[#6B0F2C]",
     tagline: "Créez et gérez vos événements de A à Z",
     description:
       "L'organisateur est le pilote de l'événement. Il crée la page de l'événement, configure les billets, définit les créneaux d'inscription et suit en temps réel les inscriptions, les présences et les finances.",
@@ -78,8 +78,8 @@ function AboutPage() {
       <header className="sticky top-0 z-50 border-b border-[#D5A0A8]/30 bg-white/80 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="GuestEvent" className="h-8 w-auto" />
-            <span className="font-display text-lg italic text-[#72243E]">GuestEvent</span>
+            <img src="/logo2.png" alt="Plav'" className="h-8 w-auto" />
+            <span className="font-display text-lg italic text-[#6B0F2C]">Plav'</span>
           </Link>
           <Button asChild variant="ghost" size="sm">
             <Link to="/">
@@ -92,16 +92,16 @@ function AboutPage() {
 
       {/* Hero */}
       <section className="container mx-auto px-6 py-16 text-center">
-        <h1 className="font-display text-4xl italic text-[#72243E] mb-4">À propos des rôles</h1>
+        <h1 className="font-display text-4xl italic text-[#6B0F2C] mb-4">À propos des rôles</h1>
         <p className="text-[#2C2C2A]/60 max-w-xl mx-auto text-lg">
-          GuestEvent est pensé pour trois types d'utilisateurs. Découvrez ce que chaque rôle permet de faire.
+          Plav' est pensée pour trois types d'utilisateurs. Découvrez ce que chaque rôle permet de faire.
         </p>
         <div className="flex justify-center gap-4 mt-8 flex-wrap">
           {roles.map((r) => (
             <a
               key={r.id}
               href={`#${r.id}`}
-              className="flex items-center gap-2 rounded-full border border-[#D5A0A8]/40 bg-white px-5 py-2 text-sm font-medium text-[#72243E] hover:bg-[#EED4D8] transition-colors"
+              className="flex items-center gap-2 rounded-full border border-[#D5A0A8]/40 bg-white px-5 py-2 text-sm font-medium text-[#6B0F2C] hover:bg-[#EED4D8] transition-colors"
             >
               <r.icon className="h-4 w-4" />
               {r.title}
@@ -130,7 +130,7 @@ function AboutPage() {
               <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${role.iconColor}`}>
                 Rôle
               </p>
-              <h2 className="font-display text-3xl italic text-[#72243E] mb-2">{role.title}</h2>
+              <h2 className="font-display text-3xl italic text-[#6B0F2C] mb-2">{role.title}</h2>
               <p className="text-[#2C2C2A]/50 text-sm mb-4 italic">{role.tagline}</p>
               <p className="text-[#2C2C2A]/70 mb-6 leading-relaxed">{role.description}</p>
 
@@ -151,7 +151,7 @@ function AboutPage() {
       {/* Footer */}
       <footer className="border-t border-[#D5A0A8]/30 bg-white/60 py-8">
         <div className="container mx-auto px-6 text-center text-xs text-[#2C2C2A]/40">
-          © {new Date().getFullYear()} GuestEvent. Tous droits réservés.
+          © {new Date().getFullYear()} Plav'. Tous droits réservés.
         </div>
       </footer>
     </div>

@@ -30,7 +30,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/$eventId")({
   component: () => <ProtectedLayout><EventDetail /></ProtectedLayout>,
-  head: () => ({ meta: [{ title: "Événement — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Soirée — Plav'" }] }),
 });
 
 const TIMER_SECONDS = 15 * 60;
@@ -643,7 +643,7 @@ function EventDetail() {
 
           {/* Récapitulatif */}
           <div className="rounded-xl border bg-muted/30 p-4 space-y-1">
-            <p className="font-semibold text-[#72243E]">{event.title}</p>
+            <p className="font-semibold text-[#6B0F2C]">{event.title}</p>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
               {format(new Date(event.starts_at), "PPP à p", { locale: fr })}
@@ -728,7 +728,7 @@ function EventDetail() {
           {/* Informations amis / places supplémentaires */}
           {friends.map((f, i) => (
             <div key={i} className="space-y-3 rounded-xl border border-[#D5A0A8]/60 bg-[#FDFAF7] p-4">
-              <p className="text-sm font-semibold text-[#72243E] flex items-center gap-2">
+              <p className="text-sm font-semibold text-[#6B0F2C] flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />Ami(e) {i + 1}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -765,8 +765,8 @@ function EventDetail() {
           {event.required_document && (
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <FileText className="h-4 w-4 text-[#72243E]" />
-                Document requis : <span className="text-[#72243E]">{event.required_document}</span>
+                <FileText className="h-4 w-4 text-[#6B0F2C]" />
+                Document requis : <span className="text-[#6B0F2C]">{event.required_document}</span>
               </Label>
               {docFile ? (
                 <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
@@ -777,9 +777,9 @@ function EventDetail() {
                   </button>
                 </div>
               ) : (
-                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#D5A0A8] bg-[#FDFAF7] px-4 py-5 transition-colors hover:border-[#72243E]">
-                  <Upload className="h-5 w-5 text-[#72243E]" />
-                  <span className="text-center text-xs text-[#72243E]">
+                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#D5A0A8] bg-[#FDFAF7] px-4 py-5 transition-colors hover:border-[#6B0F2C]">
+                  <Upload className="h-5 w-5 text-[#6B0F2C]" />
+                  <span className="text-center text-xs text-[#6B0F2C]">
                     Cliquer pour uploader votre <strong>{event.required_document}</strong>
                   </span>
                   <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG — max 10 Mo</span>
@@ -794,74 +794,77 @@ function EventDetail() {
             </div>
           )}
 
-          {/* Paiement fictif */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold">Paiement</p>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Lock className="h-3 w-3" />Sécurisé par Stripe
-              </div>
-            </div>
-            <div className="rounded-xl border p-4 space-y-3 bg-white">
-              <div className="space-y-1.5">
-                <Label htmlFor="cname">Titulaire de la carte</Label>
-                <Input id="cname" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="Marie Dupont" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="cnum">Numéro de carte</Label>
-                <div className="relative">
-                  <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="cnum"
-                    className="pl-9"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(fmtCard(e.target.value))}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength={19}
-                  />
+          {/* Paiement fictif — affiché uniquement si l'événement est payant */}
+          {totalCartPrice > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Paiement</p>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Lock className="h-3 w-3" />Sécurisé par Stripe
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border p-4 space-y-3 bg-white">
                 <div className="space-y-1.5">
-                  <Label htmlFor="cexp">Date d'expiration</Label>
-                  <Input
-                    id="cexp"
-                    value={cardExpiry}
-                    onChange={(e) => setCardExpiry(fmtExpiry(e.target.value))}
-                    placeholder="MM/AA"
-                    maxLength={5}
-                  />
+                  <Label htmlFor="cname">Titulaire de la carte</Label>
+                  <Input id="cname" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="Marie Dupont" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="ccvv">Cryptogramme</Label>
-                  <Input
-                    id="ccvv"
-                    value={cardCvv}
-                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                    placeholder="123"
-                    maxLength={3}
-                    type="password"
-                  />
+                  <Label htmlFor="cnum">Numéro de carte</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="cnum"
+                      className="pl-9"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(fmtCard(e.target.value))}
+                      placeholder="1234 5678 9012 3456"
+                      maxLength={19}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cexp">Date d'expiration</Label>
+                    <Input
+                      id="cexp"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(fmtExpiry(e.target.value))}
+                      placeholder="MM/AA"
+                      maxLength={5}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="ccvv">Cryptogramme</Label>
+                    <Input
+                      id="ccvv"
+                      value={cardCvv}
+                      onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                      placeholder="123"
+                      maxLength={3}
+                      type="password"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  {["VISA", "MC", "AMEX"].map((b) => (
+                    <span key={b} className="rounded border px-2 py-0.5 text-[10px] font-bold text-muted-foreground">{b}</span>
+                  ))}
                 </div>
               </div>
-              {/* Faux logos CB */}
-              <div className="flex gap-2 pt-1">
-                {["VISA", "MC", "AMEX"].map((b) => (
-                  <span key={b} className="rounded border px-2 py-0.5 text-[10px] font-bold text-muted-foreground">{b}</span>
-                ))}
-              </div>
             </div>
-          </div>
+          )}
 
-          {/* Bouton payer */}
+          {/* Bouton confirmer / payer */}
           <Button onClick={confirmPayment} disabled={acting} className="w-full bg-gradient-primary shadow-glow h-11 text-base">
-            {acting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+            {acting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
             {totalCartPrice > 0 ? `Payer ${totalCartPrice} €` : `Confirmer ${totalCartQty > 1 ? `les ${totalCartQty} inscriptions` : "l'inscription"}`}
           </Button>
 
-          <p className="text-center text-xs text-muted-foreground">
-            Paiement fictif — aucun prélèvement réel ne sera effectué.
-          </p>
+          {totalCartPrice > 0 && (
+            <p className="text-center text-xs text-muted-foreground">
+              Paiement fictif — aucun prélèvement réel ne sera effectué.
+            </p>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -982,12 +985,12 @@ function EventDetail() {
 
           <div className="mt-3 flex flex-wrap gap-2">
             {event.status === "private" && (
-              <Badge className="bg-[#72243E] text-white hover:bg-[#72243E]">
+              <Badge className="bg-[#6B0F2C] text-white hover:bg-[#6B0F2C]">
                 <Lock className="mr-1 h-3 w-3" />Privé · {event.school || "École"}
               </Badge>
             )}
             {event.school && event.status !== "private" && (
-              <Badge variant="secondary" className="bg-[#D5E8A0] text-[#204839]">
+              <Badge variant="secondary" className="bg-[#D5E8A0] text-[#073D25]">
                 <GraduationCap className="mr-1 h-3.5 w-3.5" />{event.school}
               </Badge>
             )}
@@ -997,12 +1000,12 @@ function EventDetail() {
               </Badge>
             )}
             {event.required_document && (
-              <Badge variant="outline" className="border-[#D5A0A8] text-[#72243E]">
+              <Badge variant="outline" className="border-[#D5A0A8] text-[#6B0F2C]">
                 <FileText className="mr-1 h-3 w-3" />Document requis : {event.required_document}
               </Badge>
             )}
             {maxPerPerson > 0 && (
-              <Badge variant="outline" className="border-[#D5A0A8] text-[#72243E]">
+              <Badge variant="outline" className="border-[#D5A0A8] text-[#6B0F2C]">
                 <Users className="mr-1 h-3 w-3" />{maxPerPerson} place{maxPerPerson > 1 ? "s" : ""} max / personne
               </Badge>
             )}
@@ -1054,13 +1057,13 @@ function EventDetail() {
                     <div
                       key={ticket.id}
                       className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all ${
-                        qty > 0 ? "border-[#72243E] bg-[#EED4D8]/20" : isTicketFull ? "border-border opacity-60" : "border-border"
+                        qty > 0 ? "border-[#6B0F2C] bg-[#EED4D8]/20" : isTicketFull ? "border-border opacity-60" : "border-border"
                       }`}
                     >
                       <div className="min-w-0">
                         <p className="font-medium text-sm">{ticket.name}</p>
                         {ticket.description && <p className="text-xs text-muted-foreground">{ticket.description}</p>}
-                        <p className="mt-0.5 font-semibold text-sm text-[#72243E]">
+                        <p className="mt-0.5 font-semibold text-sm text-[#6B0F2C]">
                           {ticket.price > 0 ? `${ticket.price} €` : "Gratuit"}
                         </p>
                       </div>
@@ -1092,18 +1095,18 @@ function EventDetail() {
               {totalCartQty > 0 && (
                 <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
                   <span className="text-muted-foreground">{totalCartQty} place{totalCartQty > 1 ? "s" : ""}</span>
-                  <span className="font-semibold text-[#72243E]">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
+                  <span className="font-semibold text-[#6B0F2C]">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
                 </div>
               )}
             </div>
           ) : (
-            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#72243E]">{eventPrice} €</p>
+            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#6B0F2C]">{eventPrice} €</p>
           )}
 
           {/* Actions */}
           <div className="mt-6 space-y-3">
             {isPrivateBlocked ? (
-              <div className="flex items-center gap-2 rounded-lg border border-[#D5A0A8] bg-[#EED4D8]/50 px-4 py-3 text-sm text-[#72243E]">
+              <div className="flex items-center gap-2 rounded-lg border border-[#D5A0A8] bg-[#EED4D8]/50 px-4 py-3 text-sm text-[#6B0F2C]">
                 <Lock className="h-4 w-4 shrink-0" />
                 Cet événement est réservé aux membres de <strong className="ml-1">{event.school}</strong>.
               </div>
@@ -1144,7 +1147,7 @@ function EventDetail() {
                     {myGuestRegs.map((gr) => (
                       <div key={gr.id} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border">
                         <div className="flex items-center gap-2 text-sm min-w-0">
-                          <UserPlus className="h-4 w-4 text-[#72243E] shrink-0" />
+                          <UserPlus className="h-4 w-4 text-[#6B0F2C] shrink-0" />
                           <span className="font-medium truncate">{gr.guest_name}</span>
                           <Badge variant="secondary" className={gr.status === "attended" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
                             {gr.status === "attended" ? "Présent" : "Confirmé"}
@@ -1196,7 +1199,7 @@ function EventDetail() {
             {myGuestRegs.map((gr) => (
               <div key={gr.id} className="flex flex-col items-center gap-2 border-b pb-5 last:border-0 last:pb-0">
                 <div className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4 text-[#72243E]" />
+                  <UserPlus className="h-4 w-4 text-[#6B0F2C]" />
                   <p className="font-semibold text-sm">{gr.guest_name}</p>
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -1391,7 +1394,7 @@ function EventDetail() {
                         </p>
                         {r.document_url && (
                           <a href={r.document_url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-[#72243E] hover:underline mt-0.5">
+                            className="inline-flex items-center gap-1 text-xs text-[#6B0F2C] hover:underline mt-0.5">
                             <FileText className="h-3 w-3" />Voir le document
                           </a>
                         )}

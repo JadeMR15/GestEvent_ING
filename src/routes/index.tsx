@@ -114,10 +114,10 @@ function Landing() {
       <header className="relative z-10 w-full border-b border-[#D5A0A8]/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="GuestEvent" className="h-20 w-auto object-contain" />
-            <span className="font-display text-3xl italic text-[#72243E]">GuestEvent</span>
+            <img src="/logo2.png" alt="Plav'" className="h-20 w-auto object-contain" />
+            <span className="font-display text-3xl italic text-[#6B0F2C]">Plav'</span>
           </div>
-          <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-[#72243E]">
+          <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-[#6B0F2C]">
             <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
             <a href="#fonctionnalites" className="hover:opacity-70 transition-opacity">Fonctionnalités</a>
             <a href="#contact" className="hover:opacity-70 transition-opacity">Contact</a>
@@ -145,28 +145,28 @@ function Landing() {
 
         <div ref={heroAnim.ref} className="relative container mx-auto">
           <div className={`mx-auto max-w-3xl text-center ${heroAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D5A0A8] bg-white/70 px-4 py-1.5 text-xs font-medium backdrop-blur text-[#72243E]">
-              <img src="/logo.png" alt="" className="h-4 w-4 object-contain" />
-              Organisez, gérez, scannez — en un seul endroit
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D5A0A8] bg-white/70 px-4 py-1.5 text-xs font-medium backdrop-blur text-[#6B0F2C]">
+              <img src="/logo2.png" alt="" className="h-4 w-4 object-contain" />
+              Organise, gère, scanne — en un seul endroit
             </div>
             <h1 className="text-5xl tracking-tight md:text-7xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>
-              L'événementiel{" "}
-              <span className="bg-gradient-vibrant bg-clip-text text-transparent">simplifié</span>
+              Tes soirées{" "}
+              <span className="bg-gradient-vibrant bg-clip-text text-transparent">enflammées</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-[#2C2C2A]/70">
-              Création d'événements, réservation avec timer, QR codes —
-              une expérience soignée pour les organisateurs comme les participants.
+              Billetterie étudiante, réservations avec timer, QR codes —
+              la plateforme made for students qui déchire.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               {!loading && user ? (
                 <>
                   <Button asChild size="lg" className="bg-gradient-primary shadow-glow"><Link to="/dashboard">Accéder à mon espace <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-                  <Button asChild size="lg" variant="outline"><a href="#evenements">Voir les événements</a></Button>
+                  <Button asChild size="lg" variant="outline"><a href="#evenements">Voir les soirées</a></Button>
                 </>
               ) : (
                 <>
                   <Button asChild size="lg" className="bg-gradient-primary shadow-glow"><Link to="/register">Créer un compte <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-                  <Button asChild size="lg" variant="outline"><a href="#evenements">Explorer les événements</a></Button>
+                  <Button asChild size="lg" variant="outline"><a href="#evenements">Découvrir les soirées</a></Button>
                 </>
               )}
             </div>
@@ -180,7 +180,7 @@ function Landing() {
               { value: stats.organizers, label: "Organisateurs actifs", icon: Star },
             ].map((s) => (
               <div key={s.label} className="rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-5 text-center backdrop-blur shadow-elegant">
-                <s.icon className="mx-auto mb-2 h-5 w-5 text-[#72986F]" />
+                <s.icon className="mx-auto mb-2 h-5 w-5 text-[#0F7A4B]" />
                 <p className="text-3xl font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-title)" }}>
                   {eventsLoading ? "—" : s.value}
                 </p>
@@ -197,8 +197,8 @@ function Landing() {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "linear-gradient(to bottom, #FDFAF7 0%, rgba(253,250,247,0.8) 40%, transparent 100%)" }} />
         <div className="relative z-10 container mx-auto px-6">
         <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-          <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Prochains événements</h2>
-          <p className="mt-2 text-[#2C2C2A]/60">Tous les événements publiés, accessibles sans connexion.</p>
+          <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Prochaines soirées</h2>
+          <p className="mt-2 text-[#2C2C2A]/60">Toutes les soirées publiées, accessibles sans connexion.</p>
         </div>
 
         <div className={`mx-auto mb-8 flex max-w-3xl flex-wrap gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
@@ -241,7 +241,7 @@ function Landing() {
           <>
             {upcoming.length > 0 && (
               <>
-                {past.length > 0 && <p className="mb-4 text-sm font-medium text-[#72986F] uppercase tracking-wide">À venir</p>}
+                {past.length > 0 && <p className="mb-4 text-sm font-medium text-[#0F7A4B] uppercase tracking-wide">À venir</p>}
                 <EventGrid events={upcoming} />
               </>
             )}
@@ -270,19 +270,19 @@ function Landing() {
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
           <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-            <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Tout ce dont vous avez besoin</h2>
-            <p className="mt-3 text-[#2C2C2A]/60 max-w-xl mx-auto">Une plateforme pensée pour les organisateurs exigeants et les participants qui veulent vivre de belles expériences.</p>
+          <h2 className="text-4xl" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-title)" }}>Tout ce qu'il te faut</h2>
+            <p className="mt-3 text-[#2C2C2A]/60 max-w-xl mx-auto">Une plateforme de billetterie étudiante pensée pour les assos qui organisent et les étudiants qui veulent vivre des soirées de ouf.</p>
           </div>
           <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
             {[
-              { icon: CalendarDays, title: "Création rapide",  desc: "Créez et publiez en quelques secondes avec gestion de capacité, description et image de couverture.", color: "bg-[#EED4D8]", iconColor: "text-[#72243E]" },
-              { icon: Timer,        title: "Timer 15 min",     desc: "Chaque réservation bloque la place 15 minutes. Le premier à confirmer gagne — zéro doublon.", color: "bg-[#D5E8A0]", iconColor: "text-[#204839]" },
+              { icon: CalendarDays, title: "Création rapide",  desc: "Créez et publiez en quelques secondes avec gestion de capacité, description et image de couverture.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
+              { icon: Timer,        title: "Timer 15 min",     desc: "Chaque réservation bloque la place 15 minutes. Le premier à confirmer gagne — zéro doublon.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
               { icon: QrCode,       title: "Scan QR",           desc: "Un QR unique par inscription. Scan caméra ou saisie manuelle le jour J pour un accueil fluide.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Users,        title: "Inscriptions simples",  desc: "Un clic pour réserver sa place. Confirmation immédiate avec QR code et email récapitulatif.", color: "bg-[#EED4D8]", iconColor: "text-[#72243E]" },
-              { icon: TrendingUp,   title: "Tableau de bord",  desc: "Visualisez vos inscriptions, taux de remplissage et présences en temps réel.", color: "bg-[#D5E8A0]", iconColor: "text-[#204839]" },
+              { icon: Users,        title: "Inscriptions simples",  desc: "Un clic pour réserver sa place. Confirmation immédiate avec QR code et email récapitulatif.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
+              { icon: TrendingUp,   title: "Tableau de bord",  desc: "Visualisez vos inscriptions, taux de remplissage et présences en temps réel.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
               { icon: Shield,       title: "Rôles & accès",    desc: "Admin, organisateur, participant ou bénévole — chaque rôle a ses permissions adaptées.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Zap,          title: "Instantané",       desc: "Infrastructure cloud — vos données se synchronisent en temps réel pour tous les utilisateurs.", color: "bg-[#EED4D8]", iconColor: "text-[#72243E]" },
-              { icon: Globe,        title: "Accessible",       desc: "Les événements publics sont visibles sans compte. Partagez le lien, c'est tout.", color: "bg-[#D5E8A0]", iconColor: "text-[#204839]" },
+              { icon: Zap,          title: "Instantané",       desc: "Infrastructure cloud — vos données se synchronisent en temps réel pour tous les utilisateurs.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
+              { icon: Globe,        title: "Accessible",       desc: "Les événements publics sont visibles sans compte. Partagez le lien, c'est tout.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
             ].map((f) => (
               <div key={f.title} className="rounded-[12px] border-[0.5px] border-[#D5A0A8] bg-white/80 p-6 backdrop-blur shadow-elegant hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
                 <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-[8px] ${f.color}`}>
@@ -304,11 +304,11 @@ function Landing() {
         <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-2xl rounded-[20px] bg-gradient-primary p-12 text-center shadow-glow">
-              <img src="/logo.png" alt="" className="mx-auto mb-4 h-12 w-12 object-contain" />
-              <h2 className="text-4xl text-white" style={{ fontFamily: "var(--font-display)", fontStyle: "italic" }}>Prêt à organiser votre prochain événement ?</h2>
-              <p className="mt-4 text-white/80">Rejoignez des dizaines d'organisateurs qui font confiance à GuestEvent.</p>
+              <img src="/logo2.png" alt="" className="mx-auto mb-4 h-12 w-12 object-contain" />
+              <h2 className="text-4xl text-white" style={{ fontFamily: "var(--font-display)", fontStyle: "italic" }}>Prêt à organiser ta prochaine soirée ?</h2>
+              <p className="mt-4 text-white/80">Rejoins des dizaines d'assos qui font confiance à Plav' pour leurs événements.</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg" className="bg-white text-[#72243E] hover:bg-white/90">
+                <Button asChild size="lg" className="bg-white text-[#6B0F2C] hover:bg-white/90">
                   <Link to="/register">Créer un compte gratuitement <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost" className="text-white border border-white/30 hover:bg-white/10">
@@ -326,44 +326,44 @@ function Landing() {
           <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <img src="/logo.png" alt="GuestEvent" className="h-10 w-auto" />
-                <span className="font-display text-lg italic text-[#72243E]">GuestEvent</span>
+                <img src="/logo2.png" alt="Plav'" className="h-10 w-auto" />
+                <span className="font-display text-lg italic text-[#6B0F2C]">Plav'</span>
               </div>
-              <p className="text-sm text-[#2C2C2A]/60">La plateforme événementielle pour les organisateurs modernes.</p>
+              <p className="text-sm text-[#2C2C2A]/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#72243E] mb-3 uppercase tracking-wide">Navigation</h4>
+              <h4 className="text-sm font-semibold text-[#6B0F2C] mb-3 uppercase tracking-wide">Navigation</h4>
               <ul className="space-y-2 text-sm text-[#2C2C2A]/70">
-                <li><a href="#evenements" className="hover:text-[#72243E] transition-colors">Événements</a></li>
-                <li><a href="#fonctionnalites" className="hover:text-[#72243E] transition-colors">Fonctionnalités</a></li>
-                <li><Link to="/login" className="hover:text-[#72243E] transition-colors">Connexion</Link></li>
-                <li><Link to="/register" className="hover:text-[#72243E] transition-colors">Inscription</Link></li>
+                <li><a href="#evenements" className="hover:text-[#6B0F2C] transition-colors">Événements</a></li>
+                <li><a href="#fonctionnalites" className="hover:text-[#6B0F2C] transition-colors">Fonctionnalités</a></li>
+                <li><Link to="/login" className="hover:text-[#6B0F2C] transition-colors">Connexion</Link></li>
+                <li><Link to="/register" className="hover:text-[#6B0F2C] transition-colors">Inscription</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#72243E] mb-3 uppercase tracking-wide">À propos</h4>
+              <h4 className="text-sm font-semibold text-[#6B0F2C] mb-3 uppercase tracking-wide">À propos</h4>
               <ul className="space-y-2 text-sm text-[#2C2C2A]/70">
-                <li><Link to="/about" hash="organisateur" className="hover:text-[#72243E] transition-colors">Organisateur</Link></li>
-                <li><Link to="/about" hash="participant" className="hover:text-[#72243E] transition-colors">Participant</Link></li>
-                <li><Link to="/about" hash="benevole" className="hover:text-[#72243E] transition-colors">Bénévole</Link></li>
+                <li><Link to="/about" hash="organisateur" className="hover:text-[#6B0F2C] transition-colors">Organisateur</Link></li>
+                <li><Link to="/about" hash="participant" className="hover:text-[#6B0F2C] transition-colors">Participant</Link></li>
+                <li><Link to="/about" hash="benevole" className="hover:text-[#6B0F2C] transition-colors">Bénévole</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#72243E] mb-3 uppercase tracking-wide">Contact</h4>
+              <h4 className="text-sm font-semibold text-[#6B0F2C] mb-3 uppercase tracking-wide">Contact</h4>
               <div className="flex items-center gap-2 text-sm text-[#2C2C2A]/70 mb-4">
-                <Mail className="h-4 w-4" /><span>support@guestevent.app</span>
+                <Mail className="h-4 w-4" /><span>support@plav.app</span>
               </div>
               <div className="flex items-center gap-3">
-                <a href="https://instagram.com/guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="Instagram">
+                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#6B0F2C] transition-colors" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://facebook.com/guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="Facebook">
+                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#6B0F2C] transition-colors" aria-label="Facebook">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com/@guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="YouTube">
+                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#6B0F2C] transition-colors" aria-label="YouTube">
                   <Youtube className="h-5 w-5" />
                 </a>
-                <a href="https://tiktok.com/@guestevent" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#72243E] transition-colors" aria-label="TikTok">
+                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-[#2C2C2A]/50 hover:text-[#6B0F2C] transition-colors" aria-label="TikTok">
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
                   </svg>
@@ -372,7 +372,7 @@ function Landing() {
             </div>
           </div>
           <div className="mt-8 border-t border-[#D5A0A8]/30 pt-6 text-center text-xs text-[#2C2C2A]/40">
-            © {new Date().getFullYear()} GuestEvent. Tous droits réservés.
+            © {new Date().getFullYear()} Plav'. Tous droits réservés.
           </div>
         </div>
       </footer>
@@ -381,10 +381,10 @@ function Landing() {
 }
 
 const HOW_CARDS = [
-  { step: "01", title: "Créez votre événement",        desc: "Remplissez le formulaire en quelques secondes : titre, date, lieu, capacité et image. Publiez instantanément.",              cta: "Créer un événement",      to: "/register", bg: "#72243E", accent: "#EED4D8", icon: CalendarDays },
-  { step: "02", title: "Les participants s'inscrivent", desc: "Un clic sur \"Réserver\" bloque la place 15 minutes. Le premier à confirmer gagne sa place — zéro doublon, zéro stress.",   cta: "Explorer les événements", to: "/events/",  bg: "#426655", accent: "#D5E8A0", icon: Timer       },
-  { step: "03", title: "Gérez en temps réel",           desc: "Suivez les inscriptions, le taux de remplissage et les présences depuis votre tableau de bord dédié.",                   cta: "Mon dashboard",           to: "/register", bg: "#C87488", accent: "#FFF8F0", icon: TrendingUp  },
-  { step: "04", title: "Scan le jour J",                desc: "Chaque inscrit reçoit un QR code unique. Scannez à l'entrée en un instant pour valider les présences rapidement.",          cta: "Commencer maintenant",    to: "/register", bg: "#204839", accent: "#D5E8A0", icon: QrCode      },
+  { step: "01", title: "Crée ta soirée",                desc: "Remplis le formulaire en quelques secondes : titre, date, lieu, capacité et image. Publie instantanément.",               cta: "Organise tes soirées",    to: "/register", bg: "#6B0F2C", accent: "#EED4D8", icon: CalendarDays },
+  { step: "02", title: "Les étudiants s'inscrivent",   desc: "Un clic sur \"Réserver\" bloque la place 15 minutes. Le premier à confirmer gagne sa place — zéro doublon, zéro stress.",   cta: "Découvrir les soirées",   to: "/events/",  bg: "#0F7A4B", accent: "#D5E8A0", icon: Timer       },
+  { step: "03", title: "Gère en temps réel",            desc: "Suis les inscriptions, le taux de remplissage et les présences depuis ton tableau de bord dédié.",                        cta: "Mon dashboard",           to: "/register", bg: "#C87488", accent: "#FFF8F0", icon: TrendingUp  },
+  { step: "04", title: "Scan le soir J",                desc: "Chaque inscrit reçoit un QR code unique. Scanne à l'entrée en un instant pour valider les présences rapidement.",           cta: "Commencer maintenant",    to: "/register", bg: "#1D5C38", accent: "#D5E8A0", icon: QrCode      },
 ];
 
 function StackedHowItWorks() {
@@ -489,7 +489,7 @@ function EventGrid({ events, muted = false }: { events: any[]; muted?: boolean }
                   <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   <div className="absolute right-2 top-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-[#72243E] hover:bg-[#72243E]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+                    {e.status === "private" && <Badge className="bg-[#6B0F2C] hover:bg-[#6B0F2C]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive">Complet</Badge>
                       : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
@@ -498,7 +498,7 @@ function EventGrid({ events, muted = false }: { events: any[]; muted?: boolean }
               ) : (
                 <div className="relative h-2 bg-gradient-vibrant">
                   <div className="absolute -bottom-3 right-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-[#72243E] hover:bg-[#72243E] text-[10px]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+                    {e.status === "private" && <Badge className="bg-[#6B0F2C] hover:bg-[#6B0F2C] text-[10px]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive" className="text-[10px]">Complet</Badge>
                       : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
@@ -528,9 +528,9 @@ function EventGrid({ events, muted = false }: { events: any[]; muted?: boolean }
                   </div>
                 )}
                 <div className="mt-4 flex items-center justify-between">
-                  {e.price > 0 ? <span className="text-sm font-semibold text-[#72243E]">{e.price} €</span>
+                  {e.price > 0 ? <span className="text-sm font-semibold text-[#6B0F2C]">{e.price} €</span>
                     : <Badge variant="secondary" className="text-xs">Gratuit</Badge>}
-                  <span className="text-xs text-[#72986F] flex items-center gap-1">Voir <ChevronRight className="h-3 w-3" /></span>
+                  <span className="text-xs text-[#0F7A4B] flex items-center gap-1">Voir <ChevronRight className="h-3 w-3" /></span>
                 </div>
               </CardContent>
             </Card>

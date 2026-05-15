@@ -16,7 +16,7 @@ const EventMap = lazy(() => import("@/components/EventMap"));
 
 export const Route = createFileRoute("/events/")({
   component: () => <ProtectedLayout><EventList /></ProtectedLayout>,
-  head: () => ({ meta: [{ title: "Événements — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Soirées — Plav'" }] }),
 });
 
 type DateFilter = "all" | "week" | "month";
@@ -252,7 +252,7 @@ function EventList() {
                   )}
                   <CardContent className="p-5">
                     <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                      {e.school && <Badge variant="secondary" className="text-[10px] bg-[#D5E8A0] text-[#204839]"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
+                      {e.school && <Badge variant="secondary" className="text-[10px] bg-[#D5E8A0] text-[#073D25]"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
                       {e.association && <Badge variant="secondary" className="text-[10px]">{e.association}</Badge>}
                     </div>
                     <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2">{e.title}</h3>

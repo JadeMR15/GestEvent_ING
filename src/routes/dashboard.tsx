@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard")({
       <DashboardPage />
     </ProtectedLayout>
   ),
-  head: () => ({ meta: [{ title: "Dashboard — GuestEvent" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Plav'" }] }),
 });
 
 interface Stats {
@@ -164,13 +164,13 @@ function DashboardPage() {
       r.registered_at ? format(new Date(r.registered_at), "yyyy-MM-dd HH:mm") : "",
       r.attended_at ? format(new Date(r.attended_at), "yyyy-MM-dd HH:mm") : "",
     ]);
-    zip.file(`GuestEvent_global_${dateStr}.csv`, toCSV([headerGlobal, ...globalRows]));
+    zip.file(`Plav_global_${dateStr}.csv`, toCSV([headerGlobal, ...globalRows]));
 
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `GuestEvent_export_${dateStr}.zip`;
+    a.download = `Plav_export_${dateStr}.zip`;
     a.click();
     URL.revokeObjectURL(url);
     setExporting(false);
