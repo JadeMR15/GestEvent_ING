@@ -156,7 +156,7 @@ function VolunteerPage() {
 
         {/* Header */}
         <div className="flex items-center gap-3 py-2">
-          <img src="/logo2.png" alt="Plav'" className="h-10 w-10 object-contain" />
+          <img src="/benevole.png" alt="Bénévole" className="h-10 w-10 object-contain" />
           <div>
             <p className="text-xs text-muted-foreground">Accès bénévole</p>
             <p className="font-semibold">{volunteer.name || "Bénévole"}</p>

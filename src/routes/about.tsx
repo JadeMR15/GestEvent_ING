@@ -12,6 +12,7 @@ const roles = [
   {
     id: "organisateur",
     icon: ClipboardList,
+    image: "/orga.png",
     title: "Organisateur",
     color: "bg-[#EED4D8]",
     iconColor: "text-[#6B0F2C]",
@@ -30,6 +31,7 @@ const roles = [
   {
     id: "participant",
     icon: Users,
+    image: "/participant.png",
     title: "Participant",
     color: "bg-[#D4E4EE]",
     iconColor: "text-[#1E4A6E]",
@@ -47,6 +49,7 @@ const roles = [
   {
     id: "benevole",
     icon: Heart,
+    image: "/benevole.png",
     title: "Bénévole",
     color: "bg-[#D4EED8]",
     iconColor: "text-[#1E6E30]",
@@ -121,8 +124,8 @@ function AboutPage() {
             } gap-10 items-start`}
           >
             {/* Icon block */}
-            <div className={`flex-shrink-0 rounded-2xl ${role.color} p-8 flex items-center justify-center`}>
-              <role.icon className={`h-16 w-16 ${role.iconColor}`} />
+            <div className={`flex-shrink-0 rounded-2xl ${role.color} p-6 flex items-center justify-center`}>
+              <img src={role.image} alt={role.title} className="h-24 w-24 object-contain" />
             </div>
 
             {/* Content */}

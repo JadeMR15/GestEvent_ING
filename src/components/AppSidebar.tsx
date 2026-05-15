@@ -58,11 +58,20 @@ export function AppSidebar() {
         <div className="flex items-center gap-2 px-1 py-3 overflow-visible">
           <img src="/logo2.png" alt="Plav'" className="h-24 w-24 shrink-0 object-contain" />
           {!collapsed && (
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 items-start gap-1">
               <BrandName className="h-14" />
-              <span className="text-xs text-sidebar-foreground/60">
-                {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
-              </span>
+              <div className="flex items-center gap-1.5">
+                {role && (
+                  <img
+                    src={{ admin: "/orga.png", organizer: "/orga.png", participant: "/participant.png", volunteer: "/benevole.png" }[role]}
+                    alt={role}
+                    className="h-5 w-5 object-contain"
+                  />
+                )}
+                <span className="text-xs text-sidebar-foreground/60">
+                  {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
+                </span>
+              </div>
             </div>
           )}
         </div>
