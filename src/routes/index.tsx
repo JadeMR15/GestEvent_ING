@@ -152,7 +152,7 @@ function Landing() {
             </div>
             <h1 className="text-5xl tracking-tight md:text-7xl font-extrabold" style={{ color: "var(--text-title)" }}>
               Tes soirées{" "}
-              <span className="bg-gradient-vibrant bg-clip-text text-transparent">enflammées</span>
+              <span style={{ color: "#6B0F2C" }}>enflammées</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-[#2C2C2A]/70">
               Billetterie étudiante, réservations avec timer, QR codes —
