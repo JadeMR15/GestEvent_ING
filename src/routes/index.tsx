@@ -143,8 +143,8 @@ function Landing() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#FDFAF7]/50 via-transparent to-[#FDFAF7]" />
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[#FDFAF7]" />
 
-        <div className="relative container mx-auto">
-          <div className="mx-auto max-w-3xl text-center animate-fade-up">
+        <div className="relative z-10 container mx-auto">
+          <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D5A0A8] bg-white/70 px-4 py-1.5 text-xs font-medium backdrop-blur text-[#6B0F2C]">
               <img src="/logo2.png" alt="" className="h-4 w-4 object-contain" />
               Organise, gère, scanne — en un seul endroit
@@ -173,7 +173,7 @@ function Landing() {
           </div>
 
           {/* Stats */}
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3 animate-fade-up delay-300">
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3">
             {[
               { value: stats.events, label: "Événements publiés", icon: CalendarDays },
               { value: stats.participants, label: "Participants inscrits", icon: Users },
