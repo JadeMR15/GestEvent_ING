@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ImagePlus, X, Plus, Trash2, PlayCircle } from "lucide-react";
+import { Loader2, ImagePlus, X, Plus, Trash2, PlayCircle, CalendarDays, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/new")({
@@ -348,8 +348,35 @@ function CreateEventPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="starts_at">Date & heure *</Label>
-              <Input id="starts_at" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} required />
+              <Label>Date & heure *</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="date"
+                    className="pl-9"
+                    value={form.starts_at.slice(0, 10)}
+                    min={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => {
+                      const time = form.starts_at.slice(11, 16) || "20:00";
+                      setForm({ ...form, starts_at: e.target.value ? `${e.target.value}T${time}` : "" });
+                    }}
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <Clock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="time"
+                    className="pl-9"
+                    value={form.starts_at.slice(11, 16)}
+                    onChange={(e) => {
+                      const date = form.starts_at.slice(0, 10) || new Date().toISOString().slice(0, 10);
+                      setForm({ ...form, starts_at: e.target.value ? `${date}T${e.target.value}` : "" });
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

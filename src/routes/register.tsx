@@ -133,7 +133,10 @@ function RegisterPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="birthDate">Date de naissance *</Label>
-                <Input id="birthDate" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
+                <div className="relative">
+                  <CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input id="birthDate" type="date" className="pl-9" value={birthDate} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setBirthDate(e.target.value)} required />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Genre *</Label>
