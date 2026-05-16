@@ -196,12 +196,12 @@ function Landing() {
       <section id="evenements" className="relative py-20">
         <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "linear-gradient(to bottom, #FDFAF7 0%, rgba(253,250,247,0.8) 40%, transparent 100%)" }} />
         <div className="relative z-10 container mx-auto px-6">
-        <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+        <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : ""}`}>
           <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Prochaines soirées</h2>
           <p className="mt-2 text-[#2C2C2A]/60">Toutes les soirées publiées, accessibles sans connexion.</p>
         </div>
 
-        <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
+        <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
           <div className="relative min-w-0 flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white/80 backdrop-blur w-full" />
@@ -271,11 +271,11 @@ function Landing() {
       <section id="fonctionnalites" className="relative py-24">
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
-          <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+          <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : ""}`}>
           <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Tout ce qu'il te faut</h2>
             <p className="mt-3 text-[#2C2C2A]/60 max-w-xl mx-auto">Une plateforme de billetterie étudiante pensée pour les assos qui organisent et les étudiants qui veulent vivre des soirées de ouf.</p>
           </div>
-          <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
+          <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
             {[
               { icon: CalendarDays, title: "Création rapide",  desc: "Créez et publiez en quelques secondes avec gestion de capacité, description et image de couverture.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
               { icon: Timer,        title: "Timer 15 min",     desc: "Chaque réservation bloque la place 15 minutes. Le premier à confirmer gagne — zéro doublon.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
@@ -303,7 +303,7 @@ function Landing() {
 
       {/* ── CTA ── */}
       {!loading && !user && (
-        <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+        <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : ""}`}>
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-2xl rounded-[20px] bg-gradient-primary p-12 text-center shadow-glow">
               <img src="/logo2.png" alt="" className="mx-auto mb-6 h-28 w-28 object-contain drop-shadow-lg brightness-0 invert" />
