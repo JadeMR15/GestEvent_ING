@@ -147,15 +147,14 @@ function Landing() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D5A0A8] bg-white/70 px-4 py-1.5 text-xs font-medium backdrop-blur text-[#6B0F2C]">
               <img src="/logo2.png" alt="" className="h-4 w-4 object-contain" />
-              Organise, gère, scanne — en un seul endroit
+              plav' · la billetterie étudiante
             </div>
             <h1 className="text-5xl tracking-tight md:text-7xl font-extrabold" style={{ color: "var(--text-title)" }}>
-              Tes soirées{" "}
-              <span style={{ color: "#6B0F2C" }}>enflammées</span>
+              Pour ceux qui organisent,{" "}
+              <span style={{ color: "#6B0F2C" }}>et ceux qui viennent.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-[#2C2C2A]/70">
-              Billetterie étudiante, réservations avec timer, QR codes —
-              la plateforme made for students qui déchire.
+              Organise ou participe — plav' s'occupe du reste.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               {!loading && user ? (
@@ -175,9 +174,9 @@ function Landing() {
           {/* Stats */}
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3">
             {[
-              { value: stats.events, label: "Événements publiés", icon: CalendarDays },
-              { value: stats.participants, label: "Participants inscrits", icon: Users },
-              { value: stats.organizers, label: "Organisateurs actifs", icon: Star },
+              { value: stats.events, label: "events publiés", icon: CalendarDays },
+              { value: stats.participants, label: "participants", icon: Users },
+              { value: stats.organizers, label: "organisateurs", icon: Star },
             ].map((s) => (
               <div key={s.label} className="rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-3 sm:p-5 text-center backdrop-blur shadow-elegant">
                 <s.icon className="mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5 text-[#0F7A4B]" />
@@ -197,8 +196,8 @@ function Landing() {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "linear-gradient(to bottom, #FDFAF7 0%, rgba(253,250,247,0.8) 40%, transparent 100%)" }} />
         <div className="relative z-10 container mx-auto px-6">
         <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Prochaines soirées</h2>
-          <p className="mt-2 text-[#2C2C2A]/60">Toutes les soirées publiées, accessibles sans connexion.</p>
+          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Les prochains events</h2>
+          <p className="mt-2 text-[#2C2C2A]/60">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
         <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
@@ -272,19 +271,19 @@ function Landing() {
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
           <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Tout ce qu'il te faut</h2>
-            <p className="mt-3 text-[#2C2C2A]/60 max-w-xl mx-auto">Une plateforme de billetterie étudiante pensée pour les assos qui organisent et les étudiants qui veulent vivre des soirées de ouf.</p>
+          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Simple. Complet.</h2>
+            <p className="mt-3 text-[#2C2C2A]/60 max-w-xl mx-auto">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
           <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
             {[
-              { icon: CalendarDays, title: "Création rapide",  desc: "Créez et publiez en quelques secondes avec gestion de capacité, description et image de couverture.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
-              { icon: Timer,        title: "Timer 15 min",     desc: "Chaque réservation bloque la place 15 minutes. Le premier à confirmer gagne — zéro doublon.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
-              { icon: QrCode,       title: "Scan QR",           desc: "Un QR unique par inscription. Scan caméra ou saisie manuelle le jour J pour un accueil fluide.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Users,        title: "Inscriptions simples",  desc: "Un clic pour réserver sa place. Confirmation immédiate avec QR code et email récapitulatif.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
-              { icon: TrendingUp,   title: "Tableau de bord",  desc: "Visualisez vos inscriptions, taux de remplissage et présences en temps réel.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
-              { icon: Shield,       title: "Rôles & accès",    desc: "Admin, organisateur, participant ou bénévole — chaque rôle a ses permissions adaptées.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Zap,          title: "Instantané",       desc: "Infrastructure cloud — vos données se synchronisent en temps réel pour tous les utilisateurs.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
-              { icon: Globe,        title: "Accessible",       desc: "Les événements publics sont visibles sans compte. Partagez le lien, c'est tout.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
+              { icon: CalendarDays, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
+              { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
+              { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", color: "bg-gradient-primary", iconColor: "text-white" },
+              { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
+              { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
+              { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", color: "bg-gradient-primary", iconColor: "text-white" },
+              { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", color: "bg-[#EED4D8]", iconColor: "text-[#6B0F2C]" },
+              { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", color: "bg-[#D5E8A0]", iconColor: "text-[#073D25]" },
             ].map((f) => (
               <div key={f.title} className="rounded-[12px] border-[0.5px] border-[#D5A0A8] bg-white/80 p-6 backdrop-blur shadow-elegant hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
                 <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-[8px] ${f.color}`}>
@@ -307,8 +306,8 @@ function Landing() {
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-2xl rounded-[20px] bg-gradient-primary p-12 text-center shadow-glow">
               <img src="/logo2.png" alt="" className="mx-auto mb-6 h-28 w-28 object-contain drop-shadow-lg brightness-0 invert" />
-              <h2 className="text-4xl font-bold text-white">Prêt à organiser ta prochaine soirée ?</h2>
-              <p className="mt-4 text-white/80">Rejoins des dizaines d'assos qui font confiance à Plav' pour leurs événements.</p>
+              <h2 className="text-4xl font-bold text-white">T'attends quoi ?</h2>
+              <p className="mt-4 text-white/80">Rejoins les assos qui font confiance à plav'.</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg" className="bg-white text-[#6B0F2C] hover:bg-white/90">
                   <Link to="/register">Créer un compte gratuitement <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -383,10 +382,10 @@ function Landing() {
 }
 
 const HOW_CARDS = [
-  { step: "01", title: "Crée ta soirée",                desc: "Remplis le formulaire en quelques secondes : titre, date, lieu, capacité et image. Publie instantanément.",               cta: "Organise tes soirées",    to: "/register", bg: "#6B0F2C", accent: "#EED4D8", icon: CalendarDays },
-  { step: "02", title: "Les étudiants s'inscrivent",   desc: "Un clic sur \"Réserver\" bloque la place 15 minutes. Le premier à confirmer gagne sa place — zéro doublon, zéro stress.",   cta: "Découvrir les soirées",   to: "/events/",  bg: "#0F7A4B", accent: "#D5E8A0", icon: Timer       },
-  { step: "03", title: "Gère en temps réel",            desc: "Suis les inscriptions, le taux de remplissage et les présences depuis ton tableau de bord dédié.",                        cta: "Mon dashboard",           to: "/register", bg: "#C87488", accent: "#FFF8F0", icon: TrendingUp  },
-  { step: "04", title: "Scan le soir J",                desc: "Chaque inscrit reçoit un QR code unique. Scanne à l'entrée en un instant pour valider les présences rapidement.",           cta: "Commencer maintenant",    to: "/register", bg: "#1D5C38", accent: "#D5E8A0", icon: QrCode      },
+  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "#6B0F2C", accent: "#EED4D8", icon: CalendarDays },
+  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "#0F7A4B", accent: "#D5E8A0", icon: Timer       },
+  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "#C87488", accent: "#FFF8F0", icon: TrendingUp  },
+  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "#1D5C38", accent: "#D5E8A0", icon: QrCode      },
 ];
 
 function StackedHowItWorks() {
