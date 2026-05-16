@@ -255,14 +255,6 @@ function Landing() {
           </>
         )}
 
-        {!loading && !user && filtered.length > 0 && (
-          <div className="mt-10 text-center">
-            <p className="text-sm text-[#2C2C2A]/60 mb-3">Connectez-vous pour vous inscrire à un événement.</p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/login">Se connecter <ChevronRight className="ml-1 h-4 w-4" /></Link>
-            </Button>
-          </div>
-        )}
         </div>
       </section>
 
@@ -483,7 +475,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
         const remaining = e.capacity - taken;
 
         return (
-          <Link key={e.id} to={user ? "/events/$eventId" : "/login"} params={user ? { eventId: e.id } : undefined}>
+          <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }}>
             <Card className={`group h-full overflow-hidden border transition-all duration-300 hover:shadow-glow hover:-translate-y-1 ${muted ? "opacity-60" : ""}`}>
               {e.cover_image_url ? (
                 <div className="relative h-40 w-full overflow-hidden bg-muted">

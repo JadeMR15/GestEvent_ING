@@ -1,4 +1,5 @@
 import { createFileRoute, useParams, useNavigate, Link } from "@tanstack/react-router";
+import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,9 +30,108 @@ import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/$eventId")({
-  component: () => <ProtectedLayout><EventDetail /></ProtectedLayout>,
+  component: EventDetailRoute,
   head: () => ({ meta: [{ title: "Soirée — Plav'" }] }),
 });
+
+function EventDetailRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+  if (!user) return <PublicEventView />;
+  return <ProtectedLayout><EventDetail /></ProtectedLayout>;
+}
+
+function PublicEventView() {
+  const { eventId } = useParams({ from: "/events/$eventId" });
+  const navigate = useNavigate();
+  const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    supabase.from("events").select("*").eq("id", eventId).maybeSingle().then(({ data }) => {
+      setEvent(data);
+      setLoading(false);
+    });
+  }, [eventId]);
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function handleRegister() {
+    sessionStorage.setItem("loginRedirect", `/events/${eventId}`);
+    navigate({ to: "/login" });
+  }
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+  if (!event) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Événement introuvable.</div>;
+
+  const eventDate = event.starts_at ? format(new Date(event.starts_at), "PPP 'à' p", { locale: fr }) : null;
+
+  return (
+    <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
+      <header className="sticky top-0 z-50 w-full border-b border-[#D5A0A8]/30 bg-white/60 backdrop-blur">
+        <div className="container mx-auto flex items-center justify-between px-6 py-4">
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo2.png" alt="Plav'" className="h-10 w-auto object-contain" />
+            <BrandName className="h-10" />
+          </Link>
+          <div className="flex gap-2">
+            <Button asChild variant="ghost" size="sm"><Link to="/login">Connexion</Link></Button>
+            <Button asChild size="sm" className="bg-gradient-primary shadow-glow"><Link to="/register">Commencer</Link></Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-10 max-w-2xl">
+        {event.cover_image_url && (
+          <div className="mb-6 overflow-hidden rounded-[16px] aspect-video">
+            <img src={event.cover_image_url} alt={event.title} className="h-full w-full object-cover" />
+          </div>
+        )}
+
+        <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--text-title)" }}>{event.title}</h1>
+
+        <div className="mb-6 space-y-2 text-[#2C2C2A]/70">
+          {eventDate && (
+            <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 flex-shrink-0" /><span>{eventDate}</span></div>
+          )}
+          {event.location && (
+            <div className="flex items-center gap-2"><MapPin className="h-4 w-4 flex-shrink-0" /><span>{event.location}</span></div>
+          )}
+          {event.capacity > 0 && (
+            <div className="flex items-center gap-2"><Users className="h-4 w-4 flex-shrink-0" /><span>{event.capacity} places</span></div>
+          )}
+        </div>
+
+        {event.description && (
+          <p className="mb-8 leading-relaxed text-[#2C2C2A]/80 whitespace-pre-line">{event.description}</p>
+        )}
+
+        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-4">
+          <span className="text-lg font-semibold" style={{ color: "var(--text-title)" }}>
+            {event.price > 0 ? `${event.price} €` : "Gratuit"}
+          </span>
+          {event.capacity > 0 && <span className="text-sm text-[#2C2C2A]/60">{event.capacity} places max</span>}
+        </div>
+
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex-1" onClick={handleShare}>
+            {copied ? <Check className="mr-2 h-4 w-4" /> : <Share2 className="mr-2 h-4 w-4" />}
+            {copied ? "Lien copié !" : "Partager"}
+          </Button>
+          <Button className="flex-1 bg-gradient-primary shadow-glow" onClick={handleRegister}>
+            S'inscrire
+          </Button>
+        </div>
+      </main>
+    </div>
+  );
+}
 
 const TIMER_SECONDS = 15 * 60;
 

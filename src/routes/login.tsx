@@ -49,6 +49,8 @@ function LoginPage() {
     }
     setLoading(false);
     toast.success("Bienvenue !");
+    const redirect = sessionStorage.getItem("loginRedirect");
+    if (redirect) { sessionStorage.removeItem("loginRedirect"); navigate({ to: redirect as any }); return; }
     navigate({ to: target });
   }
 
