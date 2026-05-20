@@ -68,12 +68,15 @@ function ScannerPage() {
     setCacheSize(Object.keys(loadCache()).length);
   }, []);
 
-  // Charger la liste des événements
+  // Charger la liste des événements de l'utilisateur connecté
   useEffect(() => {
     (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
       const { data } = await supabase
         .from("events")
         .select("id, title, starts_at")
+        .eq("organizer_id", user.id)
         .order("starts_at", { ascending: false })
         .limit(30);
       setEvents(data ?? []);
