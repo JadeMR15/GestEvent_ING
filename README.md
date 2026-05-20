@@ -1,13 +1,10 @@
-# GestEvent
+# Plav'
 
 Application web de gestion d'événements — créer des events, gérer les inscriptions, scanner les billets, suivre les finances et les bénévoles.
 
 ## Stack
 
-- **Frontend** — React 19, TanStack Router, TanStack Query, TypeScript
-- **UI** — Tailwind CSS v4, shadcn/ui (Radix UI)
-- **Backend** — Supabase (base de données, auth, edge functions)
-- **Deploy** — Vercel
+React + Supabase, déployé sur Vercel.
 
 ## Fonctionnalités
 
