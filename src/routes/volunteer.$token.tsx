@@ -34,6 +34,7 @@ function VolunteerPage() {
 
   const [stats, setStats] = useState<{ attended: number; total: number }>({ attended: 0, total: 0 });
   const [scanning, setScanning] = useState(false);
+  const [scanFlash, setScanFlash] = useState<"success" | "error" | null>(null);
   const [manual, setManual] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -64,6 +65,11 @@ function VolunteerPage() {
     })();
   }, [token]);
 
+  const flash = useCallback((type: "success" | "error") => {
+    setScanFlash(type);
+    setTimeout(() => setScanFlash(null), 800);
+  }, []);
+
   const processCode = useCallback(async (code: string) => {
     if (lockRef.current) return;
     lockRef.current = true;
@@ -77,27 +83,31 @@ function VolunteerPage() {
     const result = data as ScanResult | null;
 
     if (error || !result) {
+      flash("error");
       addHistory(false, "", "Erreur serveur");
       toast.error("Erreur serveur");
       return;
     }
 
     if (!result.ok) {
+      flash("error");
       addHistory(false, "", result.error ?? "QR invalide");
       toast.error(result.error ?? "QR invalide");
       return;
     }
 
     if (result.already) {
+      flash("error");
       addHistory(true, result.name ?? "", "Déjà scanné");
       toast.info(`Déjà scanné : ${result.name}`);
       return;
     }
 
+    flash("success");
     addHistory(true, result.name ?? "", "✓ Entrée validée");
     toast.success(`Entrée validée : ${result.name}`);
     setStats((prev) => ({ ...prev, attended: prev.attended + 1 }));
-  }, [token]);
+  }, [token, flash]);
 
   function addHistory(ok: boolean, name: string, text: string) {
     setHistory((h) => [{ ok, name, text, at: new Date().toLocaleTimeString() }, ...h].slice(0, 30));
@@ -226,7 +236,16 @@ function VolunteerPage() {
               </TabsList>
 
               <TabsContent value="camera" className="mt-4 space-y-3">
-                <div id="vol-qr-reader" className="overflow-hidden rounded-lg border bg-muted" style={{ minHeight: scanning ? 280 : 0 }} />
+                <div className="relative">
+                  <div id="vol-qr-reader" className="overflow-hidden rounded-lg border bg-muted" style={{ minHeight: scanning ? 280 : 0 }} />
+                  {scanFlash && (
+                    <div className={`absolute inset-0 rounded-lg pointer-events-none flex items-center justify-center ${scanFlash === "success" ? "bg-emerald-500/40" : "bg-red-500/40"}`}>
+                      {scanFlash === "success"
+                        ? <CheckCircle2 className="h-20 w-20 text-white drop-shadow-lg" />
+                        : <XCircle className="h-20 w-20 text-white drop-shadow-lg" />}
+                    </div>
+                  )}
+                </div>
                 {!scanning ? (
                   <Button onClick={startCamera} className="w-full bg-gradient-primary shadow-glow">
                     <Camera className="mr-2 h-4 w-4" />Démarrer la caméra
