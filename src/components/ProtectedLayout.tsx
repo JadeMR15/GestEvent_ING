@@ -1,9 +1,9 @@
 import { type ReactNode, useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldAlert } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -11,8 +11,11 @@ interface Props {
 }
 
 export function ProtectedLayout({ children, allow }: Props) {
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, isVerified, verificationStatus } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showVerifyBanner =
+    (role === "participant" || role === "organizer") && verificationStatus !== null && !isVerified && pathname !== "/verification";
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/" });
@@ -46,6 +49,19 @@ export function ProtectedLayout({ children, allow }: Props) {
             <SidebarTrigger />
             <img src="/plav-logotype.png" alt="Plav'" className="h-7 w-auto object-contain" />
           </header>
+          {showVerifyBanner && (
+            <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
+              <ShieldAlert className="h-4 w-4 shrink-0" />
+              <span className="flex-1">
+                {verificationStatus === "review" || verificationStatus === "pending"
+                  ? "Ton justificatif est en cours de vérification. Tu pourras t'inscrire aux événements dès qu'il sera validé."
+                  : "Compte non vérifié : envoie ton justificatif étudiant pour t'inscrire aux événements."}
+              </span>
+              {verificationStatus !== "review" && verificationStatus !== "pending" && (
+                <Link to="/verification" className="font-semibold underline">Vérifier mon compte</Link>
+              )}
+            </div>
+          )}
           <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
         </div>
       </div>

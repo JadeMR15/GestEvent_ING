@@ -111,6 +111,12 @@ export type Database = {
           id: string
           school: string | null
           updated_at: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
+          verification_note: string | null
+          verification_checks: Json | null
+          verification_attempts: number
+          verified_at: string | null
+          student_doc_path: string | null
         }
         Insert: {
           association?: string | null
@@ -119,6 +125,12 @@ export type Database = {
           id: string
           school?: string | null
           updated_at?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          verification_note?: string | null
+          verification_checks?: Json | null
+          verification_attempts?: number
+          verified_at?: string | null
+          student_doc_path?: string | null
         }
         Update: {
           association?: string | null
@@ -127,6 +139,12 @@ export type Database = {
           id?: string
           school?: string | null
           updated_at?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          verification_note?: string | null
+          verification_checks?: Json | null
+          verification_attempts?: number
+          verified_at?: string | null
+          student_doc_path?: string | null
         }
         Relationships: []
       }
@@ -238,6 +256,7 @@ export type Database = {
         | "waitlisted"
         | "attended"
         | "cancelled"
+      verification_status: "unverified" | "pending" | "review" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -373,6 +392,7 @@ export const Constants = {
         "attended",
         "cancelled",
       ],
+      verification_status: ["unverified", "pending", "review", "verified", "rejected"],
     },
   },
 } as const

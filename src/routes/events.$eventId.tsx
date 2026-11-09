@@ -160,7 +160,7 @@ async function sendConfirmationEmail(params: {
 
 function EventDetail() {
   const { eventId } = useParams({ from: "/events/$eventId" });
-  const { user, role } = useAuth();
+  const { user, role, isVerified } = useAuth();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState<any>(null);
@@ -376,6 +376,11 @@ function EventDetail() {
 
   async function openCart() {
     if (!user) return;
+    if (!isVerified) {
+      toast.error("Vérifie ton compte étudiant pour t'inscrire aux événements.");
+      navigate({ to: "/verification" });
+      return;
+    }
     if (hasTicketTypes && totalCartQty === 0) { toast.error("Sélectionnez au moins une place."); return; }
     if (maxPerPerson > 0 && alreadyBooked + totalCartQty > maxPerPerson) {
       toast.error(`Maximum ${maxPerPerson} place${maxPerPerson > 1 ? "s" : ""} par personne pour cet événement.`);
@@ -398,6 +403,7 @@ function EventDetail() {
       setActing(false);
       if (error) {
         if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
+        else if (error.message.includes("account_not_verified")) toast.error("Vérifie ton compte étudiant pour t'inscrire.");
         else toast.error(error.message);
         load(); return;
       }
@@ -410,6 +416,7 @@ function EventDetail() {
       setActing(false);
       if (error) {
         if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
+        else if (error.message.includes("account_not_verified")) toast.error("Vérifie ton compte étudiant pour t'inscrire.");
         else toast.error(error.message);
         load(); return;
       }

@@ -71,7 +71,7 @@ const schema = z.object({
 });
 
 function CreateEventPage() {
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [mediaDragOver, setMediaDragOver] = useState(false);
@@ -172,6 +172,11 @@ function CreateEventPage() {
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     if (!user) return;
+    if (!isVerified) {
+      toast.error("Vérifie ton compte étudiant pour créer un événement.");
+      navigate({ to: "/verification" });
+      return;
+    }
 
     for (const t of tickets) {
       if (!t.name.trim()) { toast.error("Chaque tarif doit avoir un nom."); return; }

@@ -104,10 +104,11 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'association', '')
   );
 
-  BEGIN
-    _role := (NEW.raw_user_meta_data->>'role')::public.app_role;
-  EXCEPTION WHEN invalid_text_representation THEN
-    _role := 'participant';
+  -- Sécurité : seuls participant et organizer peuvent être choisis à l'inscription.
+  -- admin / volunteer ne sont jamais attribués depuis les métadonnées du client.
+  _role := CASE NEW.raw_user_meta_data->>'role'
+    WHEN 'organizer' THEN 'organizer'::public.app_role
+    ELSE 'participant'::public.app_role
   END;
 
   INSERT INTO public.user_roles (user_id, role)

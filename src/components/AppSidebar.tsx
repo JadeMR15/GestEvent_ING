@@ -11,6 +11,8 @@ import {
   Download,
   BarChart2,
   Euro,
+  BadgeCheck,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,7 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { role, signOut, user } = useAuth();
+  const { role, signOut, user, isVerified } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -44,6 +46,8 @@ export function AppSidebar() {
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
+    ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
+    { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
