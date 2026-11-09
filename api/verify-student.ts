@@ -4,8 +4,8 @@
 // 3. lit le texte puis applique les règles fait maison
 // 4. enregistre le résultat sur le profil (seul le serveur et les admins peuvent le faire)
 import { createClient } from "@supabase/supabase-js";
-import { ACCEPTED_TYPES, extractDocumentText } from "../src/lib/student-verification/extract-text";
-import { verifyStudentDocument } from "../src/lib/student-verification/rules";
+import { ACCEPTED_TYPES, extractDocumentText } from "../src/lib/student-verification/extract-text.js";
+import { verifyStudentDocument } from "../src/lib/student-verification/rules.js";
 
 const BUCKET = "student-documents";
 const MAX_ATTEMPTS = 5; // au-delà, le dossier part directement en relecture admin
