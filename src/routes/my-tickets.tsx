@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import { isPastEvent } from "@/lib/event-dates";
 
 export const Route = createFileRoute("/my-tickets")({
   component: () => <ProtectedLayout><MyTicketsPage /></ProtectedLayout>,
@@ -139,8 +140,13 @@ function MyTicketsPage() {
     win.document.close();
   }
 
-  const active = tickets.filter((t) => t.status !== "cancelled");
-  const past = tickets.filter((t) => t.status === "cancelled");
+  const withEvent = tickets.filter((t) => t.events);
+  const active = withEvent.filter((t) => t.status !== "cancelled" && !isPastEvent(t.events.starts_at));
+  // Anciens achats : billets d'événements passés (le plus récent en premier)
+  const oldPurchases = withEvent
+    .filter((t) => (t.status === "registered" || t.status === "attended") && isPastEvent(t.events.starts_at))
+    .sort((a, b) => new Date(b.events.starts_at).getTime() - new Date(a.events.starts_at).getTime());
+  const past = withEvent.filter((t) => t.status === "cancelled" && !isPastEvent(t.events.starts_at));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -155,7 +161,7 @@ function MyTicketsPage() {
         <Card className="border-2 border-dashed">
           <CardContent className="py-12 text-center">
             <Ticket className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">Aucun billet pour l'instant.</p>
+            <p className="text-muted-foreground">Aucun billet à venir pour l'instant.</p>
             <Button asChild className="mt-4 bg-gradient-primary shadow-glow">
               <Link to="/events">Découvrir les événements</Link>
             </Button>
@@ -250,6 +256,38 @@ function MyTicketsPage() {
                       </Button>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Anciens achats */}
+      {!loading && oldPurchases.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">Anciens achats</p>
+          {oldPurchases.map((reg) => {
+            const ev = reg.events;
+            return (
+              <Card key={reg.id} className="border">
+                <CardContent className="flex flex-wrap items-center justify-between gap-2 p-4 text-sm">
+                  <div className="min-w-0">
+                    <p className="font-medium">{ev.title}</p>
+                    <p className="text-muted-foreground">
+                      {format(new Date(ev.starts_at), "PPP", { locale: fr })} · {ev.location || "En ligne"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${reg.status === "attended" ? STATUS_CONFIG.attended.color : "bg-muted text-muted-foreground"}`}>
+                      {reg.status === "attended" ? "Présent" : "Passé"}
+                    </span>
+                    <Button size="sm" variant="ghost" asChild>
+                      <Link to="/events/$eventId" params={{ eventId: ev.id }}>
+                        <ExternalLink className="mr-1 h-3.5 w-3.5" />Voir
+                      </Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             );

@@ -13,7 +13,8 @@ import {
   MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight,
   Star, Globe, Mail, Lock, Instagram, Facebook, Youtube,
 } from "lucide-react";
-import { format, isThisWeek, isThisMonth, isFuture } from "date-fns";
+import { format, isThisWeek, isThisMonth } from "date-fns";
+import { isPastEvent } from "@/lib/event-dates";
 import { fr } from "date-fns/locale";
 
 export const Route = createFileRoute("/")({
@@ -98,8 +99,8 @@ function Landing() {
     return true;
   }), [events, q, dateFilter, statusFilter]);
 
-  const upcoming = filtered.filter((e) => isFuture(new Date(e.starts_at)));
-  const past = filtered.filter((e) => !isFuture(new Date(e.starts_at)));
+  // Les événements passés ne sont plus affichés (ils restent dans « Mes billets »).
+  const upcoming = filtered.filter((e) => !isPastEvent(e.starts_at));
 
   const eventsAnim = useInView(0.1);
   const featuresAnim = useInView(0.1);
@@ -240,7 +241,7 @@ function Landing() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-[#E3CC9C]/50 bg-white/60 h-64 animate-pulse" />)}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : upcoming.length === 0 ? (
           <Card className="border-2 border-dashed mx-auto max-w-md">
             <CardContent className="py-12 text-center text-muted-foreground">
               <CalendarDays className="mx-auto mb-3 h-8 w-8 opacity-40" />
@@ -248,20 +249,7 @@ function Landing() {
             </CardContent>
           </Card>
         ) : (
-          <>
-            {upcoming.length > 0 && (
-              <>
-                {past.length > 0 && <p className="mb-4 text-sm font-semibold text-[#6B1A2F] uppercase tracking-wide"><span className="plav-highlight">À venir</span></p>}
-                <EventGrid events={upcoming} user={user} />
-              </>
-            )}
-            {past.length > 0 && (
-              <>
-                <p className="mt-10 mb-4 text-sm font-medium text-[#2B1A1F]/40 uppercase tracking-wide">Passés</p>
-                <EventGrid events={past} muted user={user} />
-              </>
-            )}
-          </>
+          <EventGrid events={upcoming} user={user} />
         )}
 
         </div>

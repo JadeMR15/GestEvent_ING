@@ -11,6 +11,7 @@ import { CalendarDays, MapPin, Users, Search, PlusCircle, Clock, GraduationCap, 
 import { format, isThisWeek, isThisMonth } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
+import { pastEventCutoff } from "@/lib/event-dates";
 
 const EventMap = lazy(() => import("@/components/EventMap"));
 
@@ -42,7 +43,12 @@ function EventList() {
 
   useEffect(() => {
     (async () => {
-      let query = supabase.from("events").select("*, registrations(id,status)").order("starts_at", { ascending: true });
+      // Les événements passés n'apparaissent plus ici (ils restent dans « Mes billets »).
+      let query = supabase
+        .from("events")
+        .select("*, registrations(id,status)")
+        .gte("starts_at", pastEventCutoff().toISOString())
+        .order("starts_at", { ascending: true });
       if (role === "organizer" && user) query = query.eq("organizer_id", user.id);
       const { data } = await query;
       setEvents(data ?? []);
