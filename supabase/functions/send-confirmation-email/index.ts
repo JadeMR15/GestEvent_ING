@@ -4,6 +4,7 @@
 // confirmées depuis moins d'une heure. Destinataires et contenu viennent de la base.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { adminClient, cors, esc, frenchDate, getCaller, json, sendBrevo } from "../_shared/common.ts";
+import { C, emailLayout, infoBox } from "../_shared/email-layout.ts";
 
 const MAX_AGE_MS = 60 * 60 * 1000;
 
@@ -49,27 +50,21 @@ serve(async (req) => {
       await sendBrevo(
         { email: toEmail, name: fullName },
         `🎟️ Votre billet — ${ev.title}`,
-        `
-          <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;color:#2C2C2A">
-            <div style="background:linear-gradient(135deg,#EED4D8,#C87488);padding:32px;border-radius:12px 12px 0 0;text-align:center">
-              <h1 style="font-family:Georgia,serif;font-size:32px;font-style:italic;color:#6B0F2C;margin:0">${esc(ev.title)}</h1>
+        emailLayout({
+          title: ev.title,
+          content: `
+            <p style="margin:0 0 8px">Bonjour <strong>${esc(fullName)}</strong>,</p>
+            <p style="margin:0 0 8px;color:${C.burgundy};font-weight:600">Votre inscription est confirmée !</p>
+            ${infoBox(`
+              <p style="margin:4px 0">📅 <strong>${esc(frenchDate(ev.starts_at))}</strong></p>
+              <p style="margin:4px 0">📍 <strong>${esc(ev.location || "En ligne")}</strong></p>`)}
+            <p style="text-align:center;font-weight:600;margin:24px 0 12px">Votre QR code d'entrée :</p>
+            <div style="text-align:center;background:#fff;padding:16px;border-radius:12px;border:1px solid ${C.border}">
+              <img src="${qrImageUrl}" width="200" height="200" alt="QR code" style="display:block;margin:0 auto" />
+              <p style="font-family:monospace;font-size:11px;color:${C.muted};margin:8px 0 0">${esc(reg.qr_code)}</p>
             </div>
-            <div style="background:#FDFAF7;padding:32px;border:1px solid #D5A0A8;border-top:none;border-radius:0 0 12px 12px">
-              <p style="margin:0 0 8px">Bonjour <strong>${esc(fullName)}</strong>,</p>
-              <p style="margin:0 0 24px;color:#6B0F2C">Votre inscription est confirmée !</p>
-              <div style="background:#EED4D8;border-radius:8px;padding:16px;margin-bottom:24px">
-                <p style="margin:4px 0">📅 <strong>${esc(frenchDate(ev.starts_at))}</strong></p>
-                <p style="margin:4px 0">📍 <strong>${esc(ev.location || "En ligne")}</strong></p>
-              </div>
-              <p style="text-align:center;font-weight:500;margin-bottom:12px">Votre QR code d'entrée :</p>
-              <div style="text-align:center;background:#fff;padding:16px;border-radius:8px;border:1px solid #D5A0A8">
-                <img src="${qrImageUrl}" width="200" height="200" alt="QR code" style="display:block;margin:0 auto" />
-                <p style="font-family:monospace;font-size:11px;color:#888;margin:8px 0 0">${esc(reg.qr_code)}</p>
-              </div>
-              <p style="margin-top:24px;font-size:13px;color:#888;text-align:center">Présentez ce QR code à l'entrée · Plav'</p>
-            </div>
-          </div>
-        `,
+            <p style="margin-top:20px;font-size:13px;color:${C.muted};text-align:center">Présentez ce QR code à l'entrée.</p>`,
+        }),
         org?.user?.email,
       );
       sent++;

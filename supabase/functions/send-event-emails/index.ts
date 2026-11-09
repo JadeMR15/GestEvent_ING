@@ -5,31 +5,21 @@
 // Les destinataires sont lus dans la base, jamais fournis par le navigateur.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { adminClient, cors, esc, frenchDate, getCaller, isAdmin, json, sendBrevo } from "../_shared/common.ts";
+import { C, emailButton, emailLayout, infoBox } from "../_shared/email-layout.ts";
 
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://plavv.vercel.app";
 
 function baseHtml(content: string, organizerEmail?: string) {
   const footer = organizerEmail
-    ? `<div style="margin-top:24px;padding-top:16px;border-top:1px solid #D5A0A8;text-align:center;font-size:12px;color:#888">
-        Pour contacter l'organisateur : <a href="mailto:${esc(organizerEmail)}" style="color:#6B0F2C;font-weight:600">${esc(organizerEmail)}</a>
-      </div>`
-    : "";
-  return `<div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;color:#2C2C2A">
-    <div style="background:linear-gradient(135deg,#EED4D8,#C87488);padding:24px;border-radius:12px 12px 0 0;text-align:center">
-      <span style="font-family:Georgia,serif;font-size:22px;font-style:italic;color:#6B0F2C">Plav'</span>
-    </div>
-    <div style="background:#FDFAF7;padding:32px;border:1px solid #D5A0A8;border-top:none;border-radius:0 0 12px 12px">
-      ${content}
-      ${footer}
-    </div>
-  </div>`;
+    ? `Pour contacter l'organisateur : <a href="mailto:${esc(organizerEmail)}" style="color:${C.burgundy};font-weight:600">${esc(organizerEmail)}</a>`
+    : undefined;
+  return emailLayout({ content, footer });
 }
 
 function eventBox(ev, dateStr: string) {
-  return `<div style="background:#EED4D8;border-radius:8px;padding:16px;margin:16px 0">
+  return infoBox(`
     <p style="margin:4px 0">📅 <strong>${esc(dateStr)}</strong></p>
-    <p style="margin:4px 0">📍 <strong>${esc(ev.location || "En ligne")}</strong></p>
-  </div>`;
+    <p style="margin:4px 0">📍 <strong>${esc(ev.location || "En ligne")}</strong></p>`);
 }
 
 serve(async (req) => {
@@ -89,7 +79,7 @@ serve(async (req) => {
         .order("registered_at").limit(1);
       const sent = await sendToAll(waiting, `🎟️ Une place s'est libérée — ${ev.title}`, (name) => `
         <p>Bonjour <strong>${esc(name)}</strong>,</p>
-        <p style="color:#6B0F2C;font-weight:600">Une place vient de se libérer pour <strong>${esc(ev.title)}</strong> !</p>
+        <p style="color:${C.burgundy};font-weight:600">Une place vient de se libérer pour <strong>${esc(ev.title)}</strong> !</p>
         ${eventBox(ev, dateStr)}
         <p>Connectez-vous rapidement sur Plav' pour confirmer votre inscription avant que la place ne soit prise.</p>`);
       return json({ ok: true, sent });
@@ -113,7 +103,7 @@ serve(async (req) => {
         .select("user_id, guest_email, guest_name").eq("event_id", event_id).in("status", ["registered", "waitlisted"]);
       const sent = await sendToAll(regs, `❌ Événement annulé — ${ev.title}`, (name) => `
         <p>Bonjour <strong>${esc(name)}</strong>,</p>
-        <p style="color:#C87488;font-weight:600">L'événement <strong>${esc(ev.title)}</strong> a été annulé.</p>
+        <p style="color:${C.burgundy};font-weight:600">L'événement <strong>${esc(ev.title)}</strong> a été annulé.</p>
         ${eventBox(ev, dateStr)}
         <p>Votre inscription a été automatiquement annulée. Nous sommes désolés pour la gêne occasionnée.</p>`);
       await admin.from("events").update({ status: "closed" }).eq("id", event_id);
@@ -132,13 +122,12 @@ serve(async (req) => {
       const cleanSubject = String(subject || `Message de l'organisateur — ${ev.title}`).slice(0, 150);
       const sent = await sendToAll(regs, cleanSubject, (name) => `
         <p>Bonjour <strong>${esc(name)}</strong>,</p>
-        <div style="background:#fff;border:1px solid #D5A0A8;border-radius:8px;padding:20px;margin:16px 0">
+        <div style="background:#fff;border:1px solid ${C.border};border-radius:12px;padding:20px;margin:16px 0">
           ${esc(message).replace(/\n/g, "<br/>")}
         </div>
-        <div style="background:#EED4D8;border-radius:8px;padding:12px;margin-top:16px">
+        ${infoBox(`
           <p style="margin:2px 0;font-size:13px">📅 ${esc(ev.title)} · ${esc(frenchDate(ev.starts_at, false))}</p>
-          <p style="margin:2px 0;font-size:13px">📍 ${esc(ev.location || "En ligne")}</p>
-        </div>`);
+          <p style="margin:2px 0;font-size:13px">📍 ${esc(ev.location || "En ligne")}</p>`)}`);
       return json({ ok: true, sent });
     }
 
@@ -151,7 +140,7 @@ serve(async (req) => {
         <p>Bonjour <strong>${esc(name)}</strong>,</p>
         <p>Votre inscription à <strong>${esc(ev.title)}</strong> a été annulée par l'organisateur.</p>
         ${eventBox(ev, dateStr)}
-        <p style="color:#666;font-size:14px">Si vous avez payé, un remboursement sera effectué dans les meilleurs délais.</p>`);
+        <p style="color:${C.muted};font-size:14px">Si vous avez payé, un remboursement sera effectué dans les meilleurs délais.</p>`);
       return json({ ok: true, sent });
     }
 
@@ -165,12 +154,8 @@ serve(async (req) => {
         <p>Bonjour <strong>${esc(vol.name)}</strong>,</p>
         <p>Vous avez été invité(e) en tant que <strong>bénévole</strong> à l'événement <strong>${esc(ev.title)}</strong>.</p>
         ${eventBox(ev, dateStr)}
-        <div style="text-align:center;margin:24px 0">
-          <a href="${url}" style="background:linear-gradient(135deg,#C87488,#6B0F2C);color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;font-size:15px">
-            Accéder à mon espace bénévole
-          </a>
-        </div>
-        <p style="font-size:12px;color:#888">Ou copiez ce lien : <a href="${url}" style="color:#6B0F2C">${url}</a></p>`, organizerEmail), organizerEmail);
+        ${emailButton("Accéder à mon espace bénévole", url)}
+        <p style="font-size:12px;color:${C.muted}">Ou copiez ce lien : <a href="${url}" style="color:${C.burgundy}">${url}</a></p>`, organizerEmail), organizerEmail);
       return json({ ok: true, sent: 1 });
     }
 
