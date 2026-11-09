@@ -254,12 +254,6 @@ button, [role="button"] {
 
 /* ── Identité Plav' ── */
 
-/* Logotype sur fond bordeaux : liseré moutarde pour garder l'apostrophe visible */
-.logotype-on-dark {
-  filter: drop-shadow(1px 0 0 #E8B22E) drop-shadow(-1px 0 0 #E8B22E)
-    drop-shadow(0 1px 0 #E8B22E) drop-shadow(0 -1px 0 #E8B22E);
-}
-
 /* Cocotte qui s'ouvre en tournant (logos des pages d'accueil / connexion) */
 @keyframes plavSpinIn {
   from { opacity: 0; transform: rotate(-120deg) scale(0.4); }

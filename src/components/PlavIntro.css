@@ -116,12 +116,9 @@
   width: min(70vw, 460px);
   height: auto;
   pointer-events: none;
-  /* Contour sticker : liseré bordeaux (détache des traits de la cocotte),
-     puis liseré moutarde (rend l'apostrophe bordeaux visible), puis ombre */
+  /* Liseré bordeaux (détache des traits de la cocotte), puis ombre */
   filter: drop-shadow(4px 0 0 var(--plav-intro-bg)) drop-shadow(-4px 0 0 var(--plav-intro-bg))
     drop-shadow(0 4px 0 var(--plav-intro-bg)) drop-shadow(0 -4px 0 var(--plav-intro-bg))
-    drop-shadow(2px 0 0 var(--plav-intro-gold)) drop-shadow(-2px 0 0 var(--plav-intro-gold))
-    drop-shadow(0 2px 0 var(--plav-intro-gold)) drop-shadow(0 -2px 0 var(--plav-intro-gold))
     drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
   animation:
     plav-intro-word 0.45s cubic-bezier(0.3, 1.6, 0.55, 1) var(--plav-intro-word-start) both,

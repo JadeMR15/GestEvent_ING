@@ -104,7 +104,7 @@ function MyTicketsPage() {
 <body>
   <div class="ticket">
     <div class="header">
-      <div class="brand"><img src="${window.location.origin}/plav-logotype.svg" alt="Plav'" style="height:44px;object-fit:contain;filter:drop-shadow(1px 0 0 #E8B22E) drop-shadow(-1px 0 0 #E8B22E) drop-shadow(0 1px 0 #E8B22E) drop-shadow(0 -1px 0 #E8B22E)" /></div>
+      <div class="brand"><img src="${window.location.origin}/plav-logotype-dark.svg" alt="Plav'" style="height:44px;object-fit:contain" /></div>
       <div class="event-title">${title}</div>
     </div>
     <div class="body">

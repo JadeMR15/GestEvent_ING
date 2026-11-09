@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
 import "./PlavIntro.css";
-// Logotype vectoriel (public/plav-logotype.svg)
-const logotypeUrl = "/plav-logotype.svg";
+// Logotype vectoriel, version fond foncé (apostrophe dorée)
+const logotypeUrl = "/plav-logotype-dark.svg";
 
 // Durées (ms) — garder en phase avec PlavIntro.css
 const TOTAL_MS = 2900;

@@ -63,7 +63,7 @@ export function AppSidebar() {
           <img src="/plav-cocotte.svg" alt="Plav'" className={`${collapsed ? "h-8 w-8" : "h-14 w-14"} shrink-0 object-contain drop-shadow-md`} />
           {!collapsed && (
             <div className="flex flex-col flex-1 items-start gap-1">
-              <BrandName className="h-10 logotype-on-dark" />
+              <BrandName className="h-10" onDark />
               <div className="flex items-center gap-1.5">
                 {role && (
                   <img
