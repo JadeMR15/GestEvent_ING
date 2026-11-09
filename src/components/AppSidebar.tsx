@@ -13,6 +13,7 @@ import {
   Euro,
   BadgeCheck,
   ShieldCheck,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,11 +31,14 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { avatarUrl, initials } from "@/lib/avatar";
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { role, signOut, user, isVerified } = useAuth();
+  const { role, signOut, user, isVerified, fullName, avatarPath } = useAuth();
+  const photo = avatarUrl(avatarPath);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -48,6 +52,7 @@ export function AppSidebar() {
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
+    { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
@@ -115,10 +120,25 @@ export function AppSidebar() {
         <div className={`flex py-1 ${collapsed ? "justify-center" : "justify-start px-1"}`}>
           <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" />
         </div>
-        {!collapsed && user && (
-          <div className="px-2 pb-2 text-xs text-sidebar-foreground/60 truncate">
-            {user.email}
-          </div>
+        {user && (
+          <Link
+            to="/settings"
+            title="Paramètres"
+            className={`flex items-center gap-2 rounded-md p-1.5 hover:bg-sidebar-accent ${collapsed ? "justify-center" : ""}`}
+          >
+            <Avatar className="h-8 w-8 border border-sidebar-border">
+              {photo && <AvatarImage src={photo} alt="" className="object-cover" />}
+              <AvatarFallback className="bg-secondary text-xs font-semibold text-secondary-foreground">
+                {initials(fullName)}
+              </AvatarFallback>
+            </Avatar>
+            {!collapsed && (
+              <div className="min-w-0 text-xs">
+                <p className="truncate font-medium text-sidebar-foreground">{fullName || "Mon compte"}</p>
+                <p className="truncate text-sidebar-foreground/60">{user.email}</p>
+              </div>
+            )}
+          </Link>
         )}
         <Button
           variant="ghost"

@@ -14,6 +14,10 @@ interface AuthContextValue {
   // Admins : toujours considérés comme vérifiés.
   isVerified: boolean;
   refreshVerification: () => Promise<void>;
+  // Nom et photo affichés dans le menu ; rechargés après une modification dans Paramètres.
+  fullName: string | null;
+  avatarPath: string | null;
+  refreshProfile: () => Promise<void>;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -26,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<AppRole | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const [verificationNote, setVerificationNote] = useState<string | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
+  const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,18 +39,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        setTimeout(() => { fetchRole(sess.user.id); fetchVerification(sess.user.id); }, 0);
+        setTimeout(() => { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); }, 0);
       } else {
         setRole(null);
         setVerificationStatus(null);
         setVerificationNote(null);
+        setFullName(null);
+        setAvatarPath(null);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
       setSession(sess);
       setUser(sess?.user ?? null);
-      if (sess?.user) { fetchRole(sess.user.id); fetchVerification(sess.user.id); }
+      if (sess?.user) { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); }
       setLoading(false);
     });
 
@@ -72,6 +80,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setVerificationNote(data?.verification_note ?? null);
   }
 
+  // Requête séparée : si la colonne avatar_path n'existe pas encore, la vérification n'est pas affectée.
+  async function fetchProfile(userId: string) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("full_name, avatar_path")
+      .eq("id", userId)
+      .maybeSingle();
+    if (error) {
+      const { data: basic } = await supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle();
+      setFullName(basic?.full_name ?? null);
+      setAvatarPath(null);
+      return;
+    }
+    setFullName(data?.full_name ?? null);
+    setAvatarPath(data?.avatar_path ?? null);
+  }
+
+  async function refreshProfile() {
+    if (user) await Promise.all([fetchProfile(user.id), fetchVerification(user.id)]);
+  }
+
   async function refreshVerification() {
     if (user) await fetchVerification(user.id);
   }
@@ -84,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, role, verificationStatus, verificationNote, isVerified, refreshVerification, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, role, verificationStatus, verificationNote, isVerified, refreshVerification, fullName, avatarPath, refreshProfile, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -106,6 +106,9 @@ export type Database = {
       profiles: {
         Row: {
           association: string | null
+          avatar_path: string | null
+          birth_date: string | null
+          gender: string | null
           created_at: string
           full_name: string
           id: string
@@ -120,6 +123,9 @@ export type Database = {
         }
         Insert: {
           association?: string | null
+          avatar_path?: string | null
+          birth_date?: string | null
+          gender?: string | null
           created_at?: string
           full_name?: string
           id: string
@@ -134,6 +140,9 @@ export type Database = {
         }
         Update: {
           association?: string | null
+          avatar_path?: string | null
+          birth_date?: string | null
+          gender?: string | null
           created_at?: string
           full_name?: string
           id?: string

@@ -20,6 +20,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
@@ -84,6 +85,11 @@ const ScannerRoute = ScannerRouteImport.update({
   path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerificationRoute = VerificationRouteImport.update({
   id: '/verification',
   path: '/verification',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
+  '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
+  '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/my-tickets': typeof MyTicketsRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
+  '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/my-tickets'
     | '/register'
     | '/scanner'
+    | '/settings'
     | '/verification'
     | '/waitlist'
     | '/admin/verifications'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/my-tickets'
     | '/register'
     | '/scanner'
+    | '/settings'
     | '/verification'
     | '/waitlist'
     | '/admin/verifications'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/my-tickets'
     | '/register'
     | '/scanner'
+    | '/settings'
     | '/verification'
     | '/waitlist'
     | '/admin/verifications'
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   MyTicketsRoute: typeof MyTicketsRoute
   RegisterRoute: typeof RegisterRoute
   ScannerRoute: typeof ScannerRoute
+  SettingsRoute: typeof SettingsRoute
   VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
@@ -356,6 +369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScannerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verification': {
       id: '/verification'
       path: '/verification'
@@ -427,6 +447,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyTicketsRoute: MyTicketsRoute,
   RegisterRoute: RegisterRoute,
   ScannerRoute: ScannerRoute,
+  SettingsRoute: SettingsRoute,
   VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
