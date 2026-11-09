@@ -33,6 +33,7 @@ function AdminVerificationsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId]   = useState<string | null>(null);
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [docUrls, setDocUrls] = useState<Record<string, string | null>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -42,18 +43,21 @@ function AdminVerificationsPage() {
       .eq("verification_status", "review")
       .order("updated_at", { ascending: true });
     if (error) toast.error("Chargement impossible.");
-    setItems((data as Pending[] | null) ?? []);
+    const list = (data as Pending[] | null) ?? [];
+    setItems(list);
+
+    // Liens temporaires (10 min) préparés à l'avance : un vrai lien n'est pas bloqué par Safari.
+    const paths = list.map((p) => p.student_doc_path).filter((x): x is string => !!x);
+    const urls: Record<string, string | null> = {};
+    if (paths.length > 0) {
+      const { data: signed } = await supabase.storage.from("student-documents").createSignedUrls(paths, 600);
+      for (const s of signed ?? []) if (s.path) urls[s.path] = s.signedUrl ?? null;
+    }
+    setDocUrls(urls);
     setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
-
-  async function openDocument(path: string) {
-    // Lien temporaire (5 min) : le fichier reste privé.
-    const { data, error } = await supabase.storage.from("student-documents").createSignedUrl(path, 300);
-    if (error || !data) { toast.error("Document introuvable."); return; }
-    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
-  }
 
   async function decide(p: Pending, approve: boolean) {
     const reason = reasons[p.id]?.trim();
@@ -104,10 +108,14 @@ function AdminVerificationsPage() {
                   <p className="text-lg font-semibold">{p.full_name || "Sans nom"}</p>
                   <p className="text-sm text-muted-foreground">École déclarée : {p.school || "—"}</p>
                 </div>
-                {p.student_doc_path && (
-                  <Button variant="outline" size="sm" onClick={() => openDocument(p.student_doc_path!)}>
-                    <ExternalLink className="mr-1.5 h-4 w-4" />Voir le document
+                {p.student_doc_path && docUrls[p.student_doc_path] ? (
+                  <Button asChild variant="outline" size="sm">
+                    <a href={docUrls[p.student_doc_path]!} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-1.5 h-4 w-4" />Voir le document
+                    </a>
                   </Button>
+                ) : (
+                  <span className="text-sm text-red-600">Document introuvable</span>
                 )}
               </div>
 
