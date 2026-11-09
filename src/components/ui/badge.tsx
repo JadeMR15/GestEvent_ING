@@ -9,14 +9,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        /* Confirmé — vert clair · texte vert profond */
-        default: "border-transparent bg-[#D5E8A0] text-[#073D25] shadow",
-        /* En attente / secondaire — rose pâle · texte bordeaux */
-        secondary: "border-transparent bg-[#EED4D8] text-[#6B0F2C]",
-        /* Complet / destructive — rose vif · texte blanc */
-        destructive: "border-transparent bg-[#C87488] text-white shadow",
+        /* Par défaut — moutarde · texte bordeaux profond */
+        default: "border-transparent bg-[#F3D27A] text-[#4A0F20] shadow",
+        /* Secondaire — moutarde pâle · texte bordeaux */
+        secondary: "border-transparent bg-[#F8E7B5] text-[#6B1A2F]",
+        /* Complet / destructive — rouge brique · texte blanc */
+        destructive: "border-transparent bg-[#C0392B] text-white shadow",
         /* Liste attente — outline bordeaux */
-        outline: "border-[#6B0F2C] text-[#6B0F2C] bg-transparent",
+        outline: "border-[#6B1A2F] text-[#6B1A2F] bg-transparent",
       },
     },
     defaultVariants: {

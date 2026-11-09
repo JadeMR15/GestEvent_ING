@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-250 -240 600 600">
+  <title>Plav'</title>
+  <g fill="#6B1A2F" stroke="#E8B22E" stroke-width="12" stroke-linejoin="round">
+    <path d="M0,0 L-103,-27 Q-124,-127 -70,-220 Q40,-192 110,-125 Z"/>
+    <path d="M0,0 L110,-125 Q212,-158 325,-88 Q319,13 217,122 Z"/>
+    <path d="M0,0 L217,122 Q212,232 140,335 Q54,316 -47,193 Z"/>
+    <path d="M0,0 L-47,193 Q-152,191 -230,145 Q-194,41 -103,-27 Z"/>
+  </g>
+  <g fill="none" stroke="#E8B22E" stroke-width="12" stroke-linecap="round">
+    <path d="M-70,-220 L-60,-175"/>
+    <path d="M325,-88 L247,-57"/>
+    <path d="M140,335 L102,243"/>
+    <path d="M-230,145 L-167,111"/>
+  </g>
+  <g fill="none" stroke="#E8B22E" stroke-width="8" stroke-linecap="round">
+    <path d="M-30,-88 L-5,-30"/>
+    <path d="M45,-7 L158,-26"/>
+    <path d="M25,35 Q40,100 67,148"/>
+    <path d="M-30,5 L-95,57"/>
+  </g>
+  <path fill="#E8B22E" stroke="#E8B22E" stroke-width="6" stroke-linejoin="round" d="M110,-125 L20,-4 L185,90 L8,18 L-45,185 L-17,10 L-100,-27 L-6,-19 Z"/>
+</svg>

@@ -71,7 +71,7 @@ function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
         <CardHeader className="text-center">
-          <img src="/logo2.png" alt="Plav'" className="mx-auto mb-3 h-24 sm:h-44 w-auto object-contain" />
+          <img src="/plav-cocotte.svg" alt="Plav'" className="mx-auto mb-3 h-20 w-20 sm:h-28 sm:w-28 object-contain plav-spin-in" />
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
           <CardDescription>Rejoins Plav' en quelques secondes</CardDescription>
         </CardHeader>
@@ -83,8 +83,8 @@ function RegisterPage() {
               <Label>Je suis</Label>
               <div className="grid grid-cols-2 gap-3">
                 {([
-                  { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "#EED4D8", border: "#C87488", text: "#6B0F2C" },
-                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "#D5E8A0", border: "#0F7A4B", text: "#073D25" },
+                  { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "#F8E7B5", border: "#6B1A2F", text: "#6B1A2F" },
+                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "#F3D27A", border: "#C9931A", text: "#4A0F20" },
                 ] as const).map((opt) => {
                   const selected = role === opt.value;
                   return (

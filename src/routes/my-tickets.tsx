@@ -73,29 +73,30 @@ function MyTicketsPage() {
 <head>
   <meta charset="utf-8">
   <title>Billet — ${title}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Helvetica Neue',Arial,sans-serif;background:#F0EAE4;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px}
-    .ticket{width:100%;max-width:480px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 12px 48px rgba(114,36,62,.18)}
-    .header{background:linear-gradient(135deg,#EED4D8 0%,#C87488 60%,#6B0F2C 100%);padding:36px 32px 28px;text-align:center}
+    body{font-family:'Helvetica Neue',Arial,sans-serif;background:#F3E6CC;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px}
+    .ticket{width:100%;max-width:480px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 12px 48px rgba(107,26,47,.18)}
+    .header{background:linear-gradient(135deg,#7C2238 0%,#6B1A2F 55%,#4A0F20 100%);padding:36px 32px 28px;text-align:center;border-bottom:6px solid #E8B22E}
     .brand{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:14px;font-weight:600}
-    .event-title{font-family:Georgia,serif;font-size:26px;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 1px 4px rgba(0,0,0,.15)}
+    .event-title{font-family:'Fredoka','Helvetica Neue',Arial,sans-serif;font-size:28px;font-weight:700;color:#FBF5EA;line-height:1.2}
     .body{padding:24px 32px 0}
     .details{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-    .detail-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#B08090;margin-bottom:5px;font-weight:700}
-    .detail-value{font-size:13px;font-weight:600;color:#2C2C2A;line-height:1.35}
-    .tear{position:relative;margin:0 -32px;height:0;border-top:2px dashed #EED4D8}
-    .tear::before,.tear::after{content:'';position:absolute;top:-14px;width:28px;height:28px;background:#F0EAE4;border-radius:50%}
+    .detail-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#9C7A5B;margin-bottom:5px;font-weight:700}
+    .detail-value{font-size:13px;font-weight:600;color:#2B1A1F;line-height:1.35}
+    .tear{position:relative;margin:0 -32px;height:0;border-top:2px dashed #E3CC9C}
+    .tear::before,.tear::after{content:'';position:absolute;top:-14px;width:28px;height:28px;background:#F3E6CC;border-radius:50%}
     .tear::before{left:-14px}.tear::after{right:-14px}
     .qr-section{padding:28px 32px 24px;display:flex;flex-direction:column;align-items:center;gap:14px}
-    .qr-wrap{background:#fff;border:2px solid #EED4D8;border-radius:14px;padding:14px;box-shadow:0 2px 12px rgba(114,36,62,.08)}
-    .qr-label{font-size:11px;color:#B08090;text-align:center;font-weight:600;letter-spacing:.06em}
-    .qr-code{font-family:monospace;font-size:9px;color:#C8B0B8;text-align:center;max-width:260px;word-break:break-all;line-height:1.5}
+    .qr-wrap{background:#fff;border:2px solid #E8B22E;border-radius:14px;padding:14px;box-shadow:0 2px 12px rgba(107,26,47,.08)}
+    .qr-label{font-size:11px;color:#9C7A5B;text-align:center;font-weight:600;letter-spacing:.06em}
+    .qr-code{font-family:monospace;font-size:9px;color:#C9B48F;text-align:center;max-width:260px;word-break:break-all;line-height:1.5}
     .instructions{font-size:12px;color:#888;text-align:center;line-height:1.5}
-    .footer{background:linear-gradient(135deg,#FDFAF7,#F5EEE8);border-top:1px solid #EED4D8;padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
-    .footer-brand{font-family:Georgia,serif;font-style:italic;font-size:15px;color:#6B0F2C;font-weight:600}
-    .footer-note{font-size:10px;color:#B08090;text-align:right;line-height:1.4}
-    .btn{display:block;margin:24px auto 0;padding:14px 40px;background:linear-gradient(135deg,#C87488,#6B0F2C);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.02em;box-shadow:0 4px 16px rgba(114,36,62,.3)}
+    .footer{background:linear-gradient(135deg,#FBF5EA,#F6EBD3);border-top:1px solid #F8E7B5;padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+    .footer-brand{display:flex;align-items:center}
+    .footer-note{font-size:10px;color:#9C7A5B;text-align:right;line-height:1.4}
+    .btn{display:block;margin:24px auto 0;padding:14px 40px;background:#E8B22E;color:#4A0F20;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.02em;box-shadow:0 4px 16px rgba(107,26,47,.3)}
     .btn:hover{opacity:.92}
     @media print{body{background:#fff;padding:0}.ticket{box-shadow:none;border-radius:0;max-width:100%}.tear::before,.tear::after{background:#fff}.btn{display:none}}
   </style>
@@ -103,7 +104,7 @@ function MyTicketsPage() {
 <body>
   <div class="ticket">
     <div class="header">
-      <div class="brand"><img src="${window.location.origin}/police.png" alt="Plav'" style="height:28px;object-fit:contain;filter:brightness(0) invert(1)" /></div>
+      <div class="brand"><img src="${window.location.origin}/plav-logotype.png" alt="Plav'" style="height:44px;object-fit:contain;filter:drop-shadow(1px 0 0 #E8B22E) drop-shadow(-1px 0 0 #E8B22E) drop-shadow(0 1px 0 #E8B22E) drop-shadow(0 -1px 0 #E8B22E)" /></div>
       <div class="event-title">${title}</div>
     </div>
     <div class="body">
@@ -128,7 +129,7 @@ function MyTicketsPage() {
       <div class="instructions">Présentez ce QR code à l'entrée de l'événement</div>
     </div>
     <div class="footer">
-      <div class="footer-brand"><img src="${window.location.origin}/police.png" alt="Plav'" style="height:20px;object-fit:contain" /></div>
+      <div class="footer-brand"><img src="${window.location.origin}/plav-logotype.png" alt="Plav'" style="height:26px;object-fit:contain" /></div>
       <div class="footer-note">Billet officiel<br>Ne pas dupliquer</div>
     </div>
   </div>

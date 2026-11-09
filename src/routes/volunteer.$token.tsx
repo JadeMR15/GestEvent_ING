@@ -211,7 +211,7 @@ function VolunteerPage() {
             </div>
             <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-[#E8B22E] to-[#6B1A2F] transition-all duration-500"
                 style={{ width: stats.total > 0 ? `${Math.round((stats.attended / stats.total) * 100)}%` : "0%" }}
               />
             </div>

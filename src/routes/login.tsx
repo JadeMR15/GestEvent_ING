@@ -58,7 +58,7 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
       <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
         <CardHeader className="text-center">
-          <img src="/logo2.png" alt="Plav'" className="mx-auto mb-3 h-44 w-auto object-contain" />
+          <img src="/plav-cocotte.svg" alt="Plav'" className="mx-auto mb-3 h-28 w-28 object-contain plav-spin-in" />
           <CardTitle className="text-2xl">Bon retour !</CardTitle>
           <CardDescription>Connecte-toi à ton compte Plav'</CardDescription>
         </CardHeader>

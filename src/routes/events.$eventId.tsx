@@ -74,10 +74,9 @@ function PublicEventView() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
-      <header className="sticky top-0 z-50 w-full border-b border-[#D5A0A8]/30 bg-white/60 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b border-[#E3CC9C]/30 bg-white/60 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo2.png" alt="Plav'" className="h-10 w-auto object-contain" />
             <BrandName className="h-10" />
           </Link>
           <div className="flex gap-2">
@@ -96,7 +95,7 @@ function PublicEventView() {
 
         <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--text-title)" }}>{event.title}</h1>
 
-        <div className="mb-6 space-y-2 text-[#2C2C2A]/70">
+        <div className="mb-6 space-y-2 text-[#2B1A1F]/70">
           {eventDate && (
             <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 flex-shrink-0" /><span>{eventDate}</span></div>
           )}
@@ -109,14 +108,14 @@ function PublicEventView() {
         </div>
 
         {event.description && (
-          <p className="mb-8 leading-relaxed text-[#2C2C2A]/80 whitespace-pre-line">{event.description}</p>
+          <p className="mb-8 leading-relaxed text-[#2B1A1F]/80 whitespace-pre-line">{event.description}</p>
         )}
 
-        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-[#D5A0A8]/50 bg-white/80 p-4">
+        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-[#E3CC9C]/50 bg-white/80 p-4">
           <span className="text-lg font-semibold" style={{ color: "var(--text-title)" }}>
             {event.price > 0 ? `${event.price} €` : "Gratuit"}
           </span>
-          {event.capacity > 0 && <span className="text-sm text-[#2C2C2A]/60">{event.capacity} places max</span>}
+          {event.capacity > 0 && <span className="text-sm text-[#2B1A1F]/60">{event.capacity} places max</span>}
         </div>
 
         <div className="flex gap-3">
@@ -743,7 +742,7 @@ function EventDetail() {
 
           {/* Récapitulatif */}
           <div className="rounded-xl border bg-muted/30 p-4 space-y-1">
-            <p className="font-semibold text-[#6B0F2C]">{event.title}</p>
+            <p className="font-semibold text-[#6B1A2F]">{event.title}</p>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
               {format(new Date(event.starts_at), "PPP à p", { locale: fr })}
@@ -827,8 +826,8 @@ function EventDetail() {
 
           {/* Informations amis / places supplémentaires */}
           {friends.map((f, i) => (
-            <div key={i} className="space-y-3 rounded-xl border border-[#D5A0A8]/60 bg-[#FDFAF7] p-4">
-              <p className="text-sm font-semibold text-[#6B0F2C] flex items-center gap-2">
+            <div key={i} className="space-y-3 rounded-xl border border-[#E3CC9C]/60 bg-[#FBF5EA] p-4">
+              <p className="text-sm font-semibold text-[#6B1A2F] flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />Ami(e) {i + 1}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -865,8 +864,8 @@ function EventDetail() {
           {event.required_document && (
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <FileText className="h-4 w-4 text-[#6B0F2C]" />
-                Document requis : <span className="text-[#6B0F2C]">{event.required_document}</span>
+                <FileText className="h-4 w-4 text-[#6B1A2F]" />
+                Document requis : <span className="text-[#6B1A2F]">{event.required_document}</span>
               </Label>
               {docFile ? (
                 <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
@@ -877,9 +876,9 @@ function EventDetail() {
                   </button>
                 </div>
               ) : (
-                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#D5A0A8] bg-[#FDFAF7] px-4 py-5 transition-colors hover:border-[#6B0F2C]">
-                  <Upload className="h-5 w-5 text-[#6B0F2C]" />
-                  <span className="text-center text-xs text-[#6B0F2C]">
+                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#E3CC9C] bg-[#FBF5EA] px-4 py-5 transition-colors hover:border-[#6B1A2F]">
+                  <Upload className="h-5 w-5 text-[#6B1A2F]" />
+                  <span className="text-center text-xs text-[#6B1A2F]">
                     Cliquer pour uploader votre <strong>{event.required_document}</strong>
                   </span>
                   <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG — max 10 Mo</span>
@@ -1085,12 +1084,12 @@ function EventDetail() {
 
           <div className="mt-3 flex flex-wrap gap-2">
             {event.status === "private" && (
-              <Badge className="bg-[#6B0F2C] text-white hover:bg-[#6B0F2C]">
+              <Badge className="bg-[#6B1A2F] text-white hover:bg-[#6B1A2F]">
                 <Lock className="mr-1 h-3 w-3" />Privé · {event.school || "École"}
               </Badge>
             )}
             {event.school && event.status !== "private" && (
-              <Badge variant="secondary" className="bg-[#D5E8A0] text-[#073D25]">
+              <Badge variant="secondary" className="bg-[#F3D27A] text-[#4A0F20]">
                 <GraduationCap className="mr-1 h-3.5 w-3.5" />{event.school}
               </Badge>
             )}
@@ -1100,12 +1099,12 @@ function EventDetail() {
               </Badge>
             )}
             {event.required_document && (
-              <Badge variant="outline" className="border-[#D5A0A8] text-[#6B0F2C]">
+              <Badge variant="outline" className="border-[#E3CC9C] text-[#6B1A2F]">
                 <FileText className="mr-1 h-3 w-3" />Document requis : {event.required_document}
               </Badge>
             )}
             {maxPerPerson > 0 && (
-              <Badge variant="outline" className="border-[#D5A0A8] text-[#6B0F2C]">
+              <Badge variant="outline" className="border-[#E3CC9C] text-[#6B1A2F]">
                 <Users className="mr-1 h-3 w-3" />{maxPerPerson} place{maxPerPerson > 1 ? "s" : ""} max / personne
               </Badge>
             )}
@@ -1157,13 +1156,13 @@ function EventDetail() {
                     <div
                       key={ticket.id}
                       className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all ${
-                        qty > 0 ? "border-[#6B0F2C] bg-[#EED4D8]/20" : isTicketFull ? "border-border opacity-60" : "border-border"
+                        qty > 0 ? "border-[#6B1A2F] bg-[#F8E7B5]/20" : isTicketFull ? "border-border opacity-60" : "border-border"
                       }`}
                     >
                       <div className="min-w-0">
                         <p className="font-medium text-sm">{ticket.name}</p>
                         {ticket.description && <p className="text-xs text-muted-foreground">{ticket.description}</p>}
-                        <p className="mt-0.5 font-semibold text-sm text-[#6B0F2C]">
+                        <p className="mt-0.5 font-semibold text-sm text-[#6B1A2F]">
                           {ticket.price > 0 ? `${ticket.price} €` : "Gratuit"}
                         </p>
                       </div>
@@ -1195,18 +1194,18 @@ function EventDetail() {
               {totalCartQty > 0 && (
                 <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
                   <span className="text-muted-foreground">{totalCartQty} place{totalCartQty > 1 ? "s" : ""}</span>
-                  <span className="font-semibold text-[#6B0F2C]">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
+                  <span className="font-semibold text-[#6B1A2F]">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
                 </div>
               )}
             </div>
           ) : (
-            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#6B0F2C]">{eventPrice} €</p>
+            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#6B1A2F]">{eventPrice} €</p>
           )}
 
           {/* Actions */}
           <div className="mt-6 space-y-3">
             {isPrivateBlocked ? (
-              <div className="flex items-center gap-2 rounded-lg border border-[#D5A0A8] bg-[#EED4D8]/50 px-4 py-3 text-sm text-[#6B0F2C]">
+              <div className="flex items-center gap-2 rounded-lg border border-[#E3CC9C] bg-[#F8E7B5]/50 px-4 py-3 text-sm text-[#6B1A2F]">
                 <Lock className="h-4 w-4 shrink-0" />
                 Cet événement est réservé aux membres de <strong className="ml-1">{event.school}</strong>.
               </div>
@@ -1247,7 +1246,7 @@ function EventDetail() {
                     {myGuestRegs.map((gr) => (
                       <div key={gr.id} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border">
                         <div className="flex items-center gap-2 text-sm min-w-0">
-                          <UserPlus className="h-4 w-4 text-[#6B0F2C] shrink-0" />
+                          <UserPlus className="h-4 w-4 text-[#6B1A2F] shrink-0" />
                           <span className="font-medium truncate">{gr.guest_name}</span>
                           <Badge variant="secondary" className={gr.status === "attended" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
                             {gr.status === "attended" ? "Présent" : "Confirmé"}
@@ -1299,7 +1298,7 @@ function EventDetail() {
             {myGuestRegs.map((gr) => (
               <div key={gr.id} className="flex flex-col items-center gap-2 border-b pb-5 last:border-0 last:pb-0">
                 <div className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4 text-[#6B0F2C]" />
+                  <UserPlus className="h-4 w-4 text-[#6B1A2F]" />
                   <p className="font-semibold text-sm">{gr.guest_name}</p>
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -1494,7 +1493,7 @@ function EventDetail() {
                         </p>
                         {r.document_url && (
                           <a href={r.document_url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-[#6B0F2C] hover:underline mt-0.5">
+                            className="inline-flex items-center gap-1 text-xs text-[#6B1A2F] hover:underline mt-0.5">
                             <FileText className="h-3 w-3" />Voir le document
                           </a>
                         )}

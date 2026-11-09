@@ -252,7 +252,7 @@ function EventList() {
                   )}
                   <CardContent className="p-5">
                     <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                      {e.school && <Badge variant="secondary" className="text-[10px] bg-[#D5E8A0] text-[#073D25]"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
+                      {e.school && <Badge variant="secondary" className="text-[10px] bg-[#F3D27A] text-[#4A0F20]"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
                       {e.association && <Badge variant="secondary" className="text-[10px]">{e.association}</Badge>}
                     </div>
                     <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2">{e.title}</h3>

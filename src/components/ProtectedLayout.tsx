@@ -44,7 +44,7 @@ export function ProtectedLayout({ children, allow }: Props) {
         <div className="flex flex-1 flex-col min-w-0">
           <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/80 backdrop-blur px-4 py-3 md:hidden">
             <SidebarTrigger />
-            <span className="text-sm font-semibold text-[#6B0F2C]">Plav'</span>
+            <img src="/plav-logotype.png" alt="Plav'" className="h-7 w-auto object-contain" />
           </header>
           <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
         </div>

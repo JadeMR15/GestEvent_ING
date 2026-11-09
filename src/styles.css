@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Fredoka:wght@500;600;700&display=swap');
 
 @import "tailwindcss" source(none);
 @source "../src";
@@ -8,7 +8,7 @@
 
 @theme inline {
   /* Fonts */
-  --font-display: 'DM Sans', sans-serif;
+  --font-display: 'Fredoka', 'DM Sans', sans-serif;
   --font-body:    'DM Sans', sans-serif;
 
   /* Radius — 8px buttons · 12px cards · 20px+ badges */
@@ -53,112 +53,114 @@
 :root {
   --radius: 0.75rem;
 
-  /* ── DA Palette ── */
-  --bg-page:      #FDFAF7;
-  --bg-primary:   #EED4D8;
-  --bg-secondary: #D5E8A0;
+  /* ── DA Palette — cocotte bordeaux & moutarde ── */
+  --bg-page:      #FBF5EA;   /* crème papier */
+  --bg-primary:   #F8E7B5;   /* moutarde pâle */
+  --bg-secondary: #F3D27A;   /* moutarde claire */
 
-  --rose-vif:     #C87488;
-  --rose-moyen:   #D5A0A8;
+  --bordeaux:        #6B1A2F;
+  --bordeaux-clair:  #7C2238;
+  --bordeaux-profond:#4A0F20;
+  --framboise:       #A8344F;
 
-  --green-bouton: #0F7A4B;
-  --green-moyen:  #0A5E39;
-  --green-deep:   #073D25;
+  --moutarde:        #E8B22E;
+  --moutarde-fonce:  #C9931A;
+  --moutarde-pale:   #F8E7B5;
 
-  --text-body:    #2C2C2A;
-  --text-title:   #6B0F2C;
-  --text-hint:    #F0F6F4;
+  --text-body:    #2B1A1F;
+  --text-title:   #6B1A2F;
+  --text-hint:    #FBF5EA;
 
   /* ── shadcn/Tailwind token mapping ── */
-  --background:         #FDFAF7;
-  --foreground:         #2C2C2A;
+  --background:         #FBF5EA;
+  --foreground:         #2B1A1F;
 
-  --card:               #FFFFFF;
-  --card-foreground:    #2C2C2A;
+  --card:               #FFFDF8;
+  --card-foreground:    #2B1A1F;
 
-  --popover:            #FFFFFF;
-  --popover-foreground: #2C2C2A;
+  --popover:            #FFFDF8;
+  --popover-foreground: #2B1A1F;
 
-  /* Primary = vert forêt CTA */
-  --primary:            #0F7A4B;
-  --primary-foreground: #FFFFFF;
+  /* Primary = bordeaux */
+  --primary:            #6B1A2F;
+  --primary-foreground: #FBF5EA;
 
-  /* Secondary = rose poudré */
-  --secondary:          #EED4D8;
-  --secondary-foreground: #6B0F2C;
+  /* Secondary = moutarde pâle */
+  --secondary:          #F8E7B5;
+  --secondary-foreground: #6B1A2F;
 
-  /* Muted = fond crème très légère */
-  --muted:              #F5F0ED;
-  --muted-foreground:   #6B0F2C;
+  /* Muted = crème un peu plus dense */
+  --muted:              #F4EAD6;
+  --muted-foreground:   #7A5560;
 
-  /* Accent = vert clair */
-  --accent:             #D5E8A0;
-  --accent-foreground:  #073D25;
+  /* Accent = moutarde */
+  --accent:             #E8B22E;
+  --accent-foreground:  #4A0F20;
 
-  /* Destructive = rose vif */
-  --destructive:        #C87488;
+  /* Destructive = rouge brique (fonctionnel) */
+  --destructive:        #C0392B;
   --destructive-foreground: #FFFFFF;
 
-  /* Success = vert forêt */
-  --success:            #0F7A4B;
+  /* Success = vert (fonctionnel) */
+  --success:            #2F7D4F;
   --success-foreground: #FFFFFF;
 
-  /* Warning = jaune-vert */
-  --warning:            #D5E8A0;
-  --warning-foreground: #073D25;
+  /* Warning = moutarde */
+  --warning:            #E8B22E;
+  --warning-foreground: #4A0F20;
 
-  /* Borders — 0.5px rose moyen */
-  --border:  #D5A0A8;
-  --input:   #EED4D8;
-  --ring:    #0F7A4B;
+  /* Bordures beige doré */
+  --border:  #E8D6AE;
+  --input:   #E8D6AE;
+  --ring:    #E8B22E;
 
-  /* ── Sidebar — bordeaux sombre ── */
-  --sidebar:                    #F2D6DC;
-  --sidebar-foreground:         #6B0F2C;
-  --sidebar-primary:            #6B0F2C;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent:             #E8B4BC;
-  --sidebar-accent-foreground:  #6B0F2C;
-  --sidebar-border:             #E8B4BC;
-  --sidebar-ring:               #6B0F2C;
+  /* ── Sidebar — bordeaux plein, actif moutarde ── */
+  --sidebar:                    #6B1A2F;
+  --sidebar-foreground:         #FBF5EA;
+  --sidebar-primary:            #E8B22E;
+  --sidebar-primary-foreground: #4A0F20;
+  --sidebar-accent:             #7C2238;
+  --sidebar-accent-foreground:  #E8B22E;
+  --sidebar-border:             #842A42;
+  --sidebar-ring:               #E8B22E;
 
   /* ── Gradients DA ── */
-  /* Boutons / barres actives : vert forêt */
-  --gradient-primary: linear-gradient(135deg, #0F7A4B, #0A5E39);
-  /* Barres décoratives cartes : rose→bordeaux */
-  --gradient-vibrant: linear-gradient(135deg, #EED4D8 0%, #C87488 60%, #6B0F2C 100%);
-  /* Fond mesh page : chaleureux rose/vert */
+  /* Boutons / barres actives : bordeaux */
+  --gradient-primary: linear-gradient(135deg, #7C2238, #5A1426);
+  /* Barres décoratives cartes : moutarde → bordeaux */
+  --gradient-vibrant: linear-gradient(135deg, #F3D27A 0%, #E8B22E 45%, #6B1A2F 100%);
+  /* Fond mesh page : chaleureux moutarde / bordeaux */
   --gradient-mesh:
-    radial-gradient(at 10% 0%,   #EED4D8aa 0px, transparent 55%),
-    radial-gradient(at 85% 15%,  #D5E8A0aa 0px, transparent 50%),
-    radial-gradient(at 50% 100%, #EED4D8aa 0px, transparent 55%);
+    radial-gradient(at 10% 0%,   #F8E7B5cc 0px, transparent 55%),
+    radial-gradient(at 85% 15%,  #E8B22E33 0px, transparent 50%),
+    radial-gradient(at 50% 100%, #6B1A2F1f 0px, transparent 55%);
 
   /* Ombres */
-  --shadow-glow:    0 8px 32px -8px rgba(15, 122, 75, 0.40);
-  --shadow-elegant: 0 6px 24px -6px rgba(44, 44, 42, 0.12);
+  --shadow-glow:    0 10px 32px -8px rgba(232, 178, 46, 0.55);
+  --shadow-elegant: 0 6px 24px -6px rgba(74, 15, 32, 0.14);
 }
 
-/* Dark mode — conserve la DA, passe sur fonds verts profonds */
+/* Dark mode — nuit bordeaux, accents moutarde */
 .dark {
-  --background:         #162E24;
-  --foreground:         #F0F6F4;
-  --card:               #1D3A2C;
-  --card-foreground:    #F0F6F4;
-  --popover:            #1D3A2C;
-  --popover-foreground: #F0F6F4;
-  --primary:            #8BB885;
-  --primary-foreground: #162E24;
-  --secondary:          #2E4A3A;
-  --secondary-foreground: #EED4D8;
-  --muted:              #2E4A3A;
-  --muted-foreground:   #D5A0A8;
-  --accent:             #3A5C30;
-  --accent-foreground:  #D5E8A0;
-  --destructive:        #C87488;
+  --background:         #2A0B15;
+  --foreground:         #FBF5EA;
+  --card:               #3A1220;
+  --card-foreground:    #FBF5EA;
+  --popover:            #3A1220;
+  --popover-foreground: #FBF5EA;
+  --primary:            #E8B22E;
+  --primary-foreground: #2A0B15;
+  --secondary:          #4A0F20;
+  --secondary-foreground: #F8E7B5;
+  --muted:              #4A0F20;
+  --muted-foreground:   #D9BFA0;
+  --accent:             #E8B22E;
+  --accent-foreground:  #2A0B15;
+  --destructive:        #E0604F;
   --destructive-foreground: #FFFFFF;
-  --border:             rgba(213, 160, 168, 0.25);
-  --input:              rgba(213, 160, 168, 0.18);
-  --ring:               #8BB885;
+  --border:             rgba(232, 178, 46, 0.22);
+  --input:              rgba(232, 178, 46, 0.18);
+  --ring:               #E8B22E;
 }
 
 @layer base {
@@ -173,16 +175,22 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Titres → Cormorant Garamond */
+  /* Titres → Fredoka, ronde comme le logotype dessiné */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-title);
-    line-height: 1.2;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
   }
 
-  h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 800; }
+  h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; }
   h2 { font-size: clamp(1.4rem,  4vw, 2rem);  font-weight: 700; }
   h3 { font-size: clamp(1.1rem,  3vw, 1.5rem); font-weight: 600; }
+
+  ::selection {
+    background: #E8B22E;
+    color: #4A0F20;
+  }
 }
 
 /* ── Utility classes ── */
@@ -237,9 +245,47 @@ button, [role="button"] {
   font-weight: 500;
 }
 
-/* Cards: border-radius 12px, bordure rose moyen 0.5px */
+/* Cards: border-radius 12px, bordure beige doré */
 .card-da {
-  background: #FFFFFF;
-  border: 0.5px solid var(--rose-moyen);
+  background: #FFFDF8;
+  border: 1px solid var(--border);
   border-radius: 12px;
+}
+
+/* ── Identité Plav' ── */
+
+/* Logotype sur fond bordeaux : liseré moutarde pour garder l'apostrophe visible */
+.logotype-on-dark {
+  filter: drop-shadow(1px 0 0 #E8B22E) drop-shadow(-1px 0 0 #E8B22E)
+    drop-shadow(0 1px 0 #E8B22E) drop-shadow(0 -1px 0 #E8B22E);
+}
+
+/* Cocotte qui s'ouvre en tournant (logos des pages d'accueil / connexion) */
+@keyframes plavSpinIn {
+  from { opacity: 0; transform: rotate(-120deg) scale(0.4); }
+  to   { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+.plav-spin-in {
+  animation: plavSpinIn 0.7s cubic-bezier(0.3, 1.5, 0.55, 1) both;
+}
+
+/* Cocotte en filigrane : rotation très lente, sans toucher à l'opacité */
+@keyframes plavDrift {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.plav-drift {
+  animation: plavDrift 120s linear infinite;
+}
+
+/* Texte surligné moutarde, façon marqueur */
+.plav-highlight {
+  background: linear-gradient(transparent 58%, #E8B22E 58%, #E8B22E 92%, transparent 92%);
+  padding: 0 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plav-spin-in, .plav-drift, .animate-fade-up, .animate-fade-in { animation: none; }
 }

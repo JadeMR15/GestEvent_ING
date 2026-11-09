@@ -56,10 +56,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border overflow-visible">
         <div className="flex items-center gap-2 px-1 py-3 overflow-visible">
-          <img src="/logo2.png" alt="Plav'" className="h-24 w-24 shrink-0 object-contain" />
+          <img src="/plav-cocotte.svg" alt="Plav'" className={`${collapsed ? "h-8 w-8" : "h-14 w-14"} shrink-0 object-contain drop-shadow-md`} />
           {!collapsed && (
             <div className="flex flex-col flex-1 items-start gap-1">
-              <BrandName className="h-14" />
+              <BrandName className="h-10 logotype-on-dark" />
               <div className="flex items-center gap-1.5">
                 {role && (
                   <img
