@@ -12,7 +12,6 @@ const roles = [
   {
     id: "organisateur",
     icon: ClipboardList,
-    image: "/orga.png",
     title: "Organisateur",
     color: "bg-[#F8E7B5]",
     iconColor: "text-[#6B1A2F]",
@@ -31,7 +30,6 @@ const roles = [
   {
     id: "participant",
     icon: Users,
-    image: "/participant.png",
     title: "Participant",
     color: "bg-[#F8E7B5]",
     iconColor: "text-[#6B1A2F]",
@@ -49,7 +47,6 @@ const roles = [
   {
     id: "benevole",
     icon: Heart,
-    image: "/benevole.png",
     title: "Bénévole",
     color: "bg-[#F3D27A]",
     iconColor: "text-[#4A0F20]",
@@ -124,7 +121,7 @@ function AboutPage() {
           >
             {/* Icon block */}
             <div className={`flex-shrink-0 rounded-2xl ${role.color} p-6 flex items-center justify-center`}>
-              <img src={role.image} alt={role.title} className="h-24 w-24 object-contain" />
+              <role.icon className={`h-16 w-16 ${role.iconColor}`} strokeWidth={1.5} aria-hidden />
             </div>
 
             {/* Content */}

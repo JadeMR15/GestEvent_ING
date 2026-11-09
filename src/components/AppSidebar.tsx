@@ -64,18 +64,9 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col flex-1 items-start gap-1">
               <BrandName className="h-10" onDark />
-              <div className="flex items-center gap-1.5">
-                {role && (
-                  <img
-                    src={{ admin: "/orga.png", organizer: "/orga.png", participant: "/participant.png", volunteer: "/benevole.png" }[role]}
-                    alt={role}
-                    className="h-5 w-5 object-contain"
-                  />
-                )}
-                <span className="text-xs text-sidebar-foreground/60">
-                  {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
-                </span>
-              </div>
+              <span className="text-xs text-sidebar-foreground/60">
+                {role ? { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role] : "Invité"}
+              </span>
             </div>
           )}
         </div>
