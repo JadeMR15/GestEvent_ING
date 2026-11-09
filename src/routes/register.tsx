@@ -86,7 +86,7 @@ function RegisterPage() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/verification`,
         data: {
           full_name:   fullName,
           role:        parsed.data.role,
