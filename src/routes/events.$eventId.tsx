@@ -28,6 +28,7 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import { invokeEmail } from "@/lib/emails";
 
 export const Route = createFileRoute("/events/$eventId")({
   component: EventDetailRoute,
@@ -144,18 +145,6 @@ function fmtCard(v: string) {
 function fmtExpiry(v: string) {
   const d = v.replace(/\D/g, "").slice(0, 4);
   return d.length >= 3 ? d.slice(0, 2) + "/" + d.slice(2) : d;
-}
-
-async function sendConfirmationEmail(params: {
-  toEmail: string; fullName: string; eventTitle: string;
-  eventDate: string; eventLocation: string; qrCode: string; replyTo?: string;
-}) {
-  const res = await fetch(
-    "https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-confirmation-email",
-    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) }
-  );
-  if (!res.ok) { const b = await res.json().catch(() => ({})); return { error: b?.error ?? `HTTP ${res.status}` }; }
-  return null;
 }
 
 function EventDetail() {
@@ -498,16 +487,11 @@ function EventDetail() {
       else guestRegs = gd ?? [];
     }
 
-    const emailDate = format(new Date(event.starts_at), "PPP à p", { locale: fr });
-    const emailLoc = event.location || "En ligne";
-    try {
-      await sendConfirmationEmail({ toEmail: user.email!, fullName, eventTitle: event.title, eventDate: emailDate, eventLocation: emailLoc, qrCode: regData.qr_code });
-    } catch {}
-    for (const gr of guestRegs) {
-      try {
-        await sendConfirmationEmail({ toEmail: gr.guest_email, fullName: gr.guest_name, eventTitle: event.title, eventDate: emailDate, eventLocation: emailLoc, qrCode: gr.qr_code });
-      } catch {}
-    }
+    // Le serveur retrouve lui-même destinataires et contenu à partir des inscriptions.
+    const mail = await invokeEmail("send-confirmation-email", {
+      registration_ids: [regData.id, ...guestRegs.map((g) => g.id)],
+    });
+    if (mail.error) toast.error("Billet confirmé, mais l'email n'a pas pu partir : " + mail.error);
 
     const total = 1 + guestRegs.length;
     toast.success(`🎉 ${total} place${total > 1 ? "s confirmées" : " confirmée"} ! Emails envoyés.`);
@@ -536,15 +520,9 @@ function EventDetail() {
     if (!msgBody.trim()) { toast.error("Le message ne peut pas être vide."); return; }
     if (!confirm(`Envoyer ce message à tous les inscrits de "${event.title}" ?`)) return;
     setSendingMsg(true);
-    const res = await fetch(
-      "https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "custom", event_id: eventId, subject: msgSubject || undefined, message: msgBody, organizer_email: user?.email }),
-      }
-    );
-    const data = await res.json().catch(() => ({}));
+    const data = await invokeEmail("send-event-emails", {
+      type: "custom", event_id: eventId, subject: msgSubject || undefined, message: msgBody,
+    });
     setSendingMsg(false);
     if (data.error) { toast.error("Erreur : " + data.error); return; }
     toast.success(`Message envoyé à ${data.sent ?? 0} participant(s).`);
@@ -556,36 +534,15 @@ function EventDetail() {
     if (!confirm("Supprimer cet événement ? Les inscrits recevront un email d'annulation. Cette action est irréversible.")) return;
     setActing(true);
 
-    // Récupérer les emails des inscrits via RPC (accès auth.users côté serveur)
-    const { data: participants } = await (supabase as any).rpc("get_participant_emails", { _event_id: eventId });
-    const list = (participants ?? []) as { user_id: string; email: string; full_name: string }[];
+    // Prévenir les inscrits (le serveur vérifie qu'on est bien l'organisateur), puis supprimer.
+    const mail = await invokeEmail("send-event-emails", { type: "cancellation", event_id: eventId });
+    if (mail.error) toast.error("Les inscrits n'ont pas pu être prévenus : " + mail.error);
+    const notified = mail.sent ?? 0;
 
-    // Envoyer un email d'annulation à chaque inscrit (best-effort)
-    if (list.length > 0) {
-      const eventDate = event.starts_at ? format(new Date(event.starts_at), "PPP à p", { locale: fr }) : "";
-      await Promise.allSettled(
-        list.map((p) =>
-          fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-cancellation-email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              toEmail: p.email,
-              fullName: p.full_name || "Participant",
-              eventTitle: event.title,
-              eventDate,
-              eventLocation: event.location || "En ligne",
-              replyTo: user?.email,
-            }),
-          })
-        )
-      );
-    }
-
-    // Supprimer l'événement
     const { error } = await supabase.from("events").delete().eq("id", eventId);
     setActing(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(`Événement supprimé${list.length > 0 ? ` — ${list.length} inscrit(s) notifié(s)` : ""}.`);
+    toast.success(`Événement supprimé${notified > 0 ? ` — ${notified} inscrit(s) notifié(s)` : ""}.`);
     navigate({ to: "/events" });
   }
 
@@ -597,11 +554,7 @@ function EventDetail() {
       .update({ status: "cancelled" })
       .eq("id", reg.id);
     if (error) { setActingParticipant(null); toast.error(error.message); return; }
-    fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "cancel_participant", event_id: eventId, user_id: reg.user_id, organizer_email: user?.email }),
-    });
+    invokeEmail("send-event-emails", { type: "cancel_participant", event_id: eventId, user_id: reg.user_id });
     setActingParticipant(null);
     toast.success(`Inscription de ${reg.full_name || "ce participant"} annulée.`);
     load();
@@ -623,22 +576,13 @@ function EventDetail() {
   async function sendParticipantEmail() {
     if (!pMailBody.trim() || !targetParticipant) return;
     setSendingPMail(true);
-    const res = await fetch(
-      "https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "custom",
-          event_id: eventId,
-          recipient_user_id: targetParticipant.user_id,
-          subject: pMailSubject || undefined,
-          message: pMailBody,
-          organizer_email: user?.email,
-        }),
-      }
-    );
-    const data = await res.json().catch(() => ({}));
+    const data = await invokeEmail("send-event-emails", {
+      type: "custom",
+      event_id: eventId,
+      recipient_user_id: targetParticipant.user_id,
+      subject: pMailSubject || undefined,
+      message: pMailBody,
+    });
     setSendingPMail(false);
     if (data.error) { toast.error("Erreur : " + data.error); return; }
     toast.success(`Email envoyé à ${targetParticipant.full_name || "ce participant"}.`);
@@ -658,19 +602,10 @@ function EventDetail() {
     const email = volEmail.trim();
     setVolName("");
     setVolEmail("");
-    fetch("https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "volunteer_invite",
-        event_id: eventId,
-        volunteer_name: name,
-        volunteer_email: email,
-        volunteer_url: volunteerUrl(data.token),
-      }),
-    });
+    const mail = await invokeEmail("send-event-emails", { type: "volunteer_invite", event_id: eventId, volunteer_id: data.id });
     setAddingVol(false);
-    toast.success("Bénévole ajouté — invitation envoyée par email.");
+    if (mail.error) toast.error(`Bénévole ajouté, mais l'invitation à ${email} n'a pas pu partir : ${mail.error}`);
+    else toast.success(`Bénévole ${name} ajouté — invitation envoyée par email.`);
   }
 
   async function removeVolunteer(id: string) {
