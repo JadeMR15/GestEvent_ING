@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
 import "./PlavIntro.css";
-// Logotype dessiné, recadré depuis nouvellepolice.png
-import logotypeUrl from "./plav-intro-logotype.png";
+// Logotype vectoriel (public/plav-logotype.svg)
+const logotypeUrl = "/plav-logotype.svg";
 
 // Durées (ms) — garder en phase avec PlavIntro.css
 const TOTAL_MS = 2900;

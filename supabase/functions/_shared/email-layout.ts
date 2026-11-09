@@ -47,6 +47,7 @@ export function emailLayout(opts: {
   const footer = opts.footer
     ? `<div style="margin-top:24px;padding-top:16px;border-top:1px solid ${C.border};text-align:center;font-size:12px;color:${C.muted}">${opts.footer}</div>`
     : "";
+  // Logo en PNG et non en SVG : Gmail et Outlook n'affichent pas les SVG (rendu depuis public/plav-logotype.svg).
   return `<div style="background:${C.cream};padding:24px 12px;font-family:${BODY_FONT};color:${C.ink};font-size:15px;line-height:1.55">
   <div style="max-width:560px;margin:0 auto">
     <div style="text-align:center;padding:4px 0 16px">

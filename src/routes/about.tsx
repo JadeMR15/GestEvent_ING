@@ -81,7 +81,7 @@ function AboutPage() {
       <header className="sticky top-0 z-50 border-b border-[#E3CC9C]/30 bg-white/80 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/plav-logotype.png" alt="Plav'" className="h-10 w-auto object-contain" />
+            <img src="/plav-logotype.svg" alt="Plav'" className="h-10 w-auto object-contain" />
           </Link>
           <Button asChild variant="ghost" size="sm">
             <Link to="/">
