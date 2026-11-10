@@ -14,6 +14,7 @@ import {
   BadgeCheck,
   ShieldCheck,
   Settings,
+  Hourglass,
 } from "lucide-react";
 import {
   Sidebar,
@@ -48,6 +49,7 @@ export function AppSidebar() {
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
     { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
+    { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),

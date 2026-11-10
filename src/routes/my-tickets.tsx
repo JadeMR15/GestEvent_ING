@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { isPastEvent } from "@/lib/event-dates";
+import { notifyWaitlist } from "@/lib/waitlist";
 
 export const Route = createFileRoute("/my-tickets")({
   component: () => <ProtectedLayout><MyTicketsPage /></ProtectedLayout>,
@@ -55,6 +56,7 @@ function MyTicketsPage() {
     setCancelling(null);
     if (error) { toast.error(error.message); return; }
     toast.success("Inscription annulée.");
+    notifyWaitlist();
     load();
   }
 
