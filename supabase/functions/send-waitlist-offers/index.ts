@@ -1,6 +1,6 @@
 // @ts-nocheck — Deno runtime, ignoré par tsc
 // Email "Une place s'est libérée" pour les offres de liste d'attente pas encore notifiées.
-// Appelée chaque minute par pg_cron (en-tête x-cron-secret) et, pour aller plus vite,
+// Appelée chaque minute par pg_cron (en-tête x-webhook-secret) et, pour aller plus vite,
 // par le site juste après une annulation (utilisateur connecté).
 // Sécurité : les offres et les destinataires sont lus dans la base ; chaque offre
 // n'est réservée qu'une fois (claim_waitlist_notifications), donc pas de doublon.
@@ -10,22 +10,19 @@ import { C, emailLayout, infoBox } from "../_shared/email-layout.ts";
 
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://plavv.vercel.app";
 
-function sameSecret(a: string, b: string) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
   try {
     const admin = adminClient();
 
-    const cronSecret = Deno.env.get("WAITLIST_CRON_SECRET") ?? "";
-    const given = req.headers.get("x-cron-secret") ?? "";
-    const fromCron = cronSecret.length > 0 && sameSecret(given, cronSecret);
+    // Même secret que les emails de vérification (Vault "email_webhook_secret").
+    const given = req.headers.get("x-webhook-secret");
+    let fromCron = false;
+    if (given) {
+      const { data } = await admin.rpc("check_email_webhook_secret", { _secret: given });
+      fromCron = data === true;
+    }
     if (!fromCron && !(await getCaller(req, admin))) return json({ error: "Non autorisé" }, 401);
 
     const { data: offers, error } = await admin.rpc("claim_waitlist_notifications", { _limit: 50 });

@@ -542,8 +542,8 @@ GRANT  EXECUTE ON FUNCTION public.get_event_availability(UUID) TO anon, authenti
 
 -- 11. Planification (pg_cron + pg_net) -----------------------------------------
 -- Chaque minute : expirations + offres, puis envoi des emails s'il y en a à faire.
--- L'appel HTTP s'authentifie avec un secret rangé dans le coffre Supabase (Vault),
--- à créer une fois (voir les instructions de la tâche) — jamais écrit dans le dépôt.
+-- L'appel HTTP s'authentifie avec le secret "email_webhook_secret" du coffre (Vault),
+-- créé automatiquement par account_emails.sql — jamais écrit dans le dépôt.
 DO $cron$
 BEGIN
   CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
@@ -553,10 +553,10 @@ BEGIN
 
   PERFORM cron.schedule('plav-waitlist-emails', '* * * * *', $job$
     SELECT net.http_post(
-      url     := 'https://cicjhxgsxcwficnjoukc.supabase.co/functions/v1/send-waitlist-offers',
+      url     := 'https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-waitlist-offers',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'x-cron-secret', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'plav_waitlist_cron_secret')),
+        'x-webhook-secret', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'email_webhook_secret')),
       body    := '{}'::jsonb)
     WHERE EXISTS (SELECT 1 FROM public.waitlist WHERE status = 'offered' AND offer_notified_at IS NULL)
   $job$);
