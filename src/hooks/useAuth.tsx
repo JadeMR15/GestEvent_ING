@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "organizer" | "participant" | "volunteer";
 export type VerificationStatus = "unverified" | "pending" | "review" | "verified" | "rejected";
+export type VerificationMethod = "school_email" | "document";
 
 interface AuthContextValue {
   user: User | null;
@@ -11,6 +12,12 @@ interface AuthContextValue {
   role: AppRole | null;
   verificationStatus: VerificationStatus | null;
   verificationNote: string | null;
+  // École du profil (déduite du domaine si vérifié par email d'école).
+  school: string | null;
+  verificationMethod: VerificationMethod | null;
+  // Fin de validité de la vérification (31 août) ; au-delà, le compte n'est plus vérifié.
+  verificationExpiresAt: string | null;
+  schoolEmail: string | null;
   // Admins : toujours considérés comme vérifiés.
   isVerified: boolean;
   refreshVerification: () => Promise<void>;
@@ -32,6 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [verificationNote, setVerificationNote] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [school, setSchool] = useState<string | null>(null);
+  const [verificationMethod, setVerificationMethod] = useState<VerificationMethod | null>(null);
+  const [verificationExpiresAt, setVerificationExpiresAt] = useState<string | null>(null);
+  const [schoolEmail, setSchoolEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,6 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setVerificationNote(null);
         setFullName(null);
         setAvatarPath(null);
+        setSchool(null);
+        setVerificationMethod(null);
+        setVerificationExpiresAt(null);
+        setSchoolEmail(null);
       }
     });
 
@@ -71,13 +86,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function fetchVerification(userId: string) {
-    const { data } = await supabase
+    const { data, error } = await (supabase as any)
       .from("profiles")
-      .select("verification_status, verification_note")
+      .select("verification_status, verification_note, verification_method, verification_expires_at, school, school_email")
       .eq("id", userId)
       .maybeSingle();
-    setVerificationStatus((data?.verification_status as VerificationStatus) ?? "unverified");
-    setVerificationNote(data?.verification_note ?? null);
+    let row = data;
+    if (error) {
+      // Colonnes de school_email.sql pas encore créées : on charge l'essentiel.
+      ({ data: row } = await supabase.from("profiles")
+        .select("verification_status, verification_note, school").eq("id", userId).maybeSingle() as any);
+    }
+    setVerificationStatus((row?.verification_status as VerificationStatus) ?? "unverified");
+    setVerificationNote(row?.verification_note ?? null);
+    setSchool(row?.school || null);
+    setVerificationMethod(row?.verification_method ?? null);
+    setVerificationExpiresAt(row?.verification_expires_at ?? null);
+    setSchoolEmail(row?.school_email ?? null);
   }
 
   // Requête séparée : si la colonne avatar_path n'existe pas encore, la vérification n'est pas affectée.
@@ -105,7 +130,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchVerification(user.id);
   }
 
-  const isVerified = role === "admin" || verificationStatus === "verified";
+  const verificationExpired = !!verificationExpiresAt && new Date(verificationExpiresAt).getTime() <= Date.now();
+  const isVerified = role === "admin" || (verificationStatus === "verified" && !verificationExpired);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -113,7 +139,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, role, verificationStatus, verificationNote, isVerified, refreshVerification, fullName, avatarPath, refreshProfile, loading, signOut }}>
+    <AuthContext.Provider value={{
+      user, session, role, verificationStatus, verificationNote, school, verificationMethod, verificationExpiresAt, schoolEmail,
+      isVerified, refreshVerification, fullName, avatarPath, refreshProfile, loading, signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   );

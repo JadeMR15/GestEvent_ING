@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Camera, Loader2, Trash2, User, Mail, KeyRound, AlertTriangle } from "lucide-react";
+import { Camera, Loader2, Trash2, User, Mail, KeyRound, AlertTriangle, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, initials, prepareAvatar,
 } from "@/lib/avatar";
+import { SchoolEmailForm } from "@/components/SchoolEmailForm";
+import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -52,7 +54,9 @@ type Info = z.infer<typeof infoSchema>;
 const EMPTY_INFO: Info = { fullName: "", school: "", association: "", birthDate: "", gender: "" };
 
 function SettingsPage() {
-  const { user, role, verificationStatus, avatarPath, refreshProfile } = useAuth();
+  const { user, role, verificationStatus, verificationMethod, isVerified, schoolEmail, avatarPath, refreshProfile } = useAuth();
+  // Vérifié par email d'école : l'école vient du domaine et ne se modifie pas ici.
+  const schoolLocked = isVerified && verificationMethod === "school_email";
 
   // ── Infos ──
   const [info, setInfo] = useState<Info>(EMPTY_INFO);
@@ -95,7 +99,9 @@ function SettingsPage() {
 
   const isOrganizer = role === "organizer" || role === "admin";
   const infoChanged = JSON.stringify(info) !== JSON.stringify(saved);
-  const identityChanged = info.fullName.trim() !== saved.fullName || info.school.trim() !== saved.school;
+  // Seule une vérification par justificatif dépend du nom et de l'école saisis.
+  const identityChanged = verificationMethod !== "school_email"
+    && (info.fullName.trim() !== saved.fullName || info.school.trim() !== saved.school);
 
   async function saveInfo() {
     if (!user) return;
@@ -226,6 +232,12 @@ function SettingsPage() {
             </AvatarFallback>
           </Avatar>
           <div className="space-y-2">
+            {saved.fullName && (
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold">{saved.fullName}</p>
+                <MySchoolBadge />
+              </div>
+            )}
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
@@ -263,8 +275,11 @@ function SettingsPage() {
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="school">École</Label>
-              <Input id="school" value={info.school} maxLength={120}
+              <Input id="school" value={info.school} maxLength={120} disabled={schoolLocked}
                 onChange={(e) => setInfo({ ...info, school: e.target.value })} />
+              {schoolLocked && (
+                <p className="text-xs text-muted-foreground">Déduite de ton adresse d'école {schoolEmail}.</p>
+              )}
             </div>
             {isOrganizer && (
               <div className="space-y-2 sm:col-span-2">
@@ -323,6 +338,20 @@ function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Adresse d'école (en plus de l'adresse perso) */}
+      {role !== "admin" && (
+        <Card className="border-2 shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5" />Adresse d'école</CardTitle>
+            <CardDescription>
+              Confirme ton adresse d'école pour vérifier ton compte et afficher « Fait partie de [ton école] ».
+              Tu continues à te connecter avec ton adresse perso.
+            </CardDescription>
+          </CardHeader>
+          <CardContent><SchoolEmailForm /></CardContent>
+        </Card>
+      )}
 
       {/* Mot de passe */}
       <Card className="border-2 shadow-elegant">

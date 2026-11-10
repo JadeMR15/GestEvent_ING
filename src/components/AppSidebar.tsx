@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Settings,
   Hourglass,
+  School,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
+import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -54,6 +56,7 @@ export function AppSidebar() {
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
+    { title: "Écoles", url: "/admin/schools", icon: School, roles: ["admin"] },
     { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer"] },
   ].filter((i) => role && i.roles.includes(role));
 
@@ -138,6 +141,7 @@ export function AppSidebar() {
               <div className="min-w-0 text-xs">
                 <p className="truncate font-medium text-sidebar-foreground">{fullName || "Mon compte"}</p>
                 <p className="truncate text-sidebar-foreground/60">{user.email}</p>
+                <MySchoolBadge onDark className="mt-1" />
               </div>
             )}
           </Link>

@@ -8,8 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { BadgeCheck, Clock, FileUp, Loader2, ShieldAlert, XCircle, CheckCircle2, CircleDashed } from "lucide-react";
+import { BadgeCheck, Clock, FileUp, Loader2, ShieldAlert, XCircle, CheckCircle2, CircleDashed, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { SchoolEmailForm } from "@/components/SchoolEmailForm";
+import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export const Route = createFileRoute("/verification")({
   component: () => (
@@ -41,7 +45,7 @@ const CHECK_LABELS: Record<string, string> = {
 type Checks = Record<string, { ok: boolean; detail: string }>;
 
 function VerificationPage() {
-  const { user, session, verificationStatus, verificationNote, refreshVerification } = useAuth();
+  const { user, session, verificationStatus, verificationNote, verificationExpiresAt, isVerified, refreshVerification } = useAuth();
   const [fullName, setFullName] = useState("");
   const [school, setSchool]     = useState("");
   const [savedProfile, setSavedProfile] = useState({ fullName: "", school: "" });
@@ -68,7 +72,8 @@ function VerificationPage() {
       });
   }, [user]);
 
-  const status = verificationStatus ?? "unverified";
+  // Vérification expirée (31 août) : traitée comme non vérifiée en attendant la tâche quotidienne.
+  const status = verificationStatus === "verified" && !isVerified ? "unverified" : verificationStatus ?? "unverified";
   const ui = STATUS_UI[status];
   const profileChanged = fullName.trim() !== savedProfile.fullName || school.trim() !== savedProfile.school;
   const canSend = status !== "verified" && status !== "pending";
@@ -134,8 +139,9 @@ function VerificationPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Vérifier mon compte</h1>
         <p className="text-muted-foreground">
-          Plav' est réservé aux étudiants. Envoie ton certificat de scolarité ou ta carte étudiante
-          de cette année pour pouvoir t'inscrire aux événements et en créer.
+          Plav' est réservé aux étudiants. Confirme ton adresse email d'école, ou envoie ton certificat
+          de scolarité ou ta carte étudiante de cette année, pour pouvoir t'inscrire aux événements et en créer.
+          La vérification est valable jusqu'au 31 août.
         </p>
       </div>
 
@@ -145,7 +151,13 @@ function VerificationPage() {
           <p className="font-semibold">{ui.label}</p>
           {verificationNote && status !== "unverified" && <p className="text-sm">{verificationNote}</p>}
           {status === "verified" && (
-            <Link to="/events" className="text-sm font-medium underline">Voir les événements</Link>
+            <div className="mt-1 space-y-1.5">
+              <MySchoolBadge />
+              {verificationExpiresAt && (
+                <p className="text-sm">Valable jusqu'au {format(new Date(verificationExpiresAt), "d MMMM yyyy", { locale: fr })}.</p>
+              )}
+              <Link to="/events" className="text-sm font-medium underline">Voir les événements</Link>
+            </div>
           )}
         </div>
       </div>
@@ -166,8 +178,24 @@ function VerificationPage() {
         </Card>
       )}
 
+      {status !== "verified" && (
+        <Card className="border-2 border-[#E3CC9C]">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base"><Mail className="h-4 w-4" />Option 1 : ton adresse email d'école</CardTitle>
+            <CardDescription>
+              Le plus rapide : on t'envoie un lien sur l'adresse fournie par ton école. Ton école est déduite de l'adresse.
+            </CardDescription>
+          </CardHeader>
+          <CardContent><SchoolEmailForm /></CardContent>
+        </Card>
+      )}
+
       {canSend && (
         <>
+          <div className="pt-2">
+            <h2 className="text-lg font-semibold">Option 2 : ton justificatif</h2>
+            <p className="text-sm text-muted-foreground">Pas d'adresse d'école, ou ton école n'est pas encore reconnue ?</p>
+          </div>
           <Card>
             <CardHeader>
               <CardTitle className="text-base">1. Tes informations</CardTitle>

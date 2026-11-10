@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as ConfirmerEcoleRouteImport } from './routes/confirmer-ecole'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as ExportRouteImport } from './routes/export'
@@ -23,6 +24,7 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
@@ -43,6 +45,11 @@ const AboutRoute = AboutRouteImport.update({
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmerEcoleRoute = ConfirmerEcoleRouteImport.update({
+  id: '/confirmer-ecole',
+  path: '/confirmer-ecole',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -100,6 +107,11 @@ const WaitlistRoute = WaitlistRouteImport.update({
   path: '/waitlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
+  id: '/admin/schools',
+  path: '/admin/schools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   id: '/admin/verifications',
   path: '/admin/verifications',
@@ -135,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
@@ -146,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
@@ -157,6 +171,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
@@ -168,6 +183,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
@@ -180,6 +196,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
@@ -191,6 +208,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
@@ -204,6 +222,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
@@ -215,6 +234,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/schools'
     | '/admin/verifications'
     | '/events/$eventId'
     | '/events/new'
@@ -226,6 +246,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
@@ -237,6 +258,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/schools'
     | '/admin/verifications'
     | '/events/$eventId'
     | '/events/new'
@@ -248,6 +270,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
@@ -259,6 +282,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/schools'
     | '/admin/verifications'
     | '/events/$eventId'
     | '/events/new'
@@ -271,6 +295,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  ConfirmerEcoleRoute: typeof ConfirmerEcoleRoute
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
@@ -282,6 +307,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
+  AdminSchoolsRoute: typeof AdminSchoolsRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
@@ -311,6 +337,13 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmer-ecole': {
+      id: '/confirmer-ecole'
+      path: '/confirmer-ecole'
+      fullPath: '/confirmer-ecole'
+      preLoaderRoute: typeof ConfirmerEcoleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -390,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/schools': {
+      id: '/admin/schools'
+      path: '/admin/schools'
+      fullPath: '/admin/schools'
+      preLoaderRoute: typeof AdminSchoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/verifications': {
       id: '/admin/verifications'
       path: '/admin/verifications'
@@ -439,6 +479,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
+  ConfirmerEcoleRoute: ConfirmerEcoleRoute,
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
@@ -450,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
+  AdminSchoolsRoute: AdminSchoolsRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
