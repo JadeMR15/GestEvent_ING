@@ -1,1 +1,5 @@
 project_id = "cicjhxgsxcwficnjoukc"
+# Appelée par pg_cron (secret x-cron-secret) ou par un utilisateur connecté :
+# la fonction vérifie elle-même l'appelant.
+[functions.send-waitlist-offers]
+verify_jwt = false

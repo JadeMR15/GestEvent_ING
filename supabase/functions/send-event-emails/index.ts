@@ -1,6 +1,6 @@
 // @ts-nocheck — Deno runtime, ignoré par tsc
 // Emails liés à un événement : rappel, annulation, message, annulation d'un participant,
-// invitation bénévole, place libérée.
+// invitation bénévole.
 // Sécurité : seul l'organisateur de l'événement (ou un admin) peut les déclencher.
 // Les destinataires sont lus dans la base, jamais fournis par le navigateur.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -71,19 +71,7 @@ serve(async (req) => {
       return sent;
     }
 
-    // ── Place libérée (premier de la liste d'attente) ──
-    if (type === "waitlist") {
-      const { data: waiting } = await admin
-        .from("registrations").select("user_id, guest_email, guest_name")
-        .eq("event_id", event_id).eq("status", "waitlisted")
-        .order("registered_at").limit(1);
-      const sent = await sendToAll(waiting, `🎟️ Une place s'est libérée — ${ev.title}`, (name) => `
-        <p>Bonjour <strong>${esc(name)}</strong>,</p>
-        <p style="color:${C.burgundy};font-weight:600">Une place vient de se libérer pour <strong>${esc(ev.title)}</strong> !</p>
-        ${eventBox(ev, dateStr)}
-        <p>Connectez-vous rapidement sur Plav' pour confirmer votre inscription avant que la place ne soit prise.</p>`);
-      return json({ ok: true, sent });
-    }
+    // (Place libérée → fonction send-waitlist-offers, liée à la table waitlist.)
 
     // ── Rappel ──
     if (type === "reminder") {
