@@ -57,7 +57,12 @@ export async function sendBrevo(to: { email: string; name?: string }, subject: s
     method: "POST",
     headers: { "api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
-      sender: { name: "Plav'", email: "olivia.peret@esme.fr" },
+      // L'adresse doit appartenir à un domaine authentifié dans Brevo (SPF/DKIM),
+      // sinon les messageries qui appliquent DMARC (esme.fr, Gmail…) rejettent l'email.
+      sender: {
+        name: Deno.env.get("BREVO_SENDER_NAME") ?? "Plav'",
+        email: Deno.env.get("BREVO_SENDER_EMAIL") ?? "olivia.peret@esme.fr",
+      },
       to: [to.name ? to : { email: to.email }],
       subject,
       htmlContent: html,
