@@ -32,6 +32,8 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      // Le site est déjà en français : la traduction de Chrome modifie la page et fait planter React.
+      { name: "google", content: "notranslate" },
       { title: "Plav' — Billetterie étudiante" },
       { name: "description", content: "Organise tes soirées étudiantes, gère les inscriptions et scanne les billets QR." },
     ],
@@ -47,7 +49,7 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="fr" translate="no">
       <head>
         <HeadContent />
       </head>
