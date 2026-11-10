@@ -2,7 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Vérification par adresse email d'école (supabase/school_email.sql + fonction school-email).
 
-export type EmailKind = "known" | "unknown" | "public" | "invalid";
+// "unavailable" : la base n'a pas répondu ; le serveur fera le contrôle à l'envoi.
+export type EmailKind = "known" | "unknown" | "public" | "invalid" | "unavailable";
 
 export interface EmailClassification {
   kind: EmailKind;
@@ -34,7 +35,10 @@ export const db = supabase as any;
 /** Indication immédiate pendant la saisie (le serveur refait le contrôle à l'envoi et au clic). */
 export async function classifyEmail(email: string): Promise<EmailClassification> {
   const { data, error } = await db.rpc("classify_school_email", { _email: email });
-  if (error || !data) return { kind: "invalid" };
+  if (error || !data) {
+    console.error("classify_school_email", error);
+    return { kind: "unavailable" };
+  }
   return data as EmailClassification;
 }
 
@@ -64,5 +68,6 @@ export const KIND_HINT: Record<EmailKind, string> = {
   known: "",
   unknown: "Ton école n'est pas encore reconnue : tu peux demander son ajout.",
   public: "Une messagerie personnelle (Gmail, Outlook…) ne prouve pas ton école. Utilise l'adresse fournie par ton école.",
-  invalid: "",
+  invalid: "Adresse email invalide.",
+  unavailable: "Impossible de vérifier le domaine pour l'instant : envoie quand même, le serveur le contrôlera.",
 };

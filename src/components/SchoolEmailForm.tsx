@@ -41,6 +41,8 @@ export function SchoolEmailForm() {
   }, [email]);
 
   const verifiedByEmail = isVerified && verificationMethod === "school_email";
+  // Envoi possible si le domaine est connu, inconnu (demande d'ajout) ou si la base n'a pas pu répondre.
+  const canSubmit = !!cls && (cls.kind === "known" || cls.kind === "unknown" || cls.kind === "unavailable");
 
   async function submit() {
     const value = email.trim().toLowerCase();
@@ -106,11 +108,11 @@ export function SchoolEmailForm() {
               maxLength={254}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && cls && (cls.kind === "known" || cls.kind === "unknown")) submit(); }}
+              onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) submit(); }}
             />
             <Button
               onClick={submit}
-              disabled={sending || !cls || (cls.kind !== "known" && cls.kind !== "unknown")}
+              disabled={sending || !canSubmit}
               className="shrink-0 bg-gradient-primary shadow-glow"
             >
               {sending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -123,7 +125,7 @@ export function SchoolEmailForm() {
             </p>
           )}
           {cls && KIND_HINT[cls.kind] && (
-            <p className={`text-sm ${cls.kind === "public" ? "text-red-600" : "text-[#6B1A2F]"}`}>
+            <p className={`text-sm ${cls.kind === "public" || cls.kind === "invalid" ? "text-red-600" : "text-[#6B1A2F]"}`}>
               {KIND_HINT[cls.kind]}
               {cls.kind === "unknown" && " En attendant, tu peux utiliser le justificatif."}
             </p>
