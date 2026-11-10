@@ -19,6 +19,28 @@
 --    pour la liste d'attente.
 -- ============================================================
 
+-- 0. Ancienne table "waitlist" (créée à la main, sans colonne status) ----------
+-- Elle n'est utilisée par aucun code : on la renomme "waitlist_legacy" (données
+-- conservées) pour libérer le nom. Ses index et sa séquence sont renommés aussi.
+DO $$
+DECLARE _idx RECORD;
+BEGIN
+  IF to_regclass('public.waitlist') IS NOT NULL
+     AND NOT EXISTS (SELECT 1 FROM information_schema.columns
+                      WHERE table_schema = 'public' AND table_name = 'waitlist' AND column_name = 'status')
+     AND to_regclass('public.waitlist_legacy') IS NULL THEN
+    ALTER TABLE public.waitlist RENAME TO waitlist_legacy;
+    FOR _idx IN SELECT indexname FROM pg_indexes
+                 WHERE schemaname = 'public' AND tablename = 'waitlist_legacy' AND indexname LIKE 'waitlist%' LOOP
+      EXECUTE format('ALTER INDEX public.%I RENAME TO %I', _idx.indexname, 'legacy_' || _idx.indexname);
+    END LOOP;
+    IF to_regclass('public.waitlist_position_seq') IS NOT NULL THEN
+      ALTER SEQUENCE public.waitlist_position_seq RENAME TO waitlist_legacy_position_seq;
+    END IF;
+    RAISE NOTICE 'Ancienne table waitlist renommée en waitlist_legacy.';
+  END IF;
+END $$;
+
 -- 1. Table ------------------------------------------------------------------
 DO $$ BEGIN
   CREATE TYPE public.waitlist_status AS ENUM ('waiting', 'offered', 'accepted', 'expired', 'left');
