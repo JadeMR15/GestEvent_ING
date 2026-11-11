@@ -30,12 +30,15 @@ function ForgotPasswordPage() {
       redirectTo: `${window.location.origin}/nouveau-mot-de-passe`,
     });
     setLoading(false);
-    // Même message que le compte existe ou non : on ne révèle pas quelles adresses sont inscrites.
-    if (error && /rate|limit|seconds/i.test(error.message)) {
-      toast.error("Trop de demandes. Réessaie dans quelques minutes.");
+    // Supabase répond pareil que le compte existe ou non : une erreur ici vient de l'envoi
+    // (limite atteinte, adresse refusée par le service d'email…), on peut donc l'afficher.
+    if (error) {
+      console.error("resetPasswordForEmail", error.status, error.message);
+      toast.error(/rate|limit|seconds/i.test(error.message)
+        ? "Trop de demandes. Réessaie dans quelques minutes."
+        : `L'email n'a pas pu être envoyé : ${error.message}`);
       return;
     }
-    if (error) console.error("resetPasswordForEmail", error.message);
     setSent(true);
   }
 
