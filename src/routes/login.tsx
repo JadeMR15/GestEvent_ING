@@ -24,6 +24,28 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  // Compte créé mais email pas encore confirmé : on propose de renvoyer le lien.
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  async function resendConfirmation() {
+    const parsed = schema.shape.email.safeParse(email);
+    if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: parsed.data,
+      options: { emailRedirectTo: `${window.location.origin}/verification` },
+    });
+    setResending(false);
+    if (error) {
+      toast.error(/rate|limit|seconds/i.test(error.message)
+        ? "Un email vient déjà d'être envoyé. Réessaie dans une minute."
+        : "Envoi impossible : " + error.message);
+      return;
+    }
+    toast.success("Email de confirmation renvoyé. Regarde aussi les indésirables.");
+  }
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
@@ -33,9 +55,17 @@ function LoginPage() {
     const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
     if (error) {
       setLoading(false);
-      toast.error(error.message);
+      if (/not confirmed/i.test(error.message)) {
+        setUnconfirmed(true);
+        toast.error("Ton adresse email n'est pas encore confirmée.");
+      } else if (/invalid login credentials/i.test(error.message)) {
+        toast.error("Email ou mot de passe incorrect.");
+      } else {
+        toast.error(error.message);
+      }
       return;
     }
+    setUnconfirmed(false);
     let target = "/events";
     if (data.user) {
       const { data: roles } = await supabase
@@ -77,6 +107,18 @@ function LoginPage() {
               </div>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
+            {unconfirmed && (
+              <div className="space-y-2 rounded-xl border border-[#E3CC9C] bg-[#FBF5EA] p-3 text-sm">
+                <p>
+                  Clique sur le lien reçu par email après ton inscription (regarde aussi les indésirables
+                  et, pour une adresse d'école, la quarantaine).
+                </p>
+                <Button type="button" variant="outline" size="sm" onClick={resendConfirmation} disabled={resending}>
+                  {resending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Renvoyer l'email de confirmation
+                </Button>
+              </div>
+            )}
             <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Se connecter
