@@ -33,15 +33,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { avatarUrl, initials } from "@/lib/avatar";
+import { RoleAvatar } from "@/components/RoleAvatar";
 import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { role, signOut, user, isVerified, fullName, avatarPath } = useAuth();
-  const photo = avatarUrl(avatarPath);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -131,12 +129,8 @@ export function AppSidebar() {
             title="Paramètres"
             className={`flex items-center gap-2 rounded-md p-1.5 hover:bg-sidebar-accent ${collapsed ? "justify-center" : ""}`}
           >
-            <Avatar className="h-8 w-8 border border-sidebar-border">
-              {photo && <AvatarImage src={photo} alt="" className="object-cover" />}
-              <AvatarFallback className="bg-secondary text-xs font-semibold text-secondary-foreground">
-                {initials(fullName)}
-              </AvatarFallback>
-            </Avatar>
+            <RoleAvatar path={avatarPath} name={fullName} role={role} size="sm" showBadge={!collapsed}
+              className={role === "admin" && !collapsed ? "mb-1.5" : undefined} />
             {!collapsed && (
               <div className="min-w-0 text-xs">
                 <p className="truncate font-medium text-sidebar-foreground">{fullName || "Mon compte"}</p>

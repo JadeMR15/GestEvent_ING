@@ -10,12 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, initials, prepareAvatar,
+  AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, prepareAvatar,
 } from "@/lib/avatar";
 import { SchoolEmailForm } from "@/components/SchoolEmailForm";
+import { RoleAvatar } from "@/components/RoleAvatar";
 import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export const Route = createFileRoute("/settings")({
@@ -225,12 +225,7 @@ function SettingsPage() {
           <CardTitle className="flex items-center gap-2"><Camera className="h-5 w-5" />Photo de profil</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-5">
-          <Avatar className="h-24 w-24 border-2 border-accent">
-            {photo && <AvatarImage src={photo} alt="Ta photo de profil" className="object-cover" />}
-            <AvatarFallback className="bg-secondary text-2xl font-semibold text-secondary-foreground">
-              {initials(saved.fullName)}
-            </AvatarFallback>
-          </Avatar>
+          <RoleAvatar path={avatarPath} name={saved.fullName} role={role} size="lg" />
           <div className="space-y-2">
             {saved.fullName && (
               <div className="flex flex-wrap items-center gap-2">
