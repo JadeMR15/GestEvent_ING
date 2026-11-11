@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 // Photo de profil avec un cadre selon le rôle (affichage uniquement : les droits
 // restent contrôlés par le serveur).
 //   admin       → cadre bordeaux et doré + petit badge « Admin »
-//   organizer   → cadre vert
+//   organizer   → cadre doré illustré « ORGANISATEUR » (image)
 //   participant / bénévole → pas de cadre
 
 type Size = "sm" | "md" | "lg";
@@ -19,8 +19,11 @@ const SIZES: Record<Size, { avatar: string; ring: string; text: string; badge: s
 
 const FRAMES: Partial<Record<AppRole, string>> = {
   admin: "bg-[linear-gradient(135deg,#6B1A2F_0%,#E8B22E_45%,#F3D27A_55%,#6B1A2F_100%)]",
-  organizer: "bg-[linear-gradient(135deg,#2F7D4F,#5BAE7A)]",
 };
+
+// Organisateur : cadre illustré (public/frames/organisateur.webp, laurier doré + banderole).
+// Le cadre est plus grand que la photo seule : il faut la place pour la banderole.
+const ORGANIZER_BOX: Record<Size, string> = { sm: "h-11 w-11", md: "h-16 w-16", lg: "h-32 w-32" };
 
 const ROLE_LABEL: Record<AppRole, string> = {
   admin: "Admin",
@@ -44,6 +47,23 @@ export function RoleAvatar({ path, name, role, size = "md", showBadge = true, cl
   const s = SIZES[size];
   const photo = avatarUrl(path ?? null);
   const frame = role ? FRAMES[role] : undefined;
+  const title = role && role !== "participant" ? `${name || "Compte"} · ${ROLE_LABEL[role]}` : undefined;
+
+  if (role === "organizer") {
+    return (
+      <span className={cn("relative inline-block shrink-0", ORGANIZER_BOX[size], className)} title={title}>
+        {/* Photo placée dans le trou du cadre (mesuré sur l'image : centre à 44 % de la hauteur, 76 % de large). */}
+        <Avatar className="absolute left-[12%] top-[6%] h-[76%] w-[76%]">
+          {photo && <AvatarImage src={photo} alt="" className="object-cover" />}
+          <AvatarFallback className={cn("bg-secondary font-semibold text-secondary-foreground", s.text)}>
+            {initials(name ?? "")}
+          </AvatarFallback>
+        </Avatar>
+        <img src="/frames/organisateur.webp" alt="" aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full select-none" draggable={false} />
+      </span>
+    );
+  }
 
   const avatar = (
     <Avatar className={cn(s.avatar, !frame && "border border-border")}>
@@ -57,7 +77,7 @@ export function RoleAvatar({ path, name, role, size = "md", showBadge = true, cl
   return (
     <span
       className={cn("relative inline-flex shrink-0", className)}
-      title={role && role !== "participant" ? `${name || "Compte"} · ${ROLE_LABEL[role]}` : undefined}
+      title={title}
     >
       {frame ? (
         <span className={cn("inline-flex rounded-full", s.ring, frame)}>
