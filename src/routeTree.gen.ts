@@ -18,7 +18,9 @@ import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as ExportRouteImport } from './routes/export'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
+import { Route as NouveauMotDePasseRouteImport } from './routes/nouveau-mot-de-passe'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -77,9 +79,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MotDePasseOublieRoute = MotDePasseOublieRouteImport.update({
+  id: '/mot-de-passe-oublie',
+  path: '/mot-de-passe-oublie',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyTicketsRoute = MyTicketsRouteImport.update({
   id: '/my-tickets',
   path: '/my-tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NouveauMotDePasseRoute = NouveauMotDePasseRouteImport.update({
+  id: '/nouveau-mot-de-passe',
+  path: '/nouveau-mot-de-passe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -153,7 +165,9 @@ export interface FileRoutesByFullPath {
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
@@ -177,7 +191,9 @@ export interface FileRoutesByTo {
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
@@ -202,7 +218,9 @@ export interface FileRoutesById {
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
@@ -228,7 +246,9 @@ export interface FileRouteTypes {
     | '/export'
     | '/finance'
     | '/login'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/register'
     | '/scanner'
     | '/settings'
@@ -252,7 +272,9 @@ export interface FileRouteTypes {
     | '/export'
     | '/finance'
     | '/login'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/register'
     | '/scanner'
     | '/settings'
@@ -276,7 +298,9 @@ export interface FileRouteTypes {
     | '/export'
     | '/finance'
     | '/login'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/register'
     | '/scanner'
     | '/settings'
@@ -301,7 +325,9 @@ export interface RootRouteChildren {
   ExportRoute: typeof ExportRoute
   FinanceRoute: typeof FinanceRoute
   LoginRoute: typeof LoginRoute
+  MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   MyTicketsRoute: typeof MyTicketsRoute
+  NouveauMotDePasseRoute: typeof NouveauMotDePasseRoute
   RegisterRoute: typeof RegisterRoute
   ScannerRoute: typeof ScannerRoute
   SettingsRoute: typeof SettingsRoute
@@ -381,11 +407,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mot-de-passe-oublie': {
+      id: '/mot-de-passe-oublie'
+      path: '/mot-de-passe-oublie'
+      fullPath: '/mot-de-passe-oublie'
+      preLoaderRoute: typeof MotDePasseOublieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-tickets': {
       id: '/my-tickets'
       path: '/my-tickets'
       fullPath: '/my-tickets'
       preLoaderRoute: typeof MyTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nouveau-mot-de-passe': {
+      id: '/nouveau-mot-de-passe'
+      path: '/nouveau-mot-de-passe'
+      fullPath: '/nouveau-mot-de-passe'
+      preLoaderRoute: typeof NouveauMotDePasseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -485,7 +525,9 @@ const rootRouteChildren: RootRouteChildren = {
   ExportRoute: ExportRoute,
   FinanceRoute: FinanceRoute,
   LoginRoute: LoginRoute,
+  MotDePasseOublieRoute: MotDePasseOublieRoute,
   MyTicketsRoute: MyTicketsRoute,
+  NouveauMotDePasseRoute: NouveauMotDePasseRoute,
   RegisterRoute: RegisterRoute,
   ScannerRoute: ScannerRoute,
   SettingsRoute: SettingsRoute,

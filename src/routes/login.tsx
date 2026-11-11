@@ -69,7 +69,12 @@ function LoginPage() {
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Link to="/mot-de-passe-oublie" className="text-xs font-medium text-primary hover:underline">
+                  Mot de passe oublié ?
+                </Link>
+              </div>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
