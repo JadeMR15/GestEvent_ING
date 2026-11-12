@@ -254,7 +254,7 @@ function EventDetail() {
     setTicketTypes(typeList);
     const typeMap: Record<string, string> = Object.fromEntries(typeList.map((t: any) => [t.id, t.name]));
 
-    const enriched = list.map((r) => ({ ...r, full_name: r.guest_name || profMap[r.user_id], ticket_name: typeMap[r.ticket_type_id] ?? null }));
+    const enriched = list.map((r) => ({ ...r, full_name: r.guest_name || profMap[r.user_id], ticket_name: r.ticket_type_id ? typeMap[r.ticket_type_id] ?? null : null }));
     setRegistrations(enriched);
     const myRegs = enriched.filter((r) => r.user_id === user?.id);
     setMyReg(myRegs.find((r) => !r.guest_email) ?? null);
