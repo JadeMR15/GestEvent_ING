@@ -79,7 +79,30 @@ CREATE POLICY "school_domains_admin" ON public.school_domains FOR ALL TO authent
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
-INSERT INTO public.school_domains (school_name, domain) VALUES ('ESME', 'esme.fr')
+-- Écoles reconnues (les sous-domaines sont acceptés : etu.esme.fr → esme.fr).
+INSERT INTO public.school_domains (school_name, domain) VALUES
+  -- Écoles d'ingénieurs
+  ('ESME',                   'esme.fr'),
+  ('EPITA',                  'epita.fr'),
+  ('IPSA',                   'ipsa.fr'),
+  ('Sup''Biotech',           'supbiotech.fr'),
+  -- Numérique, tech & informatique
+  ('EPITECH',                'epitech.eu'),
+  ('SUPINFO',                'supinfo.com'),
+  ('ETNA',                   'etna-alternance.net'),
+  ('Ionis-STM',              'ionis-stm.com'),
+  ('IA Institut',            'ia-institut.fr'),
+  ('Epitech Digital School', 'epitech.digital'),
+  ('Coding Academy',         'coding-academy.fr'),
+  ('XP School',              'xp-school.com'),
+  ('PHG Academy',            'phg-academy.com'),
+  -- Commerce, management, communication & création
+  ('ISG',                    'isg.fr'),
+  ('ISEFAC',                 'isefac.fr'),
+  ('ISEFAC',                 'isefac-bachelor.fr'),
+  ('ICS Bégué',              'ics-begue.com'),
+  ('ISEG',                   'iseg.fr'),
+  ('e-artsup',               'e-artsup.net')
 ON CONFLICT (domain) DO NOTHING;
 
 -- known / unknown / public / invalid, et l'école correspondante.
