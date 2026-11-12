@@ -86,7 +86,7 @@ export function SchoolEmailForm() {
           <p className="flex items-center gap-2 font-semibold text-[#6B1A2F]"><Send className="h-4 w-4" />Regarde ta boîte mail d'école</p>
           <p className="text-sm text-muted-foreground">
             Un lien de confirmation a été envoyé à <strong>{sentTo}</strong>. Il est valable 24 h et ne marche qu'une fois.
-            Pense à regarder dans les spams.
+            Pas reçu ? Regarde dans le <strong>courrier indésirable</strong>.
           </p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={submit} disabled={sending}>
