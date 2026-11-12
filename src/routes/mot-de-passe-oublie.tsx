@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -27,7 +28,7 @@ function ForgotPasswordPage() {
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.toLowerCase(), {
-      redirectTo: `${window.location.origin}/nouveau-mot-de-passe`,
+      redirectTo: `${SITE_URL}/nouveau-mot-de-passe`,
     });
     setLoading(false);
     // Supabase répond pareil que le compte existe ou non : une erreur ici vient de l'envoi

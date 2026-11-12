@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -181,7 +182,7 @@ function SettingsPage() {
     setSavingEmail(true);
     const { error } = await supabase.auth.updateUser(
       { email },
-      { emailRedirectTo: `${window.location.origin}/settings` },
+      { emailRedirectTo: `${SITE_URL}/settings` },
     );
     setSavingEmail(false);
     if (error) { toast.error("Changement d'email impossible pour le moment."); return; }

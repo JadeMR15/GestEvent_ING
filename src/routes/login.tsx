@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +36,7 @@ function LoginPage() {
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: parsed.data,
-      options: { emailRedirectTo: `${window.location.origin}/verification` },
+      options: { emailRedirectTo: `${SITE_URL}/verification` },
     });
     setResending(false);
     if (error) {

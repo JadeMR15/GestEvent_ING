@@ -11,21 +11,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { adminClient, cors, esc, frenchDate, getCaller, isAdmin, json, sendBrevo } from "../_shared/common.ts";
 import { C, emailLayout, infoBox } from "../_shared/email-layout.ts";
 
-const SITE_URL = Deno.env.get("SITE_URL") ?? "https://plavv.vercel.app";
+// Les liens des emails pointent toujours vers le site en ligne : une adresse locale
+// (localhost) est inaccessible pour l'antivirus des messageries, qui bloque alors l'email.
+const SITE_URL = (Deno.env.get("SITE_URL") ?? "https://plavv.vercel.app").replace(/\/$/, "");
 const MAX_LINKS_PER_HOUR = 5;
-
-// Le lien renvoie vers le site d'où vient la demande, seulement s'il fait partie de cette liste
-// (on ne laisse jamais le navigateur choisir une adresse quelconque).
-const ALLOWED_ORIGINS = new Set([
-  SITE_URL.replace(/\/$/, ""),
-  "http://localhost:8080",
-  ...(Deno.env.get("EXTRA_SITE_ORIGINS") ?? "").split(",").map((s) => s.trim()).filter(Boolean),
-]);
-
-function siteFor(req: Request) {
-  const origin = req.headers.get("origin") ?? "";
-  return ALLOWED_ORIGINS.has(origin) ? origin : SITE_URL;
-}
 
 function newToken() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
@@ -38,7 +27,7 @@ async function sha256(text: string) {
 }
 
 /** Crée un jeton (les anciens liens de l'étudiant ne marchent plus) et envoie l'email de confirmation. */
-async function sendConfirmationLink(admin, userId: string, email: string, school: string, intro?: string, site = SITE_URL) {
+async function sendConfirmationLink(admin, userId: string, email: string, school: string, intro?: string) {
   await admin.from("school_email_tokens").update({ used_at: new Date().toISOString() })
     .eq("user_id", userId).is("used_at", null);
 
@@ -50,7 +39,7 @@ async function sendConfirmationLink(admin, userId: string, email: string, school
 
   const { data: profile } = await admin.from("profiles").select("full_name").eq("id", userId).maybeSingle();
   const name = profile?.full_name || "";
-  const url = `${site}/confirmer-ecole?token=${encodeURIComponent(token)}`;
+  const url = `${SITE_URL}/confirmer-ecole?token=${encodeURIComponent(token)}`;
 
   await sendBrevo({ email, name: name || undefined }, `Confirme ton adresse ${school} sur Plav'`, emailLayout({
     title: "Confirme ton adresse d'école",
@@ -132,7 +121,7 @@ serve(async (req) => {
         return json({ error: "Trop de demandes. Réessaie dans une heure." }, 429);
       }
 
-      await sendConfirmationLink(admin, caller.id, email, cls.school, undefined, siteFor(req));
+      await sendConfirmationLink(admin, caller.id, email, cls.school);
       return json({ status: "sent", school: cls.school });
     }
 
@@ -195,7 +184,7 @@ serve(async (req) => {
           .update({ status: "approved", decided_at: now, decided_by: caller.id }).eq("id", r.id);
         try {
           await sendConfirmationLink(admin, r.user_id, r.email, school,
-            `<p>Bonne nouvelle : <strong>${esc(school)}</strong> est maintenant reconnue sur Plav'.</p>`, siteFor(req));
+            `<p>Bonne nouvelle : <strong>${esc(school)}</strong> est maintenant reconnue sur Plav'.</p>`);
           notified++;
         } catch (e) {
           console.error("email validation domaine", r.id, e.message);

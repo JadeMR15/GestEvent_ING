@@ -1,4 +1,5 @@
 import { createFileRoute, useParams, useNavigate, Link } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
@@ -693,7 +694,7 @@ function EventDetail() {
   }
 
   function volunteerUrl(token: string) {
-    return `${window.location.origin}/volunteer/${token}`;
+    return `${SITE_URL}/volunteer/${token}`;
   }
 
   function copyLink(token: string) {
