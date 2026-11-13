@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
+import { useLikes } from "@/lib/likes";
+import { LikeButton } from "@/components/LikeButton";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -110,6 +112,8 @@ function EventList() {
       default: return arr;
     }
   }, [filtered, sortBy]);
+
+  const likes = useLikes(useMemo(() => events.map((e) => e.id), [events]));
 
   return (
     <div className="space-y-6">
@@ -262,8 +266,9 @@ function EventList() {
                         <MapPin className="h-4 w-4" />
                         <span className="line-clamp-1">{e.city ? `${e.city}${e.location ? ` — ${e.location}` : ""}` : e.location || "En ligne"}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Users className="h-4 w-4" />{taken} / {e.capacity > 0 ? e.capacity : "∞"}
+                      <div className="flex items-center justify-between gap-2 text-muted-foreground">
+                        <span className="flex items-center gap-2"><Users className="h-4 w-4" />{taken} / {e.capacity > 0 ? e.capacity : "∞"}</span>
+                        <LikeButton count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
                       </div>
                     </div>
                     {e.capacity > 0 && (

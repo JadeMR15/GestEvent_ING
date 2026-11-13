@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
+import { useLikes } from "@/lib/likes";
+import { LikeButton } from "@/components/LikeButton";
 import {
   CalendarDays, QrCode, Users, ArrowRight, Timer,
   MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight,
@@ -450,6 +452,7 @@ function StackedHowItWorks() {
 }
 
 function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boolean; user: any }) {
+  const likes = useLikes(useMemo(() => events.map((e) => e.id), [events]));
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {events.map((e) => {
@@ -497,6 +500,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Users className="h-4 w-4 flex-shrink-0" />
                     <span>{taken} / {e.capacity > 0 ? e.capacity : "∞"}</span>
+                    <LikeButton className="ml-auto" count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
                   </div>
                 </div>
                 {e.capacity > 0 && (

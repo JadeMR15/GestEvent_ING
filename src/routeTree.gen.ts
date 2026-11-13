@@ -17,6 +17,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as ExportRouteImport } from './routes/export'
 import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as LikesRouteImport } from './routes/likes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
@@ -72,6 +73,11 @@ const ExportRoute = ExportRouteImport.update({
 const FinanceRoute = FinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LikesRoute = LikesRouteImport.update({
+  id: '/likes',
+  path: '/likes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -324,6 +336,7 @@ export interface RootRouteChildren {
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
   FinanceRoute: typeof FinanceRoute
+  LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
   MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   MyTicketsRoute: typeof MyTicketsRoute
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/finance'
       fullPath: '/finance'
       preLoaderRoute: typeof FinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/likes': {
+      id: '/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof LikesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -524,6 +544,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
   FinanceRoute: FinanceRoute,
+  LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
   MotDePasseOublieRoute: MotDePasseOublieRoute,
   MyTicketsRoute: MyTicketsRoute,

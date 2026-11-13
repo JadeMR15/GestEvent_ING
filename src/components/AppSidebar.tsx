@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Settings,
   Hourglass,
+  Heart,
   School,
 } from "lucide-react";
 import {
@@ -55,6 +56,7 @@ export function AppSidebar() {
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
     { title: "Écoles", url: "/admin/schools", icon: School, roles: ["admin"] },
+    { title: "Événements likés", url: "/likes", icon: Heart, roles: ["admin", "organizer", "participant", "volunteer"] },
     { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer"] },
   ].filter((i) => role && i.roles.includes(role));
 
