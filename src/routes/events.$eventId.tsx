@@ -1,7 +1,10 @@
 import { createFileRoute, useParams, useNavigate, Link } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
+import { useLikes } from "@/lib/likes";
+import { LikeButton } from "@/components/LikeButton";
+import { ShareButton } from "@/components/ShareButton";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,7 +26,7 @@ import {
   CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
   CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
   Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
-  UserPlus, Trash2, Copy, Link as LinkIcon, Share2, Minus, Plus, Check,
+  UserPlus, Trash2, Copy, Link as LinkIcon, Minus, Plus, Check, ArrowLeft,
   ChevronLeft, ChevronRight, PlayCircle, Upload, FileText, X, Hourglass, BellRing,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -50,10 +53,10 @@ function EventDetailRoute() {
 
 function PublicEventView() {
   const { eventId } = useParams({ from: "/events/$eventId" });
+  const likes = useLikes(useMemo(() => [eventId], [eventId]));
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     supabase.from("events").select("*").eq("id", eventId).maybeSingle().then(({ data }) => {
@@ -61,13 +64,6 @@ function PublicEventView() {
       setLoading(false);
     });
   }, [eventId]);
-
-  function handleShare() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
 
   function handleRegister() {
     sessionStorage.setItem("loginRedirect", `/events/${eventId}`);
@@ -126,10 +122,8 @@ function PublicEventView() {
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1" onClick={handleShare}>
-            {copied ? <Check className="mr-2 h-4 w-4" /> : <Share2 className="mr-2 h-4 w-4" />}
-            {copied ? "Lien copié !" : "Partager"}
-          </Button>
+          <LikeButton size="page" className="h-10" count={likes.counts[eventId] ?? 0} liked={likes.mine.has(eventId)} onToggle={() => likes.toggle(eventId)} />
+          <ShareButton event={event} size="default" className="flex-1" />
           <Button className="flex-1 bg-gradient-primary shadow-glow" onClick={handleRegister}>
             S'inscrire
           </Button>
@@ -155,6 +149,7 @@ function fmtExpiry(v: string) {
 
 function EventDetail() {
   const { eventId } = useParams({ from: "/events/$eventId" });
+  const likes = useLikes(useMemo(() => [eventId], [eventId]));
   const { user, role, isVerified } = useAuth();
   const navigate = useNavigate();
 
@@ -194,7 +189,6 @@ function EventDetail() {
   const [friends, setFriends] = useState<{ prenom: string; nom: string; email: string }[]>([]);
 
   // Partage
-  const [copied, setCopied] = useState(false);
 
   // Media gallery carousel
   const [mediaItems, setMediaItems] = useState<any[]>([]);
@@ -704,17 +698,6 @@ function EventDetail() {
     toast.success("Lien copié !");
   }
 
-  async function shareEvent() {
-    const url = window.location.href;
-    const text = `${event.title} — ${format(new Date(event.starts_at), "PPP à p", { locale: fr })}${event.location ? ` · ${event.location}` : ""}`;
-    if (navigator.share) {
-      try { await navigator.share({ title: event.title, text, url }); return; } catch {}
-    }
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   function getEmbedUrl(url: string): { kind: "youtube" | "vimeo" | "direct" | null; src: string } {
     const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
     if (yt) return { kind: "youtube", src: `https://www.youtube.com/embed/${yt[1]}` };
@@ -734,6 +717,12 @@ function EventDetail() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      <Link
+        to="/events"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-[#6B1A2F]"
+      >
+        <ArrowLeft className="h-4 w-4" />Retour aux événements
+      </Link>
 
       {/* ===== PANIER / CART DIALOG ===== */}
       <Dialog open={showCart} onOpenChange={(open) => { if (!open) closeCart(); }}>
@@ -1085,10 +1074,8 @@ function EventDetail() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={shareEvent}>
-                {copied ? <Check className="mr-2 h-4 w-4 text-emerald-500" /> : <Share2 className="mr-2 h-4 w-4" />}
-                {copied ? "Copié !" : "Partager"}
-              </Button>
+              <LikeButton size="page" count={likes.counts[eventId] ?? 0} liked={likes.mine.has(eventId)} onToggle={() => likes.toggle(eventId)} />
+              <ShareButton event={event} />
               {isOwner && (
                 <>
                   <Button variant="outline" size="sm" asChild>
