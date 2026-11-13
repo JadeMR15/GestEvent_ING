@@ -283,3 +283,30 @@ button, [role="button"] {
 @media (prefers-reduced-motion: reduce) {
   .plav-spin-in, .plav-drift, .animate-fade-up, .animate-fade-in { animation: none; }
 }
+
+/* ── Mobile / app : comportement natif ── */
+@media (max-width: 767px) {
+  html { -webkit-tap-highlight-color: transparent; }
+  body { overscroll-behavior-y: none; }
+  /* Évite le zoom automatique d'iOS sur les champs */
+  input, select, textarea { font-size: 16px !important; }
+  /* Pages un peu moins hautes en titre sur petit écran */
+  h1 { font-size: 1.75rem; }
+}
+/* Encoche et barre d'accueil de l'iPhone */
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+/* Défilement horizontal sans barre visible (filtres en pastilles) */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+/* Appui visible sur les éléments tactiles */
+.tap { transition: transform 0.12s ease; }
+.tap:active { transform: scale(0.97); }
+/* Billet : encoches rondes sur les côtés */
+.ticket-notch { position: relative; }
+.ticket-notch::before, .ticket-notch::after {
+  content: ""; position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+  border-radius: 9999px; background: var(--background);
+}
+.ticket-notch::before { left: -11px; }
+.ticket-notch::after { right: -11px; }

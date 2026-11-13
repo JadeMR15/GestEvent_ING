@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { MobileHeader, MobileTabBar } from "./MobileNav";
 import { AppSidebar } from "./AppSidebar";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Loader2, ShieldAlert } from "lucide-react";
@@ -45,12 +46,9 @@ export function ProtectedLayout({ children, allow }: Props) {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex flex-1 flex-col min-w-0">
-          <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/80 backdrop-blur px-4 py-3 md:hidden">
-            <SidebarTrigger />
-            <img src="/plav-logotype.svg" alt="Plav'" className="h-7 w-auto object-contain" />
-          </header>
+          <MobileHeader />
           {showVerifyBanner && (
-            <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
+            <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-xs md:text-sm text-amber-900">
               <ShieldAlert className="h-4 w-4 shrink-0" />
               <span className="flex-1">
                 {verificationStatus === "review" || verificationStatus === "pending"
@@ -62,7 +60,8 @@ export function ProtectedLayout({ children, allow }: Props) {
               )}
             </div>
           )}
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <main className="flex-1 px-4 pt-4 pb-28 md:p-6 lg:p-8">{children}</main>
+          <MobileTabBar />
         </div>
       </div>
     </SidebarProvider>

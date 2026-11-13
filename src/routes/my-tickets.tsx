@@ -7,10 +7,9 @@ import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Ticket, CheckCircle2, Clock, XCircle,
-  CalendarDays, MapPin, Loader2, Download, ExternalLink,
-} from "lucide-react";
+import { Ticket, CheckCircle2, Clock, XCircle, Loader2, Download, ExternalLink, QrCode } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -140,6 +139,8 @@ function MyTicketsPage() {
     win.document.close();
   }
 
+  // Dans l'app, la fenêtre d'impression PDF n'existe pas : on garde le QR en plein écran.
+  const isNative = Capacitor.isNativePlatform();
   const withEvent = tickets.filter((t) => t.events);
   const active = withEvent.filter((t) => t.status !== "cancelled" && !isPastEvent(t.events.starts_at));
   // Anciens achats : billets d'événements passés (le plus récent en premier)
@@ -152,15 +153,15 @@ function MyTicketsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Mes billets</h1>
-        <p className="text-muted-foreground">Consultez vos inscriptions et QR codes.</p>
+        <p className="text-sm text-muted-foreground md:text-base">Tes places et tes QR codes d'entrée.</p>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : active.length === 0 ? (
-        <Card className="border-2 border-dashed">
+        <Card className="rounded-3xl border-2 border-dashed">
           <CardContent className="py-12 text-center">
-            <Ticket className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+            <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-3 h-16 w-16 opacity-40" />
             <p className="text-muted-foreground">Aucun billet à venir pour l'instant.</p>
             <Button asChild className="mt-4 bg-gradient-primary shadow-glow">
               <Link to="/events">Découvrir les événements</Link>
@@ -168,96 +169,97 @@ function MyTicketsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {active.map((reg) => {
             const ev = reg.events;
             if (!ev) return null;
             const cfg = STATUS_CONFIG[reg.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.cancelled;
             const Icon = cfg.icon;
-            const isExpanded = expanded === reg.id;
             const canCancel = reg.status === "registered" || reg.status === "pending";
+            const hasQr = reg.status === "registered";
 
             return (
-              <Card key={reg.id} className="border-2 shadow-elegant overflow-hidden">
-                {ev.cover_image_url && (
-                  <div className="h-2 bg-gradient-vibrant" />
-                )}
-                {!ev.cover_image_url && <div className="h-2 bg-gradient-vibrant" />}
-                <CardContent className="p-5">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold">{ev.title}</h3>
-                        <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${cfg.color}`}>
-                          <Icon className="h-3 w-3" />{cfg.label}
-                        </span>
+              <div key={reg.id} className="overflow-hidden rounded-3xl border bg-card shadow-elegant">
+                {/* Haut du billet : l'événement */}
+                <Link to="/events/$eventId" params={{ eventId: ev.id }} className="tap relative block bg-gradient-primary p-5 text-primary-foreground">
+                  {ev.cover_image_url && <img src={ev.cover_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
+                  <img src="/plav-cocotte.svg" alt="" className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 opacity-15" />
+                  <div className="relative">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.color}`}>
+                      <Icon className="h-3 w-3" />{cfg.label}
+                    </span>
+                    <h3 className="mt-2 font-display text-xl font-semibold leading-tight text-primary-foreground">{ev.title}</h3>
+                    <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider opacity-70">Date</p>
+                        <p className="font-medium capitalize">{format(new Date(ev.starts_at), "EEE d MMM", { locale: fr })}</p>
                       </div>
-                      <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <CalendarDays className="h-3.5 w-3.5" />{format(new Date(ev.starts_at), "PPP p", { locale: fr })}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5" />{ev.location || "En ligne"}
-                        </div>
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider opacity-70">Heure</p>
+                        <p className="font-medium">{format(new Date(ev.starts_at), "HH'h'mm")}</p>
                       </div>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      {reg.status === "registered" && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setExpanded(isExpanded ? null : reg.id)}
-                          >
-                            <Ticket className="mr-1 h-3.5 w-3.5" />
-                            {isExpanded ? "Masquer QR" : "Voir QR"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => printTicket(reg)}
-                          >
-                            <Download className="mr-1 h-3.5 w-3.5" />PDF
-                          </Button>
-                        </>
-                      )}
-                      <Button size="sm" variant="ghost" asChild>
-                        <Link to="/events/$eventId" params={{ eventId: ev.id }}>
-                          <ExternalLink className="mr-1 h-3.5 w-3.5" />Voir
-                        </Link>
-                      </Button>
+                      <div className="col-span-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider opacity-70">Lieu</p>
+                        <p className="line-clamp-1 font-medium">{ev.location || "En ligne"}</p>
+                      </div>
                     </div>
                   </div>
+                </Link>
 
-                  {/* QR Code expanded */}
-                  {isExpanded && reg.status === "registered" && (
-                    <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border bg-muted/30 p-4">
-                      <div className="rounded-xl bg-white p-4 shadow">
-                        <QRCodeCanvas value={reg.qr_code} size={160} />
-                      </div>
-                      <p className="text-xs text-muted-foreground">Présentez ce code à l'entrée de l'événement.</p>
-                      <code className="rounded bg-muted px-2 py-1 text-xs">{reg.qr_code}</code>
-                    </div>
-                  )}
+                {/* Pointillés de découpe */}
+                <div className="ticket-notch h-0 border-t-2 border-dashed border-border" />
 
-                  {/* Actions */}
-                  {canCancel && (
-                    <div className="mt-3 border-t pt-3">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => cancel(reg.id)}
-                        disabled={cancelling === reg.id}
-                      >
-                        {cancelling === reg.id && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}
-                        Annuler l'inscription
-                      </Button>
-                    </div>
+                {/* Bas du billet : actions */}
+                <div className="flex items-center gap-2 p-4">
+                  {hasQr ? (
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button className="tap h-11 flex-1 rounded-full bg-gradient-primary shadow-glow">
+                          <QrCode className="mr-2 h-4 w-4" />Afficher mon QR
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent className="pb-safe">
+                        <DrawerHeader className="text-center">
+                          <DrawerTitle className="font-display text-xl">{ev.title}</DrawerTitle>
+                          <p className="text-sm capitalize text-muted-foreground">{format(new Date(ev.starts_at), "EEEE d MMMM · HH'h'mm", { locale: fr })}</p>
+                        </DrawerHeader>
+                        <div className="flex flex-col items-center gap-3 px-4 pb-6">
+                          <div className="rounded-3xl border-4 border-accent bg-white p-5 shadow-elegant">
+                            <QRCodeCanvas value={reg.qr_code} size={240} />
+                          </div>
+                          <p className="text-sm text-muted-foreground">Présente ce code à l'entrée.</p>
+                          <code className="max-w-full break-all rounded bg-muted px-2 py-1 text-[11px]">{reg.qr_code}</code>
+                          {canCancel && (
+                            <button
+                              className="mt-2 text-sm font-medium text-destructive"
+                              onClick={() => cancel(reg.id)}
+                              disabled={cancelling === reg.id}
+                            >
+                              {cancelling === reg.id && <Loader2 className="mr-1 inline h-3.5 w-3.5 animate-spin" />}
+                              Annuler mon inscription
+                            </button>
+                          )}
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                  ) : (
+                    <p className="flex-1 text-sm text-muted-foreground">
+                      {reg.status === "pending" ? "Ta place est réservée, termine l'inscription." : "Billet indisponible."}
+                    </p>
                   )}
-                </CardContent>
-              </Card>
+                  {hasQr && !isNative && (
+                    <Button size="icon" variant="outline" className="h-11 w-11 rounded-full" onClick={() => printTicket(reg)} aria-label="Télécharger en PDF">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {!hasQr && canCancel && (
+                    <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => cancel(reg.id)} disabled={cancelling === reg.id}>
+                      {cancelling === reg.id && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}
+                      Annuler
+                    </Button>
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>

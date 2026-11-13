@@ -653,7 +653,7 @@ function EventDetail() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 max-md:pb-20">
 
       {/* ===== PANIER / CART DIALOG ===== */}
       <Dialog open={showCart} onOpenChange={(open) => { if (!open) closeCart(); }}>
@@ -918,8 +918,8 @@ function EventDetail() {
         ];
         if (allMedia.length === 0) return <div className="h-2 w-full rounded-xl bg-gradient-vibrant" />;
         return (
-          <div className="overflow-hidden rounded-2xl shadow-elegant">
-            <div className="relative h-64 w-full bg-black sm:h-[500px]">
+          <div className="-mx-4 -mt-4 overflow-hidden shadow-elegant md:mx-0 md:mt-0 md:rounded-2xl">
+            <div className="relative h-80 w-full bg-black sm:h-[500px]">
               {allMedia.map((m, i) => (
                 <div
                   key={m.id || i}
@@ -999,11 +999,39 @@ function EventDetail() {
         );
       })()}
 
+      {/* Barre de réservation fixe (mobile), au-dessus des onglets */}
+      {!isPrivateBlocked && !isOwner && !myReg && !isFull && (
+        <>
+          <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-30 border-t border-border/70 bg-card/95 px-4 py-3 backdrop-blur-xl md:hidden">
+            <div className="mx-auto flex max-w-md items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-xl font-bold leading-tight text-primary">
+                  {hasTicketTypes
+                    ? totalCartQty > 0 ? (totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit") : "Choisis tes places"
+                    : eventPrice > 0 ? `${eventPrice} €` : "Gratuit"}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {totalCapacity > 0 ? `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}` : "Places illimitées"}
+                </p>
+              </div>
+              <Button
+                onClick={openCart}
+                disabled={acting || (hasTicketTypes && totalCartQty === 0)}
+                className="tap h-12 rounded-full bg-gradient-primary px-6 text-base shadow-glow"
+              >
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Réserver{totalCartQty > 1 ? ` (${totalCartQty})` : ""}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Event card */}
-      <Card className="overflow-hidden border-2 shadow-elegant">
-        <CardContent className="p-6">
+      <Card className="overflow-hidden rounded-3xl border shadow-elegant md:border-2">
+        <CardContent className="p-5 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <h1 className="text-3xl font-bold tracking-tight not-italic">{event.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight not-italic md:text-3xl">{event.title}</h1>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={shareEvent}>
                 {copied ? <Check className="mr-2 h-4 w-4 text-emerald-500" /> : <Share2 className="mr-2 h-4 w-4" />}
@@ -1157,7 +1185,7 @@ function EventDetail() {
                   <Button
                     onClick={openCart}
                     disabled={acting || (hasTicketTypes && totalCartQty === 0)}
-                    className="bg-gradient-primary shadow-glow"
+                    className="bg-gradient-primary shadow-glow max-md:hidden"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     {hasTicketTypes && totalCartQty === 0 ? "Sélectionnez des places" : `Réserver${totalCartQty > 1 ? ` (${totalCartQty})` : ""}`}

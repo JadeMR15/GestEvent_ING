@@ -18,12 +18,14 @@ import { Route as ExportRouteImport } from './routes/export'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 import { Route as EventsNewRouteImport } from './routes/events.new'
@@ -75,6 +77,11 @@ const MyTicketsRoute = MyTicketsRouteImport.update({
   path: '/my-tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -103,6 +110,11 @@ const WaitlistRoute = WaitlistRouteImport.update({
 const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   id: '/admin/verifications',
   path: '/admin/verifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
@@ -141,12 +153,14 @@ export interface FileRoutesByFullPath {
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
@@ -163,12 +177,14 @@ export interface FileRoutesByTo {
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
@@ -186,12 +202,14 @@ export interface FileRoutesById {
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
@@ -210,12 +228,14 @@ export interface FileRouteTypes {
     | '/finance'
     | '/login'
     | '/my-tickets'
+    | '/profile'
     | '/register'
     | '/scanner'
     | '/settings'
     | '/verification'
     | '/waitlist'
     | '/admin/verifications'
+    | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
     | '/volunteer/$token'
@@ -232,12 +252,14 @@ export interface FileRouteTypes {
     | '/finance'
     | '/login'
     | '/my-tickets'
+    | '/profile'
     | '/register'
     | '/scanner'
     | '/settings'
     | '/verification'
     | '/waitlist'
     | '/admin/verifications'
+    | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
     | '/volunteer/$token'
@@ -254,12 +276,14 @@ export interface FileRouteTypes {
     | '/finance'
     | '/login'
     | '/my-tickets'
+    | '/profile'
     | '/register'
     | '/scanner'
     | '/settings'
     | '/verification'
     | '/waitlist'
     | '/admin/verifications'
+    | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
     | '/volunteer/$token'
@@ -277,12 +301,14 @@ export interface RootRouteChildren {
   FinanceRoute: typeof FinanceRoute
   LoginRoute: typeof LoginRoute
   MyTicketsRoute: typeof MyTicketsRoute
+  ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   ScannerRoute: typeof ScannerRoute
   SettingsRoute: typeof SettingsRoute
   VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
@@ -355,6 +381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyTicketsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -395,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/verifications'
       fullPath: '/admin/verifications'
       preLoaderRoute: typeof AdminVerificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/': {
@@ -445,12 +485,14 @@ const rootRouteChildren: RootRouteChildren = {
   FinanceRoute: FinanceRoute,
   LoginRoute: LoginRoute,
   MyTicketsRoute: MyTicketsRoute,
+  ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   ScannerRoute: ScannerRoute,
   SettingsRoute: SettingsRoute,
   VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,

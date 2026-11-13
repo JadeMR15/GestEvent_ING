@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
+import { OAuthButtons } from "@/components/OAuthButtons";
+import { postLoginTarget } from "@/lib/oauth";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -36,27 +38,18 @@ function LoginPage() {
       toast.error(error.message);
       return;
     }
-    let target = "/events";
-    if (data.user) {
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id);
-      const roleSet = new Set((roles ?? []).map((r) => r.role));
-      if (roleSet.has("admin") || roleSet.has("organizer")) {
-        target = "/dashboard";
-      }
-    }
+    const target = await postLoginTarget(data.user.id);
     setLoading(false);
     toast.success("Bienvenue !");
-    const redirect = sessionStorage.getItem("loginRedirect");
-    if (redirect) { sessionStorage.removeItem("loginRedirect"); navigate({ to: redirect as any }); return; }
-    navigate({ to: target });
+    navigate({ to: target as any });
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
-      <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-mesh p-4 pt-safe pb-safe">
+      <Link to="/" aria-label="Retour" className="tap absolute left-4 top-[calc(env(safe-area-inset-top)+0.75rem)] flex h-10 w-10 items-center justify-center rounded-full border bg-card/80 text-primary backdrop-blur md:hidden">
+        <ChevronLeft className="h-5 w-5" />
+      </Link>
+      <Card className="w-full max-w-md rounded-3xl shadow-elegant border-[0.5px] max-md:border-0 max-md:bg-transparent max-md:shadow-none">
         <CardHeader className="text-center">
           <img src="/plav-cocotte.svg" alt="Plav'" className="mx-auto mb-3 h-28 w-28 object-contain plav-spin-in" />
           <CardTitle className="text-2xl">Bon retour !</CardTitle>
@@ -81,6 +74,7 @@ function LoginPage() {
               <Link to="/register" className="font-medium text-primary hover:underline">S'inscrire</Link>
             </p>
           </form>
+          <div className="mt-4"><OAuthButtons /></div>
         </CardContent>
       </Card>
     </div>

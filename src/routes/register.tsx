@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CalendarDays, Ticket } from "lucide-react";
+import { Loader2, CalendarDays, Ticket, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
+import { OAuthButtons } from "@/components/OAuthButtons";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -112,8 +113,11 @@ function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
-      <Card className="w-full max-w-md shadow-elegant border-[0.5px]">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-mesh p-4 pt-safe pb-safe">
+      <Link to="/" aria-label="Retour" className="tap absolute left-4 top-[calc(env(safe-area-inset-top)+0.75rem)] flex h-10 w-10 items-center justify-center rounded-full border bg-card/80 text-primary backdrop-blur md:hidden">
+        <ChevronLeft className="h-5 w-5" />
+      </Link>
+      <Card className="w-full max-w-md rounded-3xl shadow-elegant border-[0.5px] max-md:border-0 max-md:bg-transparent max-md:shadow-none">
         <CardHeader className="text-center">
           <img src="/plav-cocotte.svg" alt="Plav'" className="mx-auto mb-3 h-20 w-20 sm:h-28 sm:w-28 object-contain plav-spin-in" />
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
@@ -236,6 +240,7 @@ function RegisterPage() {
               <Link to="/login" className="font-medium text-primary hover:underline">Se connecter</Link>
             </p>
           </form>
+          <div className="mt-4"><OAuthButtons /></div>
         </CardContent>
       </Card>
     </div>

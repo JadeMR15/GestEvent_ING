@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { apiUrl } from "@/lib/api-url";
 import { useAuth, type VerificationStatus } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,7 +109,7 @@ function VerificationPage() {
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw new Error("Envoi du fichier impossible. Réessaie.");
 
-      const res = await fetch("/api/verify-student", {
+      const res = await fetch(apiUrl("/api/verify-student"), {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ path }),

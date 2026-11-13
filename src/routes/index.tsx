@@ -16,9 +16,12 @@ import {
 import { format, isThisWeek, isThisMonth } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { fr } from "date-fns/locale";
+import { Capacitor } from "@capacitor/core";
+import { AppWelcome } from "@/components/AppWelcome";
 
 export const Route = createFileRoute("/")({
-  component: Landing,
+  // Dans l'app native : écran d'accueil dédié au lieu de la page vitrine.
+  component: () => (Capacitor.isNativePlatform() ? <AppWelcome /> : <Landing />),
 });
 
 type DateFilter = "all" | "week" | "month";
