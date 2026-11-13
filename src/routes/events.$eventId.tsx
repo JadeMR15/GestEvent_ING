@@ -339,7 +339,8 @@ function EventDetail() {
 
   const active = registrations.filter((r) => r.status === "registered" || r.status === "attended" || r.status === "pending");
   // Nombre de places prises : chiffre du serveur (la liste locale ne contient que mes inscriptions).
-  const takenCount = availability?.taken ?? active.length;
+  // Une place proposée à la liste d'attente est réservée : elle compte comme prise.
+  const takenCount = availability ? availability.taken + (availability.offers ?? 0) : active.length;
   const isOwner = user?.id === event.organizer_id || role === "admin";
   const timerPct = (timeLeft / TIMER_SECONDS) * 100;
 
@@ -583,12 +584,13 @@ function EventDetail() {
   }
 
   async function cancelRegistration(regId: string, label: string) {
-    if (!confirm(`Annuler la place de ${label} ?`)) return;
+    const mine = label === "moi";
+    if (!confirm(mine ? "Annuler ta place ?" : `Annuler la place de ${label} ?`)) return;
     setActing(true);
     const { error } = await supabase.from("registrations").delete().eq("id", regId);
     if (error) { setActing(false); toast.error(error.message); return; }
     setActing(false);
-    toast.success(`Place de ${label} annulée.`);
+    toast.success(mine ? "Ta place a bien été annulée." : `La place de ${label} a bien été annulée.`);
     notifyWaitlist();
     load();
   }

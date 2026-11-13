@@ -589,3 +589,19 @@ EXCEPTION WHEN others THEN
   RAISE WARNING 'Planification impossible (%). Activez pg_cron et pg_net dans Database > Extensions puis relancez ce script.', SQLERRM;
 END
 $cron$;
+
+-- Places prises par événement, pour les listes (nombres uniquement, aucune donnée personnelle).
+-- Les participants ne voient pas les inscriptions des autres : sans cette fonction, la liste
+-- affichait 0 / N même pour un événement complet. Une place proposée à la liste d'attente compte comme prise.
+CREATE OR REPLACE FUNCTION public.get_events_taken(_event_ids UUID[])
+RETURNS TABLE (event_id UUID, taken INTEGER)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT e.id,
+         ((SELECT count(*) FROM public.registrations r
+            WHERE r.event_id = e.id AND r.status IN ('pending', 'registered', 'attended'))
+        + (SELECT count(*) FROM public.waitlist w
+            WHERE w.event_id = e.id AND w.status = 'offered'))::INTEGER
+    FROM public.events e
+   WHERE e.id = ANY(_event_ids[1:500]);
+$$;
+GRANT EXECUTE ON FUNCTION public.get_events_taken(UUID[]) TO anon, authenticated;

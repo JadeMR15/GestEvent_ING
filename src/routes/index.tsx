@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import {
   CalendarDays, QrCode, Users, ArrowRight, Timer,
   MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight,
@@ -72,7 +73,8 @@ function Landing() {
         });
       }
 
-      const enriched = all.map((e: any) => ({ ...e, registrations: regsMap[e.id] ?? [] }));
+      const taken = await fetchTakenCounts(all.map((e: any) => e.id));
+      const enriched = all.map((e: any) => ({ ...e, registrations: regsMap[e.id] ?? [], taken: taken[e.id] }));
       setEvents(enriched);
       const totalParticipants = enriched.reduce((acc: number, e: any) =>
         acc + (e.registrations ?? []).filter((r: any) => r.status === "registered" || r.status === "attended").length, 0);
@@ -82,15 +84,8 @@ function Landing() {
     })();
   }, []);
 
-  function getActive(e: any) {
-    const now = new Date();
-    return (e.registrations ?? []).filter((r: any) =>
-      r.status === "registered" || r.status === "attended" ||
-      (r.status === "pending" && r.expires_at && new Date(r.expires_at) > now));
-  }
   const filtered = useMemo(() => events.filter((e) => {
-    const active = getActive(e);
-    const isFull = e.capacity > 0 && active.length >= e.capacity;
+    const isFull = e.capacity > 0 && takenOf(e) >= e.capacity;
     if (q && !e.title.toLowerCase().includes(q.toLowerCase()) && !e.location?.toLowerCase().includes(q.toLowerCase())) return false;
     if (dateFilter === "week" && !isThisWeek(new Date(e.starts_at))) return false;
     if (dateFilter === "month" && !isThisMonth(new Date(e.starts_at))) return false;
@@ -455,17 +450,10 @@ function StackedHowItWorks() {
 }
 
 function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boolean; user: any }) {
-  function getActive(e: any) {
-    const now = new Date();
-    return (e.registrations ?? []).filter((r: any) =>
-      r.status === "registered" || r.status === "attended" ||
-      (r.status === "pending" && r.expires_at && new Date(r.expires_at) > now));
-  }
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {events.map((e) => {
-        const active = getActive(e);
-        const taken = active.length;
+        const taken = takenOf(e);
         const pct = e.capacity > 0 ? Math.min(100, Math.round((taken / e.capacity) * 100)) : 0;
         const isFull = e.capacity > 0 && taken >= e.capacity;
         const remaining = e.capacity - taken;

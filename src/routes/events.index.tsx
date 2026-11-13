@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,20 +52,12 @@ function EventList() {
         .order("starts_at", { ascending: true });
       if (role === "organizer" && user) query = query.eq("organizer_id", user.id);
       const { data } = await query;
-      setEvents(data ?? []);
+      const list = data ?? [];
+      const taken = await fetchTakenCounts(list.map((e) => e.id));
+      setEvents(list.map((e) => ({ ...e, taken: taken[e.id] })));
       setLoading(false);
     })();
   }, [role, user]);
-
-  function getActive(e: any) {
-    const now = new Date();
-    return (e.registrations ?? []).filter(
-      (r: any) =>
-        r.status === "registered" ||
-        r.status === "attended" ||
-        (r.status === "pending" && r.expires_at && new Date(r.expires_at) > now),
-    );
-  }
 
   const schools = useMemo(() =>
     Array.from(new Map(events.map((e) => e.school).filter(Boolean).map((s: string) => [s.toLowerCase(), s])).values()).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())),
@@ -77,8 +70,7 @@ function EventList() {
   );
 
   const filtered = useMemo(() => events.filter((e) => {
-    const active = getActive(e);
-    const isFull = e.capacity > 0 && active.length >= e.capacity;
+    const isFull = e.capacity > 0 && takenOf(e) >= e.capacity;
 
     if (q) {
       const lq = q.toLowerCase();
@@ -109,8 +101,8 @@ function EventList() {
       case "title_asc":  return arr.sort((a, b) => a.title.localeCompare(b.title, "fr"));
       case "title_desc": return arr.sort((a, b) => b.title.localeCompare(a.title, "fr"));
       case "spots_asc":  return arr.sort((a, b) => {
-        const remA = a.capacity > 0 ? a.capacity - getActive(a).length : Infinity;
-        const remB = b.capacity > 0 ? b.capacity - getActive(b).length : Infinity;
+        const remA = a.capacity > 0 ? a.capacity - takenOf(a) : Infinity;
+        const remB = b.capacity > 0 ? b.capacity - takenOf(b) : Infinity;
         return remA - remB;
       });
       case "price_asc":  return arr.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
@@ -238,8 +230,7 @@ function EventList() {
         /* ── Vue liste ── */
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sorted.map((e) => {
-            const active = getActive(e);
-            const taken = active.length;
+            const taken = takenOf(e);
             const pct = e.capacity > 0 ? Math.min(100, Math.round((taken / e.capacity) * 100)) : 0;
             const isFull = e.capacity > 0 && taken >= e.capacity;
             const remaining = e.capacity - taken;
