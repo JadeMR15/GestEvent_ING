@@ -1,5 +1,14 @@
 {
   "buildCommand": "vite build --config vite.csr.config.ts",
   "outputDirectory": "dist/csr",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "functions": {
+    "api/verify-student.ts": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/{tesseract.js,tesseract.js-core}/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/events/:id", "destination": "/api/event-page?id=:id" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }

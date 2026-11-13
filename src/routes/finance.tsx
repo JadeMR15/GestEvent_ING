@@ -47,11 +47,11 @@ function StatCard({ icon: Icon, label, value, sub, accent = false }: {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{label}</p>
-            <p className={`text-3xl font-bold mt-1 ${accent ? "text-[#6B0F2C]" : ""}`}>{value}</p>
+            <p className={`text-3xl font-bold mt-1 ${accent ? "text-[#6B1A2F]" : ""}`}>{value}</p>
             {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
           </div>
-          <div className={`h-12 w-12 rounded-full flex items-center justify-center ${accent ? "bg-[#EED4D8]" : "bg-muted"}`}>
-            <Icon className={`h-6 w-6 ${accent ? "text-[#6B0F2C]" : "text-muted-foreground"}`} />
+          <div className={`h-12 w-12 rounded-full flex items-center justify-center ${accent ? "bg-[#F8E7B5]" : "bg-muted"}`}>
+            <Icon className={`h-6 w-6 ${accent ? "text-[#6B1A2F]" : "text-muted-foreground"}`} />
           </div>
         </div>
       </CardContent>
@@ -216,7 +216,7 @@ function FinancePage() {
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="font-bold text-[#6B0F2C]">+{fmt(r._price ?? 0)}</p>
+                        <p className="font-bold text-[#6B1A2F]">+{fmt(r._price ?? 0)}</p>
                         <Badge variant="secondary" className={`text-[10px] mt-0.5 ${r.status === "attended" ? "bg-emerald-100 text-emerald-800" : ""}`}>
                           {r.status === "attended" ? "Présent" : "Inscrit"}
                         </Badge>
@@ -277,9 +277,9 @@ function FinancePage() {
             <DialogTitle>Demander un virement</DialogTitle>
           </DialogHeader>
 
-          <div className="rounded-lg bg-[#EED4D8]/40 border border-[#D5A0A8] px-4 py-3 text-sm">
+          <div className="rounded-lg bg-[#F8E7B5]/40 border border-[#E3CC9C] px-4 py-3 text-sm">
             <p className="text-muted-foreground">Solde disponible</p>
-            <p className="text-2xl font-bold text-[#6B0F2C]">{fmt(available)}</p>
+            <p className="text-2xl font-bold text-[#6B1A2F]">{fmt(available)}</p>
           </div>
 
           <Separator />

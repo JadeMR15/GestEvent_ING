@@ -11,6 +11,12 @@ import {
   Download,
   BarChart2,
   Euro,
+  BadgeCheck,
+  ShieldCheck,
+  Settings,
+  Hourglass,
+  Heart,
+  School,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,11 +34,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { RoleAvatar } from "@/components/RoleAvatar";
+import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { role, signOut, user } = useAuth();
+  const { role, signOut, user, isVerified, fullName, avatarPath } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -42,8 +50,14 @@ export function AppSidebar() {
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
     { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
+    { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
+    ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
+    { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
+    { title: "Écoles", url: "/admin/schools", icon: School, roles: ["admin"] },
+    { title: "Événements likés", url: "/likes", icon: Heart, roles: ["admin", "organizer", "participant", "volunteer"] },
+    { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
@@ -56,22 +70,13 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border overflow-visible">
         <div className="flex items-center gap-2 px-1 py-3 overflow-visible">
-          <img src="/logo2.png" alt="Plav'" className="h-24 w-24 shrink-0 object-contain" />
+          <img src="/plav-cocotte.svg" alt="Plav'" className={`${collapsed ? "h-8 w-8" : "h-14 w-14"} shrink-0 object-contain drop-shadow-md`} />
           {!collapsed && (
             <div className="flex flex-col flex-1 items-start gap-1">
-              <BrandName className="h-14" />
-              <div className="flex items-center gap-1.5">
-                {role && (
-                  <img
-                    src={{ admin: "/orga.png", organizer: "/orga.png", participant: "/participant.png", volunteer: "/benevole.png" }[role]}
-                    alt={role}
-                    className="h-5 w-5 object-contain"
-                  />
-                )}
-                <span className="text-xs text-sidebar-foreground/60">
-                  {{ admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role ?? ""] ?? "Invité"}
-                </span>
-              </div>
+              <BrandName className="h-10" onDark />
+              <span className="text-xs text-sidebar-foreground/60">
+                {role ? { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role] : "Invité"}
+              </span>
             </div>
           )}
         </div>
@@ -120,10 +125,22 @@ export function AppSidebar() {
         <div className={`flex py-1 ${collapsed ? "justify-center" : "justify-start px-1"}`}>
           <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" />
         </div>
-        {!collapsed && user && (
-          <div className="px-2 pb-2 text-xs text-sidebar-foreground/60 truncate">
-            {user.email}
-          </div>
+        {user && (
+          <Link
+            to="/settings"
+            title="Paramètres"
+            className={`flex items-center gap-2 rounded-md p-1.5 hover:bg-sidebar-accent ${collapsed ? "justify-center" : ""}`}
+          >
+            <RoleAvatar path={avatarPath} name={fullName} role={role} size="sm" showBadge={!collapsed}
+              className={role === "admin" && !collapsed ? "mb-1.5" : undefined} />
+            {!collapsed && (
+              <div className="min-w-0 text-xs">
+                <p className="truncate font-medium text-sidebar-foreground">{fullName || "Mon compte"}</p>
+                <p className="truncate text-sidebar-foreground/60">{user.email}</p>
+                <MySchoolBadge onDark className="mt-1" />
+              </div>
+            )}
+          </Link>
         )}
         <Button
           variant="ghost"

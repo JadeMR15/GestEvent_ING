@@ -1,10 +1,20 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no" class="notranslate">
   <head>
     <meta charset="UTF-8" />
+    <!-- Le site est déjà en français : la traduction de Chrome modifie la page et fait planter React. -->
+    <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plav'</title>
-    <link rel="icon" type="image/png" href="/logo2.png" />
+    <!-- Aperçu générique des liens (WhatsApp, Messages…). Remplacé par api/event-page.ts sur la page d'un événement. -->
+    <meta name="description" content="La billetterie des événements étudiants." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Plav'" />
+    <meta property="og:title" content="Plav'" />
+    <meta property="og:description" content="La billetterie des événements étudiants." />
+    <meta property="og:image" content="https://plavv.vercel.app/plav-logotype.png" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" type="image/svg+xml" href="/plav-icon.svg" />
   </head>
   <body>
     <div id="root"></div>

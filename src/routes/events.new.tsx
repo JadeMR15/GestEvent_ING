@@ -71,7 +71,7 @@ const schema = z.object({
 });
 
 function CreateEventPage() {
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [mediaDragOver, setMediaDragOver] = useState(false);
@@ -172,6 +172,11 @@ function CreateEventPage() {
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     if (!user) return;
+    if (!isVerified) {
+      toast.error("Vérifie ton compte étudiant pour créer un événement.");
+      navigate({ to: "/verification" });
+      return;
+    }
 
     for (const t of tickets) {
       if (!t.name.trim()) { toast.error("Chaque tarif doit avoir un nom."); return; }
@@ -265,7 +270,7 @@ function CreateEventPage() {
               {gallery.length > 0 && (
                 <div className="flex flex-wrap gap-2 rounded-xl border bg-muted/20 p-2">
                   {gallery.map((item, i) => (
-                    <div key={item.uid} className="relative h-20 w-28 overflow-hidden rounded-lg border border-[#D5A0A8]">
+                    <div key={item.uid} className="relative h-20 w-28 overflow-hidden rounded-lg border border-[#E3CC9C]">
                       {item.type === "image" ? (
                         <img src={item.preview} alt="" className="h-full w-full object-cover" />
                       ) : item.file ? (
@@ -277,7 +282,7 @@ function CreateEventPage() {
                         </div>
                       )}
                       {i === 0 && item.type === "image" && (
-                        <span className="absolute bottom-0 left-0 right-0 bg-[#6B0F2C]/80 py-0.5 text-center text-[9px] text-white">
+                        <span className="absolute bottom-0 left-0 right-0 bg-[#6B1A2F]/80 py-0.5 text-center text-[9px] text-white">
                           Couverture
                         </span>
                       )}
@@ -299,10 +304,10 @@ function CreateEventPage() {
                 onDragLeave={() => setMediaDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setMediaDragOver(false); if (e.dataTransfer.files.length) handleMediaFiles(e.dataTransfer.files); }}
                 className="flex h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors"
-                style={{ borderColor: mediaDragOver ? "#6B0F2C" : "#D5A0A8", background: mediaDragOver ? "#EED4D820" : "#FDFAF7" }}
+                style={{ borderColor: mediaDragOver ? "#6B1A2F" : "#E3CC9C", background: mediaDragOver ? "#F8E7B520" : "#FBF5EA" }}
               >
-                <ImagePlus className="h-5 w-5 text-[#6B0F2C]" />
-                <p className="text-center text-xs text-[#6B0F2C]">Photos (JPG, PNG, WebP) ou vidéos (MP4, WebM) — cliquez ou glissez</p>
+                <ImagePlus className="h-5 w-5 text-[#6B1A2F]" />
+                <p className="text-center text-xs text-[#6B1A2F]">Photos (JPG, PNG, WebP) ou vidéos (MP4, WebM) — cliquez ou glissez</p>
               </div>
               <input
                 ref={mediaInputRef}
@@ -400,9 +405,9 @@ function CreateEventPage() {
               </div>
               <div className="space-y-3">
                 {tickets.map((ticket, i) => (
-                  <div key={ticket.uid} className="rounded-lg border border-[#D5A0A8] bg-[#FDFAF7] p-4 space-y-3">
+                  <div key={ticket.uid} className="rounded-lg border border-[#E3CC9C] bg-[#FBF5EA] p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-[#6B0F2C]">Tarif {i + 1}</p>
+                      <p className="text-sm font-semibold text-[#6B1A2F]">Tarif {i + 1}</p>
                       {tickets.length > 1 && (
                         <Button type="button" variant="ghost" size="icon" onClick={() => removeTicket(ticket.uid)} className="h-7 w-7 text-muted-foreground hover:text-destructive">
                           <Trash2 className="h-4 w-4" />

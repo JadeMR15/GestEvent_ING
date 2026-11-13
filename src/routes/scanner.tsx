@@ -343,7 +343,7 @@ function ScannerPage() {
               </div>
               <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#C87488] to-[#6B0F2C] transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-[#E8B22E] to-[#6B1A2F] transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>

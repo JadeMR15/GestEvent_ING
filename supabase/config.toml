@@ -1,1 +1,10 @@
 project_id = "cicjhxgsxcwficnjoukc"
+# Appelée par pg_cron (secret x-cron-secret) ou par un utilisateur connecté :
+# la fonction vérifie elle-même l'appelant.
+[functions.send-waitlist-offers]
+verify_jwt = false
+
+# Le lien de confirmation est ouvert sans être forcément connecté :
+# la fonction vérifie elle-même l'appelant selon l'action.
+[functions.school-email]
+verify_jwt = false

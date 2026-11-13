@@ -1,0 +1,30 @@
+<!--
+  Modèle "Confirm signup" de Supabase.
+  À coller dans Supabase > Authentication > Emails > Confirm signup.
+  Sujet conseillé : Confirme ton inscription sur Plav'
+  Même mise en page que supabase/functions/_shared/email-layout.ts.
+-->
+<div style="background:#FBF5EA;padding:24px 12px;font-family:'DM Sans',Helvetica,Arial,sans-serif;color:#2B1A1F;font-size:15px;line-height:1.55">
+  <div style="max-width:560px;margin:0 auto">
+    <div style="text-align:center;padding:4px 0 16px">
+      <img src="https://plavv.vercel.app/plav-logotype.png" width="130" alt="Plav'" style="display:inline-block;width:130px;height:auto;border:0" />
+    </div>
+    <div style="background:#FFFDF8;border:1px solid #E8D6AE;border-radius:16px;overflow:hidden">
+      <div style="height:6px;background:#E8B22E;background-image:linear-gradient(90deg,#F3D27A,#E8B22E 45%,#6B1A2F)"></div>
+      <div style="padding:32px">
+        <h1 style="font-family:'Fredoka','DM Sans',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;line-height:1.2;color:#6B1A2F;margin:0 0 20px">Bienvenue sur Plav' !</h1>
+        <p>Bonjour{{ if .Data.full_name }} <strong>{{ .Data.full_name }}</strong>{{ end }},</p>
+        <p>Merci pour ton inscription. Confirme ton adresse email pour activer ton compte :</p>
+        <div style="text-align:center;margin:28px 0 8px">
+          <a href="{{ .ConfirmationURL }}" style="background:#6B1A2F;background-image:linear-gradient(135deg,#7C2238,#5A1426);color:#FBF5EA;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block;font-size:15px">Confirmer mon email</a>
+        </div>
+        <div style="background:#F8E7B5;color:#4A0F20;border-radius:12px;padding:16px;margin:24px 0 16px;font-size:14px">
+          <strong>Étape suivante :</strong> envoie ton certificat de scolarité ou ta carte étudiante
+          dans « Vérifier mon compte » pour pouvoir t'inscrire aux événements.
+        </div>
+        <p style="font-size:12px;color:#7A5560;margin:0">Tu n'es pas à l'origine de cette inscription ? Ignore simplement cet email.</p>
+      </div>
+    </div>
+    <p style="margin:16px 0 0;font-size:12px;color:#7A5560;text-align:center">Plav' · la billetterie étudiante</p>
+  </div>
+</div>

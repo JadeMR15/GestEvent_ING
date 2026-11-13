@@ -9,15 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /* Primaire — vert forêt #0F7A4B */
-        default: "bg-primary text-primary-foreground shadow hover:bg-[#0A5E39]",
-        /* Secondaire — bordeaux #6B0F2C */
+        /* Primaire — bordeaux #6B1A2F, survol bordeaux profond */
+        default: "bg-primary text-primary-foreground shadow hover:bg-[#4A0F20]",
+        /* Destructive — rouge brique */
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        /* Ghost — bordure bordeaux, texte bordeaux */
+        /* Outline — bordure bordeaux, survol moutarde pâle */
         outline:
-          "border border-[#6B0F2C] bg-transparent text-[#6B0F2C] shadow-sm hover:bg-[#EED4D8]",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "text-[#6B0F2C] hover:bg-[#EED4D8] hover:text-[#6B0F2C]",
+          "border border-[#6B1A2F] bg-transparent text-[#6B1A2F] shadow-sm hover:bg-[#F8E7B5]",
+        /* Secondaire — moutarde, le bouton « punch » */
+        secondary: "bg-[#E8B22E] text-[#4A0F20] shadow-sm hover:bg-[#F3C24A]",
+        ghost: "text-[#6B1A2F] hover:bg-[#F8E7B5] hover:text-[#6B1A2F]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

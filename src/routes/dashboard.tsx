@@ -10,6 +10,7 @@ import { CalendarDays, CheckCircle2, PlusCircle, Clock, Ticket, Bell, Download, 
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import { invokeEmail } from "@/lib/emails";
 import JSZip from "jszip";
 
 export const Route = createFileRoute("/dashboard")({
@@ -94,11 +95,7 @@ function DashboardPage() {
 
     let totalSent = 0;
     for (const ev of events) {
-      const res = await fetch(
-        "https://ucufuoaspgmaittgvbrd.supabase.co/functions/v1/send-event-emails",
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "reminder", event_id: ev.id }) }
-      );
-      const data = await res.json().catch(() => ({}));
+      const data = await invokeEmail("send-event-emails", { type: "reminder", event_id: ev.id });
       totalSent += data.sent ?? 0;
     }
     setSendingReminders(false);
@@ -182,21 +179,21 @@ function DashboardPage() {
       label: role === "participant" ? "Mes inscriptions" : "Événements",
       value: stats.total,
       icon: CalendarDays,
-      color: "from-[#2D5A27] to-[#3D7A35]",
+      color: "from-[#7C2238] to-[#4A0F20]",
       format: "number",
     },
     {
       label: "À venir",
       value: stats.upcoming,
       icon: Clock,
-      color: "from-[#2D5A27] to-[#3D7A35]",
+      color: "from-[#E8B22E] to-[#C9931A]",
       format: "number",
     },
     ...(role !== "participant" ? [{
       label: "Fonds récoltés",
       value: stats.revenue,
       icon: CheckCircle2,
-      color: "from-[#2D5A27] to-[#3D7A35]",
+      color: "from-[#A8344F] to-[#6B1A2F]",
       format: "currency" as const,
     }] : []),
   ];

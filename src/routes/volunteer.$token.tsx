@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CalendarDays, MapPin, Camera, CameraOff, CheckCircle2,
-  XCircle, ScanLine, Loader2, AlertTriangle, Users,
+  XCircle, ScanLine, Loader2, AlertTriangle, Users, Heart,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -166,7 +166,9 @@ function VolunteerPage() {
 
         {/* Header */}
         <div className="flex items-center gap-3 py-2">
-          <img src="/benevole.png" alt="Bénévole" className="h-10 w-10 object-contain" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+            <Heart className="h-5 w-5" aria-hidden />
+          </div>
           <div>
             <p className="text-xs text-muted-foreground">Accès bénévole</p>
             <p className="font-semibold">{volunteer.name || "Bénévole"}</p>
@@ -211,7 +213,7 @@ function VolunteerPage() {
             </div>
             <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-[#E8B22E] to-[#6B1A2F] transition-all duration-500"
                 style={{ width: stats.total > 0 ? `${Math.round((stats.attended / stats.total) * 100)}%` : "0%" }}
               />
             </div>

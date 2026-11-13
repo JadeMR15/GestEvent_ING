@@ -9,72 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WaitlistRouteImport } from './routes/waitlist'
-import { Route as ScannerRouteImport } from './routes/scanner'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as MyTicketsRouteImport } from './routes/my-tickets'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as FinanceRouteImport } from './routes/finance'
-import { Route as ExportRouteImport } from './routes/export'
-import { Route as EmailsRouteImport } from './routes/emails'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AnalyticsRouteImport } from './routes/analytics'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as ConfirmerEcoleRouteImport } from './routes/confirmer-ecole'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as EmailsRouteImport } from './routes/emails'
+import { Route as ExportRouteImport } from './routes/export'
+import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as LikesRouteImport } from './routes/likes'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
+import { Route as MyTicketsRouteImport } from './routes/my-tickets'
+import { Route as NouveauMotDePasseRouteImport } from './routes/nouveau-mot-de-passe'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as VerificationRouteImport } from './routes/verification'
+import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
-import { Route as VolunteerTokenRouteImport } from './routes/volunteer.$token'
-import { Route as EventsNewRouteImport } from './routes/events.new'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
+import { Route as EventsNewRouteImport } from './routes/events.new'
+import { Route as VolunteerTokenRouteImport } from './routes/volunteer.$token'
 import { Route as EventsEventIdEditRouteImport } from './routes/events.$eventId_.edit'
 
-const WaitlistRoute = WaitlistRouteImport.update({
-  id: '/waitlist',
-  path: '/waitlist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScannerRoute = ScannerRouteImport.update({
-  id: '/scanner',
-  path: '/scanner',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyTicketsRoute = MyTicketsRouteImport.update({
-  id: '/my-tickets',
-  path: '/my-tickets',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FinanceRoute = FinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExportRoute = ExportRouteImport.update({
-  id: '/export',
-  path: '/export',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmailsRoute = EmailsRouteImport.update({
-  id: '/emails',
-  path: '/emails',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnalyticsRoute = AnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -82,9 +45,94 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmerEcoleRoute = ConfirmerEcoleRouteImport.update({
+  id: '/confirmer-ecole',
+  path: '/confirmer-ecole',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailsRoute = EmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportRoute = ExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LikesRoute = LikesRouteImport.update({
+  id: '/likes',
+  path: '/likes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MotDePasseOublieRoute = MotDePasseOublieRouteImport.update({
+  id: '/mot-de-passe-oublie',
+  path: '/mot-de-passe-oublie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyTicketsRoute = MyTicketsRouteImport.update({
+  id: '/my-tickets',
+  path: '/my-tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NouveauMotDePasseRoute = NouveauMotDePasseRouteImport.update({
+  id: '/nouveau-mot-de-passe',
+  path: '/nouveau-mot-de-passe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScannerRoute = ScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerificationRoute = VerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WaitlistRoute = WaitlistRouteImport.update({
+  id: '/waitlist',
+  path: '/waitlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
+  id: '/admin/schools',
+  path: '/admin/schools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
+  id: '/admin/verifications',
+  path: '/admin/verifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
@@ -92,9 +140,9 @@ const EventsIndexRoute = EventsIndexRouteImport.update({
   path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VolunteerTokenRoute = VolunteerTokenRouteImport.update({
-  id: '/volunteer/$token',
-  path: '/volunteer/$token',
+const EventsEventIdRoute = EventsEventIdRouteImport.update({
+  id: '/events/$eventId',
+  path: '/events/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsNewRoute = EventsNewRouteImport.update({
@@ -102,9 +150,9 @@ const EventsNewRoute = EventsNewRouteImport.update({
   path: '/events/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EventsEventIdRoute = EventsEventIdRouteImport.update({
-  id: '/events/$eventId',
-  path: '/events/$eventId',
+const VolunteerTokenRoute = VolunteerTokenRouteImport.update({
+  id: '/volunteer/$token',
+  path: '/volunteer/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
@@ -117,15 +165,23 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
+  '/settings': typeof SettingsRoute
+  '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
@@ -136,15 +192,23 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
+  '/settings': typeof SettingsRoute
+  '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
@@ -156,15 +220,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/register': typeof RegisterRoute
   '/scanner': typeof ScannerRoute
+  '/settings': typeof SettingsRoute
+  '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
@@ -177,15 +249,23 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/register'
     | '/scanner'
+    | '/settings'
+    | '/verification'
     | '/waitlist'
+    | '/admin/schools'
+    | '/admin/verifications'
     | '/events/$eventId'
     | '/events/new'
     | '/volunteer/$token'
@@ -196,15 +276,23 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/register'
     | '/scanner'
+    | '/settings'
+    | '/verification'
     | '/waitlist'
+    | '/admin/schools'
+    | '/admin/verifications'
     | '/events/$eventId'
     | '/events/new'
     | '/volunteer/$token'
@@ -215,15 +303,23 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/register'
     | '/scanner'
+    | '/settings'
+    | '/verification'
     | '/waitlist'
+    | '/admin/schools'
+    | '/admin/verifications'
     | '/events/$eventId'
     | '/events/new'
     | '/volunteer/$token'
@@ -235,15 +331,23 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  ConfirmerEcoleRoute: typeof ConfirmerEcoleRoute
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
   FinanceRoute: typeof FinanceRoute
+  LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
+  MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   MyTicketsRoute: typeof MyTicketsRoute
+  NouveauMotDePasseRoute: typeof NouveauMotDePasseRoute
   RegisterRoute: typeof RegisterRoute
   ScannerRoute: typeof ScannerRoute
+  SettingsRoute: typeof SettingsRoute
+  VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
+  AdminSchoolsRoute: typeof AdminSchoolsRoute
+  AdminVerificationsRoute: typeof AdminVerificationsRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
@@ -253,74 +357,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/waitlist': {
-      id: '/waitlist'
-      path: '/waitlist'
-      fullPath: '/waitlist'
-      preLoaderRoute: typeof WaitlistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scanner': {
-      id: '/scanner'
-      path: '/scanner'
-      fullPath: '/scanner'
-      preLoaderRoute: typeof ScannerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-tickets': {
-      id: '/my-tickets'
-      path: '/my-tickets'
-      fullPath: '/my-tickets'
-      preLoaderRoute: typeof MyTicketsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/finance': {
-      id: '/finance'
-      path: '/finance'
-      fullPath: '/finance'
-      preLoaderRoute: typeof FinanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/export': {
-      id: '/export'
-      path: '/export'
-      fullPath: '/export'
-      preLoaderRoute: typeof ExportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/emails': {
-      id: '/emails'
-      path: '/emails'
-      fullPath: '/emails'
-      preLoaderRoute: typeof EmailsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/analytics': {
-      id: '/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AnalyticsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -330,11 +371,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmer-ecole': {
+      id: '/confirmer-ecole'
+      path: '/confirmer-ecole'
+      fullPath: '/confirmer-ecole'
+      preLoaderRoute: typeof ConfirmerEcoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emails': {
+      id: '/emails'
+      path: '/emails'
+      fullPath: '/emails'
+      preLoaderRoute: typeof EmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/export': {
+      id: '/export'
+      path: '/export'
+      fullPath: '/export'
+      preLoaderRoute: typeof ExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/likes': {
+      id: '/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof LikesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mot-de-passe-oublie': {
+      id: '/mot-de-passe-oublie'
+      path: '/mot-de-passe-oublie'
+      fullPath: '/mot-de-passe-oublie'
+      preLoaderRoute: typeof MotDePasseOublieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-tickets': {
+      id: '/my-tickets'
+      path: '/my-tickets'
+      fullPath: '/my-tickets'
+      preLoaderRoute: typeof MyTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nouveau-mot-de-passe': {
+      id: '/nouveau-mot-de-passe'
+      path: '/nouveau-mot-de-passe'
+      fullPath: '/nouveau-mot-de-passe'
+      preLoaderRoute: typeof NouveauMotDePasseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verification': {
+      id: '/verification'
+      path: '/verification'
+      fullPath: '/verification'
+      preLoaderRoute: typeof VerificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/waitlist': {
+      id: '/waitlist'
+      path: '/waitlist'
+      fullPath: '/waitlist'
+      preLoaderRoute: typeof WaitlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/schools': {
+      id: '/admin/schools'
+      path: '/admin/schools'
+      fullPath: '/admin/schools'
+      preLoaderRoute: typeof AdminSchoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/verifications': {
+      id: '/admin/verifications'
+      path: '/admin/verifications'
+      fullPath: '/admin/verifications'
+      preLoaderRoute: typeof AdminVerificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/': {
@@ -344,11 +504,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/volunteer/$token': {
-      id: '/volunteer/$token'
-      path: '/volunteer/$token'
-      fullPath: '/volunteer/$token'
-      preLoaderRoute: typeof VolunteerTokenRouteImport
+    '/events/$eventId': {
+      id: '/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof EventsEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/new': {
@@ -358,11 +518,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events/$eventId': {
-      id: '/events/$eventId'
-      path: '/events/$eventId'
-      fullPath: '/events/$eventId'
-      preLoaderRoute: typeof EventsEventIdRouteImport
+    '/volunteer/$token': {
+      id: '/volunteer/$token'
+      path: '/volunteer/$token'
+      fullPath: '/volunteer/$token'
+      preLoaderRoute: typeof VolunteerTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/$eventId_/edit': {
@@ -379,15 +539,23 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
+  ConfirmerEcoleRoute: ConfirmerEcoleRoute,
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
   FinanceRoute: FinanceRoute,
+  LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
+  MotDePasseOublieRoute: MotDePasseOublieRoute,
   MyTicketsRoute: MyTicketsRoute,
+  NouveauMotDePasseRoute: NouveauMotDePasseRoute,
   RegisterRoute: RegisterRoute,
   ScannerRoute: ScannerRoute,
+  SettingsRoute: SettingsRoute,
+  VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
+  AdminSchoolsRoute: AdminSchoolsRoute,
+  AdminVerificationsRoute: AdminVerificationsRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,

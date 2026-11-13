@@ -1,76 +1,77 @@
 // @ts-nocheck — Deno runtime, ignoré par tsc
+// Envoie le billet (QR code) après une inscription.
+// Sécurité : l'appelant doit être connecté, et on n'envoie que pour SES inscriptions
+// confirmées depuis moins d'une heure. Destinataires et contenu viennent de la base.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { adminClient, cors, esc, frenchDate, getCaller, json, sendBrevo } from "../_shared/common.ts";
+import { C, emailLayout, infoBox } from "../_shared/email-layout.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const MAX_AGE_MS = 60 * 60 * 1000;
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
   try {
-    const { toEmail, fullName, eventTitle, eventDate, eventLocation, qrCode, replyTo } = await req.json();
+    const admin = adminClient();
+    const caller = await getCaller(req, admin);
+    if (!caller) return json({ error: "Non connecté" }, 401);
 
-    const apiKey = Deno.env.get("BREVO_API_KEY");
-    if (!apiKey) throw new Error("BREVO_API_KEY non configurée");
+    const { registration_ids } = await req.json();
+    if (!Array.isArray(registration_ids) || registration_ids.length === 0 || registration_ids.length > 20) {
+      return json({ error: "Inscriptions invalides" }, 400);
+    }
 
-    const organizerEmail: string | undefined = replyTo || undefined;
+    const { data: regs } = await admin
+      .from("registrations")
+      .select("id, event_id, user_id, status, qr_code, guest_name, guest_email, registered_at")
+      .in("id", registration_ids)
+      .eq("user_id", caller.id)
+      .eq("status", "registered");
 
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCode)}&size=250x250`;
+    const recent = (regs ?? []).filter((r) => Date.now() - new Date(r.registered_at).getTime() < MAX_AGE_MS);
+    if (recent.length === 0) return json({ ok: true, sent: 0 });
 
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "api-key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sender: { name: "Plav'", email: "olivia.peret@esme.fr" },
-        to: [{ email: toEmail, name: fullName }],
-        subject: `🎟️ Votre billet — ${eventTitle}`,
-        ...(organizerEmail && { replyTo: { email: organizerEmail } }),
-        htmlContent: `
-          <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;color:#2C2C2A">
-            <div style="background:linear-gradient(135deg,#EED4D8,#C87488);padding:32px;border-radius:12px 12px 0 0;text-align:center">
-              <h1 style="font-family:Georgia,serif;font-size:32px;font-style:italic;color:#6B0F2C;margin:0">
-                ${eventTitle}
-              </h1>
+    const { data: profile } = await admin.from("profiles").select("full_name").eq("id", caller.id).maybeSingle();
+    const eventIds = [...new Set(recent.map((r) => r.event_id))];
+    const { data: events } = await admin.from("events").select("id, title, starts_at, location, organizer_id").in("id", eventIds);
+    const eventsById = Object.fromEntries((events ?? []).map((e) => [e.id, e]));
+
+    let sent = 0;
+    for (const reg of recent) {
+      const ev = eventsById[reg.event_id];
+      if (!ev) continue;
+      const toEmail = reg.guest_email || caller.email;
+      const fullName = reg.guest_name || profile?.full_name || "Participant";
+      if (!toEmail) continue;
+
+      const { data: org } = await admin.auth.admin.getUserById(ev.organizer_id);
+      const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(reg.qr_code)}&size=250x250`;
+
+      await sendBrevo(
+        { email: toEmail, name: fullName },
+        `🎟️ Votre billet — ${ev.title}`,
+        emailLayout({
+          title: ev.title,
+          content: `
+            <p style="margin:0 0 8px">Bonjour <strong>${esc(fullName)}</strong>,</p>
+            <p style="margin:0 0 8px;color:${C.burgundy};font-weight:600">Votre inscription est confirmée !</p>
+            ${infoBox(`
+              <p style="margin:4px 0">📅 <strong>${esc(frenchDate(ev.starts_at))}</strong></p>
+              <p style="margin:4px 0">📍 <strong>${esc(ev.location || "En ligne")}</strong></p>`)}
+            <p style="text-align:center;font-weight:600;margin:24px 0 12px">Votre QR code d'entrée :</p>
+            <div style="text-align:center;background:#fff;padding:16px;border-radius:12px;border:1px solid ${C.border}">
+              <img src="${qrImageUrl}" width="200" height="200" alt="QR code" style="display:block;margin:0 auto" />
+              <p style="font-family:monospace;font-size:11px;color:${C.muted};margin:8px 0 0">${esc(reg.qr_code)}</p>
             </div>
-            <div style="background:#FDFAF7;padding:32px;border:1px solid #D5A0A8;border-top:none;border-radius:0 0 12px 12px">
-              <p style="margin:0 0 8px">Bonjour <strong>${fullName}</strong>,</p>
-              <p style="margin:0 0 24px;color:#6B0F2C">Votre inscription est confirmée !</p>
-              <div style="background:#EED4D8;border-radius:8px;padding:16px;margin-bottom:24px">
-                <p style="margin:4px 0">📅 <strong>${eventDate}</strong></p>
-                <p style="margin:4px 0">📍 <strong>${eventLocation}</strong></p>
-              </div>
-              <p style="text-align:center;font-weight:500;margin-bottom:12px">Votre QR code d'entrée :</p>
-              <div style="text-align:center;background:#fff;padding:16px;border-radius:8px;border:1px solid #D5A0A8">
-                <img src="${qrImageUrl}" width="200" height="200" alt="QR code" style="display:block;margin:0 auto" />
-                <p style="font-family:monospace;font-size:11px;color:#888;margin:8px 0 0">${qrCode}</p>
-              </div>
-              <p style="margin-top:24px;font-size:13px;color:#888;text-align:center">
-                Présentez ce QR code à l'entrée · Plav'
-              </p>
-            </div>
-          </div>
-        `,
-      }),
-    });
+            <p style="margin-top:20px;font-size:13px;color:${C.muted};text-align:center">Présentez ce QR code à l'entrée.</p>`,
+        }),
+        org?.user?.email,
+      );
+      sent++;
+    }
 
-    const data = await res.json();
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: res.ok ? 200 : 400,
-    });
-
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    return json({ ok: true, sent });
+  } catch (err) {
+    return json({ error: err.message }, 500);
   }
 });

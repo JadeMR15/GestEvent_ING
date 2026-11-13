@@ -1,0 +1,246 @@
+/* Intro Plav' — styles isolés, tout est préfixé .plav-intro */
+
+.plav-intro {
+  /* Couleurs */
+  --plav-intro-bg: #6b1a2f;
+  --plav-intro-petal: #7c2238;
+  --plav-intro-gold: #e8b22e;
+
+  /* Taille de la cocotte : quasi tout l'écran */
+  --plav-intro-size: 96vmin;
+
+  /* Timeline (total ≈ 2,9 s — garder TOTAL_MS du composant en phase) */
+  --plav-intro-petal-start: 0.1s;
+  --plav-intro-petal-step: 0.1s;
+  --plav-intro-petal-dur: 0.55s;
+  --plav-intro-star-start: 0.85s;
+  --plav-intro-word-start: 1.25s;
+  --plav-intro-exit-start: 2.35s;
+  --plav-intro-out-start: 2.5s;
+  --plav-intro-out-dur: 0.4s;
+
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  background: var(--plav-intro-bg);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: plav-intro-out var(--plav-intro-out-dur) ease-in var(--plav-intro-out-start) both;
+}
+
+/* Cocotte et logotype superposés au centre */
+.plav-intro__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  animation: plav-intro-shake 0.35s linear var(--plav-intro-star-start) both;
+}
+
+.plav-intro__stage > * {
+  grid-area: 1 / 1;
+}
+
+/* Sortie : on plonge à travers la cocotte */
+.plav-intro__zoom {
+  animation: plav-intro-zoom 0.55s cubic-bezier(0.55, 0, 0.85, 0.35) var(--plav-intro-exit-start)
+    both;
+}
+
+/* Une fois ouverte, la cocotte grandit et tourne doucement */
+.plav-intro__drift {
+  animation: plav-intro-drift 1.3s ease-out var(--plav-intro-star-start) both;
+}
+
+.plav-intro__cocotte {
+  display: block;
+  width: var(--plav-intro-size);
+  height: var(--plav-intro-size);
+  overflow: visible;
+}
+
+/* Pétales : origine au centre de l'étoile (0,0 du viewBox) */
+.plav-intro__petal {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: plav-intro-petal var(--plav-intro-petal-dur) cubic-bezier(0.3, 1.7, 0.55, 1)
+    calc(var(--plav-intro-petal-start) + var(--plav-i) * var(--plav-intro-petal-step)) both;
+}
+
+.plav-intro__petal-shape {
+  fill: var(--plav-intro-petal);
+  stroke: var(--plav-intro-gold);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.plav-intro__line {
+  fill: none;
+  stroke: var(--plav-intro-gold);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.plav-intro__line--crease {
+  stroke-width: 5;
+}
+
+.plav-intro__star {
+  fill: var(--plav-intro-gold);
+  stroke: var(--plav-intro-gold);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: plav-intro-star 0.45s cubic-bezier(0.3, 1.8, 0.55, 1) var(--plav-intro-star-start) both;
+}
+
+/* Onde de choc quand l'étoile jaillit */
+.plav-intro__ring {
+  fill: none;
+  stroke: var(--plav-intro-gold);
+  stroke-width: 6;
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: plav-intro-ring 0.7s ease-out var(--plav-intro-star-start) both;
+}
+
+/* Logotype façon sticker : contour bordeaux épais + ombre portée */
+.plav-intro__word {
+  /* En bas de l'écran, pour laisser l'étoile visible au centre */
+  align-self: end;
+  margin-bottom: 9vh;
+  display: block;
+  width: min(70vw, 460px);
+  height: auto;
+  pointer-events: none;
+  /* Liseré bordeaux (détache des traits de la cocotte), puis ombre */
+  filter: drop-shadow(4px 0 0 var(--plav-intro-bg)) drop-shadow(-4px 0 0 var(--plav-intro-bg))
+    drop-shadow(0 4px 0 var(--plav-intro-bg)) drop-shadow(0 -4px 0 var(--plav-intro-bg))
+    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+  animation:
+    plav-intro-word 0.45s cubic-bezier(0.3, 1.6, 0.55, 1) var(--plav-intro-word-start) both,
+    plav-intro-word-exit 0.45s ease-in var(--plav-intro-exit-start) forwards;
+}
+
+@keyframes plav-intro-petal {
+  0% {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.05);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes plav-intro-star {
+  0% {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes plav-intro-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(9);
+  }
+}
+
+@keyframes plav-intro-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-1.2vmin, 0.8vmin);
+  }
+  40% {
+    transform: translate(1vmin, -0.8vmin);
+  }
+  60% {
+    transform: translate(-0.6vmin, 0.4vmin);
+  }
+  80% {
+    transform: translate(0.3vmin, -0.2vmin);
+  }
+}
+
+@keyframes plav-intro-drift {
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(1.06) rotate(5deg);
+  }
+}
+
+@keyframes plav-intro-zoom {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(4);
+  }
+}
+
+@keyframes plav-intro-word {
+  0% {
+    opacity: 0;
+    transform: translateY(6vmin) scale(1.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes plav-intro-word-exit {
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes plav-intro-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Mouvement réduit : tout est affiché d'emblée, puis simple fondu court (≈ 0,9 s) */
+@media (prefers-reduced-motion: reduce) {
+  .plav-intro__stage,
+  .plav-intro__zoom,
+  .plav-intro__drift,
+  .plav-intro__petal,
+  .plav-intro__star,
+  .plav-intro__word {
+    animation: none;
+  }
+  .plav-intro__ring {
+    display: none;
+  }
+  .plav-intro {
+    animation: plav-intro-out 0.3s ease-in 0.6s both;
+  }
+}
