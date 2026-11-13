@@ -24,7 +24,12 @@ export default function EventMap({ events }: { events: any[] }) {
       delete el._leaflet_id;
     }
 
-    Promise.all([import("leaflet"), import("leaflet.markercluster")]).then(([mod]) => {
+    // markercluster s'accroche à la variable globale L : Leaflet doit être chargé AVANT lui.
+    import("leaflet").then(async (mod) => {
+      (window as any).L = mod.default;
+      await import("leaflet.markercluster");
+      return mod;
+    }).then((mod) => {
       if (cancelled || !containerRef.current) return;
       const L = mod.default as any;
 
