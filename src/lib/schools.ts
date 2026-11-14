@@ -20,6 +20,7 @@ export interface Association {
   description: string;
   status: "pending" | "active" | "suspended";
   requires_approval: boolean;
+  logo_path?: string | null;
   created_at?: string;
 }
 

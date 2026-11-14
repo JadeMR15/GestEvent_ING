@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Monogram, SchoolAdminShell } from "@/components/SchoolAdminShell";
+import { associationLogoUrl } from "@/components/AssociationLogo";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -196,7 +197,7 @@ function AssociationCard({ association: a, stats: st, busy, onUpdate }: {
     <Card className={`flex flex-col transition-shadow hover:shadow-md ${a.status === "pending" ? "border-amber-300 ring-1 ring-amber-200" : ""} ${a.status === "suspended" ? "opacity-75" : ""}`}>
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="flex items-start gap-3">
-          <Monogram name={a.name} />
+          <Monogram name={a.name} src={associationLogoUrl(a.logo_path)} />
           <div className="min-w-0 flex-1">
             <Link to="/school-admin/associations/$associationId" params={{ associationId: a.id }}
               className="line-clamp-2 text-base font-semibold leading-snug hover:text-primary hover:underline">{a.name}</Link>

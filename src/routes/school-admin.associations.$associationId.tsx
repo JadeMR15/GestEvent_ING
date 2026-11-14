@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
-import { Monogram, SchoolAdminShell } from "@/components/SchoolAdminShell";
+import { SchoolAdminShell } from "@/components/SchoolAdminShell";
+import { AssociationLogoEditor } from "@/components/AssociationLogo";
 import { SchoolThread } from "@/components/SchoolThread";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -101,8 +102,9 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between md:p-6">
-            <div className="flex min-w-0 items-center gap-4">
-              <Monogram name={association.name} size="lg" className="max-md:h-14 max-md:w-14 max-md:text-xl" />
+            <div className="flex min-w-0 items-start gap-4">
+              <AssociationLogoEditor associationId={association.id} name={association.name} path={association.logo_path}
+                onChange={(logo_path) => setAssociation({ ...association, logo_path })} />
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fiche association</p>
                 <h2 className="truncate text-2xl font-bold tracking-tight md:text-3xl">{association.name}</h2>

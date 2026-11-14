@@ -51,11 +51,18 @@ const MONOGRAM_COLORS = [
   "bg-[#5B3A6B] text-[#F4ECF8]",
 ];
 
-export function Monogram({ name, size = "md", className = "" }: { name: string; size?: "md" | "lg"; className?: string }) {
+export function Monogram({ name, src, size = "md", className = "" }: { name: string; src?: string | null; size?: "md" | "lg"; className?: string }) {
+  const dims = size === "lg" ? "h-20 w-20 rounded-2xl text-3xl md:h-24 md:w-24" : "h-12 w-12 rounded-xl text-base";
+  if (src) {
+    return (
+      <div className={`flex shrink-0 items-center justify-center overflow-hidden border bg-white p-1.5 ${dims} ${className}`}>
+        <img src={src} alt={`Logo ${name}`} className="h-full w-full object-contain" loading="lazy" />
+      </div>
+    );
+  }
   let h = 0;
   for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   const color = MONOGRAM_COLORS[h % MONOGRAM_COLORS.length];
-  const dims = size === "lg" ? "h-20 w-20 rounded-2xl text-3xl md:h-24 md:w-24" : "h-12 w-12 rounded-xl text-base";
   return (
     <div aria-hidden className={`flex shrink-0 items-center justify-center font-display font-bold tracking-wide ${dims} ${color} ${className}`}>
       {initials(name)}

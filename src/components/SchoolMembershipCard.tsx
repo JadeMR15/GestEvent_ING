@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { AssociationLogoEditor } from "@/components/AssociationLogo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ const MEMBERSHIP: Record<string, { label: string; className: string; hint: strin
 export function SchoolMembershipCard() {
   const { user, role, isStudent, schoolId, associationId, membershipStatus, verificationStatus, refreshProfile } = useAuth();
   const isOrganizer = role === "organizer";
-  const [current, setCurrent] = useState<{ school: string; association: string | null } | null>(null);
+  const [current, setCurrent] = useState<{ school: string; association: string | null; logo: string | null } | null>(null);
   const [editing, setEditing] = useState(false);
   const [schools, setSchools] = useState<School[]>([]);
   const [pickSchool, setPickSchool] = useState("");
@@ -41,9 +42,9 @@ export function SchoolMembershipCard() {
     if (!schoolId) { setCurrent(null); return; }
     Promise.all([
       db.from("schools").select("name").eq("id", schoolId).maybeSingle(),
-      associationId ? db.from("associations").select("name").eq("id", associationId).maybeSingle() : Promise.resolve({ data: null }),
-    ]).then(([s, a]: { data: { name: string } | null }[]) => {
-      setCurrent({ school: s.data?.name ?? "École", association: a.data?.name ?? null });
+      associationId ? db.from("associations").select("name, logo_path").eq("id", associationId).maybeSingle() : Promise.resolve({ data: null }),
+    ]).then(([s, a]: { data: { name: string; logo_path?: string | null } | null }[]) => {
+      setCurrent({ school: s.data?.name ?? "École", association: a.data?.name ?? null, logo: a.data?.logo_path ?? null });
     });
   }, [schoolId, associationId]);
 
@@ -124,7 +125,11 @@ export function SchoolMembershipCard() {
         {showSchool && !editing && (
           current ? (
             <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl border px-4 py-3">
-              <div>
+              {isOrganizer && associationId && current.association && membershipStatus === "approved" && (
+                <AssociationLogoEditor associationId={associationId} name={current.association} path={current.logo} size="md"
+                  onChange={(logo) => setCurrent({ ...current, logo })} />
+              )}
+              <div className="min-w-0 flex-1">
                 <p className="font-semibold">{current.school}</p>
                 {isOrganizer && <p className="text-sm text-muted-foreground">{current.association ?? "Aucune association"}</p>}
                 {status?.hint && <p className="mt-1 text-xs text-muted-foreground">{status.hint}</p>}
