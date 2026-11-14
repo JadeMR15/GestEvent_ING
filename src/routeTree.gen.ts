@@ -33,6 +33,7 @@ import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
+import { Route as AlbumsAlbumIdRouteImport } from './routes/albums.$albumId'
 import { Route as AssociationsIndexRouteImport } from './routes/associations.index'
 import { Route as AssociationsAssociationIdRouteImport } from './routes/associations.$associationId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -168,6 +169,11 @@ const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   path: '/admin/verifications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlbumsAlbumIdRoute = AlbumsAlbumIdRouteImport.update({
+  id: '/albums/$albumId',
+  path: '/albums/$albumId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssociationsIndexRoute = AssociationsIndexRouteImport.update({
   id: '/associations/',
   path: '/associations/',
@@ -266,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/waitlist': typeof WaitlistRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -306,6 +313,7 @@ export interface FileRoutesByTo {
   '/waitlist': typeof WaitlistRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/waitlist': typeof WaitlistRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin/schools'
     | '/admin/verifications'
+    | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
     | '/events/$eventId'
@@ -429,6 +439,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin/schools'
     | '/admin/verifications'
+    | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
     | '/events/$eventId'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin/schools'
     | '/admin/verifications'
+    | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
     | '/events/$eventId'
@@ -510,6 +522,7 @@ export interface RootRouteChildren {
   WaitlistRoute: typeof WaitlistRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AlbumsAlbumIdRoute: typeof AlbumsAlbumIdRoute
   AssociationsAssociationIdRoute: typeof AssociationsAssociationIdRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
@@ -696,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVerificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/albums/$albumId': {
+      id: '/albums/$albumId'
+      path: '/albums/$albumId'
+      fullPath: '/albums/$albumId'
+      preLoaderRoute: typeof AlbumsAlbumIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/associations/': {
       id: '/associations/'
       path: '/associations'
@@ -822,6 +842,7 @@ const rootRouteChildren: RootRouteChildren = {
   WaitlistRoute: WaitlistRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
+  AlbumsAlbumIdRoute: AlbumsAlbumIdRoute,
   AssociationsAssociationIdRoute: AssociationsAssociationIdRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   EventsEventIdRoute: EventsEventIdRoute,

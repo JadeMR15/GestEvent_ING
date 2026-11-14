@@ -11,6 +11,7 @@ import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Monogram } from "@/components/SchoolAdminShell";
 import { associationCoverUrl, associationImage, checkCoverFile, saveAssociationCover, useAssociationFallbacks } from "@/components/AssociationLogo";
 import { ImageCropDialog } from "@/components/ImageCropDialog";
+import { AlbumsSection } from "@/components/albums/AlbumBits";
 import { EmptyState } from "@/components/EmptyState";
 import { UserAvatar } from "@/components/UserAvatar";
 import { EventMiniCard, EventTile, FollowButton, FollowHint, PostCard, PostComposer } from "@/components/social/SocialBits";
@@ -61,7 +62,6 @@ function AssociationPage() {
   const [canManage, setCanManage] = useState(false);
   const [editing, setEditing] = useState(false);
   const [coverBusy, setCoverBusy] = useState(false);
-  const [photo, setPhoto] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const coverInput = useRef<HTMLInputElement>(null);
   const fallback = useAssociationFallbacks([associationId])[associationId];
@@ -102,14 +102,6 @@ function AssociationPage() {
 
   const upcoming = useMemo(() => events.filter((e) => !isPastEvent(e.starts_at)).sort((a, b) => a.starts_at.localeCompare(b.starts_at)), [events]);
   const past = useMemo(() => events.filter((e) => isPastEvent(e.starts_at)).sort((a, b) => b.starts_at.localeCompare(a.starts_at)), [events]);
-  // Galerie : photos des actualités, puis affiches des événements.
-  const gallery = useMemo(() => {
-    const urls = [
-      ...posts.map((p) => postImageUrl(p.image_path)),
-      ...[...upcoming, ...past].map((e) => e.cover_image_url),
-    ].filter((u): u is string => !!u);
-    return [...new Set(urls)];
-  }, [posts, upcoming, past]);
 
   async function changeCover(blob: Blob | null) {
     if (!association) return;
@@ -321,7 +313,7 @@ function AssociationPage() {
           <TabsList className="no-scrollbar h-auto w-full justify-start gap-6 overflow-x-auto rounded-none border-b border-sable bg-transparent p-0">
             <TabsTrigger value="upcoming" className={TAB}><Calendar />À venir<Count n={upcoming.length} /></TabsTrigger>
             <TabsTrigger value="news" className={TAB}><Newspaper />Actualités<Count n={posts.length} /></TabsTrigger>
-            <TabsTrigger value="photos" className={TAB}><Images />Photos<Count n={gallery.length} /></TabsTrigger>
+            <TabsTrigger value="photos" className={TAB}><Images />Photos</TabsTrigger>
             <TabsTrigger value="past" className={TAB}><History />Passés<Count n={past.length} /></TabsTrigger>
             <TabsTrigger value="about" className={`${TAB} lg:hidden`}><Info />À propos</TabsTrigger>
           </TabsList>
@@ -346,18 +338,8 @@ function AssociationPage() {
           </TabsContent>
 
           <TabsContent value="photos" className="mt-5">
-            {gallery.length === 0
-              ? <Card><EmptyState title="Pas encore de photo." message={canPost ? "Les photos de tes actualités et les affiches de tes événements apparaissent ici." : undefined} /></Card>
-              : (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {gallery.map((url) => (
-                    <button key={url} type="button" onClick={() => setPhoto(url)}
-                      className="group relative aspect-square overflow-hidden rounded-[var(--radius-moyen)] bg-sable">
-                      <img src={url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                    </button>
-                  ))}
-                </div>
-              )}
+            {/* Albums photo par soirée, déposés par l'équipe de l'association */}
+            <AlbumsSection associationId={associationId} canPost={canPost} events={[...upcoming, ...past]} />
           </TabsContent>
 
           <TabsContent value="past" className="mt-5">
@@ -393,13 +375,6 @@ function AssociationPage() {
         description="Place la partie importante au centre : sur téléphone, les côtés de la bannière sont coupés."
         onCancel={() => setCoverFile(null)} onConfirm={changeCover} />
 
-      {/* Photo en grand */}
-      <Dialog open={!!photo} onOpenChange={(o) => !o && setPhoto(null)}>
-        <DialogContent className="max-w-4xl border-0 bg-transparent p-0 shadow-none">
-          <DialogTitle className="sr-only">Photo</DialogTitle>
-          {photo && <img src={photo} alt="" className="max-h-[85vh] w-full rounded-[var(--radius-carte)] object-contain" />}
-        </DialogContent>
-      </Dialog>
 
       <EditProfileDialog open={editing} onOpenChange={setEditing} association={association}
         onSaved={(a) => setAssociation({ ...association, ...a })} />
