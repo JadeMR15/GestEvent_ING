@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { removePushSubscription } from "@/lib/push";
 
 export type AppRole = "admin" | "organizer" | "participant" | "volunteer" | "school_admin";
 export type MembershipStatus = "none" | "pending" | "approved" | "rejected";
@@ -163,6 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const canRegister = isVerified || (role === "participant" && !isStudent);
 
   async function signOut() {
+    // Avant de se déconnecter : cet appareil ne reçoit plus les notifications de ce compte.
+    await removePushSubscription();
     await supabase.auth.signOut();
     setRole(null);
   }

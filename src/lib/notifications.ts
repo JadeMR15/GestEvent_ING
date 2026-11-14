@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/lib/schools";
+import { onPushNavigate, pushActive, registerServiceWorker, subscribePush, syncPush } from "@/lib/push";
 
 export interface NotificationCounts {
   association_messages?: number;
@@ -39,6 +40,7 @@ let go: (url: string) => void = (url) => { window.location.assign(url); };
 let activeThread: string | null = null;
 const listeners = new Set<() => void>();
 let authWatched = false;
+let navigateWired = false;
 
 export function totalNotifications(c: NotificationCounts = counts): number {
   return (c.association_messages ?? 0) + (c.school_messages ?? 0) + (c.school_reviews ?? 0)
@@ -88,9 +90,11 @@ export function notificationsSupported() {
   return typeof window !== "undefined" && "Notification" in window;
 }
 
+/** Active les notifications : push si l'appareil le permet, sinon notifications du navigateur. */
 export async function enableSystemNotifications(): Promise<boolean> {
   if (!notificationsSupported()) return false;
-  const res = await Notification.requestPermission();
+  if (await subscribePush()) { emit(); return true; }
+  const res = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission;
   emit();
   return res === "granted";
 }
@@ -98,6 +102,8 @@ export async function enableSystemNotifications(): Promise<boolean> {
 /** Notification système si la page n'est pas regardée, sinon simple toast dans le site. */
 function notify(title: string, body: string, url: string, tag?: string) {
   const looking = document.visibilityState === "visible" && document.hasFocus();
+  // Push actif : c'est le service worker qui affiche la notification système.
+  if (!looking && pushActive()) return;
   if (!looking && notificationsSupported() && Notification.permission === "granted") {
     try {
       const n = new Notification(title, { body, tag, icon: "/plav-cocotte.svg" });
@@ -149,6 +155,9 @@ function start(id: string) {
   stop();
   userId = id;
   watchTitle();
+  registerServiceWorker();
+  syncPush();
+  if (!navigateWired) { navigateWired = true; onPushNavigate((url) => go(url)); }
   if (!authWatched) {
     authWatched = true;
     supabase.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") stop(); });

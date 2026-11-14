@@ -17,6 +17,7 @@ import {
   AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, prepareAvatar,
 } from "@/lib/avatar";
 import { SchoolEmailForm } from "@/components/SchoolEmailForm";
+import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { RoleAvatar } from "@/components/RoleAvatar";
 import { MySchoolBadge } from "@/components/SchoolBadge";
 
@@ -356,6 +357,8 @@ function SettingsPage() {
           <CardContent><SchoolEmailForm /></CardContent>
         </Card>
       )}
+
+      <NotificationSettingsCard />
 
       {/* Mot de passe */}
       <Card className="border-2 shadow-elegant">
