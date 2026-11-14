@@ -21,11 +21,11 @@ export function LikeButton({ count, liked, onToggle, size = "card", className }:
       title={label}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B1A2F]/40",
+        "inline-flex items-center gap-1.5 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bordeaux-600/40",
         size === "card" ? "px-2.5 py-1 text-xs" : "h-9 px-3 text-sm font-medium",
         liked
-          ? "border-[#6B1A2F]/30 bg-[#6B1A2F]/10 text-[#6B1A2F]"
-          : "border-[#E3CC9C] bg-white/70 text-muted-foreground hover:text-[#6B1A2F] hover:border-[#6B1A2F]/30",
+          ? "border-bordeaux-600/30 bg-bordeaux-600/10 text-bordeaux-600"
+          : "border-sable bg-white/70 text-muted-foreground hover:text-bordeaux-600 hover:border-bordeaux-600/30",
         className,
       )}
     >

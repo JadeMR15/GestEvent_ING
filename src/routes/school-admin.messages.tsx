@@ -128,7 +128,7 @@ function Inbox({ school }: { school: School }) {
                         {last ? `${last.from_school ? "Vous : " : ""}${last.body}` : a.status === "pending" ? "Association à valider" : "Démarrer la conversation"}
                       </p>
                       {n > 0 && (
-                        <span className="min-w-[1.25rem] shrink-0 rounded-full bg-[#E8B22E] px-1.5 text-center text-[11px] font-bold leading-5 text-[#4A0F20]">{n}</span>
+                        <span className="min-w-[1.25rem] shrink-0 rounded-full bg-jaune-300 px-1.5 text-center text-[11px] font-bold leading-5 text-bordeaux-800">{n}</span>
                       )}
                     </div>
                   </div>

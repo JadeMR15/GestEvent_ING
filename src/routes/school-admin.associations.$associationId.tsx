@@ -221,7 +221,7 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
             {unread > 0 ? `${unread} nouveau${unread > 1 ? "x" : ""} message${unread > 1 ? "s" : ""}` : "Ouvrir la conversation dans la messagerie"}
           </p>
         </div>
-        {unread > 0 && <span className="rounded-full bg-[#E8B22E] px-2 text-xs font-bold leading-5 text-[#4A0F20]">{unread}</span>}
+        {unread > 0 && <span className="rounded-full bg-jaune-300 px-2 text-xs font-bold leading-5 text-bordeaux-800">{unread}</span>}
         <ArrowRight className="h-4 w-4 text-muted-foreground" />
       </Link>
     </div>

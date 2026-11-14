@@ -46,12 +46,13 @@ export function initials(name: string): string {
 
 // Couleurs des pastilles d'association : stables pour un même nom.
 const MONOGRAM_COLORS = [
-  "bg-[#6B1A2F] text-[#FBF5EA]",
-  "bg-[#E8B22E] text-[#4A0F20]",
-  "bg-[#1F4D45] text-[#F3EBD8]",
-  "bg-[#2F3E66] text-[#EEF1FA]",
-  "bg-[#8A4B2A] text-[#FBF0E6]",
-  "bg-[#5B3A6B] text-[#F4ECF8]",
+  // Uniquement des couleurs de la charte (texte jaune seulement sur bordeaux).
+  "bg-bordeaux-600 text-creme",
+  "bg-jaune-300 text-bordeaux-600",
+  "bg-bordeaux-800 text-jaune-300",
+  "bg-bordeaux-100 text-bordeaux-600",
+  "bg-jaune-100 text-bordeaux-600",
+  "bg-bordeaux-400 text-creme",
 ];
 
 export function Monogram({ name, src, size = "md", className = "" }: { name: string; src?: string | null; size?: "md" | "lg"; className?: string }) {
@@ -124,7 +125,7 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
   return (
     <div className="mx-auto max-w-6xl space-y-6 max-md:pb-20">
       <header className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-        <div className="h-1.5 bg-gradient-to-r from-[#F3D27A] via-[#E8B22E] to-[#6B1A2F]" />
+        <div className="h-1.5 bg-gradient-to-r from-jaune-200 via-jaune-300 to-bordeaux-600" />
         <div className="flex items-center gap-4 p-5 md:gap-6 md:p-8">
           {/* Logo de l'école = photo de profil du compte école (Paramètres). */}
           <Monogram name={school.name} src={role === "school_admin" ? avatarUrl(avatarPath) : null} size="lg"
@@ -154,7 +155,7 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
                 className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm font-semibold transition-colors ${active ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
                 <Icon className="h-4 w-4" />
                 {t.label}
-                {count > 0 && <span className="rounded-full bg-[#E8B22E] px-1.5 text-[11px] font-bold text-[#4A0F20]">{count}</span>}
+                {count > 0 && <span className="rounded-full bg-jaune-300 px-1.5 text-[11px] font-bold text-bordeaux-800">{count}</span>}
               </Link>
             );
           })}

@@ -184,8 +184,8 @@ function RegisterPage() {
               <Label>Je suis</Label>
               <div className="grid grid-cols-2 gap-3">
                 {([
-                  { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "#F8E7B5", border: "#6B1A2F", text: "#6B1A2F" },
-                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "#F3D27A", border: "#C9931A", text: "#4A0F20" },
+                  { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "var(--bordeaux-100)", border: "var(--bordeaux-600)", text: "var(--bordeaux-600)" },
+                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "var(--bordeaux-100)", border: "var(--bordeaux-600)", text: "var(--bordeaux-600)" },
                 ] as const).map((opt) => {
                   const selected = role === opt.value;
                   return (
@@ -194,19 +194,18 @@ function RegisterPage() {
                       type="button"
                       onClick={() => setRole(opt.value)}
                       style={{
-                        border: `2px solid ${selected ? opt.border : "#E5E7EB"}`,
-                        borderRadius: 12,
-                        background: selected ? opt.bg : "#FFFFFF",
+                        border: `2px solid ${selected ? opt.border : "var(--neutre-sable)"}`,
+                        borderRadius: "var(--radius-carte)",
+                        background: selected ? opt.bg : "var(--neutre-blanc)",
                         padding: "1rem",
                         cursor: "pointer",
                         textAlign: "left",
                         transition: "all 0.15s",
-                        outline: "none",
                       }}
                     >
-                      <opt.icon style={{ width: 22, height: 22, color: selected ? opt.text : "#9CA3AF", marginBottom: "0.5rem" }} strokeWidth={1.5} />
-                      <p style={{ fontWeight: 600, fontSize: "0.875rem", color: selected ? opt.text : "#374151" }}>{opt.label}</p>
-                      <p style={{ fontSize: "0.75rem", color: selected ? opt.text + "aa" : "#9CA3AF", marginTop: "0.2rem", lineHeight: 1.4 }}>{opt.desc}</p>
+                      <opt.icon style={{ width: 22, height: 22, color: selected ? opt.text : "var(--neutre-gris-chaud)", marginBottom: "0.5rem" }} strokeWidth={2} />
+                      <p style={{ fontWeight: 600, fontSize: 16, color: selected ? opt.text : "var(--neutre-encre)" }}>{opt.label}</p>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--neutre-gris-chaud)", marginTop: "0.2rem", lineHeight: 1.4 }}>{opt.desc}</p>
                     </button>
                   );
                 })}

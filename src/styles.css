@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Fredoka:wght@500;600;700&display=swap');
+/* Charte graphique Plav' v1 : tokens (couleurs, polices Nunito / Nunito Sans, arrondis, ombres).
+   Source de vérité : plav-tokens.css à la racine du projet. */
+@import "../plav-tokens.css";
 
 @import "tailwindcss" source(none);
 @source "../src";
@@ -7,15 +9,102 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Fonts */
-  --font-display: 'Fredoka', 'DM Sans', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
+  /* Polices de la charte : Nunito (titres uniquement), Nunito Sans (tout le reste) */
+  --font-display: var(--font-titre);
+  --font-body:    var(--font-texte);
+  --font-sans:    var(--font-texte);
 
-  /* Radius — 8px buttons · 12px cards · 20px+ badges */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1.25rem;
+  /* Arrondis de la charte : 8 (petit) · 10 (moyen : boutons, champs, menus) · 16 (cartes) · pilule */
+  --radius-sm:  var(--radius-petit);
+  --radius-md:  var(--radius-moyen);
+  --radius-lg:  var(--radius-moyen);
+  --radius-xl:  var(--radius-carte);
+  --radius-2xl: var(--radius-carte);
+  --radius-3xl: var(--radius-carte);
+
+  /* Couleurs de la charte utilisables en classes (bg-bordeaux-600, text-jaune-300…) */
+  --color-bordeaux-100: var(--bordeaux-100);
+  --color-bordeaux-200: var(--bordeaux-200);
+  --color-bordeaux-300: var(--bordeaux-300);
+  --color-bordeaux-400: var(--bordeaux-400);
+  --color-bordeaux-500: var(--bordeaux-500);
+  --color-bordeaux-600: var(--bordeaux-600);
+  --color-bordeaux-700: var(--bordeaux-700);
+  --color-bordeaux-800: var(--bordeaux-800);
+  --color-bordeaux-900: var(--bordeaux-900);
+  --color-jaune-100: var(--jaune-100);
+  --color-jaune-200: var(--jaune-200);
+  --color-jaune-300: var(--jaune-300);
+  --color-jaune-400: var(--jaune-400);
+  --color-jaune-500: var(--jaune-500);
+  --color-blanc:      var(--neutre-blanc);
+  --color-creme:      var(--neutre-creme);
+  --color-sable:      var(--neutre-sable);
+  --color-gris-chaud: var(--neutre-gris-chaud);
+  --color-encre:      var(--neutre-encre);
+  --color-white:      var(--neutre-blanc);
+  --color-statut-vert-100: var(--statut-vert-100);
+  --color-statut-vert-500: var(--statut-vert-500);
+  --color-statut-vert-700: var(--statut-vert-700);
+  --color-statut-orange-100: var(--statut-orange-100);
+  --color-statut-orange-500: var(--statut-orange-500);
+  --color-statut-orange-700: var(--statut-orange-700);
+  --color-statut-rouge-100: var(--statut-rouge-100);
+  --color-statut-rouge-500: var(--statut-rouge-500);
+  --color-statut-rouge-700: var(--statut-rouge-700);
+  --color-statut-bleu-100: var(--statut-bleu-100);
+  --color-statut-bleu-500: var(--statut-bleu-500);
+  --color-statut-bleu-700: var(--statut-bleu-700);
+
+  /* Couleurs Tailwind déjà utilisées pour les états → couleurs de statut de la charte
+     (fond -100, pastille -500, texte -700). Vert = confirmé/présent, orange = en attente,
+     rouge = annulé/erreur, bleu = information. */
+  --color-emerald-50: var(--statut-vert-100);   --color-green-50: var(--statut-vert-100);
+  --color-emerald-100: var(--statut-vert-100);  --color-green-100: var(--statut-vert-100);
+  --color-emerald-200: var(--statut-vert-100);  --color-green-200: var(--statut-vert-100);
+  --color-emerald-300: var(--statut-vert-100);  --color-green-300: var(--statut-vert-100);
+  --color-emerald-400: var(--statut-vert-500);  --color-green-400: var(--statut-vert-500);
+  --color-emerald-500: var(--statut-vert-500);  --color-green-500: var(--statut-vert-500);
+  --color-emerald-600: var(--statut-vert-700);  --color-green-600: var(--statut-vert-700);
+  --color-emerald-700: var(--statut-vert-700);  --color-green-700: var(--statut-vert-700);
+  --color-emerald-800: var(--statut-vert-700);  --color-green-800: var(--statut-vert-700);
+  --color-emerald-900: var(--statut-vert-700);  --color-green-900: var(--statut-vert-700);
+  /* « Présent » (violet jusqu'ici) = vert dans la charte */
+  --color-violet-100: var(--statut-vert-100);   --color-violet-300: var(--statut-vert-100);
+  --color-violet-700: var(--statut-vert-700);
+  --color-amber-50: var(--statut-orange-100);   --color-orange-50: var(--statut-orange-100);   --color-yellow-50: var(--statut-orange-100);
+  --color-amber-100: var(--statut-orange-100);  --color-orange-100: var(--statut-orange-100);  --color-yellow-100: var(--statut-orange-100);
+  --color-amber-200: var(--statut-orange-100);  --color-orange-200: var(--statut-orange-100);  --color-yellow-200: var(--statut-orange-100);
+  --color-amber-300: var(--statut-orange-500);  --color-orange-300: var(--statut-orange-100);  --color-yellow-300: var(--statut-orange-500);
+  --color-amber-400: var(--statut-orange-500);  --color-orange-400: var(--statut-orange-500);  --color-yellow-400: var(--statut-orange-500);
+  --color-amber-500: var(--statut-orange-500);  --color-orange-500: var(--statut-orange-500);  --color-yellow-500: var(--statut-orange-500);
+  --color-amber-600: var(--statut-orange-700);  --color-orange-600: var(--statut-orange-700);  --color-yellow-600: var(--statut-orange-700);
+  --color-amber-700: var(--statut-orange-700);  --color-orange-700: var(--statut-orange-700);  --color-yellow-700: var(--statut-orange-700);
+  --color-amber-800: var(--statut-orange-700);  --color-orange-800: var(--statut-orange-700);  --color-yellow-800: var(--statut-orange-700);
+  --color-amber-900: var(--statut-orange-700);  --color-orange-900: var(--statut-orange-700);  --color-yellow-900: var(--statut-orange-700);
+  --color-red-50: var(--statut-rouge-100);   --color-rose-50: var(--statut-rouge-100);
+  --color-red-100: var(--statut-rouge-100);  --color-rose-100: var(--statut-rouge-100);
+  --color-red-200: var(--statut-rouge-100);  --color-rose-200: var(--statut-rouge-100);
+  --color-red-300: var(--statut-rouge-500);  --color-rose-300: var(--statut-rouge-500);
+  --color-red-400: var(--statut-rouge-500);  --color-rose-400: var(--statut-rouge-500);
+  --color-red-500: var(--statut-rouge-500);  --color-rose-500: var(--statut-rouge-500);
+  --color-red-600: var(--statut-rouge-700);  --color-rose-600: var(--statut-rouge-700);
+  --color-red-700: var(--statut-rouge-700);  --color-rose-700: var(--statut-rouge-700);
+  --color-red-800: var(--statut-rouge-700);  --color-rose-800: var(--statut-rouge-700);
+  --color-red-900: var(--statut-rouge-700);  --color-rose-900: var(--statut-rouge-700);
+  --color-blue-50: var(--statut-bleu-100);   --color-sky-50: var(--statut-bleu-100);
+  --color-blue-100: var(--statut-bleu-100);  --color-sky-100: var(--statut-bleu-100);
+  --color-blue-200: var(--statut-bleu-100);  --color-sky-200: var(--statut-bleu-100);
+  --color-blue-500: var(--statut-bleu-500);  --color-sky-500: var(--statut-bleu-500);
+  --color-blue-600: var(--statut-bleu-700);  --color-sky-600: var(--statut-bleu-700);
+  --color-blue-700: var(--statut-bleu-700);  --color-sky-700: var(--statut-bleu-700);
+  --color-blue-800: var(--statut-bleu-700);  --color-sky-800: var(--statut-bleu-700);
+
+  /* Ombres de la charte */
+  --shadow-sm: var(--ombre-carte);
+  --shadow:    var(--ombre-carte);
+  --shadow-md: var(--ombre-carte);
+  --shadow-lg: var(--ombre-menu);
 
   --color-background:           var(--background);
   --color-foreground:           var(--foreground);
@@ -51,116 +140,109 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: var(--radius-moyen);
 
-  /* ── DA Palette — cocotte bordeaux & moutarde ── */
-  --bg-page:      #FBF5EA;   /* crème papier */
-  --bg-primary:   #F8E7B5;   /* moutarde pâle */
-  --bg-secondary: #F3D27A;   /* moutarde claire */
+  /* ── Anciens noms de la DA, gardés pour le code existant, rebranchés sur la charte ── */
+  --bg-page:      var(--neutre-creme);
+  --bg-primary:   var(--jaune-100);
+  --bg-secondary: var(--jaune-200);
 
-  --bordeaux:        #6B1A2F;
-  --bordeaux-clair:  #7C2238;
-  --bordeaux-profond:#4A0F20;
-  --framboise:       #A8344F;
+  --bordeaux:        var(--bordeaux-600);
+  --bordeaux-clair:  var(--bordeaux-500);
+  --bordeaux-profond:var(--bordeaux-800);
+  --framboise:       var(--bordeaux-500);
 
-  --moutarde:        #E8B22E;
-  --moutarde-fonce:  #C9931A;
-  --moutarde-pale:   #F8E7B5;
+  --moutarde:        var(--jaune-300);
+  --moutarde-fonce:  var(--jaune-400);
+  --moutarde-pale:   var(--jaune-100);
 
-  --text-body:    #2B1A1F;
-  --text-title:   #6B1A2F;
-  --text-hint:    #FBF5EA;
+  --text-body:    var(--neutre-encre);
+  --text-title:   var(--bordeaux-600);
+  --text-hint:    var(--neutre-creme);
 
-  /* ── shadcn/Tailwind token mapping ── */
-  --background:         #FBF5EA;
-  --foreground:         #2B1A1F;
+  /* ── shadcn/Tailwind → tokens de la charte ── */
+  --background:         var(--neutre-creme);
+  --foreground:         var(--neutre-encre);
 
-  --card:               #FFFDF8;
-  --card-foreground:    #2B1A1F;
+  --card:               var(--neutre-blanc);
+  --card-foreground:    var(--neutre-encre);
 
-  --popover:            #FFFDF8;
-  --popover-foreground: #2B1A1F;
+  --popover:            var(--neutre-blanc);
+  --popover-foreground: var(--neutre-encre);
 
-  /* Primary = bordeaux */
-  --primary:            #6B1A2F;
-  --primary-foreground: #FBF5EA;
+  /* Primary = bordeaux (couleur de marque) */
+  --primary:            var(--bordeaux-600);
+  --primary-foreground: var(--neutre-creme);
 
-  /* Secondary = moutarde pâle */
-  --secondary:          #F8E7B5;
-  --secondary-foreground: #6B1A2F;
+  /* Secondary = jaune 100 (fond des badges « Marque »), texte bordeaux */
+  --secondary:          var(--jaune-100);
+  --secondary-foreground: var(--bordeaux-600);
 
-  /* Muted = crème un peu plus dense */
-  --muted:              #F4EAD6;
-  --muted-foreground:   #7A5560;
+  /* Muted = sable (zones neutres), texte secondaire gris chaud */
+  --muted:              var(--neutre-sable);
+  --muted-foreground:   var(--neutre-gris-chaud);
 
-  /* Accent = moutarde */
-  --accent:             #E8B22E;
-  --accent-foreground:  #4A0F20;
+  /* Accent = jaune 300 ; texte dessus toujours bordeaux (jamais blanc) */
+  --accent:             var(--jaune-300);
+  --accent-foreground:  var(--bordeaux-600);
 
-  /* Destructive = rouge brique (fonctionnel) */
-  --destructive:        #C0392B;
-  --destructive-foreground: #FFFFFF;
+  /* Statuts */
+  --destructive:        var(--statut-rouge-500);
+  --destructive-foreground: var(--neutre-blanc);
+  --success:            var(--statut-vert-700);
+  --success-foreground: var(--neutre-blanc);
+  --warning:            var(--statut-orange-100);
+  --warning-foreground: var(--statut-orange-700);
 
-  /* Success = vert (fonctionnel) */
-  --success:            #2F7D4F;
-  --success-foreground: #FFFFFF;
+  /* Bordures et champs : sable ; focus : bordeaux + halo jaune */
+  --border:  var(--neutre-sable);
+  --input:   var(--neutre-sable);
+  --ring:    var(--bordeaux-600);
 
-  /* Warning = moutarde */
-  --warning:            #E8B22E;
-  --warning-foreground: #4A0F20;
+  /* ── Menu latéral : bordeaux 600, actif bordeaux 700 + jaune 300 ── */
+  --sidebar:                    var(--bordeaux-600);
+  --sidebar-foreground:         var(--neutre-creme);
+  --sidebar-primary:            var(--jaune-300);
+  --sidebar-primary-foreground: var(--bordeaux-600);
+  --sidebar-accent:             var(--bordeaux-700);
+  --sidebar-accent-foreground:  var(--jaune-300);
+  --sidebar-border:             var(--bordeaux-700);
+  --sidebar-ring:               var(--jaune-300);
 
-  /* Bordures beige doré */
-  --border:  #E8D6AE;
-  --input:   #E8D6AE;
-  --ring:    #E8B22E;
-
-  /* ── Sidebar — bordeaux plein, actif moutarde ── */
-  --sidebar:                    #6B1A2F;
-  --sidebar-foreground:         #FBF5EA;
-  --sidebar-primary:            #E8B22E;
-  --sidebar-primary-foreground: #4A0F20;
-  --sidebar-accent:             #7C2238;
-  --sidebar-accent-foreground:  #E8B22E;
-  --sidebar-border:             #842A42;
-  --sidebar-ring:               #E8B22E;
-
-  /* ── Gradients DA ── */
-  /* Boutons / barres actives : bordeaux */
-  --gradient-primary: linear-gradient(135deg, #7C2238, #5A1426);
-  /* Barres décoratives cartes : moutarde → bordeaux */
-  --gradient-vibrant: linear-gradient(135deg, #F3D27A 0%, #E8B22E 45%, #6B1A2F 100%);
-  /* Fond mesh page : chaleureux moutarde / bordeaux */
-  --gradient-mesh:
-    radial-gradient(at 10% 0%,   #F8E7B5cc 0px, transparent 55%),
-    radial-gradient(at 85% 15%,  #E8B22E33 0px, transparent 50%),
-    radial-gradient(at 50% 100%, #6B1A2F1f 0px, transparent 55%);
+  /* ── Fonds : la charte n'utilise pas de dégradé décoratif ── */
+  /* Aplat bordeaux (boutons, barres actives) */
+  --gradient-primary: linear-gradient(var(--bordeaux-600), var(--bordeaux-600));
+  /* Visuel sans image : bordeaux 600 → bordeaux 400 */
+  --gradient-vibrant: linear-gradient(135deg, var(--bordeaux-600), var(--bordeaux-400));
+  /* Fond de page : crème uni */
+  --gradient-mesh: linear-gradient(var(--neutre-creme), var(--neutre-creme));
 
   /* Ombres */
-  --shadow-glow:    0 10px 32px -8px rgba(232, 178, 46, 0.55);
-  --shadow-elegant: 0 6px 24px -6px rgba(74, 15, 32, 0.14);
+  --shadow-glow:    var(--ombre-menu);
+  --shadow-elegant: var(--ombre-carte);
 }
 
-/* Dark mode — nuit bordeaux, accents moutarde */
+/* Mode sombre (non couvert par la charte) : rebranché sur les nuances de la charte */
 .dark {
-  --background:         #2A0B15;
-  --foreground:         #FBF5EA;
-  --card:               #3A1220;
-  --card-foreground:    #FBF5EA;
-  --popover:            #3A1220;
-  --popover-foreground: #FBF5EA;
-  --primary:            #E8B22E;
-  --primary-foreground: #2A0B15;
-  --secondary:          #4A0F20;
-  --secondary-foreground: #F8E7B5;
-  --muted:              #4A0F20;
-  --muted-foreground:   #D9BFA0;
-  --accent:             #E8B22E;
-  --accent-foreground:  #2A0B15;
-  --destructive:        #E0604F;
-  --destructive-foreground: #FFFFFF;
-  --border:             rgba(232, 178, 46, 0.22);
-  --input:              rgba(232, 178, 46, 0.18);
-  --ring:               #E8B22E;
+  --background:         var(--bordeaux-900);
+  --foreground:         var(--neutre-creme);
+  --card:               var(--bordeaux-800);
+  --card-foreground:    var(--neutre-creme);
+  --popover:            var(--bordeaux-800);
+  --popover-foreground: var(--neutre-creme);
+  --primary:            var(--jaune-300);
+  --primary-foreground: var(--bordeaux-900);
+  --secondary:          var(--bordeaux-700);
+  --secondary-foreground: var(--jaune-100);
+  --muted:              var(--bordeaux-700);
+  --muted-foreground:   var(--bordeaux-200);
+  --accent:             var(--jaune-300);
+  --accent-foreground:  var(--bordeaux-900);
+  --destructive:        var(--statut-rouge-500);
+  --destructive-foreground: var(--neutre-blanc);
+  --border:             var(--bordeaux-700);
+  --input:              var(--bordeaux-700);
+  --ring:               var(--jaune-300);
 }
 
 @layer base {
@@ -168,28 +250,35 @@
     border-color: var(--color-border);
   }
 
+  /* Texte courant : Nunito Sans 400, 16 px / 155 % (.t-corps) */
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-body);
+    font: 400 16px/1.55 var(--font-texte);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Titres → Fredoka, ronde comme le logotype dessiné */
+  /* Titres : Nunito, interlettrage par défaut (échelle .t-titre-1 / 2 / 3 / sous-titre) */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-titre);
     color: var(--text-title);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    letter-spacing: normal;
   }
 
-  h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; }
-  h2 { font-size: clamp(1.4rem,  4vw, 2rem);  font-weight: 700; }
-  h3 { font-size: clamp(1.1rem,  3vw, 1.5rem); font-weight: 600; }
+  h1 { font-size: 36px; line-height: 1.15; font-weight: 900; }
+  h2 { font-size: 28px; line-height: 1.20; font-weight: 800; }
+  h3 { font-size: 22px; line-height: 1.25; font-weight: 800; }
+  h4, h5, h6 { font-size: 18px; line-height: 1.30; font-weight: 700; }
 
   ::selection {
-    background: #E8B22E;
-    color: #4A0F20;
+    background: var(--jaune-300);
+    color: var(--bordeaux-600);
+  }
+
+  /* Focus clavier visible partout : halo jaune de la charte */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-halo);
   }
 }
 
@@ -239,17 +328,17 @@ html {
 
 /* ── DA Component overrides ── */
 
-/* Buttons: border-radius 8px, police Inter Medium */
+/* Boutons : Nunito Sans 600 (.t-bouton) */
 button, [role="button"] {
-  font-family: var(--font-body);
-  font-weight: 500;
+  font-family: var(--font-texte);
+  font-weight: 600;
 }
 
-/* Cards: border-radius 12px, bordure beige doré */
+/* Carte : fond blanc, bordure sable, arrondi carte */
 .card-da {
-  background: #FFFDF8;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--neutre-blanc);
+  border: 1px solid var(--neutre-sable);
+  border-radius: var(--radius-carte);
 }
 
 /* ── Identité Plav' ── */
@@ -274,7 +363,7 @@ button, [role="button"] {
 
 /* Texte surligné moutarde, façon marqueur */
 .plav-highlight {
-  background: linear-gradient(transparent 58%, #E8B22E 58%, #E8B22E 92%, transparent 92%);
+  background: linear-gradient(transparent 58%, var(--jaune-300) 58%, var(--jaune-300) 92%, transparent 92%);
   padding: 0 0.12em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -290,8 +379,8 @@ button, [role="button"] {
   body { overscroll-behavior-y: none; }
   /* Évite le zoom automatique d'iOS sur les champs */
   input, select, textarea { font-size: 16px !important; }
-  /* Pages un peu moins hautes en titre sur petit écran */
-  h1 { font-size: 1.75rem; }
+  /* Mobile : titre de page en taille Titre 2 (deux niveaux de titre maximum à l'écran) */
+  h1 { font-size: 28px; line-height: 1.20; }
 }
 /* Encoche et barre d'accueil de l'iPhone */
 .pt-safe { padding-top: env(safe-area-inset-top); }

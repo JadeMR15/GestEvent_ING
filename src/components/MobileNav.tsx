@@ -81,7 +81,7 @@ export function MobileTabBar() {
                 <span className={`relative flex h-8 w-14 items-center justify-center rounded-full transition-colors ${active ? "bg-secondary" : ""}`}>
                   <tab.icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
                   {badgeFor(tab.url, notifications) > 0 && (
-                    <span className="absolute right-1.5 top-0 min-w-[1.1rem] rounded-full bg-[#E8B22E] px-1 text-center text-[10px] font-bold leading-[1.1rem] text-[#4A0F20]">
+                    <span className="absolute right-1.5 top-0 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-bordeaux-800">
                       {badgeFor(tab.url, notifications)}
                     </span>
                   )}
@@ -115,7 +115,7 @@ function NotificationBell() {
       }}>
       <Bell className="h-5 w-5" />
       {total > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-[#E8B22E] px-1 text-center text-[10px] font-bold leading-[1.1rem] text-[#4A0F20]">
+        <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-bordeaux-800">
           {total > 99 ? "99+" : total}
         </span>
       )}

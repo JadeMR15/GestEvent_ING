@@ -82,8 +82,8 @@ export function SchoolEmailForm() {
   return (
     <div className="space-y-4">
       {sentTo ? (
-        <div className="space-y-3 rounded-xl border border-[#E3CC9C] bg-[#FBF5EA] p-4">
-          <p className="flex items-center gap-2 font-semibold text-[#6B1A2F]"><Send className="h-4 w-4" />Regarde ta boîte mail d'école</p>
+        <div className="space-y-3 rounded-xl border border-sable bg-creme p-4">
+          <p className="flex items-center gap-2 font-semibold text-bordeaux-600"><Send className="h-4 w-4" />Regarde ta boîte mail d'école</p>
           <p className="text-sm text-muted-foreground">
             Un lien de confirmation a été envoyé à <strong>{sentTo}</strong>. Il est valable 24 h et ne marche qu'une fois.
             Pas reçu ? Regarde dans le <strong>courrier indésirable</strong>.
@@ -125,7 +125,7 @@ export function SchoolEmailForm() {
             </p>
           )}
           {cls && KIND_HINT[cls.kind] && (
-            <p className={`text-sm ${cls.kind === "public" || cls.kind === "invalid" ? "text-red-600" : "text-[#6B1A2F]"}`}>
+            <p className={`text-sm ${cls.kind === "public" || cls.kind === "invalid" ? "text-red-600" : "text-bordeaux-600"}`}>
               {KIND_HINT[cls.kind]}
               {cls.kind === "unknown" && " En attendant, tu peux utiliser le justificatif."}
             </p>

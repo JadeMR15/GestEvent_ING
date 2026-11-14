@@ -10,13 +10,13 @@ const badgeVariants = cva(
     variants: {
       variant: {
         /* Par défaut — moutarde · texte bordeaux profond */
-        default: "border-transparent bg-[#F3D27A] text-[#4A0F20] shadow",
+        default: "border-transparent bg-jaune-200 text-bordeaux-800 shadow",
         /* Secondaire — moutarde pâle · texte bordeaux */
-        secondary: "border-transparent bg-[#F8E7B5] text-[#6B1A2F]",
+        secondary: "border-transparent bg-jaune-100 text-bordeaux-600",
         /* Complet / destructive — rouge brique · texte blanc */
-        destructive: "border-transparent bg-[#C0392B] text-white shadow",
+        destructive: "border-transparent bg-statut-rouge-500 text-white shadow",
         /* Liste attente — outline bordeaux */
-        outline: "border-[#6B1A2F] text-[#6B1A2F] bg-transparent",
+        outline: "border-bordeaux-600 text-bordeaux-600 bg-transparent",
       },
     },
     defaultVariants: {

@@ -46,9 +46,9 @@ import { toast } from "sonner";
 /** Pastille du nombre de notifications (point seul quand la barre est repliée). */
 export function CountBadge({ count, compact = false, className = "" }: { count: number; compact?: boolean; className?: string }) {
   if (count <= 0) return null;
-  if (compact) return <span aria-label={`${count} nouveau(x)`} className={`absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#E8B22E] ring-2 ring-sidebar ${className}`} />;
+  if (compact) return <span aria-label={`${count} nouveau(x)`} className={`absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-jaune-300 ring-2 ring-sidebar ${className}`} />;
   return (
-    <span className={`ml-auto min-w-[1.25rem] rounded-full bg-[#E8B22E] px-1.5 text-center text-[11px] font-bold leading-5 text-[#4A0F20] ${className}`}>
+    <span className={`ml-auto min-w-[1.25rem] rounded-full bg-jaune-300 px-1.5 text-center text-[11px] font-bold leading-5 text-bordeaux-800 ${className}`}>
       {count > 99 ? "99+" : count}
     </span>
   );

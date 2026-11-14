@@ -106,7 +106,7 @@ function LikesPage() {
                     onClick={() => unlike(e.id)}
                     aria-label={`Retirer le like de ${e.title}`}
                     title="Retirer mon like"
-                    className="rounded-full p-2.5 text-[#6B1A2F] hover:bg-[#6B1A2F]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B1A2F]/40"
+                    className="rounded-full p-2.5 text-bordeaux-600 hover:bg-bordeaux-600/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bordeaux-600/40"
                   >
                     <Heart className="h-5 w-5 fill-current" />
                   </button>

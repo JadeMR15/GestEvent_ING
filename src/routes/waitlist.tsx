@@ -105,7 +105,7 @@ function WaitlistPage() {
           {current.map((e) => {
             const offer = e.status === "offered";
             return (
-              <Card key={e.id} className={`overflow-hidden border-2 shadow-elegant ${offer ? "border-[#E8B22E]" : ""}`}>
+              <Card key={e.id} className={`overflow-hidden border-2 shadow-elegant ${offer ? "border-jaune-300" : ""}`}>
                 <div className="h-2 bg-gradient-vibrant" />
                 <CardContent className="space-y-4 p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -121,31 +121,31 @@ function WaitlistPage() {
                       </div>
                     </div>
                     {!offer && (
-                      <div className="rounded-xl bg-[#FBF5EA] px-4 py-2 text-center">
-                        <p className="text-2xl font-bold text-[#6B1A2F]">{e.rank ? ordinal(e.rank) : "—"}</p>
+                      <div className="rounded-xl bg-creme px-4 py-2 text-center">
+                        <p className="text-2xl font-bold text-bordeaux-600">{e.rank ? ordinal(e.rank) : "—"}</p>
                         <p className="text-xs text-muted-foreground">dans la file</p>
                       </div>
                     )}
                   </div>
 
                   {offer ? (
-                    <div className="rounded-xl bg-[#F8E7B5]/60 p-4">
+                    <div className="rounded-xl bg-jaune-100/60 p-4">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="flex items-center gap-2 font-semibold text-[#6B1A2F]">
+                        <p className="flex items-center gap-2 font-semibold text-bordeaux-600">
                           <BellRing className="h-4 w-4" />Une place t'attend !
                         </p>
-                        <span className="font-mono font-bold text-[#6B1A2F]">
+                        <span className="font-mono font-bold text-bordeaux-600">
                           {formatRemaining(new Date(e.offer_expires_at!).getTime() - now)}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-[#4A0F20]/80">
+                      <p className="mt-1 text-sm text-bordeaux-800/80">
                         Réservée jusqu'à {format(new Date(e.offer_expires_at!), "HH:mm", { locale: fr })}, ensuite elle passe à la personne suivante.
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Button asChild className="bg-gradient-primary shadow-glow">
                           <Link to="/events/$eventId" params={{ eventId: e.event_id }}>Prendre ma place</Link>
                         </Button>
-                        <Button variant="ghost" className="text-[#6B1A2F]" onClick={() => leave(e)} disabled={leaving === e.id}>
+                        <Button variant="ghost" className="text-bordeaux-600" onClick={() => leave(e)} disabled={leaving === e.id}>
                           Je laisse ma place
                         </Button>
                       </div>

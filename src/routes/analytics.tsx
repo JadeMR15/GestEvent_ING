@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CHARTE } from "@/lib/charte";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +26,8 @@ export const Route = createFileRoute("/analytics")({
   head: () => ({ meta: [{ title: "Analyses — Plav'" }] }),
 });
 
-const COLORS = ["#6B1A2F", "#E8B22E", "#F3D27A", "#A8344F", "#4A0F20", "#C9931A", "#888"];
+// Couleurs de la charte (attributs SVG : valeurs de src/lib/charte.ts).
+const COLORS = [CHARTE.bordeaux600, CHARTE.jaune300, CHARTE.jaune200, CHARTE.bordeaux400, CHARTE.bordeaux800, CHARTE.jaune500, CHARTE.grisChaud];
 
 function getAge(birth_date: string): number {
   const today = new Date();
@@ -46,8 +48,8 @@ function StatCard({ icon: Icon, label, value, sub }: { icon: any; label: string;
             <p className="text-3xl font-bold mt-1">{value}</p>
             {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
           </div>
-          <div className="h-12 w-12 rounded-full bg-[#F8E7B5] flex items-center justify-center">
-            <Icon className="h-6 w-6 text-[#6B1A2F]" />
+          <div className="h-12 w-12 rounded-full bg-jaune-100 flex items-center justify-center">
+            <Icon className="h-6 w-6 text-bordeaux-600" />
           </div>
         </div>
       </CardContent>
@@ -258,11 +260,11 @@ function AnalyticsPage() {
             <CardContent>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F4EAD6" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} />
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={4} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="Inscriptions" stroke="#6B1A2F" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+                  <Line type="monotone" dataKey="Inscriptions" stroke={CHARTE.bordeaux600} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -275,13 +277,13 @@ function AnalyticsPage() {
                 {regsByEvent.length === 0 ? <EmptyState message="Aucune donnée." /> : (
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart data={regsByEvent} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F4EAD6" horizontal={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} horizontal={false} />
                       <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                       <Tooltip /><Legend />
-                      <Bar dataKey="Inscrits" fill="#6B1A2F" radius={[0, 4, 4, 0]} />
-                      <Bar dataKey="Présents" fill="#E8B22E" radius={[0, 4, 4, 0]} />
-                      <Bar dataKey="Annulés" fill="#A8344F" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="Inscrits" fill={CHARTE.bordeaux600} radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="Présents" fill={CHARTE.jaune300} radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="Annulés" fill={CHARTE.bordeaux400} radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -311,12 +313,12 @@ function AnalyticsPage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={fillRateData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#F4EAD6" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} vertical={false} />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
                     <Tooltip formatter={(v) => [`${v}%`, "Remplissage"]} />
                     <Bar dataKey="Taux (%)" radius={[4, 4, 0, 0]}>
-                      {fillRateData.map((e, i) => <Cell key={i} fill={e["Taux (%)"] >= 90 ? "#E8B22E" : e["Taux (%)"] >= 50 ? "#6B1A2F" : "#F3D27A"} />)}
+                      {fillRateData.map((e, i) => <Cell key={i} fill={e["Taux (%)"] >= 90 ? CHARTE.jaune300 : e["Taux (%)"] >= 50 ? CHARTE.bordeaux600 : CHARTE.jaune200} />)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -353,18 +355,18 @@ function AnalyticsPage() {
                     {/* Mini graphe inscriptions */}
                     <ResponsiveContainer width="100%" height={60}>
                       <LineChart data={evTimeline}>
-                        <Line type="monotone" dataKey="count" stroke="#6B1A2F" strokeWidth={1.5} dot={false} />
+                        <Line type="monotone" dataKey="count" stroke={CHARTE.bordeaux600} strokeWidth={1.5} dot={false} />
                         <Tooltip formatter={(v) => [`${v}`, "Inscriptions"]} labelFormatter={(l) => l} />
                       </LineChart>
                     </ResponsiveContainer>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-[#F8E7B5] rounded-lg p-2.5 text-center">
-                        <p className="text-xl font-bold text-[#6B1A2F]">{inscrits}</p>
+                      <div className="bg-jaune-100 rounded-lg p-2.5 text-center">
+                        <p className="text-xl font-bold text-bordeaux-600">{inscrits}</p>
                         <p className="text-xs text-muted-foreground">Inscrits</p>
                       </div>
-                      <div className="bg-[#F3D27A]/60 rounded-lg p-2.5 text-center">
-                        <p className="text-xl font-bold text-[#4A0F20]">{presents}</p>
+                      <div className="bg-jaune-200/60 rounded-lg p-2.5 text-center">
+                        <p className="text-xl font-bold text-bordeaux-800">{presents}</p>
                         <p className="text-xs text-muted-foreground">Présents</p>
                       </div>
                       <div className="bg-muted/50 rounded-lg p-2.5 text-center">
@@ -414,7 +416,7 @@ function AnalyticsPage() {
                     {ageData.every((d) => d.name === "N/A") ? <EmptyState message="Aucune date de naissance renseignée." /> : (
                       <ResponsiveContainer width="100%" height={220}>
                         <BarChart data={ageData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#F4EAD6" />
+                          <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} />
                           <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                           <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                           <Tooltip formatter={(v) => [`${v} participant(s)`, "Effectif"]} />
@@ -453,11 +455,11 @@ function AnalyticsPage() {
                   <CardContent>
                     <ResponsiveContainer width="100%" height={Math.max(160, schoolData.length * 38)}>
                       <BarChart data={schoolData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F4EAD6" horizontal={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} horizontal={false} />
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={130} />
                         <Tooltip formatter={(v) => [`${v} participant(s)`, "Effectif"]} />
-                        <Bar dataKey="value" fill="#E8B22E" radius={[0, 4, 4, 0]}>
+                        <Bar dataKey="value" fill={CHARTE.jaune300} radius={[0, 4, 4, 0]}>
                           {schoolData.map((_, i) => <Cell key={i} fill={COLORS[i % (COLORS.length - 1)]} />)}
                         </Bar>
                       </BarChart>

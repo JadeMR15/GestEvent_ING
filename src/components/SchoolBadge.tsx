@@ -9,7 +9,7 @@ export function SchoolBadge({ school, onDark, className }: { school: string; onD
       title={`Étudiant(e) vérifié(e) de ${school}`}
       className={cn(
         "inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
-        onDark ? "bg-[#F3D27A]/90 text-[#4A0F20]" : "bg-[#F3D27A] text-[#4A0F20]",
+        onDark ? "bg-jaune-200/90 text-bordeaux-800" : "bg-jaune-200 text-bordeaux-800",
         className,
       )}
     >

@@ -79,7 +79,7 @@ function PublicEventView() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
-      <header className="sticky top-0 z-50 w-full border-b border-[#E3CC9C]/30 bg-white/60 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b border-sable/30 bg-white/60 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
             <BrandName className="h-10" />
@@ -100,7 +100,7 @@ function PublicEventView() {
 
         <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--text-title)" }}>{event.title}</h1>
 
-        <div className="mb-6 space-y-2 text-[#2B1A1F]/70">
+        <div className="mb-6 space-y-2 text-encre/70">
           {eventDate && (
             <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 flex-shrink-0" /><span>{eventDate}</span></div>
           )}
@@ -113,14 +113,14 @@ function PublicEventView() {
         </div>
 
         {event.description && (
-          <p className="mb-8 leading-relaxed text-[#2B1A1F]/80 whitespace-pre-line">{event.description}</p>
+          <p className="mb-8 leading-relaxed text-encre/80 whitespace-pre-line">{event.description}</p>
         )}
 
-        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-[#E3CC9C]/50 bg-white/80 p-4">
+        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-sable/50 bg-white/80 p-4">
           <span className="text-lg font-semibold" style={{ color: "var(--text-title)" }}>
             {event.price > 0 ? `${event.price} €` : "Gratuit"}
           </span>
-          {event.capacity > 0 && <span className="text-sm text-[#2B1A1F]/60">{event.capacity} places max</span>}
+          {event.capacity > 0 && <span className="text-sm text-encre/60">{event.capacity} places max</span>}
         </div>
 
         <div className="flex gap-3">
@@ -724,7 +724,7 @@ function EventDetail() {
     <div className="mx-auto max-w-4xl space-y-6 max-md:pb-20">
       <Link
         to="/events"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-[#6B1A2F]"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-bordeaux-600"
       >
         <ArrowLeft className="h-4 w-4" />Retour aux événements
       </Link>
@@ -758,7 +758,7 @@ function EventDetail() {
 
           {/* Récapitulatif */}
           <div className="rounded-xl border bg-muted/30 p-4 space-y-1">
-            <p className="font-semibold text-[#6B1A2F]">{event.title}</p>
+            <p className="font-semibold text-bordeaux-600">{event.title}</p>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
               {format(new Date(event.starts_at), "PPP à p", { locale: fr })}
@@ -842,8 +842,8 @@ function EventDetail() {
 
           {/* Informations amis / places supplémentaires */}
           {friends.map((f, i) => (
-            <div key={i} className="space-y-3 rounded-xl border border-[#E3CC9C]/60 bg-[#FBF5EA] p-4">
-              <p className="text-sm font-semibold text-[#6B1A2F] flex items-center gap-2">
+            <div key={i} className="space-y-3 rounded-xl border border-sable/60 bg-creme p-4">
+              <p className="text-sm font-semibold text-bordeaux-600 flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />Ami(e) {i + 1}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -880,8 +880,8 @@ function EventDetail() {
           {event.required_document && (
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <FileText className="h-4 w-4 text-[#6B1A2F]" />
-                Document requis : <span className="text-[#6B1A2F]">{event.required_document}</span>
+                <FileText className="h-4 w-4 text-bordeaux-600" />
+                Document requis : <span className="text-bordeaux-600">{event.required_document}</span>
               </Label>
               {docFile ? (
                 <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
@@ -892,9 +892,9 @@ function EventDetail() {
                   </button>
                 </div>
               ) : (
-                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#E3CC9C] bg-[#FBF5EA] px-4 py-5 transition-colors hover:border-[#6B1A2F]">
-                  <Upload className="h-5 w-5 text-[#6B1A2F]" />
-                  <span className="text-center text-xs text-[#6B1A2F]">
+                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-sable bg-creme px-4 py-5 transition-colors hover:border-bordeaux-600">
+                  <Upload className="h-5 w-5 text-bordeaux-600" />
+                  <span className="text-center text-xs text-bordeaux-600">
                     Cliquer pour uploader votre <strong>{event.required_document}</strong>
                   </span>
                   <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG — max 10 Mo</span>
@@ -1143,12 +1143,12 @@ function EventDetail() {
 
           <div className="mt-3 flex flex-wrap gap-2">
             {event.status === "private" && (
-              <Badge className="bg-[#6B1A2F] text-white hover:bg-[#6B1A2F]">
+              <Badge className="bg-bordeaux-600 text-white hover:bg-bordeaux-600">
                 <Lock className="mr-1 h-3 w-3" />Privé · {event.school || "École"}
               </Badge>
             )}
             {event.school && event.status !== "private" && (
-              <Badge variant="secondary" className="bg-[#F3D27A] text-[#4A0F20]">
+              <Badge variant="secondary" className="bg-jaune-200 text-bordeaux-800">
                 <GraduationCap className="mr-1 h-3.5 w-3.5" />{event.school}
               </Badge>
             )}
@@ -1162,12 +1162,12 @@ function EventDetail() {
                 )
             )}
             {event.required_document && (
-              <Badge variant="outline" className="border-[#E3CC9C] text-[#6B1A2F]">
+              <Badge variant="outline" className="border-sable text-bordeaux-600">
                 <FileText className="mr-1 h-3 w-3" />Document requis : {event.required_document}
               </Badge>
             )}
             {maxPerPerson > 0 && (
-              <Badge variant="outline" className="border-[#E3CC9C] text-[#6B1A2F]">
+              <Badge variant="outline" className="border-sable text-bordeaux-600">
                 <Users className="mr-1 h-3 w-3" />{maxPerPerson} place{maxPerPerson > 1 ? "s" : ""} max / personne
               </Badge>
             )}
@@ -1219,13 +1219,13 @@ function EventDetail() {
                     <div
                       key={ticket.id}
                       className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all ${
-                        qty > 0 ? "border-[#6B1A2F] bg-[#F8E7B5]/20" : isTicketFull ? "border-border opacity-60" : "border-border"
+                        qty > 0 ? "border-bordeaux-600 bg-jaune-100/20" : isTicketFull ? "border-border opacity-60" : "border-border"
                       }`}
                     >
                       <div className="min-w-0">
                         <p className="font-medium text-sm">{ticket.name}</p>
                         {ticket.description && <p className="text-xs text-muted-foreground">{ticket.description}</p>}
-                        <p className="mt-0.5 font-semibold text-sm text-[#6B1A2F]">
+                        <p className="mt-0.5 font-semibold text-sm text-bordeaux-600">
                           {ticket.price > 0 ? `${ticket.price} €` : "Gratuit"}
                         </p>
                       </div>
@@ -1257,18 +1257,18 @@ function EventDetail() {
               {totalCartQty > 0 && (
                 <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
                   <span className="text-muted-foreground">{totalCartQty} place{totalCartQty > 1 ? "s" : ""}</span>
-                  <span className="font-semibold text-[#6B1A2F]">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
+                  <span className="font-semibold text-bordeaux-600">{totalCartPrice > 0 ? `${totalCartPrice} €` : "Gratuit"}</span>
                 </div>
               )}
             </div>
           ) : (
-            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-[#6B1A2F]">{eventPrice} €</p>
+            eventPrice > 0 && <p className="mt-3 text-lg font-semibold text-bordeaux-600">{eventPrice} €</p>
           )}
 
           {/* Actions */}
           <div className="mt-6 space-y-3">
             {isPrivateBlocked ? (
-              <div className="flex items-center gap-2 rounded-lg border border-[#E3CC9C] bg-[#F8E7B5]/50 px-4 py-3 text-sm text-[#6B1A2F]">
+              <div className="flex items-center gap-2 rounded-lg border border-sable bg-jaune-100/50 px-4 py-3 text-sm text-bordeaux-600">
                 <Lock className="h-4 w-4 shrink-0" />
                 Cet événement est réservé aux membres de <strong className="ml-1">{event.school}</strong>.
               </div>
@@ -1276,22 +1276,22 @@ function EventDetail() {
               <>
                 {/* Offre de la liste d'attente : place gardée, à prendre via le panier habituel */}
                 {!isOwner && hasOffer && (
-                  <div className="rounded-xl border-2 border-[#E8B22E] bg-[#F8E7B5]/60 p-4 space-y-3">
+                  <div className="rounded-xl border-2 border-jaune-300 bg-jaune-100/60 p-4 space-y-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-start gap-2">
-                        <BellRing className="mt-0.5 h-5 w-5 shrink-0 text-[#6B1A2F]" />
+                        <BellRing className="mt-0.5 h-5 w-5 shrink-0 text-bordeaux-600" />
                         <div>
-                          <p className="font-semibold text-[#6B1A2F]">Une place s'est libérée pour toi !</p>
-                          <p className="text-sm text-[#4A0F20]/80">
+                          <p className="font-semibold text-bordeaux-600">Une place s'est libérée pour toi !</p>
+                          <p className="text-sm text-bordeaux-800/80">
                             Elle t'est réservée jusqu'à {format(new Date(myWait!.offer_expires_at!), "HH:mm", { locale: fr })}.
                             Ensuite, elle passe à la personne suivante.
                           </p>
                         </div>
                       </div>
-                      <span className="font-mono text-lg font-bold text-[#6B1A2F]">{formatRemaining(offerLeftMs)}</span>
+                      <span className="font-mono text-lg font-bold text-bordeaux-600">{formatRemaining(offerLeftMs)}</span>
                     </div>
                     {hasTicketTypes && totalCartQty === 0 && (
-                      <p className="text-xs text-[#4A0F20]/70">Choisis ton tarif ci-dessus (une place).</p>
+                      <p className="text-xs text-bordeaux-800/70">Choisis ton tarif ci-dessus (une place).</p>
                     )}
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -1301,7 +1301,7 @@ function EventDetail() {
                       >
                         <Ticket className="mr-2 h-4 w-4" />Prendre ma place
                       </Button>
-                      <Button variant="ghost" onClick={() => handleLeaveWaitlist(true)} disabled={waitActing} className="text-[#6B1A2F]">
+                      <Button variant="ghost" onClick={() => handleLeaveWaitlist(true)} disabled={waitActing} className="text-bordeaux-600">
                         Je laisse ma place
                       </Button>
                     </div>
@@ -1320,11 +1320,11 @@ function EventDetail() {
                 {!myReg && isFull && !hasOffer && (isOwner ? (
                   <p className="text-sm text-muted-foreground">Cet événement est complet.</p>
                 ) : myWait?.status === "waiting" ? (
-                  <div className="rounded-xl border border-[#E3CC9C] bg-[#FBF5EA] p-4 space-y-3">
+                  <div className="rounded-xl border border-sable bg-creme p-4 space-y-3">
                     <div className="flex items-start gap-2">
-                      <Hourglass className="mt-0.5 h-5 w-5 shrink-0 text-[#6B1A2F]" />
+                      <Hourglass className="mt-0.5 h-5 w-5 shrink-0 text-bordeaux-600" />
                       <div>
-                        <p className="font-semibold text-[#6B1A2F]">
+                        <p className="font-semibold text-bordeaux-600">
                           {myWait.rank && myWait.rank > 1
                             ? `Tu es ${ordinal(myWait.rank)} sur la liste d'attente`
                             : "Tu es en tête de la liste d'attente"}
@@ -1341,9 +1341,9 @@ function EventDetail() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-[#E3CC9C] bg-[#FBF5EA] p-4 space-y-3">
+                  <div className="rounded-xl border border-sable bg-creme p-4 space-y-3">
                     <div>
-                      <p className="font-semibold text-[#6B1A2F]">Cet événement est complet.</p>
+                      <p className="font-semibold text-bordeaux-600">Cet événement est complet.</p>
                       <p className="text-sm text-muted-foreground">
                         {myWait?.status === "expired"
                           ? "Ton offre précédente a expiré. Tu peux te réinscrire sur la liste d'attente."
@@ -1380,7 +1380,7 @@ function EventDetail() {
                     {myGuestRegs.map((gr) => (
                       <div key={gr.id} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border">
                         <div className="flex items-center gap-2 text-sm min-w-0">
-                          <UserPlus className="h-4 w-4 text-[#6B1A2F] shrink-0" />
+                          <UserPlus className="h-4 w-4 text-bordeaux-600 shrink-0" />
                           <span className="font-medium truncate">{gr.guest_name}</span>
                           <Badge variant="secondary" className={gr.status === "attended" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
                             {gr.status === "attended" ? "Présent" : "Confirmé"}
@@ -1432,7 +1432,7 @@ function EventDetail() {
             {myGuestRegs.map((gr) => (
               <div key={gr.id} className="flex flex-col items-center gap-2 border-b pb-5 last:border-0 last:pb-0">
                 <div className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4 text-[#6B1A2F]" />
+                  <UserPlus className="h-4 w-4 text-bordeaux-600" />
                   <p className="font-semibold text-sm">{gr.guest_name}</p>
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -1598,12 +1598,12 @@ function EventDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border bg-[#FBF5EA] p-3">
-                  <p className="text-2xl font-bold text-[#6B1A2F]">{waiting.length}</p>
+                <div className="rounded-xl border bg-creme p-3">
+                  <p className="text-2xl font-bold text-bordeaux-600">{waiting.length}</p>
                   <p className="text-xs text-muted-foreground">personne{waiting.length > 1 ? "s" : ""} en attente</p>
                 </div>
-                <div className="rounded-xl border bg-[#F8E7B5]/50 p-3">
-                  <p className="text-2xl font-bold text-[#6B1A2F]">{offered.length}</p>
+                <div className="rounded-xl border bg-jaune-100/50 p-3">
+                  <p className="text-2xl font-bold text-bordeaux-600">{offered.length}</p>
                   <p className="text-xs text-muted-foreground">offre{offered.length > 1 ? "s" : ""} en cours</p>
                 </div>
               </div>
@@ -1618,7 +1618,7 @@ function EventDetail() {
                   {offered.map((w) => (
                     <li key={w.user_id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                       <span className="font-medium truncate">{w.full_name || "Étudiant"}</span>
-                      <Badge variant="secondary" className="shrink-0 bg-[#F8E7B5] text-[#4A0F20]">
+                      <Badge variant="secondary" className="shrink-0 bg-jaune-100 text-bordeaux-800">
                         <BellRing className="mr-1 h-3 w-3" />
                         Offre · {w.offer_expires_at ? formatRemaining(new Date(w.offer_expires_at).getTime() - now) : "—"}
                       </Badge>
@@ -1685,7 +1685,7 @@ function EventDetail() {
                         </p>
                         {r.document_url && (
                           <a href={r.document_url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-[#6B1A2F] hover:underline mt-0.5">
+                            className="inline-flex items-center gap-1 text-xs text-bordeaux-600 hover:underline mt-0.5">
                             <FileText className="h-3 w-3" />Voir le document
                           </a>
                         )}

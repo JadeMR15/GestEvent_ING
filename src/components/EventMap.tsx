@@ -59,7 +59,7 @@ export default function EventMap({ events }: { events: any[] }) {
         iconCreateFunction: (cluster: any) => {
           const count = cluster.getChildCount();
           return L.divIcon({
-            html: `<div style="background:#6B1A2F;color:white;font-weight:700;font-size:13px;font-family:Inter,sans-serif;width:36px;height:36px;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(107,26,47,.5);display:flex;align-items:center;justify-content:center">${count}</div>`,
+            html: `<div style="background:var(--bordeaux-600);color:var(--neutre-creme);font-weight:700;font-size:13px;font-family:var(--font-texte);width:36px;height:36px;border-radius:50%;border:3px solid var(--neutre-blanc);box-shadow:var(--ombre-menu);display:flex;align-items:center;justify-content:center">${count}</div>`,
             className: "",
             iconSize: [36, 36],
             iconAnchor: [18, 18],
@@ -68,7 +68,7 @@ export default function EventMap({ events }: { events: any[] }) {
       });
 
       const pin = L.divIcon({
-        html: `<div style="background:#6B1A2F;width:18px;height:18px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 8px rgba(107,26,47,.55)"></div>`,
+        html: `<div style="background:var(--bordeaux-600);width:18px;height:18px;border-radius:50%;border:2.5px solid var(--neutre-blanc);box-shadow:var(--ombre-menu)"></div>`,
         iconSize: [18, 18],
         iconAnchor: [9, 9],
         popupAnchor: [0, -13],
@@ -79,12 +79,12 @@ export default function EventMap({ events }: { events: any[] }) {
         const dateStr = format(new Date(e.starts_at), "PPP à p", { locale: fr });
         const marker = L.marker([e.latitude, e.longitude], { icon: pin });
         marker.bindPopup(
-          `<div style="min-width:200px;font-family:Inter,sans-serif;line-height:1.5">
-            ${e.cover_image_url ? `<img src="${e.cover_image_url}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:8px;display:block" />` : ""}
-            <p style="font-weight:600;font-size:14px;margin:0 0 4px;color:#2B1A1F">${e.title}</p>
-            <p style="font-size:12px;color:#888;margin:0 0 2px">📅 ${dateStr}</p>
-            ${e.city ? `<p style="font-size:12px;color:#888;margin:0 0 8px">📍 ${e.city}</p>` : ""}
-            <a href="/events/${e.id}" style="color:#6B1A2F;font-weight:600;font-size:13px;text-decoration:none">Voir l'événement →</a>
+          `<div style="min-width:200px;font-family:var(--font-texte);line-height:1.5">
+            ${e.cover_image_url ? `<img src="${e.cover_image_url}" style="width:100%;height:80px;object-fit:cover;border-radius:var(--radius-petit);margin-bottom:8px;display:block" />` : ""}
+            <p style="font-weight:600;font-size:14px;margin:0 0 4px;color:var(--neutre-encre)">${e.title}</p>
+            <p style="font-size:13px;font-weight:500;color:var(--neutre-gris-chaud);margin:0 0 2px">📅 ${dateStr}</p>
+            ${e.city ? `<p style="font-size:13px;font-weight:500;color:var(--neutre-gris-chaud);margin:0 0 8px">📍 ${e.city}</p>` : ""}
+            <a href="/events/${e.id}" style="color:var(--bordeaux-600);font-weight:600;font-size:13px;text-decoration:none">Voir l'événement →</a>
           </div>`,
           { maxWidth: 260 }
         );
@@ -144,7 +144,7 @@ export default function EventMap({ events }: { events: any[] }) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-hidden rounded-xl border border-[#E3CC9C] shadow-elegant"
+        className="overflow-hidden rounded-xl border border-sable shadow-elegant"
         style={{ height: 520 }}
       />
       {withCoords.length === 0 && (

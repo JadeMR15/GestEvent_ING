@@ -165,7 +165,7 @@ function AssociationPage() {
 
       {/* En-tête façon profil */}
       <Card className="overflow-hidden">
-        <div className="relative h-28 bg-gradient-to-r from-[#6B1A2F] via-[#8A2B44] to-[#E8B22E] md:h-40">
+        <div className="relative h-28 bg-gradient-to-r from-bordeaux-600 via-bordeaux-500 to-jaune-300 md:h-40">
           <img src="/plav-cocotte.svg" alt="" className="absolute -right-6 -top-8 h-48 w-48 opacity-15 md:h-64 md:w-64" />
         </div>
         <CardContent className="relative px-5 pb-5 md:px-8">

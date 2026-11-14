@@ -180,7 +180,7 @@ function VerificationPage() {
       )}
 
       {status !== "verified" && (
-        <Card className="border-2 border-[#E3CC9C]">
+        <Card className="border-2 border-sable">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base"><Mail className="h-4 w-4" />Option 1 : ton adresse email d'école</CardTitle>
             <CardDescription>

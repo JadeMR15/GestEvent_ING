@@ -83,7 +83,7 @@ export function RoleAvatar({ path, name, role, size = "md", showBadge = true, cl
       {frame ? (
         <span className={cn("inline-flex rounded-full", s.ring, frame)}>
           {/* Liseré crème entre le cadre et la photo, pour que la photo ressorte. */}
-          <span className="inline-flex rounded-full bg-[#FFFDF8] p-[1.5px]">{avatar}</span>
+          <span className="inline-flex rounded-full bg-blanc p-[1.5px]">{avatar}</span>
         </span>
       ) : (
         avatar
@@ -91,7 +91,7 @@ export function RoleAvatar({ path, name, role, size = "md", showBadge = true, cl
       {role === "admin" && showBadge && (
         <span
           className={cn(
-            "absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#E8B22E] bg-[#6B1A2F] font-bold uppercase leading-tight tracking-wide text-[#F3D27A] shadow-sm",
+            "absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-jaune-300 bg-bordeaux-600 font-bold uppercase leading-tight tracking-wide text-jaune-200 shadow-sm",
             s.badge,
           )}
         >

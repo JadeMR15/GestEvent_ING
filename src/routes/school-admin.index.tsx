@@ -232,7 +232,7 @@ function AssociationCard({ association: a, stats: st, busy, onUpdate, fallbackLo
 
         {unread > 0 && (
           <Link to="/school-admin/messages" search={{ a: a.id }}
-            className="flex items-center gap-2 rounded-lg bg-[#F8E7B5] px-3 py-2 text-xs font-semibold text-[#4A0F20] hover:bg-[#F3D27A]">
+            className="flex items-center gap-2 rounded-lg bg-jaune-100 px-3 py-2 text-xs font-semibold text-bordeaux-800 hover:bg-jaune-200">
             <MessageSquare className="h-3.5 w-3.5" />
             {unread} nouveau{unread > 1 ? "x" : ""} message{unread > 1 ? "s" : ""}
           </Link>

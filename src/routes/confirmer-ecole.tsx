@@ -40,7 +40,7 @@ function ConfirmSchoolEmailPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
-      <header className="border-b border-[#E3CC9C]/30 bg-white/60 backdrop-blur">
+      <header className="border-b border-sable/30 bg-white/60 backdrop-blur">
         <div className="container mx-auto flex items-center px-6 py-4">
           <Link to="/"><BrandName className="h-10" /></Link>
         </div>
@@ -70,7 +70,7 @@ function ConfirmSchoolEmailPage() {
               </>
             ) : (
               <>
-                <MailCheck className="mx-auto h-12 w-12 text-[#6B1A2F]" />
+                <MailCheck className="mx-auto h-12 w-12 text-bordeaux-600" />
                 <h1 className="text-2xl font-bold" style={{ color: "var(--text-title)" }}>Confirmer mon adresse d'école</h1>
                 <p className="text-muted-foreground">
                   Un clic pour confirmer que cette adresse est bien la tienne et vérifier ton compte étudiant.

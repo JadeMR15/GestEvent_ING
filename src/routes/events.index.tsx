@@ -342,7 +342,7 @@ function EventList() {
                   </div>
                   <CardContent className="p-4 md:p-5">
                     <div className="mb-1.5 flex flex-wrap gap-1">
-                      {e.school && <Badge variant="secondary" className="text-[10px] bg-[#F3D27A] text-[#4A0F20]"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
+                      {e.school && <Badge variant="secondary" className="text-[10px] bg-jaune-200 text-bordeaux-800"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
                       {e.association && <Badge variant="secondary" className="text-[10px]">{e.association}</Badge>}
                     </div>
                     <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2">{e.title}</h3>

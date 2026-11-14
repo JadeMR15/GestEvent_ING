@@ -105,7 +105,7 @@ function Directory() {
             return (
               <Link key={a.id} to="/associations/$associationId" params={{ associationId: a.id }} className="tap block">
                 <Card className="group h-full overflow-hidden transition-shadow hover:shadow-md">
-                  <div className="h-14 bg-gradient-to-r from-[#6B1A2F] via-[#8A2B44] to-[#E8B22E] opacity-90" />
+                  <div className="h-14 bg-gradient-to-r from-bordeaux-600 via-bordeaux-500 to-jaune-300 opacity-90" />
                   <CardContent className="-mt-8 flex h-[calc(100%-3.5rem)] flex-col gap-3 p-4">
                     <div className="flex items-end justify-between gap-2">
                       <AssociationAvatar name={a.name} logoPath={a.logo_path} fallback={fallbacks[a.id]}

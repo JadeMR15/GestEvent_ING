@@ -56,8 +56,8 @@ function ForgotPasswordPage() {
         <CardContent className="space-y-4">
           {sent ? (
             <>
-              <div className="flex items-start gap-3 rounded-xl border border-[#E3CC9C] bg-[#FBF5EA] p-4 text-sm">
-                <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#6B1A2F]" />
+              <div className="flex items-start gap-3 rounded-xl border border-sable bg-creme p-4 text-sm">
+                <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-bordeaux-600" />
                 <p>
                   Si un compte existe avec <strong>{email.trim()}</strong>, tu vas recevoir un email avec un lien
                   pour choisir un nouveau mot de passe. Pense à regarder dans les indésirables.

@@ -10,15 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         /* Primaire — bordeaux #6B1A2F, survol bordeaux profond */
-        default: "bg-primary text-primary-foreground shadow hover:bg-[#4A0F20]",
+        default: "bg-primary text-primary-foreground shadow hover:bg-bordeaux-800",
         /* Destructive — rouge brique */
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         /* Outline — bordure bordeaux, survol moutarde pâle */
         outline:
-          "border border-[#6B1A2F] bg-transparent text-[#6B1A2F] shadow-sm hover:bg-[#F8E7B5]",
+          "border border-bordeaux-600 bg-transparent text-bordeaux-600 shadow-sm hover:bg-jaune-100",
         /* Secondaire — moutarde, le bouton « punch » */
-        secondary: "bg-[#E8B22E] text-[#4A0F20] shadow-sm hover:bg-[#F3C24A]",
-        ghost: "text-[#6B1A2F] hover:bg-[#F8E7B5] hover:text-[#6B1A2F]",
+        secondary: "bg-jaune-300 text-bordeaux-800 shadow-sm hover:bg-jaune-400",
+        ghost: "text-bordeaux-600 hover:bg-jaune-100 hover:text-bordeaux-600",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

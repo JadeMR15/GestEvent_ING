@@ -1,10 +1,10 @@
 /* Section « fonctionnalités » en cocotte 3D — tout est préfixé cocotte- */
 
 .cocotte-features {
-  --cocotte-paper: #fbf5ea;
-  --cocotte-inner: #7c2238;
-  --cocotte-ink: #6b1a2f;
-  --cocotte-gold: #e8b22e;
+  --cocotte-paper: var(--neutre-creme);
+  --cocotte-inner: var(--bordeaux-500);
+  --cocotte-ink: var(--bordeaux-600);
+  --cocotte-gold: var(--jaune-300);
 
   position: relative;
 }
@@ -44,7 +44,7 @@
   position: absolute;
   left: 50%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(74, 15, 32, 0.45), transparent);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--bordeaux-800) 45%, transparent), transparent);
   filter: blur(6px);
   pointer-events: none;
 }
@@ -82,28 +82,28 @@
 
 .cocotte-face__paper {
   fill: var(--cocotte-paper);
-  stroke: rgba(107, 26, 47, 0.22);
+  stroke: color-mix(in srgb, var(--bordeaux-600) 22%, transparent);
   stroke-width: 1;
   stroke-linejoin: round;
 }
 
 .cocotte-face--alt .cocotte-face__paper {
-  fill: #f8e7b5;
+  fill: var(--jaune-100);
 }
 
 /* intérieur de la cocotte : bordeaux, les fonctionnalités écrites en doré */
 .cocotte-face--wall .cocotte-face__paper {
   fill: var(--cocotte-inner);
-  stroke: rgba(232, 178, 46, 0.5);
+  stroke: color-mix(in srgb, var(--jaune-300) 50%, transparent);
 }
 
 .cocotte-face--wall.cocotte-face--alt .cocotte-face__paper {
-  fill: #6b1a2f;
+  fill: var(--bordeaux-600);
 }
 
 /* dos de la cocotte, avec le logo */
 .cocotte-face--back .cocotte-face__paper {
-  fill: #f3e7cf;
+  fill: var(--neutre-sable);
 }
 
 .cocotte-face--back > svg {
@@ -112,25 +112,25 @@
 
 .cocotte-face__crease {
   fill: none;
-  stroke: rgba(107, 26, 47, 0.16);
+  stroke: color-mix(in srgb, var(--bordeaux-600) 16%, transparent);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
 
 .cocotte-face--wall .cocotte-face__crease {
-  stroke: rgba(232, 178, 46, 0.3);
+  stroke: color-mix(in srgb, var(--jaune-300) 30%, transparent);
 }
 
 .cocotte-face__grid {
   fill: none;
-  stroke: rgba(107, 26, 47, 0.07);
+  stroke: color-mix(in srgb, var(--bordeaux-600) 7%, transparent);
   stroke-width: 1;
 }
 
 .cocotte-face__shade {
   position: absolute;
   inset: 0;
-  background: #1a0509;
+  background: var(--bordeaux-900);
   opacity: 0;
   pointer-events: none;
 }
@@ -162,7 +162,7 @@
 }
 
 .cocotte-face--wall .cocotte-face__label {
-  color: #fbf5ea;
+  color: var(--neutre-creme);
 }
 
 .cocotte-features__hint {
@@ -172,7 +172,7 @@
   transform: translateX(-50%);
   font-size: 0.8rem;
   letter-spacing: 0.04em;
-  color: rgba(43, 26, 31, 0.55);
+  color: color-mix(in srgb, var(--neutre-encre) 55%, transparent);
   white-space: nowrap;
   animation: cocotte-hint 1.8s ease-in-out infinite;
 }
@@ -187,11 +187,11 @@
   z-index: 1;
   padding: 18px 20px 16px;
   border-radius: 20px;
-  border: 1px solid rgba(227, 204, 156, 0.6);
-  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid color-mix(in srgb, var(--neutre-sable) 60%, transparent);
+  background: color-mix(in srgb, var(--neutre-blanc) 60%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 12px 40px -16px rgba(74, 15, 32, 0.35);
+  box-shadow: 0 12px 40px -16px color-mix(in srgb, var(--bordeaux-800) 35%, transparent);
   text-align: center;
 }
 
@@ -249,7 +249,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #b8860b;
+  color: var(--jaune-500);
 }
 
 .cocotte-features__card h3 {
@@ -264,7 +264,7 @@
   margin-top: 8px;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(43, 26, 31, 0.72);
+  color: color-mix(in srgb, var(--neutre-encre) 72%, transparent);
   max-width: 44ch;
 }
 
@@ -293,7 +293,7 @@
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(107, 26, 47, 0.2);
+  background: color-mix(in srgb, var(--bordeaux-600) 20%, transparent);
   transition:
     width 0.3s ease,
     background 0.3s ease;

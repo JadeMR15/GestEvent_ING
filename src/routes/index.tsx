@@ -112,12 +112,12 @@ function Landing() {
       <div className="pointer-events-none fixed inset-0 bg-gradient-mesh opacity-60" />
 
       {/* ── Header ── */}
-      <header className="relative z-50 w-full border-b border-[#E3CC9C]/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
+      <header className="relative z-50 w-full border-b border-sable/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <BrandName className="h-10 md:h-14" />
           </div>
-          <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-[#6B1A2F]">
+          <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-bordeaux-600">
             <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
             <a href="#fonctionnalites" className="hover:opacity-70 transition-opacity">Fonctionnalités</a>
             <a href="#contact" className="hover:opacity-70 transition-opacity">Contact</a>
@@ -138,8 +138,7 @@ function Landing() {
       </header>
 
       {/* ── Hero — bordeaux plein, cocotte géante en filigrane ── */}
-      <section className="relative overflow-hidden bg-[#6B1A2F] px-6 pt-20 pb-24 lg:pt-28 lg:pb-32 rounded-b-[40px] shadow-elegant">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 15% 20%, #7C2238 0%, transparent 55%), radial-gradient(ellipse at 90% 90%, #4A0F20 0%, transparent 60%)" }} />
+      <section className="relative overflow-hidden bg-bordeaux-600 px-6 pt-20 pb-24 lg:pt-28 lg:pb-32 rounded-b-[40px] shadow-elegant">
         <img
           src="/plav-cocotte.svg"
           alt=""
@@ -155,27 +154,27 @@ function Landing() {
 
         <div className="relative z-10 container mx-auto">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E8B22E]/50 bg-[#4A0F20]/40 px-4 py-1.5 text-xs font-medium backdrop-blur text-[#F8E7B5]">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-jaune-300/50 bg-bordeaux-800/40 px-4 py-1.5 text-xs font-medium backdrop-blur text-jaune-100">
               <img src="/plav-cocotte.svg" alt="" className="h-5 w-5 object-contain" />
               plav' · la billetterie étudiante
             </div>
-            <h1 className="text-5xl tracking-tight md:text-7xl font-bold" style={{ color: "#FBF5EA" }}>
+            <h1 className="t-display text-creme">
               Pour ceux qui organisent,{" "}
-              <span className="text-[#E8B22E]">et ceux qui viennent.</span>
+              <span className="text-jaune-300">et ceux qui viennent.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-[#FBF5EA]/75">
-              Organise ou participe — <span className="font-semibold text-[#F8E7B5]">plav' s'occupe du reste.</span>
+            <p className="mx-auto mt-6 max-w-xl text-lg text-creme/75">
+              Organise ou participe — <span className="font-semibold text-jaune-100">plav' s'occupe du reste.</span>
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               {!loading && user ? (
                 <>
                   <Button asChild size="lg" variant="secondary" className="shadow-glow"><Link to="/dashboard">Accéder à mon espace <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-                  <Button asChild size="lg" variant="outline" className="border-[#F8E7B5]/60 text-[#FBF5EA] hover:bg-[#FBF5EA]/10 hover:text-[#FBF5EA]"><a href="#evenements">Voir les soirées</a></Button>
+                  <Button asChild size="lg" variant="outline" className="border-jaune-100/60 text-creme hover:bg-creme/10 hover:text-creme"><a href="#evenements">Voir les soirées</a></Button>
                 </>
               ) : (
                 <>
                   <Button asChild size="lg" variant="secondary" className="shadow-glow"><Link to="/register">Créer un compte <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-                  <Button asChild size="lg" variant="outline" className="border-[#F8E7B5]/60 text-[#FBF5EA] hover:bg-[#FBF5EA]/10 hover:text-[#FBF5EA]"><a href="#evenements">Découvrir les soirées</a></Button>
+                  <Button asChild size="lg" variant="outline" className="border-jaune-100/60 text-creme hover:bg-creme/10 hover:text-creme"><a href="#evenements">Découvrir les soirées</a></Button>
                 </>
               )}
             </div>
@@ -188,12 +187,12 @@ function Landing() {
               { value: stats.participants, label: "participants", icon: Users },
               { value: stats.organizers, label: "organisateurs", icon: Star },
             ].map((s) => (
-              <div key={s.label} className="rounded-[16px] border border-[#E8B22E]/30 bg-[#FBF5EA] p-3 sm:p-5 text-center shadow-elegant">
-                <s.icon className="mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5 text-[#E8B22E]" />
+              <div key={s.label} className="rounded-[16px] border border-jaune-300/30 bg-creme p-3 sm:p-5 text-center shadow-elegant">
+                <s.icon className="mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5 text-jaune-300" />
                 <p className="font-display text-xl sm:text-3xl font-bold" style={{ color: "var(--text-title)" }}>
                   {eventsLoading ? "—" : s.value}
                 </p>
-                <p className="mt-1 text-[10px] sm:text-xs text-[#2B1A1F]/60 leading-tight">{s.label}</p>
+                <p className="mt-1 text-[10px] sm:text-xs text-encre/60 leading-tight">{s.label}</p>
               </div>
             ))}
           </div>
@@ -203,11 +202,11 @@ function Landing() {
 
       {/* ── Events section ── */}
       <section id="evenements" className="relative py-20">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "linear-gradient(to bottom, #FBF5EA 0%, rgba(251,245,234,0.8) 40%, transparent 100%)" }} />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "var(--neutre-creme)" }} />
         <div className="relative z-10 container mx-auto px-6">
         <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : ""}`}>
           <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
-          <p className="mt-2 text-[#2B1A1F]/60">Accessibles sans compte. Un lien, c'est tout.</p>
+          <p className="mt-2 text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
         <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
@@ -239,7 +238,7 @@ function Landing() {
 
         {eventsLoading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-[#E3CC9C]/50 bg-white/60 h-64 animate-pulse" />)}
+            {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-sable/50 bg-white/60 h-64 animate-pulse" />)}
           </div>
         ) : upcoming.length === 0 ? (
           <Card className="border-2 border-dashed mx-auto max-w-md">
@@ -261,25 +260,25 @@ function Landing() {
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
           <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : ""}`}>
           <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Simple. <span className="plav-highlight">Complet.</span></h2>
-            <p className="mt-3 text-[#2B1A1F]/60 max-w-xl mx-auto">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
+            <p className="mt-3 text-encre/60 max-w-xl mx-auto">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
           <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
             {[
-              { icon: CalendarDays, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-[#F8E7B5]", iconColor: "text-[#6B1A2F]" },
-              { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", color: "bg-[#F3D27A]", iconColor: "text-[#4A0F20]" },
+              { icon: CalendarDays, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
+              { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
               { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", color: "bg-[#F8E7B5]", iconColor: "text-[#6B1A2F]" },
-              { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", color: "bg-[#F3D27A]", iconColor: "text-[#4A0F20]" },
+              { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
+              { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
               { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", color: "bg-[#F8E7B5]", iconColor: "text-[#6B1A2F]" },
-              { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", color: "bg-[#F3D27A]", iconColor: "text-[#4A0F20]" },
+              { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
+              { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
             ].map((f) => (
-              <div key={f.title} className="rounded-[12px] border-[0.5px] border-[#E3CC9C] bg-white/80 p-6 backdrop-blur shadow-elegant hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
+              <div key={f.title} className="rounded-[12px] border-[0.5px] border-sable bg-white/80 p-6 backdrop-blur shadow-elegant hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
                 <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-[8px] ${f.color}`}>
                   <f.icon className={`h-5 w-5 ${f.iconColor}`} />
                 </div>
                 <h3 style={{ color: "var(--text-title)", fontSize: "1.1rem", fontWeight: 600 }}>{f.title}</h3>
-                <p className="mt-2 text-sm text-[#2B1A1F]/70">{f.desc}</p>
+                <p className="mt-2 text-sm text-encre/70">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -293,15 +292,15 @@ function Landing() {
       {!loading && !user && (
         <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : ""}`}>
           <div className="container mx-auto px-6">
-            <div className="relative mx-auto max-w-2xl overflow-hidden rounded-[28px] bg-gradient-primary p-12 text-center shadow-elegant ring-4 ring-[#E8B22E]/40">
+            <div className="relative mx-auto max-w-2xl overflow-hidden rounded-[28px] bg-gradient-primary p-12 text-center shadow-elegant ring-4 ring-jaune-300/40">
               <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-6 h-32 w-32 object-contain drop-shadow-lg plav-spin-in" />
-              <h2 className="text-4xl font-bold" style={{ color: "#FBF5EA" }}>T'attends <span className="text-[#E8B22E]">quoi ?</span></h2>
-              <p className="mt-4 text-[#FBF5EA]/80">Rejoins les assos qui font confiance à plav'.</p>
+              <h2 className="t-titre-2 text-creme">T'attends <span className="text-jaune-300">quoi ?</span></h2>
+              <p className="mt-4 text-creme/80">Rejoins les assos qui font confiance à plav'.</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg" variant="secondary" className="shadow-glow">
                   <Link to="/register">Créer un compte gratuitement <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="text-[#FBF5EA] border border-[#FBF5EA]/30 hover:bg-[#FBF5EA]/10 hover:text-[#FBF5EA]">
+                <Button asChild size="lg" variant="ghost" className="text-creme border border-creme/30 hover:bg-creme/10 hover:text-creme">
                   <Link to="/login">Se connecter</Link>
                 </Button>
               </div>
@@ -311,48 +310,48 @@ function Landing() {
       )}
 
       {/* ── Footer ── */}
-      <footer id="contact" className="relative border-t border-[#E3CC9C]/30 bg-white/60 backdrop-blur py-12">
+      <footer id="contact" className="relative border-t border-sable/30 bg-white/60 backdrop-blur py-12">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <BrandName className="h-12" />
               </div>
-              <p className="text-sm text-[#2B1A1F]/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
+              <p className="text-sm text-encre/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#6B1A2F] mb-3 uppercase tracking-wide">Navigation</h4>
-              <ul className="space-y-2 text-sm text-[#2B1A1F]/70">
-                <li><a href="#evenements" className="hover:text-[#6B1A2F] transition-colors">Événements</a></li>
-                <li><a href="#fonctionnalites" className="hover:text-[#6B1A2F] transition-colors">Fonctionnalités</a></li>
-                <li><Link to="/login" className="hover:text-[#6B1A2F] transition-colors">Connexion</Link></li>
-                <li><Link to="/register" className="hover:text-[#6B1A2F] transition-colors">Inscription</Link></li>
+              <h4 className="text-sm font-semibold text-bordeaux-600 mb-3 uppercase tracking-wide">Navigation</h4>
+              <ul className="space-y-2 text-sm text-encre/70">
+                <li><a href="#evenements" className="hover:text-bordeaux-600 transition-colors">Événements</a></li>
+                <li><a href="#fonctionnalites" className="hover:text-bordeaux-600 transition-colors">Fonctionnalités</a></li>
+                <li><Link to="/login" className="hover:text-bordeaux-600 transition-colors">Connexion</Link></li>
+                <li><Link to="/register" className="hover:text-bordeaux-600 transition-colors">Inscription</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#6B1A2F] mb-3 uppercase tracking-wide">À propos</h4>
-              <ul className="space-y-2 text-sm text-[#2B1A1F]/70">
-                <li><Link to="/about" hash="organisateur" className="hover:text-[#6B1A2F] transition-colors">Organisateur</Link></li>
-                <li><Link to="/about" hash="participant" className="hover:text-[#6B1A2F] transition-colors">Participant</Link></li>
-                <li><Link to="/about" hash="benevole" className="hover:text-[#6B1A2F] transition-colors">Bénévole</Link></li>
+              <h4 className="text-sm font-semibold text-bordeaux-600 mb-3 uppercase tracking-wide">À propos</h4>
+              <ul className="space-y-2 text-sm text-encre/70">
+                <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-600 transition-colors">Organisateur</Link></li>
+                <li><Link to="/about" hash="participant" className="hover:text-bordeaux-600 transition-colors">Participant</Link></li>
+                <li><Link to="/about" hash="benevole" className="hover:text-bordeaux-600 transition-colors">Bénévole</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#6B1A2F] mb-3 uppercase tracking-wide">Contact</h4>
-              <div className="flex items-center gap-2 text-sm text-[#2B1A1F]/70 mb-4">
+              <h4 className="text-sm font-semibold text-bordeaux-600 mb-3 uppercase tracking-wide">Contact</h4>
+              <div className="flex items-center gap-2 text-sm text-encre/70 mb-4">
                 <Mail className="h-4 w-4" /><span>support@plav.app</span>
               </div>
               <div className="flex items-center gap-3">
-                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-[#2B1A1F]/50 hover:text-[#6B1A2F] transition-colors" aria-label="Instagram">
+                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-[#2B1A1F]/50 hover:text-[#6B1A2F] transition-colors" aria-label="Facebook">
+                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="Facebook">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-[#2B1A1F]/50 hover:text-[#6B1A2F] transition-colors" aria-label="YouTube">
+                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="YouTube">
                   <Youtube className="h-5 w-5" />
                 </a>
-                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-[#2B1A1F]/50 hover:text-[#6B1A2F] transition-colors" aria-label="TikTok">
+                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="TikTok">
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
                   </svg>
@@ -360,7 +359,7 @@ function Landing() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-[#E3CC9C]/30 pt-6 text-center text-xs text-[#2B1A1F]/40">
+          <div className="mt-8 border-t border-sable/30 pt-6 text-center text-xs text-encre/40">
             © {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.
           </div>
         </div>
@@ -370,10 +369,10 @@ function Landing() {
 }
 
 const HOW_CARDS = [
-  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "#6B1A2F", fg: "#FBF5EA", accent: "#E8B22E", icon: CalendarDays },
-  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "#E8B22E", fg: "#4A0F20", accent: "#4A0F20", icon: Timer       },
-  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "#A8344F", fg: "#FBF5EA", accent: "#F8E7B5", icon: TrendingUp  },
-  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "#4A0F20", fg: "#FBF5EA", accent: "#E8B22E", icon: QrCode      },
+  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: CalendarDays },
+  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
+  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-creme)", accent: "var(--jaune-100)", icon: TrendingUp  },
+  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: QrCode      },
 ];
 
 function StackedHowItWorks() {
@@ -407,29 +406,30 @@ function StackedHowItWorks() {
               marginRight:     "auto",
               width:           "min(860px, 92vw)",
               height:          "min(420px, 58vh)",
-              borderRadius:    24,
+              borderRadius:    "var(--radius-carte)",
               overflow:        "hidden",
               backgroundColor: card.bg,
-              boxShadow:       "0 20px 60px -10px rgba(0,0,0,0.35)",
+              boxShadow:       "var(--ombre-menu)",
             }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 h-full">
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(1.5rem, 5vw, 2.5rem)" }}>
                 <div>
-                  <span style={{ display: "block", fontSize: "clamp(48px, 12vw, 88px)", lineHeight: 0.85, color: card.accent, opacity: 0.35, fontWeight: 700, fontFamily: "var(--font-display)", userSelect: "none" }}>
+                  <span style={{ display: "block", fontSize: "clamp(48px, 12vw, 88px)", lineHeight: 0.85, color: card.accent, opacity: 0.35, fontWeight: 900, fontFamily: "var(--font-titre)", userSelect: "none" }}>
                     {card.step}
                   </span>
-                  <h3 style={{ marginTop: "0.5rem", fontSize: "clamp(1.25rem, 4vw, 2rem)", fontWeight: 700, color: card.fg, lineHeight: 1.25 }}>
+                  <h3 className="t-titre-2" style={{ marginTop: "0.5rem", color: card.fg }}>
                     {card.title}
                   </h3>
-                  <p style={{ marginTop: "1rem", fontSize: "0.85rem", lineHeight: 1.65, color: card.fg, opacity: 0.85 }}>
+                  <p className="t-corps" style={{ marginTop: "1rem", color: card.fg }}>
                     {card.desc}
                   </p>
                 </div>
                 <div style={{ marginTop: "1.5rem" }}>
                   <Link to={card.to}>
                     <button
-                      style={{ borderRadius: 8, border: `2px solid ${card.accent}`, color: card.accent, padding: "0.6rem 1.5rem", fontSize: "0.875rem", fontWeight: 500, background: "transparent", cursor: "pointer" }}
+                      className="t-bouton"
+                      style={{ height: "var(--hauteur-controle)", borderRadius: "var(--radius-moyen)", border: `2px solid ${card.accent}`, color: card.accent, padding: "0 24px", background: "transparent", cursor: "pointer" }}
                       onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
                       onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                     >
@@ -439,7 +439,7 @@ function StackedHowItWorks() {
                 </div>
               </div>
               <div className="hidden sm:flex" style={{ alignItems: "center", justifyContent: "center", opacity: 0.16 }}>
-                <card.icon style={{ width: 150, height: 150, color: card.accent }} strokeWidth={0.55} />
+                <card.icon style={{ width: 150, height: 150, color: card.accent }} strokeWidth={2} />
               </div>
             </div>
           </div>,
@@ -472,7 +472,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
                   <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   <div className="absolute right-2 top-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-[#6B1A2F] hover:bg-[#6B1A2F]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive">Complet</Badge>
                       : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
@@ -481,7 +481,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
               ) : (
                 <div className="relative h-2 bg-gradient-vibrant">
                   <div className="absolute -bottom-3 right-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-[#6B1A2F] hover:bg-[#6B1A2F] text-[10px]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600 text-[10px]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive" className="text-[10px]">Complet</Badge>
                       : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
@@ -512,9 +512,9 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
                   </div>
                 )}
                 <div className="mt-4 flex items-center justify-between">
-                  {e.price > 0 ? <span className="text-sm font-semibold text-[#6B1A2F]">{e.price} €</span>
+                  {e.price > 0 ? <span className="text-sm font-semibold text-bordeaux-600">{e.price} €</span>
                     : <Badge variant="secondary" className="text-xs">Gratuit</Badge>}
-                  <span className="text-xs font-semibold text-[#6B1A2F] flex items-center gap-1 group-hover:gap-2 transition-all">Voir <ChevronRight className="h-3 w-3" /></span>
+                  <span className="text-xs font-semibold text-bordeaux-600 flex items-center gap-1 group-hover:gap-2 transition-all">Voir <ChevronRight className="h-3 w-3" /></span>
                 </div>
               </CardContent>
             </Card>
