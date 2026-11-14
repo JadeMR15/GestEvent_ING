@@ -1192,7 +1192,7 @@ function EventDetail() {
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />{takenCount} / {totalCapacity > 0 ? totalCapacity : "∞"}
               {isFull ? <Badge variant="destructive" className="ml-1">Complet</Badge>
-                : remaining < 10 && totalCapacity > 0 ? <Badge className="ml-1 bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
+                : remaining < 10 && totalCapacity > 0 ? <Badge variant="warning" className="ml-1">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                 : null}
             </div>
           </div>

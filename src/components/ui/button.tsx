@@ -34,7 +34,8 @@ const buttonVariants = cva(
         /* Grand : 48 px, padding 24 px, arrondi moyen, texte 16 px */
         default: "h-12 rounded-[var(--radius-moyen)] px-6 text-base",
         /* Petit (tableaux, dashboard) : 36 px, padding 16 px, arrondi petit, texte 14 px */
-        sm: "h-9 rounded-[var(--radius-petit)] px-4 text-sm [&_svg]:size-4",
+        /* Zone tactile étendue à 44 px sur mobile (sans changer la taille visible) */
+        sm: "relative h-9 rounded-[var(--radius-petit)] px-4 text-sm [&_svg]:size-4 max-md:after:absolute max-md:after:-inset-1 max-md:after:content-['']",
         lg: "h-12 rounded-[var(--radius-moyen)] px-6 text-base",
         /* Bouton icône (hors charte) : taille conservée, zone tactile étendue à 44 px sur mobile */
         icon: "relative h-9 w-9 rounded-[var(--radius-moyen)] max-md:after:absolute max-md:after:-inset-1 max-md:after:content-['']",

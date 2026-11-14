@@ -468,7 +468,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
                   <div className="absolute right-2 top-2 flex gap-1">
                     {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
+                      : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
                   </div>
                 </div>
@@ -477,7 +477,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
                   <div className="absolute -bottom-3 right-2 flex gap-1">
                     {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600 text-xs"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
                     {isFull ? <Badge variant="destructive" className="text-xs">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-xs">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
+                      : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
                   </div>
                 </div>
