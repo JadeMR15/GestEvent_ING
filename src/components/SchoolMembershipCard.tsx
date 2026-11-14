@@ -142,7 +142,7 @@ export function SchoolMembershipCard() {
                 {isOrganizer && <p className="text-sm text-muted-foreground">{current.association ?? "Aucune association"}</p>}
                 {locked && associationId && (
                   <Link to="/associations/$associationId" params={{ associationId }} className="text-sm font-medium text-primary hover:underline">
-                    Voir et animer la page de mon association →
+                    Gérer la page publique de mon association →
                   </Link>
                 )}
                 {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}

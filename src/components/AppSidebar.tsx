@@ -57,7 +57,7 @@ export function CountBadge({ count, compact = false, className = "" }: { count: 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { role, signOut, user, isVerified, fullName, avatarPath } = useAuth();
+  const { role, signOut, user, isVerified, fullName, avatarPath, associationId, membershipStatus } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const notifications = useNotifications();
@@ -69,8 +69,13 @@ export function AppSidebar() {
   const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
     { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
-    { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["admin", "organizer", "participant", "volunteer"] },
-    { title: "Associations", url: "/associations", icon: Store, roles: ["admin", "organizer", "participant", "volunteer", "school_admin"] },
+    // Réseau (fil, abonnements) : participants uniquement.
+    { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["participant"] },
+    { title: "Associations", url: "/associations", icon: Store, roles: ["participant"] },
+    // Organisateur : la page publique de son association, à animer (pas de fil ni d'abonnements).
+    ...(associationId && membershipStatus === "approved"
+      ? [{ title: "Page de l'association", url: `/associations/${associationId}`, icon: Store, roles: ["organizer"] }]
+      : []),
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },

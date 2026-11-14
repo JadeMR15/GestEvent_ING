@@ -13,7 +13,7 @@ import { fetchVisibleEvents, useFollows, type PublicAssociation } from "@/lib/so
 
 export const Route = createFileRoute("/associations/")({
   component: () => (
-    <ProtectedLayout>
+    <ProtectedLayout allow={["participant"]}>
       <Directory />
     </ProtectedLayout>
   ),

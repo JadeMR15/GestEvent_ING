@@ -39,7 +39,7 @@ function Group({ title, children }: { title?: string; children: ReactNode }) {
 }
 
 function ProfilePage() {
-  const { user, role, fullName, avatarPath, isVerified, verificationStatus, isStudent, signOut } = useAuth();
+  const { user, role, fullName, avatarPath, isVerified, verificationStatus, isStudent, signOut, associationId, membershipStatus } = useAuth();
   const navigate = useNavigate();
   const photo = avatarUrl(avatarPath);
   const isOrga = role === "organizer" || role === "admin";
@@ -82,10 +82,12 @@ function ProfilePage() {
         </Link>
       )}
 
-      <Group title="Communauté">
-        {role !== "school_admin" && <Row to="/feed" icon={Newspaper} label="Fil d'actu" />}
-        <Row to="/associations" icon={Store} label="Associations" />
-      </Group>
+      {role === "participant" && (
+        <Group title="Communauté">
+          <Row to="/feed" icon={Newspaper} label="Fil d'actu" />
+          <Row to="/associations" icon={Store} label="Associations" />
+        </Group>
+      )}
 
       <Group title="Mon compte">
         <Row to="/settings" icon={Settings} label="Paramètres" />
@@ -99,6 +101,9 @@ function ProfilePage() {
       {isOrga && (
         <Group title="Outils organisateur">
           <Row to="/dashboard" icon={LayoutDashboard} label="Tableau de bord" />
+          {role === "organizer" && associationId && membershipStatus === "approved" && (
+            <Row to={`/associations/${associationId}`} icon={Store} label="Page de l'association" />
+          )}
           <Row to="/analytics" icon={BarChart2} label="Analyses" />
           <Row to="/finance" icon={Euro} label="Finances" />
           <Row to="/export" icon={Download} label="Exporter" />

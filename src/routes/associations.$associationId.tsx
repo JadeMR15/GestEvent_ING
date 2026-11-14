@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarClock, ChevronLeft, Globe, GraduationCap, History, Instagram, Loader2, Newspaper, Pencil, Settings2, Users } from "lucide-react";
+import { CalendarClock, ChevronLeft, Eye, Globe, GraduationCap, History, Instagram, Loader2, Newspaper, Pencil, Settings2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Monogram } from "@/components/SchoolAdminShell";
@@ -91,6 +91,20 @@ function AssociationPage() {
     );
   }
 
+  // Le réseau (abonnements) est réservé aux participants. L'organisateur ne voit que la page
+  // de son association (pour l'animer), l'école celles de ses associations (modération).
+  const isParticipant = role === "participant";
+  const allowed = isParticipant || role === "admin" || canPost || canManage;
+  if (!allowed) {
+    return (
+      <div className="mx-auto max-w-lg py-12 text-center">
+        <p className="text-lg font-semibold">Page réservée aux étudiants</p>
+        <p className="mt-1 text-sm text-muted-foreground">Ton espace organisateur te donne accès à la page de ta propre association.</p>
+        <Button asChild variant="outline" className="mt-4"><Link to="/dashboard">Retour au tableau de bord</Link></Button>
+      </div>
+    );
+  }
+
   const following = follows.following.has(associationId);
   const followers = follows.counts[associationId] ?? 0;
   const logo = associationImage(association.logo_path, fallback);
@@ -123,9 +137,31 @@ function AssociationPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link to="/associations" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-        <ChevronLeft className="h-4 w-4" />Associations
-      </Link>
+      {isParticipant ? (
+        <Link to="/associations" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+          <ChevronLeft className="h-4 w-4" />Associations
+        </Link>
+      ) : role === "school_admin" ? (
+        <Link to="/school-admin/associations/$associationId" params={{ associationId }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+          <ChevronLeft className="h-4 w-4" />Fiche de l'association
+        </Link>
+      ) : (
+        <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+          <ChevronLeft className="h-4 w-4" />Tableau de bord
+        </Link>
+      )}
+
+      {!isParticipant && (
+        <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-secondary/50 px-4 py-3 text-sm">
+          <Eye className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <p>
+            <strong>Aperçu de la page publique</strong> : c'est ce que voient les étudiants.{" "}
+            {isOwnPage
+              ? <>Publie des actualités et complète la description : tes {followers} abonné{followers > 1 ? "s sont prévenus" : " est prévenu"} à chaque nouveauté.</>
+              : role === "school_admin" ? "Vous pouvez supprimer une actualité inappropriée depuis son menu." : null}
+          </p>
+        </div>
+      )}
 
       {/* En-tête façon profil */}
       <Card className="overflow-hidden">
@@ -148,7 +184,7 @@ function AssociationPage() {
               {canManage && role === "school_admin" && (
                 <Button asChild variant="ghost"><Link to="/school-admin/associations/$associationId" params={{ associationId }}><Settings2 className="mr-1.5 h-4 w-4" />Fiche école</Link></Button>
               )}
-              {!isOwnPage && <FollowButton following={following} onToggle={() => follows.toggle(associationId, association.name)} />}
+              {isParticipant && <FollowButton following={following} onToggle={() => follows.toggle(associationId, association.name)} />}
             </div>
           </div>
 
@@ -157,7 +193,7 @@ function AssociationPage() {
             <span><strong className="text-base">{upcoming.length}</strong> <span className="text-muted-foreground">à venir</span></span>
             <span><strong className="text-base">{past.length}</strong> <span className="text-muted-foreground">passé{past.length > 1 ? "s" : ""}</span></span>
             <span><strong className="text-base">{posts.length}</strong> <span className="text-muted-foreground">actualité{posts.length > 1 ? "s" : ""}</span></span>
-            {!isOwnPage && <span className="md:ml-auto"><FollowHint following={following} /></span>}
+            {isParticipant && <span className="md:ml-auto"><FollowHint following={following} /></span>}
           </div>
         </CardContent>
       </Card>
@@ -173,7 +209,7 @@ function AssociationPage() {
 
           <TabsContent value="upcoming" className="space-y-3">
             {upcoming.length === 0
-              ? <Empty text="Aucun événement à venir pour l'instant." hint={!following && !isOwnPage ? "Abonne-toi pour être prévenu du prochain." : undefined} />
+              ? <Empty text="Aucun événement à venir pour l'instant." hint={!following && isParticipant ? "Abonne-toi pour être prévenu du prochain." : undefined} />
               : upcoming.map((e) => <EventMiniCard key={e.id} event={e} />)}
           </TabsContent>
 

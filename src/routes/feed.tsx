@@ -13,7 +13,7 @@ import { fetchVisibleEvents, POST_SELECT, useFollows, usePostLikes, type FeedEve
 
 export const Route = createFileRoute("/feed")({
   component: () => (
-    <ProtectedLayout>
+    <ProtectedLayout allow={["participant"]}>
       <Feed />
     </ProtectedLayout>
   ),

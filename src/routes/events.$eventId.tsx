@@ -1154,7 +1154,7 @@ function EventDetail() {
             )}
             {event.association && (
               event.association_id
-                ? <AssociationChip associationId={event.association_id} name={event.association} />
+                ? <AssociationChip associationId={event.association_id} name={event.association} linkable={!user || role === "participant"} />
                 : (
                   <Badge variant="secondary">
                     <Building2 className="mr-1 h-3.5 w-3.5" />{event.association}
