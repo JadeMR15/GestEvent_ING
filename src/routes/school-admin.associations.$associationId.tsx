@@ -17,6 +17,8 @@ import {
   type ApprovalStatus, type Association, type AssociationStats, type School,
 } from "@/lib/schools";
 import { isPastEvent } from "@/lib/event-dates";
+import { UserAvatar } from "@/components/UserAvatar";
+import { withAvatars } from "@/lib/avatar";
 
 export const Route = createFileRoute("/school-admin/associations/$associationId")({
   component: () => (
@@ -45,6 +47,7 @@ interface Member {
   email: string;
   association_id: string | null;
   membership_status: string;
+  avatar_path?: string | null;
 }
 
 function AssociationDetail({ school, refresh }: { school: School; refresh: () => Promise<void> }) {
@@ -72,7 +75,7 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
     const row = ((st.data as AssociationStats[] | null) ?? []).find((r) => r.association_id === associationId) ?? null;
     setStats(row ? { ...row, revenue: Number(row.revenue) } : null);
     setEvents(ev.data ?? []);
-    setMembers(((mem.data as Member[] | null) ?? []).filter((m) => m.association_id === associationId));
+    setMembers(await withAvatars(((mem.data as Member[] | null) ?? []).filter((m) => m.association_id === associationId)));
     setLoading(false);
   }, [associationId, school.id]);
 
@@ -188,7 +191,8 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
             {members.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Aucun organisateur rattaché.</p>}
             {members.map((m) => (
               <div key={m.id} className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
-                <div className="min-w-0">
+                <UserAvatar path={m.avatar_path} name={m.full_name} size="sm" />
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{m.full_name || "Sans nom"}</p>
                   <a href={`mailto:${m.email}`} className="flex items-center gap-1 truncate text-xs text-muted-foreground hover:text-primary">
                     <Mail className="h-3 w-3" />{m.email}

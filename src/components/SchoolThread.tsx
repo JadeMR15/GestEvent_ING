@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { db, schoolErrorMessage, type SchoolMessage } from "@/lib/schools";
 import { refreshNotifications, setActiveThread } from "@/lib/notifications";
+import { UserAvatar } from "@/components/UserAvatar";
+
+type Sender = { name: string; avatar: string | null };
 
 type Message = SchoolMessage & { events?: { title: string } | null; pending?: boolean };
 
@@ -35,6 +38,8 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
   const [loading, setLoading] = useState(true);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  // Expéditeurs (nom + photo) : on voit qui a écrit dans l'école ou l'association.
+  const [senders, setSenders] = useState<Record<string, Sender>>({});
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const onActivityRef = useRef(onActivity);
@@ -47,8 +52,15 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
       .eq("association_id", associationId)
       .order("created_at", { ascending: false })
       .limit(300);
-    setMessages(((data as Message[] | null) ?? []).reverse());
+    const list = ((data as Message[] | null) ?? []).reverse();
+    setMessages(list);
     setLoading(false);
+    const ids = Array.from(new Set(list.map((m) => m.sender_id).filter((x): x is string => !!x)));
+    if (ids.length) {
+      const { data: profs } = await db.from("profiles").select("id, full_name, avatar_path").in("id", ids);
+      setSenders(Object.fromEntries(((profs ?? []) as { id: string; full_name: string | null; avatar_path: string | null }[])
+        .map((p) => [p.id, { name: p.full_name || "", avatar: p.avatar_path }])));
+    }
     // Lu seulement si la page est vraiment affichée (sinon la relance par email doit partir).
     if (document.visibilityState === "visible") {
       await db.rpc("mark_school_messages_read", { _association_id: associationId });
@@ -149,11 +161,24 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
                       <span className="rounded-full border bg-card px-3 py-1 text-[11px] font-semibold capitalize text-muted-foreground shadow-sm">{dayLabel(date)}</span>
                     </div>
                   )}
-                  <div className={`flex ${me ? "justify-end" : "justify-start"} ${grouped ? "" : "pt-2"}`}>
+                  <div className={`flex items-end gap-2 ${me ? "justify-end" : "justify-start"} ${grouped ? "" : "pt-2"}`}>
+                    {!me && (
+                      // Photo seulement sur le dernier message d'une série (comme les messageries).
+                      messages[i + 1] && messages[i + 1].from_school === m.from_school && isSameDay(new Date(messages[i + 1].created_at), date)
+                        && new Date(messages[i + 1].created_at).getTime() - date.getTime() < 5 * 60_000
+                        ? <span className="w-8 shrink-0" />
+                        : <UserAvatar path={m.sender_id ? senders[m.sender_id]?.avatar : null}
+                            name={(m.sender_id && senders[m.sender_id]?.name) || (m.from_school ? schoolName : associationName)} size="sm" className="mb-4" />
+                    )}
                     <div className={`max-w-[85%] md:max-w-[70%] ${me ? "items-end" : "items-start"} flex flex-col`}>
                       {!grouped && (
                         <span className="mb-1 px-1 text-[11px] font-semibold text-muted-foreground">
-                          {me ? (side === "school" ? "Vous" : "Toi") : m.from_school ? schoolName : associationName}
+                          {me ? (side === "school" ? "Vous" : "Toi") : (() => {
+                            const org = m.from_school ? schoolName : associationName;
+                            const person = m.sender_id ? senders[m.sender_id]?.name : "";
+                            // Côté association : le nom de la personne aide quand il y a plusieurs organisateurs.
+                            return !m.from_school && person ? `${person} · ${org}` : org;
+                          })()}
                         </span>
                       )}
                       <div className={`rounded-2xl px-3.5 py-2 text-sm shadow-sm ${me

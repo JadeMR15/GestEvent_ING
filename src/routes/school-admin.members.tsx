@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { BadgeCheck, CheckCircle2, Loader2, Mail, Search, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { db, schoolErrorMessage, type Association, type School } from "@/lib/schools";
+import { UserAvatar } from "@/components/UserAvatar";
+import { withAvatars } from "@/lib/avatar";
 
 export const Route = createFileRoute("/school-admin/members")({
   component: () => (
@@ -33,6 +35,7 @@ interface Member {
   membership_status: "pending" | "approved" | "rejected" | "none";
   verification_status: string;
   created_at: string;
+  avatar_path?: string | null;
 }
 
 function Members({ school, refresh }: { school: School; refresh: () => Promise<void> }) {
@@ -49,7 +52,7 @@ function Members({ school, refresh }: { school: School; refresh: () => Promise<v
       db.from("associations").select("*").eq("school_id", school.id),
     ]);
     if (m.error) toast.error(schoolErrorMessage(m.error.message));
-    setMembers(m.data ?? []);
+    setMembers(await withAvatars((m.data as Member[] | null) ?? []));
     setAssos(Object.fromEntries(((a.data as Association[] | null) ?? []).map((x) => [x.id, x])));
     setLoading(false);
   }, [school.id]);
@@ -146,6 +149,8 @@ function Members({ school, refresh }: { school: School; refresh: () => Promise<v
 
 function MemberInfo({ m, association }: { m: Member; association?: string }) {
   return (
+    <div className="flex min-w-0 items-center gap-3">
+    <UserAvatar path={m.avatar_path} name={m.full_name} size="md" />
     <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-2">
         <p className="font-medium">{m.full_name || "Sans nom"}</p>
@@ -157,6 +162,7 @@ function MemberInfo({ m, association }: { m: Member; association?: string }) {
         <a href={`mailto:${m.email}`} className="flex items-center gap-1 hover:text-primary"><Mail className="h-3 w-3" />{m.email}</a>
         <span>inscrit le {format(new Date(m.created_at), "d MMM yyyy", { locale: fr })}</span>
       </p>
+    </div>
     </div>
   );
 }

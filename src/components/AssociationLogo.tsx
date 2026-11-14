@@ -134,3 +134,21 @@ export function AssociationLogoEditor({ associationId, name, path, onChange, fal
     </div>
   );
 }
+
+/** Petit badge « association » d'un événement, avec son logo (ou la photo de l'organisateur). */
+export function AssociationChip({ associationId, name, className = "" }: { associationId: string | null | undefined; name: string; className?: string }) {
+  const [logoPath, setLogoPath] = useState<string | null>(null);
+  const fallback = useAssociationFallbacks(associationId ? [associationId] : [])[associationId ?? ""];
+  useEffect(() => {
+    if (!associationId) return;
+    db.from("associations").select("logo_path").eq("id", associationId).maybeSingle()
+      .then(({ data }: { data: { logo_path: string | null } | null }) => setLogoPath(data?.logo_path ?? null));
+  }, [associationId]);
+  const src = associationImage(logoPath, fallback);
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full bg-secondary py-0.5 pl-0.5 pr-2.5 text-xs font-semibold text-secondary-foreground ${src ? "" : "pl-2.5"} ${className}`}>
+      {src && <img src={src} alt="" className="h-5 w-5 rounded-full border bg-white object-cover" />}
+      {name}
+    </span>
+  );
+}

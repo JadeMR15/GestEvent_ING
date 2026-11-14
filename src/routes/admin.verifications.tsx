@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { UserAvatar } from "@/components/UserAvatar";
+import { withAvatars } from "@/lib/avatar";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,7 @@ interface Pending {
   verification_checks: Checks | null;
   student_doc_path: string | null;
   updated_at: string;
+  avatar_path?: string | null;
 }
 
 interface AuditItem {
@@ -36,6 +39,7 @@ interface AuditItem {
   school: string | null;
   verified_at: string | null;
   verification_checks: Checks | null;
+  avatar_path?: string | null;
 }
 
 // Contrôles au hasard des comptes validés automatiquement par justificatif.
@@ -61,7 +65,7 @@ function RandomAudits() {
     const { data, error } = await rpc("pick_verification_audits", { _count: count });
     setDrawing(false);
     if (error) { toast.error("Tirage impossible."); return; }
-    setItems((data ?? []) as AuditItem[]);
+    setItems(await withAvatars((data ?? []) as AuditItem[]));
     if (!data?.length) toast.info("Aucun compte à contrôler.");
   }
 
@@ -98,12 +102,15 @@ function RandomAudits() {
 
         {items.map((p) => (
           <div key={p.id} className="space-y-3 rounded-xl border p-4">
+            <div className="flex items-center gap-3">
+            <UserAvatar path={p.avatar_path} name={p.full_name} size="md" />
             <div>
               <p className="font-semibold">{p.full_name || "Sans nom"}</p>
               <p className="text-sm text-muted-foreground">
                 École déclarée : {p.school || "—"}
                 {p.verified_at && <> · vérifié le {format(new Date(p.verified_at), "d MMM yyyy", { locale: fr })}</>}
               </p>
+            </div>
             </div>
             {p.verification_checks && (
               <div className="space-y-1.5 rounded-lg bg-muted/40 p-3">
@@ -146,7 +153,7 @@ function AdminVerificationsPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, full_name, school, verification_note, verification_checks, student_doc_path, updated_at")
+      .select("id, full_name, school, verification_note, verification_checks, student_doc_path, updated_at, avatar_path")
       .eq("verification_status", "review")
       .order("updated_at", { ascending: true });
     if (error) toast.error("Chargement impossible.");
@@ -211,9 +218,12 @@ function AdminVerificationsPage() {
           <Card key={p.id}>
             <CardContent className="space-y-4 p-5">
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="text-lg font-semibold">{p.full_name || "Sans nom"}</p>
-                  <p className="text-sm text-muted-foreground">École déclarée : {p.school || "—"}</p>
+                <div className="flex items-center gap-3">
+                  <UserAvatar path={p.avatar_path} name={p.full_name} size="lg" />
+                  <div>
+                    <p className="text-lg font-semibold">{p.full_name || "Sans nom"}</p>
+                    <p className="text-sm text-muted-foreground">École déclarée : {p.school || "—"}</p>
+                  </div>
                 </div>
                 {p.student_doc_path && docUrls[p.student_doc_path] ? (
                   <Button asChild variant="outline" size="sm">
