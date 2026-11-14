@@ -4,7 +4,8 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Monogram, SchoolAdminShell } from "@/components/SchoolAdminShell";
-import { associationLogoUrl } from "@/components/AssociationLogo";
+import { associationImage, useAssociationFallbacks } from "@/components/AssociationLogo";
+import { useNotifications } from "@/lib/notifications";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertTriangle, ArrowRight, CalendarDays, Euro, Loader2, Plus, Search, ShieldCheck, Ticket, UsersRound } from "lucide-react";
+import { AlertTriangle, ArrowRight, MessageSquare, CalendarDays, Euro, Loader2, Plus, Search, ShieldCheck, Ticket, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 import { db, euro, pct, schoolErrorMessage, ASSOCIATION_STATUS_BADGE as STATUS_BADGE, type Association, type AssociationStats, type School } from "@/lib/schools";
 
@@ -43,6 +44,8 @@ function Overview({ school, refresh }: { school: School; refresh: () => Promise<
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [adding, setAdding] = useState(false);
+  const fallbacks = useAssociationFallbacks(associations.map((a) => a.id));
+  const unread = useNotifications().school_messages_by_association ?? {};
 
   const load = useCallback(async () => {
     const [{ data: assos }, { data: st, error: stErr }] = await Promise.all([
@@ -168,7 +171,8 @@ function Overview({ school, refresh }: { school: School; refresh: () => Promise<
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((a) => (
-              <AssociationCard key={a.id} association={a} stats={stats[a.id]} busy={busyId === a.id} onUpdate={update} />
+              <AssociationCard key={a.id} association={a} stats={stats[a.id]} busy={busyId === a.id} onUpdate={update}
+                fallbackLogo={fallbacks[a.id]} unread={unread[a.id] ?? 0} />
             ))}
           </div>
         )}
@@ -179,8 +183,10 @@ function Overview({ school, refresh }: { school: School; refresh: () => Promise<
   );
 }
 
-function AssociationCard({ association: a, stats: st, busy, onUpdate }: {
+function AssociationCard({ association: a, stats: st, busy, onUpdate, fallbackLogo, unread }: {
   association: Association;
+  fallbackLogo?: string;
+  unread: number;
   stats: AssociationStats | undefined;
   busy: boolean;
   onUpdate: (a: Association, patch: Partial<Association>, ok: string) => void;
@@ -197,7 +203,7 @@ function AssociationCard({ association: a, stats: st, busy, onUpdate }: {
     <Card className={`flex flex-col transition-shadow hover:shadow-md ${a.status === "pending" ? "border-amber-300 ring-1 ring-amber-200" : ""} ${a.status === "suspended" ? "opacity-75" : ""}`}>
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="flex items-start gap-3">
-          <Monogram name={a.name} src={associationLogoUrl(a.logo_path)} />
+          <Monogram name={a.name} src={associationImage(a.logo_path, fallbackLogo)} />
           <div className="min-w-0 flex-1">
             <Link to="/school-admin/associations/$associationId" params={{ associationId: a.id }}
               className="line-clamp-2 text-base font-semibold leading-snug hover:text-primary hover:underline">{a.name}</Link>
@@ -223,6 +229,14 @@ function AssociationCard({ association: a, stats: st, busy, onUpdate }: {
             </div>
           ))}
         </dl>
+
+        {unread > 0 && (
+          <Link to="/school-admin/associations/$associationId" params={{ associationId: a.id }} hash="messages"
+            className="flex items-center gap-2 rounded-lg bg-[#F8E7B5] px-3 py-2 text-xs font-semibold text-[#4A0F20] hover:bg-[#F3D27A]">
+            <MessageSquare className="h-3.5 w-3.5" />
+            {unread} nouveau{unread > 1 ? "x" : ""} message{unread > 1 ? "s" : ""}
+          </Link>
+        )}
 
         {st?.events_pending ? (
           <Link to="/school-admin/reviews" className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-900 hover:bg-amber-100">

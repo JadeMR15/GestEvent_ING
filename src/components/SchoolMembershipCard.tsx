@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AssociationLogoEditor } from "@/components/AssociationLogo";
+import { avatarUrl } from "@/lib/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ const MEMBERSHIP: Record<string, { label: string; className: string; hint: strin
 
 /** Paramètres : rattachement à une école / association, et statut étudiant. */
 export function SchoolMembershipCard() {
-  const { user, role, isStudent, schoolId, associationId, membershipStatus, verificationStatus, refreshProfile } = useAuth();
+  const { user, role, isStudent, schoolId, associationId, membershipStatus, verificationStatus, refreshProfile, avatarPath } = useAuth();
   const isOrganizer = role === "organizer";
   const [current, setCurrent] = useState<{ school: string; association: string | null; logo: string | null } | null>(null);
   const [editing, setEditing] = useState(false);
@@ -127,6 +128,7 @@ export function SchoolMembershipCard() {
             <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl border px-4 py-3">
               {isOrganizer && associationId && current.association && membershipStatus === "approved" && (
                 <AssociationLogoEditor associationId={associationId} name={current.association} path={current.logo} size="md"
+                  fallbackSrc={avatarUrl(avatarPath)}
                   onChange={(logo) => setCurrent({ ...current, logo })} />
               )}
               <div className="min-w-0 flex-1">

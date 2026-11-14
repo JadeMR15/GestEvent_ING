@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { db, schoolErrorMessage, type SchoolMessage } from "@/lib/schools";
+import { refreshNotifications, setActiveThread } from "@/lib/notifications";
 
 interface Props {
   associationId: string;
@@ -33,10 +34,30 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
       .limit(200);
     setMessages(data ?? []);
     setLoading(false);
-    db.rpc("mark_school_messages_read", { _association_id: associationId });
+    // Lu seulement si la page est vraiment affichée (sinon la relance par email doit partir).
+    if (document.visibilityState === "visible") {
+      await db.rpc("mark_school_messages_read", { _association_id: associationId });
+      refreshNotifications();
+    }
   }, [associationId]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Nouveaux messages en direct ; marqués lus au retour sur l'onglet.
+  useEffect(() => {
+    setActiveThread(associationId);
+    const onMessage = (e: Event) => {
+      if ((e as CustomEvent<{ association_id: string }>).detail.association_id === associationId) load();
+    };
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    window.addEventListener("plav:new-message", onMessage);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      setActiveThread(null);
+      window.removeEventListener("plav:new-message", onMessage);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [associationId, load]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ block: "nearest" }); }, [messages.length]);
 
   async function send() {

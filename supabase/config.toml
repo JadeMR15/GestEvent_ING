@@ -8,3 +8,6 @@ verify_jwt = false
 # la fonction vérifie elle-même l'appelant selon l'action.
 [functions.school-email]
 verify_jwt = false
+
+[functions.send-message-reminders]
+verify_jwt = false

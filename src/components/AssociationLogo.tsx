@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Monogram } from "@/components/SchoolAdminShell";
 import { db, schoolErrorMessage } from "@/lib/schools";
+import { avatarUrl } from "@/lib/avatar";
 
 export const LOGO_BUCKET = "association-logos";
 const LOGO_ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
@@ -14,6 +15,33 @@ const LOGO_MAX_SIDE = 512;
 export function associationLogoUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   return supabase.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+/**
+ * Photo de profil de l'organisateur, par association : affichée tant que l'association
+ * n'a pas de logo (c'est souvent la photo mise à l'inscription).
+ */
+export function useAssociationFallbacks(ids: string[]): Record<string, string> {
+  const key = [...ids].sort().join(",");
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!key) { setUrls({}); return; }
+    db.rpc("association_avatar_fallbacks", { _ids: key.split(",") })
+      .then(({ data }: { data: { association_id: string; avatar_path: string }[] | null }) => {
+        const next: Record<string, string> = {};
+        for (const r of data ?? []) {
+          const url = avatarUrl(r.avatar_path);
+          if (url) next[r.association_id] = url;
+        }
+        setUrls(next);
+      });
+  }, [key]);
+  return urls;
+}
+
+/** Logo de l'association, sinon photo de son organisateur. */
+export function associationImage(path: string | null | undefined, fallback?: string | null): string | null {
+  return associationLogoUrl(path) ?? fallback ?? null;
 }
 
 /** Réduit le logo à 512 px max (sans le recadrer : un logo peut être large) et le convertit en WebP. */
@@ -37,12 +65,14 @@ interface Props {
   name: string;
   path: string | null | undefined;
   onChange: (path: string | null) => void;
+  /** Image affichée sans logo (photo de l'organisateur). */
+  fallbackSrc?: string | null;
   size?: "md" | "lg";
   className?: string;
 }
 
 /** Logo de l'association avec boutons « Changer » / « Retirer ». */
-export function AssociationLogoEditor({ associationId, name, path, onChange, size = "lg", className = "" }: Props) {
+export function AssociationLogoEditor({ associationId, name, path, onChange, fallbackSrc, size = "lg", className = "" }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -83,14 +113,14 @@ export function AssociationLogoEditor({ associationId, name, path, onChange, siz
       <button type="button" onClick={() => input.current?.click()} disabled={busy}
         className="group relative rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={path ? "Changer le logo" : "Ajouter un logo"}>
-        <Monogram name={name} src={associationLogoUrl(path)} size={size} />
+        <Monogram name={name} src={associationImage(path, fallbackSrc)} size={size} />
         <span className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/45 text-white opacity-0 transition-opacity group-hover:opacity-100">
           {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
         </span>
       </button>
       <div className="flex items-center gap-1">
         <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={busy} onClick={() => input.current?.click()}>
-          {path ? "Changer le logo" : "Ajouter un logo"}
+          {path || fallbackSrc ? "Changer le logo" : "Ajouter un logo"}
         </Button>
         {path && (
           <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" disabled={busy}

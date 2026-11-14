@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { SchoolAdminShell } from "@/components/SchoolAdminShell";
-import { AssociationLogoEditor } from "@/components/AssociationLogo";
+import { AssociationLogoEditor, useAssociationFallbacks } from "@/components/AssociationLogo";
 import { SchoolThread } from "@/components/SchoolThread";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +55,7 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const fallback = useAssociationFallbacks([associationId])[associationId];
 
   const load = useCallback(async () => {
     const [a, st, ev, mem] = await Promise.all([
@@ -103,7 +104,7 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
         <CardContent className="p-0">
           <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between md:p-6">
             <div className="flex min-w-0 items-start gap-4">
-              <AssociationLogoEditor associationId={association.id} name={association.name} path={association.logo_path}
+              <AssociationLogoEditor associationId={association.id} name={association.name} path={association.logo_path} fallbackSrc={fallback}
                 onChange={(logo_path) => setAssociation({ ...association, logo_path })} />
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fiche association</p>
@@ -201,7 +202,7 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
         </Card>
       </div>
 
-      <Card>
+      <Card id="messages">
         <CardHeader><CardTitle className="text-lg">Messages avec {association.name}</CardTitle></CardHeader>
         <CardContent>
           <SchoolThread associationId={association.id} side="school" schoolName={school.name} associationName={association.name} />

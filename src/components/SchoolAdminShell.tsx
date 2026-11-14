@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { db, type School } from "@/lib/schools";
 import { avatarUrl } from "@/lib/avatar";
+import { badgeFor, refreshNotifications, useNotifications } from "@/lib/notifications";
 
 /** École administrée par l'utilisateur connecté. */
 export function useMySchool() {
@@ -85,9 +86,14 @@ interface ShellProps {
 export function SchoolAdminShell({ title, subtitle, actions, children }: ShellProps) {
   const { school, loading, reload } = useMySchool();
   const { role, avatarPath } = useAuth();
-  const { counters, refresh: refreshCounters } = useSchoolCounters(school?.status === "active" ? school.id : undefined);
-  const refresh = useCallback(async () => { await Promise.all([reload(), refreshCounters()]); }, [reload, refreshCounters]);
-  const badges: Record<string, number> = { "/school-admin/reviews": counters.reviews, "/school-admin/members": counters.members };
+  const notifications = useNotifications();
+  const refresh = useCallback(async () => { await Promise.all([reload(), refreshNotifications()]); }, [reload]);
+  // « Vue d'ensemble » : messages non lus des associations.
+  const badges: Record<string, number> = {
+    "/school-admin": notifications.school_messages ?? 0,
+    "/school-admin/reviews": badgeFor("/school-admin/reviews", notifications),
+    "/school-admin/members": badgeFor("/school-admin/members", notifications),
+  };
   const pathname = useRouterState({ select: (s) => s.location.pathname.replace(/\/$/, "") });
 
   if (loading) {
@@ -181,19 +187,4 @@ function EmptyState({ icon, title, text }: { icon: ReactNode; title: string; tex
       </Card>
     </div>
   );
-}
-
-/** Compteurs pour les pastilles des onglets. */
-export function useSchoolCounters(schoolId: string | undefined) {
-  const [counters, setCounters] = useState({ reviews: 0, members: 0 });
-  const refresh = useCallback(async () => {
-    if (!schoolId) return;
-    const [ev, mem] = await Promise.all([
-      db.from("events").select("id", { count: "exact", head: true }).eq("school_id", schoolId).eq("approval_status", "pending"),
-      db.from("profiles").select("id", { count: "exact", head: true }).eq("school_id", schoolId).eq("membership_status", "pending"),
-    ]);
-    setCounters({ reviews: ev.count ?? 0, members: mem.count ?? 0 });
-  }, [schoolId]);
-  useEffect(() => { refresh(); }, [refresh]);
-  return { counters, refresh };
 }

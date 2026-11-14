@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Hourglass,
   Heart,
+  Bell,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +38,19 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { RoleAvatar } from "@/components/RoleAvatar";
 import { MySchoolBadge } from "@/components/SchoolBadge";
+import { badgeFor, enableSystemNotifications, useNotificationPermission, useNotifications } from "@/lib/notifications";
+import { toast } from "sonner";
+
+/** Pastille du nombre de notifications (point seul quand la barre est repliée). */
+export function CountBadge({ count, compact = false, className = "" }: { count: number; compact?: boolean; className?: string }) {
+  if (count <= 0) return null;
+  if (compact) return <span aria-label={`${count} nouveau(x)`} className={`absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#E8B22E] ring-2 ring-sidebar ${className}`} />;
+  return (
+    <span className={`ml-auto min-w-[1.25rem] rounded-full bg-[#E8B22E] px-1.5 text-center text-[11px] font-bold leading-5 text-[#4A0F20] ${className}`}>
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -44,6 +58,8 @@ export function AppSidebar() {
   const { role, signOut, user, isVerified, fullName, avatarPath } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const notifications = useNotifications();
+  const permission = useNotificationPermission();
 
   const isActive = (p: string) => pathname === p || pathname.startsWith(p + "/");
 
@@ -94,8 +110,12 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
+                      <span className="relative">
+                        <item.icon className="h-4 w-4" />
+                        {collapsed && <CountBadge compact count={badgeFor(item.url, notifications)} />}
+                      </span>
                       {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <CountBadge count={badgeFor(item.url, notifications)} />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -125,6 +145,20 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        {permission === "default" && (
+          <Button
+            variant="ghost"
+            size={collapsed ? "icon" : "sm"}
+            title="Activer les notifications"
+            onClick={async () => {
+              if (await enableSystemNotifications()) toast.success("Notifications activées.");
+            }}
+            className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <Bell className="h-4 w-4" />
+            {!collapsed && <span className="ml-2">Activer les notifications</span>}
+          </Button>
+        )}
         <div className={`flex py-1 ${collapsed ? "justify-center" : "justify-start px-1"}`}>
           <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" />
         </div>
