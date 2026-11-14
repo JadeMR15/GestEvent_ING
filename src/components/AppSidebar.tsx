@@ -61,7 +61,8 @@ export function AppSidebar() {
   const notifications = useNotifications();
   const permission = useNotificationPermission();
 
-  const isActive = (p: string) => pathname === p || pathname.startsWith(p + "/");
+  const isActive = (p: string) =>
+    p === "/school-admin" && pathname.startsWith("/school-admin/messages") ? false : pathname === p || pathname.startsWith(p + "/");
 
   const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
@@ -73,6 +74,7 @@ export function AppSidebar() {
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
     { title: "Messages école", url: "/messages", icon: MessageSquare, roles: ["organizer"] },
     { title: "Espace école", url: "/school-admin", icon: Building2, roles: ["school_admin"] },
+    { title: "Messages", url: "/school-admin/messages", icon: MessageSquare, roles: ["school_admin"] },
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
     { title: "Écoles", url: "/admin/schools", icon: Building2, roles: ["admin"] },
     { title: "Événements likés", url: "/likes", icon: Heart, roles: ["admin", "organizer", "participant", "volunteer"] },

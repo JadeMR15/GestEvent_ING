@@ -5,12 +5,12 @@ import { fr } from "date-fns/locale";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { SchoolAdminShell } from "@/components/SchoolAdminShell";
 import { AssociationLogoEditor, useAssociationFallbacks } from "@/components/AssociationLogo";
-import { SchoolThread } from "@/components/SchoolThread";
+import { useNotifications } from "@/lib/notifications";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronLeft, Loader2, Mail, MessageSquare, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import {
   APPROVAL_BADGE, APPROVAL_LABEL, ASSOCIATION_STATUS_BADGE, db, euro, pct, schoolErrorMessage,
@@ -56,6 +56,7 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const fallback = useAssociationFallbacks([associationId])[associationId];
+  const unread = useNotifications().school_messages_by_association?.[associationId] ?? 0;
 
   const load = useCallback(async () => {
     const [a, st, ev, mem] = await Promise.all([
@@ -202,12 +203,18 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
         </Card>
       </div>
 
-      <Card id="messages">
-        <CardHeader><CardTitle className="text-lg">Messages avec {association.name}</CardTitle></CardHeader>
-        <CardContent>
-          <SchoolThread associationId={association.id} side="school" schoolName={school.name} associationName={association.name} />
-        </CardContent>
-      </Card>
+      <Link to="/school-admin/messages" search={{ a: association.id }}
+        className="flex items-center gap-4 rounded-xl border bg-card p-5 shadow-sm transition-colors hover:border-primary/40 hover:bg-secondary/40">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary"><MessageSquare className="h-5 w-5" /></span>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold">Messages avec {association.name}</p>
+          <p className="text-sm text-muted-foreground">
+            {unread > 0 ? `${unread} nouveau${unread > 1 ? "x" : ""} message${unread > 1 ? "s" : ""}` : "Ouvrir la conversation dans la messagerie"}
+          </p>
+        </div>
+        {unread > 0 && <span className="rounded-full bg-[#E8B22E] px-2 text-xs font-bold leading-5 text-[#4A0F20]">{unread}</span>}
+        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+      </Link>
     </div>
   );
 }

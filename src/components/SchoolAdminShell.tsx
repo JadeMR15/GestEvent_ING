@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { AtSign, BadgeCheck, Building2, ClipboardCheck, Clock, LayoutDashboard, Loader2, Settings, Users, XCircle } from "lucide-react";
+import { AtSign, BadgeCheck, Building2, ClipboardCheck, Clock, LayoutDashboard, Loader2, MessageSquare, Settings, Users, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { db, type School } from "@/lib/schools";
@@ -31,6 +31,7 @@ export function useMySchool() {
 
 const TABS = [
   { to: "/school-admin", label: "Vue d'ensemble", icon: LayoutDashboard },
+  { to: "/school-admin/messages", label: "Messages", icon: MessageSquare },
   { to: "/school-admin/reviews", label: "Validation", icon: ClipboardCheck },
   { to: "/school-admin/members", label: "Membres", icon: Users },
   { to: "/school-admin/settings", label: "Réglages", icon: Settings },
@@ -88,9 +89,8 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
   const { role, avatarPath } = useAuth();
   const notifications = useNotifications();
   const refresh = useCallback(async () => { await Promise.all([reload(), refreshNotifications()]); }, [reload]);
-  // « Vue d'ensemble » : messages non lus des associations.
   const badges: Record<string, number> = {
-    "/school-admin": notifications.school_messages ?? 0,
+    "/school-admin/messages": badgeFor("/school-admin/messages", notifications),
     "/school-admin/reviews": badgeFor("/school-admin/reviews", notifications),
     "/school-admin/members": badgeFor("/school-admin/members", notifications),
   };

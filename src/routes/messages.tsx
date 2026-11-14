@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { SchoolThread } from "@/components/SchoolThread";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Monogram } from "@/components/SchoolAdminShell";
 import { Button } from "@/components/ui/button";
 import { Building2, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,16 +54,20 @@ function MessagesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Messages</h1>
-        <p className="text-muted-foreground">Échanges entre {names.association} et l'administration de {names.school}.</p>
-      </div>
-      <Card>
-        <CardHeader><CardTitle className="text-lg">{names.school}</CardTitle></CardHeader>
-        <CardContent>
-          <SchoolThread associationId={associationId} side="association" schoolName={names.school} associationName={names.association} />
-        </CardContent>
+    <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[480px] max-w-4xl flex-col md:h-[calc(100dvh-4rem)]">
+      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <header className="flex items-center gap-3 border-b px-4 py-3 md:px-6">
+          <Monogram name={names.school} className="!h-11 !w-11 text-sm" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Messagerie</p>
+            <p className="truncate text-lg font-bold leading-tight">{names.school}</p>
+          </div>
+          <span className="hidden text-right text-xs text-muted-foreground sm:block">
+            Tu écris au nom de<br /><span className="font-semibold text-foreground">{names.association}</span>
+          </span>
+        </header>
+        <SchoolThread associationId={associationId} side="association" schoolName={names.school}
+          associationName={names.association} className="flex-1" />
       </Card>
     </div>
   );

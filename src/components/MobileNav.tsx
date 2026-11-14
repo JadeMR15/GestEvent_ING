@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, Building2, CalendarDays, CheckSquare, Compass, Home, Plus, QrCode, Ticket, UserRound, Users, type LucideIcon } from "lucide-react";
+import { Bell, Building2, MessageSquare, CalendarDays, CheckSquare, Compass, Home, Plus, QrCode, Ticket, UserRound, Users, type LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
@@ -18,6 +18,7 @@ function tabsFor(role: AppRole | null): Tab[] {
     case "school_admin":
       return [
         { title: "École", url: "/school-admin", icon: Building2 },
+        { title: "Messages", url: "/school-admin/messages", icon: MessageSquare },
         { title: "Validation", url: "/school-admin/reviews", icon: CheckSquare },
         { title: "Membres", url: "/school-admin/members", icon: Users },
         { title: "Profil", url: "/profile", icon: UserRound },
@@ -95,7 +96,7 @@ export function MobileTabBar() {
 }
 
 // Où mène la cloche : la première rubrique qui a du nouveau.
-const BELL_TARGETS = ["/messages", "/school-admin/reviews", "/school-admin/members", "/school-admin", "/admin/verifications", "/admin/schools", "/waitlist"];
+const BELL_TARGETS = ["/messages", "/school-admin/messages", "/school-admin/reviews", "/school-admin/members", "/school-admin", "/admin/verifications", "/admin/schools", "/waitlist"];
 
 function NotificationBell() {
   const notifications = useNotifications();

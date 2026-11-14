@@ -49,7 +49,8 @@ export function totalNotifications(c: NotificationCounts = counts): number {
 export function badgeFor(url: string, c: NotificationCounts): number {
   switch (url) {
     case "/messages": return c.association_messages ?? 0;
-    case "/school-admin": return (c.school_messages ?? 0) + (c.school_reviews ?? 0) + (c.school_members ?? 0);
+    case "/school-admin/messages": return c.school_messages ?? 0;
+    case "/school-admin": return (c.school_reviews ?? 0) + (c.school_members ?? 0);
     case "/school-admin/reviews": return c.school_reviews ?? 0;
     case "/school-admin/members": return c.school_members ?? 0;
     case "/admin/verifications": return c.admin_verifications ?? 0;
@@ -138,7 +139,7 @@ async function onNewMessage(m: MessageRow) {
     const { data } = await db.from("associations").select("name").eq("id", m.association_id).maybeSingle();
     from = data?.name ?? "Une association";
   }
-  const url = m.from_school ? "/messages" : `/school-admin/associations/${m.association_id}`;
+  const url = m.from_school ? "/messages" : `/school-admin/messages?a=${m.association_id}`;
   const body = m.body.length > 140 ? `${m.body.slice(0, 140)}…` : m.body;
   notify(`Nouveau message de ${from}`, body, url, `msg-${m.association_id}`);
 }
@@ -193,7 +194,7 @@ export function useNotifications(): NotificationCounts {
   const { user } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
-    go = (url) => { navigate({ to: url }); };
+    go = (url) => { navigate({ href: url }); };
   }, [navigate]);
   useEffect(() => {
     if (user) start(user.id);
