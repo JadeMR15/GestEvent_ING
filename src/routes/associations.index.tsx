@@ -112,7 +112,7 @@ function Directory() {
                       : <img src="/plav-cocotte.svg" alt="" className="absolute -right-4 -top-6 h-32 w-32 opacity-15" />}
                   </div>
                   {/* Logo centré, à cheval sur la bannière */}
-                  <div className="-mt-12 flex justify-center">
+                  <div className="relative z-10 -mt-12 flex justify-center">
                     <AssociationAvatar name={a.name} logoPath={a.logo_path} fallback={fallbacks[a.id]}
                       className="!h-24 !w-24 !rounded-full text-2xl ring-4 ring-blanc shadow-[var(--ombre-carte)]" />
                   </div>

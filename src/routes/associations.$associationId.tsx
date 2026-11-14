@@ -284,7 +284,7 @@ function AssociationPage() {
         </div>
 
         {/* Logo centré, à cheval sur la couverture, puis le nom en grand */}
-        <div className="relative -mt-20 flex flex-col items-center px-5 pb-6 text-center md:-mt-24 md:px-8">
+        <div className="relative z-10 -mt-20 flex flex-col items-center px-5 pb-6 text-center md:-mt-24 md:px-8">
           <Monogram name={association.name} src={logo} size="lg" fill
             className="!h-36 !w-36 !rounded-full text-5xl ring-[6px] ring-blanc shadow-[var(--ombre-menu)] md:!h-44 md:!w-44" />
           <h1 className="mt-4 text-encre max-md:text-[28px]">{association.name}</h1>
