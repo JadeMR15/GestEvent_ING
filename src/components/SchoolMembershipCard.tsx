@@ -140,6 +140,11 @@ export function SchoolMembershipCard() {
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">{current.school}</p>
                 {isOrganizer && <p className="text-sm text-muted-foreground">{current.association ?? "Aucune association"}</p>}
+                {locked && associationId && (
+                  <Link to="/associations/$associationId" params={{ associationId }} className="text-sm font-medium text-primary hover:underline">
+                    Voir et animer la page de mon association →
+                  </Link>
+                )}
                 {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
                 {locked && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">

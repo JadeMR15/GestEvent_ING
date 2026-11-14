@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import {
   BadgeCheck, BarChart2, Building2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut,
-  MessageSquare, Settings, ShieldAlert, ShieldCheck, Ticket, Users, type LucideIcon,
+  MessageSquare, Newspaper, Settings, ShieldAlert, ShieldCheck, Store, Ticket, Users, type LucideIcon,
 } from "lucide-react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -81,6 +81,11 @@ function ProfilePage() {
           <ChevronRight className="h-4 w-4" />
         </Link>
       )}
+
+      <Group title="Communauté">
+        {role !== "school_admin" && <Row to="/feed" icon={Newspaper} label="Fil d'actu" />}
+        <Row to="/associations" icon={Store} label="Associations" />
+      </Group>
 
       <Group title="Mon compte">
         <Row to="/settings" icon={Settings} label="Paramètres" />

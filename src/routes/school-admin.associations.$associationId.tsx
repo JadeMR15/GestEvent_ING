@@ -116,6 +116,11 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <Badge className={badge.className}>{badge.label}</Badge>
                   {association.created_at && <span>Créée le {format(new Date(association.created_at), "d MMMM yyyy", { locale: fr })}</span>}
+                  {association.status === "active" && (
+                    <Link to="/associations/$associationId" params={{ associationId: association.id }} className="font-medium text-primary hover:underline">
+                      Voir la page publique →
+                    </Link>
+                  )}
                 </div>
                 {association.description && <p className="mt-2 max-w-xl text-sm text-muted-foreground">{association.description}</p>}
               </div>

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, Building2, MessageSquare, CalendarDays, CheckSquare, Compass, Home, Plus, QrCode, Ticket, UserRound, Users, type LucideIcon } from "lucide-react";
+import { Bell, Building2, MessageSquare, Newspaper, CalendarDays, CheckSquare, Compass, Home, Plus, QrCode, Ticket, UserRound, Users, type LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
@@ -35,6 +35,7 @@ function tabsFor(role: AppRole | null): Tab[] {
     default:
       return [
         { title: "Explorer", url: "/events", icon: Compass },
+        { title: "Fil", url: "/feed", icon: Newspaper },
         { title: "Billets", url: "/my-tickets", icon: Ticket },
         { title: "Profil", url: "/profile", icon: UserRound },
       ];

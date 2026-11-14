@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Camera, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -145,10 +146,10 @@ export function AssociationChip({ associationId, name, className = "" }: { assoc
       .then(({ data }: { data: { logo_path: string | null } | null }) => setLogoPath(data?.logo_path ?? null));
   }, [associationId]);
   const src = associationImage(logoPath, fallback);
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full bg-secondary py-0.5 pl-0.5 pr-2.5 text-xs font-semibold text-secondary-foreground ${src ? "" : "pl-2.5"} ${className}`}>
-      {src && <img src={src} alt="" className="h-5 w-5 rounded-full border bg-white object-cover" />}
-      {name}
-    </span>
-  );
+  const cls = `inline-flex items-center gap-1.5 rounded-full bg-secondary py-0.5 pl-0.5 pr-2.5 text-xs font-semibold text-secondary-foreground ${src ? "" : "pl-2.5"} ${className}`;
+  const inner = <>{src && <img src={src} alt="" className="h-5 w-5 rounded-full border bg-white object-cover" />}{name}</>;
+  // Lien vers la page publique de l'association.
+  return associationId
+    ? <Link to="/associations/$associationId" params={{ associationId }} className={`${cls} hover:bg-secondary/70 hover:underline`}>{inner}</Link>
+    : <span className={cls}>{inner}</span>;
 }

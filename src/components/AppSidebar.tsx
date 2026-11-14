@@ -19,6 +19,8 @@ import {
   Hourglass,
   Heart,
   Bell,
+  Newspaper,
+  Store,
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,6 +69,8 @@ export function AppSidebar() {
   const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
     { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
+    { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["admin", "organizer", "participant", "volunteer"] },
+    { title: "Associations", url: "/associations", icon: Store, roles: ["admin", "organizer", "participant", "volunteer", "school_admin"] },
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },

@@ -16,6 +16,7 @@ import { Route as ConfirmerEcoleRouteImport } from './routes/confirmer-ecole'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as ExportRouteImport } from './routes/export'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as LoginRouteImport } from './routes/login'
@@ -32,6 +33,8 @@ import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
+import { Route as AssociationsIndexRouteImport } from './routes/associations.index'
+import { Route as AssociationsAssociationIdRouteImport } from './routes/associations.$associationId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
@@ -78,6 +81,11 @@ const EmailsRoute = EmailsRouteImport.update({
 const ExportRoute = ExportRouteImport.update({
   id: '/export',
   path: '/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanceRoute = FinanceRouteImport.update({
@@ -160,6 +168,17 @@ const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   path: '/admin/verifications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssociationsIndexRoute = AssociationsIndexRouteImport.update({
+  id: '/associations/',
+  path: '/associations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssociationsAssociationIdRoute =
+  AssociationsAssociationIdRouteImport.update({
+    id: '/associations/$associationId',
+    path: '/associations/$associationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -230,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
+  '/feed': typeof FeedRoute
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
@@ -246,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/waitlist': typeof WaitlistRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
@@ -254,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/associations/': typeof AssociationsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
@@ -267,6 +289,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
+  '/feed': typeof FeedRoute
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
@@ -283,6 +306,7 @@ export interface FileRoutesByTo {
   '/waitlist': typeof WaitlistRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
@@ -291,6 +315,7 @@ export interface FileRoutesByTo {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/associations': typeof AssociationsIndexRoute
   '/events': typeof EventsIndexRoute
   '/school-admin': typeof SchoolAdminIndexRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
@@ -305,6 +330,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
+  '/feed': typeof FeedRoute
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
@@ -321,6 +347,7 @@ export interface FileRoutesById {
   '/waitlist': typeof WaitlistRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
@@ -329,6 +356,7 @@ export interface FileRoutesById {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/associations/': typeof AssociationsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
   '/events/$eventId_/edit': typeof EventsEventIdEditRoute
@@ -344,6 +372,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/emails'
     | '/export'
+    | '/feed'
     | '/finance'
     | '/likes'
     | '/login'
@@ -360,6 +389,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin/schools'
     | '/admin/verifications'
+    | '/associations/$associationId'
     | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
@@ -368,6 +398,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/associations/'
     | '/events/'
     | '/school-admin/'
     | '/events/$eventId/edit'
@@ -381,6 +412,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/emails'
     | '/export'
+    | '/feed'
     | '/finance'
     | '/likes'
     | '/login'
@@ -397,6 +429,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin/schools'
     | '/admin/verifications'
+    | '/associations/$associationId'
     | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
@@ -405,6 +438,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/associations'
     | '/events'
     | '/school-admin'
     | '/events/$eventId/edit'
@@ -418,6 +452,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/emails'
     | '/export'
+    | '/feed'
     | '/finance'
     | '/likes'
     | '/login'
@@ -434,6 +469,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin/schools'
     | '/admin/verifications'
+    | '/associations/$associationId'
     | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
@@ -442,6 +478,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/associations/'
     | '/events/'
     | '/school-admin/'
     | '/events/$eventId_/edit'
@@ -456,6 +493,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
+  FeedRoute: typeof FeedRoute
   FinanceRoute: typeof FinanceRoute
   LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
@@ -472,6 +510,7 @@ export interface RootRouteChildren {
   WaitlistRoute: typeof WaitlistRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AssociationsAssociationIdRoute: typeof AssociationsAssociationIdRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
@@ -480,6 +519,7 @@ export interface RootRouteChildren {
   SchoolAdminReviewsRoute: typeof SchoolAdminReviewsRoute
   SchoolAdminSettingsRoute: typeof SchoolAdminSettingsRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
+  AssociationsIndexRoute: typeof AssociationsIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   SchoolAdminIndexRoute: typeof SchoolAdminIndexRoute
   EventsEventIdEditRoute: typeof EventsEventIdEditRoute
@@ -535,6 +575,13 @@ declare module '@tanstack/react-router' {
       path: '/export'
       fullPath: '/export'
       preLoaderRoute: typeof ExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/finance': {
@@ -649,6 +696,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVerificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/associations/': {
+      id: '/associations/'
+      path: '/associations'
+      fullPath: '/associations/'
+      preLoaderRoute: typeof AssociationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/associations/$associationId': {
+      id: '/associations/$associationId'
+      path: '/associations/$associationId'
+      fullPath: '/associations/$associationId'
+      preLoaderRoute: typeof AssociationsAssociationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -744,6 +805,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
+  FeedRoute: FeedRoute,
   FinanceRoute: FinanceRoute,
   LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
@@ -760,6 +822,7 @@ const rootRouteChildren: RootRouteChildren = {
   WaitlistRoute: WaitlistRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
+  AssociationsAssociationIdRoute: AssociationsAssociationIdRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
@@ -768,6 +831,7 @@ const rootRouteChildren: RootRouteChildren = {
   SchoolAdminReviewsRoute: SchoolAdminReviewsRoute,
   SchoolAdminSettingsRoute: SchoolAdminSettingsRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,
+  AssociationsIndexRoute: AssociationsIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   SchoolAdminIndexRoute: SchoolAdminIndexRoute,
   EventsEventIdEditRoute: EventsEventIdEditRoute,
