@@ -4,6 +4,7 @@ import { AtSign, BadgeCheck, Building2, ClipboardCheck, Clock, LayoutDashboard, 
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { db, type School } from "@/lib/schools";
+import { avatarUrl } from "@/lib/avatar";
 
 /** École administrée par l'utilisateur connecté. */
 export function useMySchool() {
@@ -83,6 +84,7 @@ interface ShellProps {
 /** En-tête de l'école + navigation de l'espace ; gère les écoles en attente / refusées. */
 export function SchoolAdminShell({ title, subtitle, actions, children }: ShellProps) {
   const { school, loading, reload } = useMySchool();
+  const { role, avatarPath } = useAuth();
   const { counters, refresh: refreshCounters } = useSchoolCounters(school?.status === "active" ? school.id : undefined);
   const refresh = useCallback(async () => { await Promise.all([reload(), refreshCounters()]); }, [reload, refreshCounters]);
   const badges: Record<string, number> = { "/school-admin/reviews": counters.reviews, "/school-admin/members": counters.members };
@@ -118,7 +120,9 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
       <header className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         <div className="h-1.5 bg-gradient-to-r from-[#F3D27A] via-[#E8B22E] to-[#6B1A2F]" />
         <div className="flex items-center gap-4 p-5 md:gap-6 md:p-8">
-          <Monogram name={school.name} size="lg" className="max-md:h-14 max-md:w-14 max-md:text-xl" />
+          {/* Logo de l'école = photo de profil du compte école (Paramètres). */}
+          <Monogram name={school.name} src={role === "school_admin" ? avatarUrl(avatarPath) : null} size="lg"
+            className="max-md:h-14 max-md:w-14 max-md:text-xl" />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Espace administration</p>
             <h1 className="truncate font-display text-3xl font-bold leading-tight text-primary md:text-5xl">{school.name}</h1>
