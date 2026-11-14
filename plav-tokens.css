@@ -13,7 +13,7 @@
   --bordeaux-300: #B58C98;
   --bordeaux-400: #975F6E;
   --bordeaux-500: #803A4D;
-  --bordeaux-600: #6B1A30;
+  --bordeaux-600: #6D1D30; /* = bordeaux de l'écriture du logo (plav-logotype.svg) */
   --bordeaux-700: #571627;
   --bordeaux-800: #42111E;
   --bordeaux-900: #310D17;
@@ -21,7 +21,7 @@
   /* ---- Jaune : accent et actions (300 = couleur du logo) ---- */
   --jaune-100: #F7E7C2;
   --jaune-200: #F0D28C;
-  --jaune-300: #E4AD2E;
+  --jaune-300: #E8B332;    /* = jaune de l'écriture du logo (plav-logotype.svg) */
   --jaune-400: #C69429;
   --jaune-500: #9D7322;
 
@@ -49,9 +49,9 @@
   --radius-pilule: 999px; /* badges, avatars */
 
   /* ---- Ombres et focus ---- */
-  --ombre-carte: 0 4px 16px rgba(107, 26, 48, 0.08);
-  --ombre-menu: 0 8px 24px rgba(107, 26, 48, 0.12);
-  --focus-halo: 0 0 0 3px rgba(228, 173, 46, 0.45); /* + bordure 1.5px bordeaux-600 */
+  --ombre-carte: 0 4px 16px rgba(109, 29, 48, 0.08);
+  --ombre-menu: 0 8px 24px rgba(109, 29, 48, 0.12);
+  --focus-halo: 0 0 0 3px rgba(232, 179, 50, 0.45); /* + bordure 1.5px bordeaux-600 */
 
   /* ---- Hauteurs de contrôles ---- */
   --hauteur-controle: 48px;       /* boutons grands, champs, menus */

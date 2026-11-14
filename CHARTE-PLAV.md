@@ -32,8 +32,8 @@ Toutes les couleurs sont dans `plav-tokens.css`. **Aucune autre couleur n'est au
 
 | Rôle | Variable | Hex |
 |---|---|---|
-| Couleur de marque | `--bordeaux-600` | #6B1A30 |
-| Accent / action principale | `--jaune-300` | #E4AD2E |
+| Couleur de marque | `--bordeaux-600` | #6D1D30 (= écriture du logo) |
+| Accent / action principale | `--jaune-300` | #E8B332 (= écriture du logo) |
 | Fond de page | `--neutre-creme` | #F9F4E8 |
 | Fond de carte / champ | `--neutre-blanc` | #FFFFFF |
 | Bordures, séparateurs | `--neutre-sable` | #EBE4D7 |
@@ -88,7 +88,7 @@ Fichiers fournis par l'équipe (SVG) : écriture couleur, écriture unicolore, c
 | Contexte | Version |
 |---|---|
 | Fond clair (crème, blanc) | Écriture **couleur** (version principale) |
-| Fond bordeaux | Écriture **unicolore jaune** (#E4AD2E) — la version couleur est interdite sur bordeaux (l'apostrophe et la cocotte du P disparaissent) |
+| Fond bordeaux | Écriture **unicolore jaune** (#E8B332) — la version couleur est interdite sur bordeaux (l'apostrophe et la cocotte du P disparaissent) |
 | Fond très foncé / photo sombre | Unicolore crème (#F9F4E8) |
 | Impression une couleur | Unicolore encre (#2B161B) |
 | Petit espace, favicon, avatar | Cocotte seule, ou icône d'appli (cocotte sur carré bordeaux) |
