@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
-import { SchoolAdminShell } from "@/components/SchoolAdminShell";
+import { Monogram, SchoolAdminShell } from "@/components/SchoolAdminShell";
 import { SchoolThread } from "@/components/SchoolThread";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import { isPastEvent } from "@/lib/event-dates";
 export const Route = createFileRoute("/school-admin/associations/$associationId")({
   component: () => (
     <ProtectedLayout allow={["school_admin", "admin"]}>
-      <SchoolAdminShell title="Association">
+      <SchoolAdminShell>
         {(school, refresh) => <AssociationDetail school={school} refresh={refresh} />}
       </SchoolAdminShell>
     </ProtectedLayout>
@@ -93,44 +93,58 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="icon" aria-label="Retour">
-            <Link to="/school-admin"><ChevronLeft className="h-5 w-5" /></Link>
-          </Button>
-          <h2 className="text-2xl font-bold">{association.name}</h2>
-          <Badge className={badge.className}>{badge.label}</Badge>
-        </div>
-        <div className="flex gap-2">
-          {association.status !== "active" && (
-            <Button size="sm" disabled={busy} onClick={() => update({ status: "active" }, "Association active.")}>
-              {association.status === "pending" ? "Valider" : "Réactiver"}
-            </Button>
-          )}
-          {association.status === "active" && (
-            <Button size="sm" variant="outline" className="text-red-700" disabled={busy}
-              onClick={() => update({ status: "suspended" }, "Association suspendue.")}>Suspendre</Button>
-          )}
-        </div>
-      </div>
+      <Link to="/school-admin" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary">
+        <ChevronLeft className="h-4 w-4" />Toutes les associations
+      </Link>
 
-      <label className="flex cursor-pointer items-center gap-3 rounded-xl border bg-card px-4 py-3 text-sm">
-        <Switch checked={association.requires_approval} disabled={busy}
-          onCheckedChange={(v) => update({ requires_approval: v }, v ? "Validation activée." : "Publication directe réactivée.")} />
-        <span className="flex items-center gap-1.5">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-          Valider chaque événement avant publication
-        </span>
-      </label>
+      {/* Fiche de l'association */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between md:p-6">
+            <div className="flex min-w-0 items-center gap-4">
+              <Monogram name={association.name} size="lg" className="max-md:h-14 max-md:w-14 max-md:text-xl" />
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fiche association</p>
+                <h2 className="truncate text-2xl font-bold tracking-tight md:text-3xl">{association.name}</h2>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  <Badge className={badge.className}>{badge.label}</Badge>
+                  {association.created_at && <span>Créée le {format(new Date(association.created_at), "d MMMM yyyy", { locale: fr })}</span>}
+                </div>
+                {association.description && <p className="mt-2 max-w-xl text-sm text-muted-foreground">{association.description}</p>}
+              </div>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              {association.status !== "active" && (
+                <Button disabled={busy} onClick={() => update({ status: "active" }, "Association active.")}>
+                  {association.status === "pending" ? "Valider l'association" : "Réactiver"}
+                </Button>
+              )}
+              {association.status === "active" && (
+                <Button variant="outline" className="text-red-700" disabled={busy}
+                  onClick={() => update({ status: "suspended" }, "Association suspendue.")}>Suspendre</Button>
+              )}
+            </div>
+          </div>
 
-      {stats && (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Stat label="Événements" value={String(stats.events_total)} hint={`${stats.events_upcoming} à venir`} />
-          <Stat label="Inscriptions" value={String(stats.registrations)} hint={`Remplissage ${pct(stats.registrations, stats.capacity)}`} />
-          <Stat label="Présence" value={pct(stats.attended, stats.registrations)} hint={`${stats.attended} check-in`} />
-          <Stat label="Billetterie" value={euro(stats.revenue)} hint={`${stats.members} organisateur${stats.members > 1 ? "s" : ""}`} />
-        </div>
-      )}
+          {stats && (
+            <dl className="grid grid-cols-2 border-t md:grid-cols-4 [&>*]:border-border max-md:[&>*:nth-child(odd)]:border-r max-md:[&>*:nth-child(-n+2)]:border-b md:[&>*:not(:last-child)]:border-r">
+              <Stat label="Événements" value={String(stats.events_total)} hint={`${stats.events_upcoming} à venir`} />
+              <Stat label="Inscriptions" value={String(stats.registrations)} hint={`Remplissage ${pct(stats.registrations, stats.capacity)}`} />
+              <Stat label="Présence" value={pct(stats.attended, stats.registrations)} hint={`${stats.attended} check-in`} />
+              <Stat label="Billetterie" value={euro(stats.revenue)} hint={`${stats.members} organisateur${stats.members > 1 ? "s" : ""}`} />
+            </dl>
+          )}
+
+          <label className="flex cursor-pointer items-center justify-between gap-3 border-t bg-muted/30 px-5 py-3 text-sm md:px-6">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Valider chaque événement avant publication
+            </span>
+            <Switch checked={association.requires_approval} disabled={busy}
+              onCheckedChange={(v) => update({ requires_approval: v }, v ? "Validation activée." : "Publication directe réactivée.")} />
+          </label>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
@@ -197,12 +211,10 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="mt-1 text-2xl font-bold">{value}</p>
-        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-      </CardContent>
-    </Card>
+    <div className="px-5 py-4 md:px-6">
+      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-2xl font-bold tracking-tight">{value}</dd>
+      {hint && <dd className="text-xs text-muted-foreground">{hint}</dd>}
+    </div>
   );
 }

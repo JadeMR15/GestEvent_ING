@@ -39,6 +39,7 @@ import { Route as EventsNewRouteImport } from './routes/events.new'
 import { Route as SchoolAdminIndexRouteImport } from './routes/school-admin.index'
 import { Route as SchoolAdminMembersRouteImport } from './routes/school-admin.members'
 import { Route as SchoolAdminReviewsRouteImport } from './routes/school-admin.reviews'
+import { Route as SchoolAdminSettingsRouteImport } from './routes/school-admin.settings'
 import { Route as VolunteerTokenRouteImport } from './routes/volunteer.$token'
 import { Route as EventsEventIdEditRouteImport } from './routes/events.$eventId_.edit'
 import { Route as SchoolAdminAssociationsAssociationIdRouteImport } from './routes/school-admin.associations.$associationId'
@@ -193,6 +194,11 @@ const SchoolAdminReviewsRoute = SchoolAdminReviewsRouteImport.update({
   path: '/school-admin/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolAdminSettingsRoute = SchoolAdminSettingsRouteImport.update({
+  id: '/school-admin/settings',
+  path: '/school-admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VolunteerTokenRoute = VolunteerTokenRouteImport.update({
   id: '/volunteer/$token',
   path: '/volunteer/$token',
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
+  '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
+  '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
   '/events': typeof EventsIndexRoute
   '/school-admin': typeof SchoolAdminIndexRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
+  '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/events/new'
     | '/school-admin/members'
     | '/school-admin/reviews'
+    | '/school-admin/settings'
     | '/volunteer/$token'
     | '/events/'
     | '/school-admin/'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/events/new'
     | '/school-admin/members'
     | '/school-admin/reviews'
+    | '/school-admin/settings'
     | '/volunteer/$token'
     | '/events'
     | '/school-admin'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/events/new'
     | '/school-admin/members'
     | '/school-admin/reviews'
+    | '/school-admin/settings'
     | '/volunteer/$token'
     | '/events/'
     | '/school-admin/'
@@ -453,6 +465,7 @@ export interface RootRouteChildren {
   EventsNewRoute: typeof EventsNewRoute
   SchoolAdminMembersRoute: typeof SchoolAdminMembersRoute
   SchoolAdminReviewsRoute: typeof SchoolAdminReviewsRoute
+  SchoolAdminSettingsRoute: typeof SchoolAdminSettingsRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
   EventsIndexRoute: typeof EventsIndexRoute
   SchoolAdminIndexRoute: typeof SchoolAdminIndexRoute
@@ -672,6 +685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolAdminReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school-admin/settings': {
+      id: '/school-admin/settings'
+      path: '/school-admin/settings'
+      fullPath: '/school-admin/settings'
+      preLoaderRoute: typeof SchoolAdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/volunteer/$token': {
       id: '/volunteer/$token'
       path: '/volunteer/$token'
@@ -725,6 +745,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsNewRoute: EventsNewRoute,
   SchoolAdminMembersRoute: SchoolAdminMembersRoute,
   SchoolAdminReviewsRoute: SchoolAdminReviewsRoute,
+  SchoolAdminSettingsRoute: SchoolAdminSettingsRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,
   EventsIndexRoute: EventsIndexRoute,
   SchoolAdminIndexRoute: SchoolAdminIndexRoute,
