@@ -388,7 +388,7 @@ BEGIN
   IF auth.uid() IS NULL OR public.has_role(auth.uid(), 'admin') THEN
     RETURN NEW;
   END IF;
-  SELECT is_student, verification_status INTO me FROM public.profiles WHERE id = auth.uid();
+  SELECT is_student INTO me FROM public.profiles WHERE id = auth.uid();
   SELECT status, approval_status, school_id, school INTO ev FROM public.events WHERE id = NEW.event_id;
 
   IF ev.approval_status NOT IN ('not_required', 'approved') THEN
@@ -396,10 +396,11 @@ BEGIN
   END IF;
   IF ev.status = 'private' THEN
     IF NOT public.can_see_private_event(ev.school_id, ev.school)
-       OR coalesce(me.verification_status::text, '') <> 'verified' THEN
+       OR NOT public.is_verified(auth.uid()) THEN
       RAISE EXCEPTION 'event_private' USING HINT = 'Événement réservé aux étudiants vérifiés de l''école.';
     END IF;
-  ELSIF coalesce(me.is_student, true) AND coalesce(me.verification_status::text, '') <> 'verified' THEN
+  -- is_verified (school_email.sql) tient compte de la fin de validité au 31 août.
+  ELSIF coalesce(me.is_student, true) AND NOT public.is_verified(auth.uid()) THEN
     RAISE EXCEPTION 'account_not_verified'
       USING HINT = 'Le compte doit être vérifié avec un justificatif étudiant.';
   END IF;
