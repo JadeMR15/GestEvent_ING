@@ -46,7 +46,7 @@ export function FollowButton({ following, onToggle, size = "default", className 
 
 /** Pastille de l'association (logo, sinon photo de l'organisateur, sinon initiales). */
 export function AssociationAvatar({ name, logoPath, fallback, className = "" }: { name: string; logoPath?: string | null; fallback?: string; className?: string }) {
-  return <Monogram name={name} src={associationImage(logoPath, fallback)} className={className} />;
+  return <Monogram name={name} src={associationImage(logoPath, fallback)} className={className} fill />;
 }
 
 /** Événement en carte compacte (page association, fil d'actualité). */

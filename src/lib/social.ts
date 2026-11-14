@@ -13,6 +13,7 @@ export interface PublicAssociation {
   name: string;
   description: string | null;
   logo_path: string | null;
+  cover_path?: string | null;
   instagram: string | null;
   website: string | null;
   school_id: string;

@@ -55,12 +55,13 @@ const MONOGRAM_COLORS = [
   "bg-bordeaux-400 text-creme",
 ];
 
-export function Monogram({ name, src, size = "md", className = "" }: { name: string; src?: string | null; size?: "md" | "lg"; className?: string }) {
+/** fill : l'image remplit toute la pastille (logos recadrés, pastilles rondes) ; sinon logo entier sur fond blanc. */
+export function Monogram({ name, src, size = "md", className = "", fill = false }: { name: string; src?: string | null; size?: "md" | "lg"; className?: string; fill?: boolean }) {
   const dims = size === "lg" ? "h-20 w-20 rounded-2xl text-3xl md:h-24 md:w-24" : "h-12 w-12 rounded-xl text-base";
   if (src) {
     return (
-      <div className={`flex shrink-0 items-center justify-center overflow-hidden border bg-white p-1.5 ${dims} ${className}`}>
-        <img src={src} alt={`Logo ${name}`} className="h-full w-full object-contain" loading="lazy" />
+      <div className={`flex shrink-0 items-center justify-center overflow-hidden bg-blanc ${fill ? "" : "border border-sable p-1.5"} ${dims} ${className}`}>
+        <img src={src} alt={`Logo ${name}`} className={`h-full w-full ${fill ? "object-cover" : "object-contain"}`} loading="lazy" />
       </div>
     );
   }

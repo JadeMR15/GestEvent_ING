@@ -249,14 +249,14 @@ function AssociationPage() {
         )}
       </div>
 
-      {/* En-tête : photo de couverture, nom posé sur la photo */}
+      {/* En-tête : photo de couverture, logo et nom centrés */}
       <section className="overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)]">
         <div className="relative h-60 bg-gradient-vibrant md:h-80">
           {cover
             ? <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover" />
             : <img src="/plav-cocotte.svg" alt="" className="absolute -right-10 -top-12 h-72 w-72 opacity-15 md:h-96 md:w-96" />}
-          {/* Texte sur photo : dégradé de la charte */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(49,13,23,0)_30%,rgba(49,13,23,0.85))]" />
+          {/* Léger dégradé en bas : le logo se détache de la photo */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(49,13,23,0)_55%,rgba(49,13,23,0.35))]" />
 
           {canManage && (
             <div className="absolute right-3 top-3 flex gap-2">
@@ -281,40 +281,39 @@ function AssociationPage() {
             </div>
           )}
 
-          <div className="absolute inset-x-0 bottom-0 flex items-end gap-4 p-5 md:gap-6 md:p-8">
-            <Monogram name={association.name} src={logo} size="lg"
-              className="!h-20 !w-20 !rounded-full ring-4 ring-blanc shadow-[var(--ombre-menu)] md:!h-28 md:!w-28" />
-            <div className="min-w-0 pb-1">
-              <h1 className="line-clamp-2 text-creme max-md:text-[28px]">{association.name}</h1>
-              {association.schools?.name && (
-                <p className="mt-1 flex items-center gap-1.5 t-corps-fort text-jaune-200"><GraduationCap className="h-5 w-5" />{association.schools.name}</p>
-              )}
-            </div>
-          </div>
         </div>
 
-        <div className="flex flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8">
-          <dl className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        {/* Logo centré, à cheval sur la couverture, puis le nom en grand */}
+        <div className="relative -mt-20 flex flex-col items-center px-5 pb-6 text-center md:-mt-24 md:px-8">
+          <Monogram name={association.name} src={logo} size="lg" fill
+            className="!h-36 !w-36 !rounded-full text-5xl ring-[6px] ring-blanc shadow-[var(--ombre-menu)] md:!h-44 md:!w-44" />
+          <h1 className="mt-4 text-encre max-md:text-[28px]">{association.name}</h1>
+          {association.schools?.name && (
+            <p className="mt-1 flex items-center gap-1.5 t-corps-fort text-gris-chaud"><GraduationCap className="h-5 w-5" />{association.schools.name}</p>
+          )}
+
+          <dl className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {stats.map((s, i) => (
-              <div key={s.label} className={`flex items-baseline gap-1.5 ${i > 0 ? "md:border-l md:border-sable md:pl-6" : ""}`}>
+              <div key={s.label} className={`flex items-baseline gap-1.5 ${i > 0 ? "sm:border-l sm:border-sable sm:pl-6" : ""}`}>
                 <dt className="sr-only">{s.label}</dt>
                 <dd className="font-display text-2xl font-black text-bordeaux-600">{s.n}</dd>
                 <span className="t-legende text-gris-chaud">{s.label}</span>
               </div>
             ))}
           </dl>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={share}><Share2 />Partager</Button>
+
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {isParticipant && <FollowButton following={following} onToggle={() => follows.toggle(associationId, association.name)} />}
+            <Button variant="outline" onClick={share}><Share2 />Partager</Button>
             {(canPost || canManage) && (
-              <Button variant="outline" size="sm" onClick={() => setEditing(true)}><Pencil />Modifier la page</Button>
+              <Button variant="outline" onClick={() => setEditing(true)}><Pencil />Modifier la page</Button>
             )}
             {canManage && role === "school_admin" && (
-              <Button asChild variant="ghost" size="sm"><Link to="/school-admin/associations/$associationId" params={{ associationId }}><Settings2 />Fiche école</Link></Button>
+              <Button asChild variant="ghost"><Link to="/school-admin/associations/$associationId" params={{ associationId }}><Settings2 />Fiche école</Link></Button>
             )}
-            {isParticipant && <FollowButton following={following} onToggle={() => follows.toggle(associationId, association.name)} />}
           </div>
         </div>
-        {isParticipant && <div className="border-t border-sable px-5 py-2.5 md:px-8"><FollowHint following={following} /></div>}
+        {isParticipant && <div className="flex justify-center border-t border-sable px-5 py-2.5 md:px-8"><FollowHint following={following} /></div>}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">

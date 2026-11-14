@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Calendar, GraduationCap, Loader2, Search, Users } from "lucide-react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
-import { useAssociationFallbacks } from "@/components/AssociationLogo";
+import { associationCoverUrl, useAssociationFallbacks } from "@/components/AssociationLogo";
 import { AssociationAvatar, FollowButton } from "@/components/social/SocialBits";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ function Directory() {
   useEffect(() => {
     (async () => {
       const [{ data }, events] = await Promise.all([
-        db.from("associations").select("id, name, description, logo_path, instagram, website, school_id, status, created_at, schools(name)")
+        db.from("associations").select("id, name, description, logo_path, cover_path, instagram, website, school_id, status, created_at, schools(name)")
           .eq("status", "active").order("name"),
         fetchVisibleEvents(),
       ]);
@@ -103,26 +103,34 @@ function Directory() {
             const followers = follows.counts[a.id] ?? 0;
             const next = upcoming[a.id] ?? 0;
             return (
-              <Link key={a.id} to="/associations/$associationId" params={{ associationId: a.id }} className="tap block">
-                <Card className="group h-full overflow-hidden transition-shadow hover:shadow-md">
-                  <div className="h-14 bg-gradient-to-r from-bordeaux-600 via-bordeaux-500 to-jaune-300 opacity-90" />
-                  <CardContent className="-mt-8 flex h-[calc(100%-3.5rem)] flex-col gap-3 p-4">
-                    <div className="flex items-end justify-between gap-2">
-                      <AssociationAvatar name={a.name} logoPath={a.logo_path} fallback={fallbacks[a.id]}
-                        className="!h-16 !w-16 !rounded-full border-4 border-card shadow" />
-                      <FollowButton size="sm" following={follows.following.has(a.id)} onToggle={() => follows.toggle(a.id, a.name)} />
+              <Link key={a.id} to="/associations/$associationId" params={{ associationId: a.id }} className="tap block rounded-[var(--radius-carte)]">
+                <article className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)] transition-shadow hover:shadow-[var(--ombre-menu)]">
+                  {/* Bannière : photo de couverture de l'asso, sinon dégradé bordeaux */}
+                  <div className="relative h-28 shrink-0 bg-gradient-vibrant">
+                    {associationCoverUrl(a.cover_path)
+                      ? <img src={associationCoverUrl(a.cover_path)!} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      : <img src="/plav-cocotte.svg" alt="" className="absolute -right-4 -top-6 h-32 w-32 opacity-15" />}
+                  </div>
+                  {/* Logo centré, à cheval sur la bannière */}
+                  <div className="-mt-12 flex justify-center">
+                    <AssociationAvatar name={a.name} logoPath={a.logo_path} fallback={fallbacks[a.id]}
+                      className="!h-24 !w-24 !rounded-full text-2xl ring-4 ring-blanc shadow-[var(--ombre-carte)]" />
+                  </div>
+                  <div className="flex flex-1 flex-col items-center gap-2 px-5 pb-5 pt-3 text-center">
+                    <h3 className="t-titre-3 line-clamp-2 text-encre group-hover:text-bordeaux-600">{a.name}</h3>
+                    {a.schools?.name && (
+                      <p className="flex items-center gap-1.5 t-legende text-gris-chaud"><GraduationCap className="h-4 w-4" />{a.schools.name}</p>
+                    )}
+                    {a.description && <p className="line-clamp-2 text-sm leading-snug text-gris-chaud">{a.description}</p>}
+                    <div className="mt-auto flex w-full flex-col gap-3 pt-3">
+                      <div className="flex items-center justify-center gap-5 border-t border-sable pt-3 t-legende text-gris-chaud">
+                        <span className="flex items-center gap-1.5"><Users className="h-4 w-4" /><strong className="text-encre">{followers}</strong> abonné{followers > 1 ? "s" : ""}</span>
+                        <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /><strong className="text-encre">{next}</strong> à venir</span>
+                      </div>
+                      <FollowButton following={follows.following.has(a.id)} onToggle={() => follows.toggle(a.id, a.name)} className="w-full" />
                     </div>
-                    <div className="min-w-0">
-                      <p className="line-clamp-1 text-lg font-semibold group-hover:text-primary">{a.name}</p>
-                      {a.schools?.name && <p className="flex items-center gap-1 text-xs text-muted-foreground"><GraduationCap className="h-3.5 w-3.5" />{a.schools.name}</p>}
-                    </div>
-                    <p className="line-clamp-2 flex-1 text-sm text-muted-foreground">{a.description || " "}</p>
-                    <div className="flex items-center gap-4 border-t pt-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /><strong className="text-foreground">{followers}</strong> abonné{followers > 1 ? "s" : ""}</span>
-                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /><strong className="text-foreground">{next}</strong> à venir</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </article>
               </Link>
             );
           })}
