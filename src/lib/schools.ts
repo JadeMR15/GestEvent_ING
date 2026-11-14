@@ -88,6 +88,7 @@ export function schoolErrorMessage(message: string | undefined | null): string {
   const m = (message ?? "").toLowerCase();
   const map: [string, string][] = [
     ["membership_pending", "Ton école doit d'abord valider ton rattachement."],
+    ["avatar_not_allowed", "Seuls les associations et les écoles peuvent avoir une photo de profil."],
     ["association_locked", "Ton association a été validée par ton école : contacte-la pour en changer."],
     ["association_inactive", "Ton association doit d'abord être validée par l'école."],
     ["association_required", "Choisis ton association dans Paramètres."],

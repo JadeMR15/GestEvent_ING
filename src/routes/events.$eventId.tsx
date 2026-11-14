@@ -7,7 +7,6 @@ import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
-import { UserAvatar } from "@/components/UserAvatar";
 import { AssociationChip } from "@/components/AssociationLogo";
 import { schoolErrorMessage } from "@/lib/schools";
 import { useAuth } from "@/hooks/useAuth";
@@ -238,11 +237,9 @@ function EventDetail() {
     const list = regs ?? [];
     const ids = Array.from(new Set(list.map((r) => r.user_id)));
     let profMap: Record<string, string> = {};
-    let photoMap: Record<string, string | null> = {};
     if (ids.length) {
-      const { data: profs } = await (supabase as any).from("profiles").select("id,full_name,avatar_path").in("id", ids);
-      profMap = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p.full_name]));
-      photoMap = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p.avatar_path ?? null]));
+      const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
+      profMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name]));
     }
     const { data: types } = await (supabase as any)
       .from("ticket_types")
@@ -253,8 +250,7 @@ function EventDetail() {
     setTicketTypes(typeList);
     const typeMap: Record<string, string> = Object.fromEntries(typeList.map((t: any) => [t.id, t.name]));
 
-    // Invité : pas de photo (ce n'est pas le titulaire du compte).
-    const enriched = list.map((r) => ({ ...r, full_name: r.guest_name || profMap[r.user_id], avatar_path: r.guest_name ? null : photoMap[r.user_id] ?? null, ticket_name: r.ticket_type_id ? typeMap[r.ticket_type_id] ?? null : null }));
+    const enriched = list.map((r) => ({ ...r, full_name: r.guest_name || profMap[r.user_id], ticket_name: r.ticket_type_id ? typeMap[r.ticket_type_id] ?? null : null }));
     setRegistrations(enriched);
     const myRegs = enriched.filter((r) => r.user_id === user?.id);
     setMyReg(myRegs.find((r) => !r.guest_email) ?? null);
@@ -1681,8 +1677,7 @@ function EventDetail() {
                 <ul className="divide-y">
                   {filtered.map((r) => (
                     <li key={r.id} className="flex items-center justify-between py-3 gap-3">
-                      <UserAvatar path={r.avatar_path} name={r.full_name || "Participant"} size="md" />
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0">
                         <p className="font-medium text-sm truncate">{r.full_name || "Participant"}</p>
                         <p className="text-xs text-muted-foreground">
                           {r.ticket_name ? `${r.ticket_name} · ` : ""}

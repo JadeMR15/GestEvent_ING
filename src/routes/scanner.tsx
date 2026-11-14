@@ -13,7 +13,6 @@ import { Camera, CameraOff, CheckCircle2, XCircle, ScanLine, WifiOff, Wifi, Refr
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/scanner")({
   component: () => (
@@ -29,9 +28,7 @@ const OFFLINE_KEY = "gestevent_offline_scans";
 
 type CachedReg = { id: string; user_id: string; event_id: string; full_name: string; event_title: string; attended: boolean };
 type OfflineScan = { reg_id: string; scanned_at: string };
-type ScanEntry = { name: string; at: string; ok: boolean; photo?: string | null };
-// Dernier billet scanné : photo affichée en grand pour vérifier l'identité à l'entrée.
-type LastScan = { name: string; photo: string | null; status: "ok" | "already" | "invalid"; at: string; guest: boolean };
+type ScanEntry = { name: string; at: string; ok: boolean };
 
 function loadCache(): Record<string, CachedReg> {
   try { return JSON.parse(localStorage.getItem(CACHE_KEY) ?? "{}"); } catch { return {}; }
@@ -56,7 +53,6 @@ function ScannerPage() {
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [stats, setStats] = useState({ attended: 0, total: 0 });
   const [dbHistory, setDbHistory] = useState<ScanEntry[]>([]);
-  const [lastScan, setLastScan] = useState<LastScan | null>(null);
 
   // Connectivité
   useEffect(() => {
@@ -94,19 +90,17 @@ function ScannerPage() {
     const [{ count: attended }, { count: total }, { data: regs }] = await Promise.all([
       supabase.from("registrations").select("id", { count: "exact", head: true }).eq("event_id", eventId).eq("status", "attended"),
       supabase.from("registrations").select("id", { count: "exact", head: true }).eq("event_id", eventId).in("status", ["pending", "registered", "attended"]),
-      supabase.from("registrations").select("user_id, attended_at, guest_name").eq("event_id", eventId).eq("status", "attended").order("attended_at", { ascending: false }).limit(50),
+      supabase.from("registrations").select("user_id, attended_at").eq("event_id", eventId).eq("status", "attended").order("attended_at", { ascending: false }).limit(50),
     ]);
 
     setStats({ attended: attended ?? 0, total: total ?? 0 });
 
     if (regs?.length) {
       const ids = regs.map((r) => r.user_id);
-      const { data: profs } = await (supabase as any).from("profiles").select("id, full_name, avatar_path").in("id", ids);
-      const profMap = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p.full_name]));
-      const photoMap = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p.avatar_path ?? null]));
-      setDbHistory(regs.map((r: any) => ({
-        name: r.guest_name || profMap[r.user_id] || "Participant",
-        photo: r.guest_name ? null : photoMap[r.user_id],
+      const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", ids);
+      const profMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name]));
+      setDbHistory(regs.map((r) => ({
+        name: profMap[r.user_id] || "Participant",
         at: r.attended_at ? format(new Date(r.attended_at), "HH:mm:ss") : "",
         ok: true,
       })));
@@ -228,33 +222,25 @@ function ScannerPage() {
       .maybeSingle();
 
     let name = cached?.full_name || "Participant";
-    let photo: string | null = null;
-    const guest = !!(reg as any)?.guest_name;
     if (reg) {
-      const { data: prof } = await (supabase as any).from("profiles").select("full_name, avatar_path").eq("id", reg.user_id).maybeSingle();
-      if (guest) name = (reg as any).guest_name;
-      else {
-        if (prof?.full_name) name = prof.full_name;
-        photo = prof?.avatar_path ?? null;
-      }
+      const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", reg.user_id).maybeSingle();
+      if (prof?.full_name) name = prof.full_name;
     }
-    const at = format(new Date(), "HH:mm:ss");
 
-    if (error || !reg) { flash("error"); setLastScan({ name: "QR invalide", photo: null, status: "invalid", at, guest: false }); toast.error("QR invalide"); return; }
-    if (reg.status === "attended") { flash("error"); setLastScan({ name, photo, status: "already", at, guest }); toast.info(`Déjà scanné — ${name}`); return; }
+    if (error || !reg) { flash("error"); toast.error("QR invalide"); return; }
+    if (reg.status === "attended") { flash("error"); toast.info(`Déjà scanné — ${name}`); return; }
     if (reg.status !== "registered") { flash("error"); toast.error("Billet non valide"); return; }
 
     const now = new Date().toISOString();
     await supabase.from("registrations").update({ status: "attended", attended_at: now }).eq("id", reg.id);
     flash("success");
-    setLastScan({ name, photo, status: "ok", at, guest });
     toast.success(`✓ Entrée validée : ${name}`);
     if (cached) { cached.attended = true; cache[trimmed] = cached; localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); }
 
     // Mise à jour instantanée du compteur et de l'historique
     if (reg.event_id === selectedEventId) {
       setStats((s) => ({ ...s, attended: s.attended + 1 }));
-      setDbHistory((h) => [{ name, photo, at: format(new Date(now), "HH:mm:ss"), ok: true }, ...h].slice(0, 50));
+      setDbHistory((h) => [{ name, at: format(new Date(now), "HH:mm:ss"), ok: true }, ...h].slice(0, 50));
     }
   }
 
@@ -406,28 +392,6 @@ function ScannerPage() {
         </CardContent>
       </Card>
 
-      {/* Dernier scan : photo du participant pour vérifier son identité */}
-      {lastScan && (
-        <Card className={`border-2 ${lastScan.status === "ok" ? "border-emerald-300 bg-emerald-50/60" : "border-red-300 bg-red-50/60"}`}>
-          <CardContent className="flex items-center gap-4 p-4">
-            {lastScan.status === "invalid"
-              ? <XCircle className="h-16 w-16 shrink-0 text-red-500" />
-              : <UserAvatar path={lastScan.photo} name={lastScan.name} className="h-20 w-20 text-xl" />}
-            <div className="min-w-0">
-              <p className={`text-xs font-bold uppercase tracking-wide ${lastScan.status === "ok" ? "text-emerald-700" : "text-red-700"}`}>
-                {lastScan.status === "ok" ? "Entrée validée" : lastScan.status === "already" ? "Déjà scanné" : "Billet refusé"} · {lastScan.at}
-              </p>
-              <p className="truncate text-xl font-bold">{lastScan.name}</p>
-              {lastScan.status !== "invalid" && (
-                <p className="text-xs text-muted-foreground">
-                  {lastScan.guest ? "Invité : pas de photo de compte." : lastScan.photo ? "Vérifie que la photo correspond à la personne." : "Pas de photo de profil sur ce compte."}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Historique en direct */}
       {selectedEventId && (
         <Card className="border-2 shadow-elegant">
@@ -446,9 +410,8 @@ function ScannerPage() {
               <ul className="divide-y">
                 {dbHistory.map((h, i) => (
                   <li key={i} className="flex items-center gap-3 py-2.5 text-sm">
-                    <UserAvatar path={h.photo} name={h.name} size="sm" />
-                    <p className="flex-1 font-medium truncate">{h.name}</p>
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                    <p className="flex-1 font-medium truncate">{h.name}</p>
                     <span className="text-xs text-muted-foreground shrink-0">{h.at}</span>
                   </li>
                 ))}

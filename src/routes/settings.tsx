@@ -217,18 +217,24 @@ function SettingsPage() {
   }
 
   const photo = avatarUrl(avatarPath);
+  // Photo réservée aux associations (organisateurs) et aux écoles ; les participants n'en ont pas.
+  const canHavePhoto = role === "organizer" || role === "admin" || role === "school_admin";
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Paramètres</h1>
-        <p className="text-muted-foreground">Ta photo, tes informations et ton compte.</p>
+        <p className="text-muted-foreground">{canHavePhoto ? "Ta photo, tes informations et ton compte." : "Tes informations et ton compte."}</p>
       </div>
 
       {/* Photo de profil */}
       <Card className="border-2 shadow-elegant">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Camera className="h-5 w-5" />Photo de profil</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            {canHavePhoto
+              ? <><Camera className="h-5 w-5" />{role === "school_admin" ? "Logo de l'école" : "Photo de profil"}</>
+              : <><User className="h-5 w-5" />Mon compte</>}
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-5">
           <RoleAvatar path={avatarPath} name={saved.fullName} role={role} size="lg" />
@@ -239,6 +245,7 @@ function SettingsPage() {
                 <MySchoolBadge />
               </div>
             )}
+            {canHavePhoto && <>
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
@@ -250,7 +257,11 @@ function SettingsPage() {
                 </Button>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">JPG, PNG ou WebP. La photo est recadrée en carré.</p>
+            <p className="text-xs text-muted-foreground">
+              JPG, PNG ou WebP. La photo est recadrée en carré.
+              {role === "organizer" && " Elle représente ton association tant qu'elle n'a pas de logo."}
+              {role === "school_admin" && " Il s'affiche en tête de votre espace école."}
+            </p>
             <input
               ref={fileRef}
               type="file"
@@ -258,6 +269,7 @@ function SettingsPage() {
               className="hidden"
               onChange={(e) => uploadAvatar(e.target.files?.[0])}
             />
+            </>}
           </div>
         </CardContent>
       </Card>
