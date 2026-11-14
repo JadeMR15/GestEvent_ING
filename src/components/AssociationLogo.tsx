@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Monogram } from "@/components/SchoolAdminShell";
 import { db, schoolErrorMessage } from "@/lib/schools";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { avatarUrl } from "@/lib/avatar";
 
 export const LOGO_BUCKET = "association-logos";
@@ -45,21 +46,6 @@ export function associationImage(path: string | null | undefined, fallback?: str
   return associationLogoUrl(path) ?? fallback ?? null;
 }
 
-/** Réduit le logo à 512 px max (sans le recadrer : un logo peut être large) et le convertit en WebP. */
-async function prepareLogo(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, LOGO_MAX_SIDE / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Traitement de l'image impossible.");
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.9));
-  if (!blob) throw new Error("Traitement de l'image impossible.");
-  return blob;
-}
 
 interface Props {
   associationId: string;
@@ -76,13 +62,19 @@ interface Props {
 export function AssociationLogoEditor({ associationId, name, path, onChange, fallbackSrc, size = "lg", className = "" }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  // Photo choisie, en attente de recadrage.
+  const [cropFile, setCropFile] = useState<File | null>(null);
 
-  async function upload(file: File) {
+  function pick(file: File) {
     if (!LOGO_ACCEPTED.includes(file.type)) { toast.error("Formats acceptés : JPG, PNG ou WebP."); return; }
     if (file.size > LOGO_MAX_INPUT_BYTES) { toast.error("Image trop lourde (10 Mo maximum)."); return; }
+    setCropFile(file);
+  }
+
+  async function upload(blob: Blob) {
+    setCropFile(null);
     setBusy(true);
     try {
-      const blob = await prepareLogo(file);
       const newPath = `${associationId}/logo-${Date.now()}.webp`;
       const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: "image/webp" });
       if (upErr) throw new Error(upErr.message);
@@ -131,7 +123,9 @@ export function AssociationLogoEditor({ associationId, name, path, onChange, fal
         )}
       </div>
       <input ref={input} type="file" accept={LOGO_ACCEPTED.join(",")} className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) upload(f); }} />
+        onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) pick(f); }} />
+      <ImageCropDialog file={cropFile} aspect={1} outputWidth={LOGO_MAX_SIDE} title="Recadrer le logo"
+        onCancel={() => setCropFile(null)} onConfirm={upload} />
     </div>
   );
 }
@@ -159,29 +153,18 @@ export function associationCoverUrl(path: string | null | undefined): string | n
   return associationLogoUrl(path);
 }
 
-/** Couverture : 1920 px de large max, WebP (sans les métadonnées de la photo). */
-async function prepareCover(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1920 / bitmap.width);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Traitement de l'image impossible.");
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.85));
-  if (!blob) throw new Error("Traitement de l'image impossible.");
-  return blob;
+
+/** Couverture acceptée avant recadrage (format, poids). */
+export function checkCoverFile(file: File): string | null {
+  if (!LOGO_ACCEPTED.includes(file.type)) return "Formats acceptés : JPG, PNG ou WebP.";
+  if (file.size > 20 * 1024 * 1024) return "Image trop lourde (20 Mo maximum).";
+  return null;
 }
 
-/** Envoie (ou retire, file = null) la couverture ; renvoie le nouveau chemin. */
-export async function saveAssociationCover(associationId: string, file: File | null, oldPath: string | null | undefined): Promise<string | null> {
+/** Envoie la couverture recadrée (ou la retire, blob = null) ; renvoie le nouveau chemin. */
+export async function saveAssociationCover(associationId: string, blob: Blob | null, oldPath: string | null | undefined): Promise<string | null> {
   let newPath: string | null = null;
-  if (file) {
-    if (!LOGO_ACCEPTED.includes(file.type)) throw new Error("Formats acceptés : JPG, PNG ou WebP.");
-    if (file.size > 20 * 1024 * 1024) throw new Error("Image trop lourde (20 Mo maximum).");
-    const blob = await prepareCover(file);
+  if (blob) {
     newPath = `${associationId}/cover-${Date.now()}.webp`;
     const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: "image/webp" });
     if (upErr) throw new Error("Envoi de la photo impossible.");

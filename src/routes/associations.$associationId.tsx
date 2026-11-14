@@ -9,7 +9,8 @@ import {
 import { toast } from "sonner";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Monogram } from "@/components/SchoolAdminShell";
-import { associationCoverUrl, associationImage, saveAssociationCover, useAssociationFallbacks } from "@/components/AssociationLogo";
+import { associationCoverUrl, associationImage, checkCoverFile, saveAssociationCover, useAssociationFallbacks } from "@/components/AssociationLogo";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { UserAvatar } from "@/components/UserAvatar";
 import { EventMiniCard, EventTile, FollowButton, FollowHint, PostCard, PostComposer } from "@/components/social/SocialBits";
@@ -61,6 +62,7 @@ function AssociationPage() {
   const [editing, setEditing] = useState(false);
   const [coverBusy, setCoverBusy] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const coverInput = useRef<HTMLInputElement>(null);
   const fallback = useAssociationFallbacks([associationId])[associationId];
   const follows = useFollows([associationId]);
@@ -109,13 +111,14 @@ function AssociationPage() {
     return [...new Set(urls)];
   }, [posts, upcoming, past]);
 
-  async function changeCover(file: File | null) {
+  async function changeCover(blob: Blob | null) {
     if (!association) return;
+    setCoverFile(null);
     setCoverBusy(true);
     try {
-      const path = await saveAssociationCover(association.id, file, association.cover_path);
+      const path = await saveAssociationCover(association.id, blob, association.cover_path);
       setAssociation({ ...association, cover_path: path });
-      toast.success(file ? "Photo de couverture mise à jour." : "Photo de couverture retirée.");
+      toast.success(blob ? "Photo de couverture mise à jour." : "Photo de couverture retirée.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Modification impossible.");
     } finally {
@@ -269,7 +272,12 @@ function AssociationPage() {
                 </Button>
               )}
               <input ref={coverInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) changeCover(f); }} />
+                onChange={(e) => {
+                  const f = e.target.files?.[0]; e.target.value = "";
+                  if (!f) return;
+                  const err = checkCoverFile(f);
+                  if (err) toast.error(err); else setCoverFile(f);
+                }} />
             </div>
           )}
 
@@ -381,6 +389,10 @@ function AssociationPage() {
           )}
         </aside>
       </div>
+
+      <ImageCropDialog file={coverFile} aspect={3} outputWidth={1920} title="Recadrer la photo de couverture"
+        description="Place la partie importante au centre : sur téléphone, les côtés de la bannière sont coupés."
+        onCancel={() => setCoverFile(null)} onConfirm={changeCover} />
 
       {/* Photo en grand */}
       <Dialog open={!!photo} onOpenChange={(o) => !o && setPhoto(null)}>

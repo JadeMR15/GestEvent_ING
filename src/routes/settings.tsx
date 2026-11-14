@@ -14,10 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, prepareAvatar,
+  AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl,
 } from "@/lib/avatar";
 import { SchoolEmailForm } from "@/components/SchoolEmailForm";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { RoleAvatar } from "@/components/RoleAvatar";
 import { MySchoolBadge } from "@/components/SchoolBadge";
 
@@ -69,6 +70,7 @@ function SettingsPage() {
   const [savingInfo, setSavingInfo] = useState(false);
 
   // ── Photo ──
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -141,13 +143,20 @@ function SettingsPage() {
     refreshProfile();
   }
 
-  async function uploadAvatar(file: File | undefined) {
+  // Photo choisie : d'abord recadrée (ImageCropDialog), puis envoyée.
+  function pickAvatar(file: File | undefined) {
+    if (fileRef.current) fileRef.current.value = "";
     if (!user || !file) return;
     if (!AVATAR_ACCEPTED.includes(file.type)) { toast.error("Format accepté : JPG, PNG ou WebP."); return; }
     if (file.size > AVATAR_MAX_INPUT_BYTES) { toast.error("Image trop lourde (10 Mo maximum)."); return; }
+    setCropFile(file);
+  }
+
+  async function uploadAvatar(blob: Blob) {
+    setCropFile(null);
+    if (!user) return;
     setUploading(true);
     try {
-      const blob = await prepareAvatar(file);
       const path = `${user.id}/${Date.now()}.webp`;
       const { error: upErr } = await supabase.storage
         .from(AVATAR_BUCKET)
@@ -267,7 +276,7 @@ function SettingsPage() {
               type="file"
               accept={AVATAR_ACCEPTED.join(",")}
               className="hidden"
-              onChange={(e) => uploadAvatar(e.target.files?.[0])}
+              onChange={(e) => pickAvatar(e.target.files?.[0])}
             />
             </>}
           </div>
@@ -369,6 +378,10 @@ function SettingsPage() {
           <CardContent><SchoolEmailForm /></CardContent>
         </Card>
       )}
+
+      <ImageCropDialog file={cropFile} aspect={1} round outputWidth={512}
+        title={role === "school_admin" ? "Recadrer le logo de l'école" : "Recadrer la photo de profil"}
+        onCancel={() => setCropFile(null)} onConfirm={uploadAvatar} />
 
       <NotificationSettingsCard />
 
