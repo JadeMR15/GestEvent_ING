@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 type Size = "sm" | "md" | "lg";
 
 const SIZES: Record<Size, { avatar: string; ring: string; text: string; badge: string }> = {
-  sm: { avatar: "h-8 w-8", ring: "p-[2px]", text: "text-xs", badge: "text-[8px] px-1 py-0 -bottom-1.5" },
-  md: { avatar: "h-12 w-12", ring: "p-[3px]", text: "text-sm", badge: "text-[9px] px-1.5 py-0 -bottom-2" },
-  lg: { avatar: "h-24 w-24", ring: "p-1", text: "text-2xl", badge: "text-[11px] px-2 py-0.5 -bottom-2.5" },
+  sm: { avatar: "h-8 w-8", ring: "p-[2px]", text: "text-xs", badge: "text-xs px-1 py-0 -bottom-2" },
+  md: { avatar: "h-12 w-12", ring: "p-[3px]", text: "text-sm", badge: "text-xs px-1.5 py-0 -bottom-2" },
+  lg: { avatar: "h-24 w-24", ring: "p-1", text: "text-2xl", badge: "text-xs px-2 py-0.5 -bottom-2.5" },
 };
 
 const FRAMES: Partial<Record<AppRole, string>> = {

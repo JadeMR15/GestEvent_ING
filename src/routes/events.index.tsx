@@ -174,7 +174,7 @@ function EventList() {
     <div className="space-y-5 md:space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight not-italic">
+          <h1 className="not-italic">
             {isOrga ? "Vos événements" : <>Ce soir, on <span className="plav-highlight">sort</span> ?</>}
           </h1>
           <p className="text-sm text-muted-foreground md:text-base">
@@ -219,7 +219,7 @@ function EventList() {
               <button aria-label="Filtres" className="tap relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] border-sable bg-blanc text-bordeaux-600">
                 <SlidersHorizontal className="h-5 w-5" strokeWidth={2} />
                 {advancedCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">{advancedCount}</span>
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">{advancedCount}</span>
                 )}
               </button>
             </DrawerTrigger>

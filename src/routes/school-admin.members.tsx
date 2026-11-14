@@ -154,9 +154,9 @@ function MemberInfo({ m, association }: { m: Member; association?: string }) {
     <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-2">
         <p className="font-medium">{m.full_name || "Sans nom"}</p>
-        <Badge variant="secondary" className="text-[10px]">{m.role === "organizer" ? "Organisateur" : "Étudiant"}</Badge>
-        {association && <Badge variant="outline" className="text-[10px]">{association}</Badge>}
-        {m.membership_status === "rejected" && <Badge className="bg-red-100 text-[10px] text-red-800 hover:bg-red-100">Refusé</Badge>}
+        <Badge variant="secondary" className="text-xs">{m.role === "organizer" ? "Organisateur" : "Étudiant"}</Badge>
+        {association && <Badge variant="outline" className="text-xs">{association}</Badge>}
+        {m.membership_status === "rejected" && <Badge className="bg-red-100 text-xs text-red-800 hover:bg-red-100">Refusé</Badge>}
       </div>
       <p className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
         <a href={`mailto:${m.email}`} className="flex items-center gap-1 hover:text-primary"><Mail className="h-3 w-3" />{m.email}</a>

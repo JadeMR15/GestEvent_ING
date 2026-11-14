@@ -158,7 +158,7 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
                 <li key={m.id}>
                   {newDay && (
                     <div className="my-4 flex justify-center">
-                      <span className="rounded-full border bg-card px-3 py-1 text-[11px] font-semibold capitalize text-muted-foreground shadow-sm">{dayLabel(date)}</span>
+                      <span className="rounded-full border bg-card px-3 py-1 text-xs font-semibold capitalize text-muted-foreground shadow-sm">{dayLabel(date)}</span>
                     </div>
                   )}
                   <div className={`flex items-end gap-2 ${me ? "justify-end" : "justify-start"} ${grouped ? "" : "pt-2"}`}>
@@ -172,7 +172,7 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
                     )}
                     <div className={`max-w-[85%] md:max-w-[70%] ${me ? "items-end" : "items-start"} flex flex-col`}>
                       {!grouped && (
-                        <span className="mb-1 px-1 text-[11px] font-semibold text-muted-foreground">
+                        <span className="mb-1 px-1 text-xs font-semibold text-muted-foreground">
                           {me ? (side === "school" ? "Vous" : "Toi") : (() => {
                             const org = m.from_school ? schoolName : associationName;
                             const person = m.sender_id ? senders[m.sender_id]?.name : "";
@@ -191,12 +191,12 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
                           </Link>
                         )}
                         <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                        <span className={`mt-0.5 block text-right text-[10px] ${me ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                        <span className={`mt-0.5 block text-right text-xs ${me ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                           {m.pending ? "Envoi…" : format(date, "HH:mm")}
                         </span>
                       </div>
                       {me && m.id === lastMine?.id && m.read_at && (
-                        <span className="mt-1 flex items-center gap-1 px-1 text-[11px] text-muted-foreground">
+                        <span className="mt-1 flex items-center gap-1 px-1 text-xs text-muted-foreground">
                           <CheckCheck className="h-3.5 w-3.5 text-primary" />Lu {format(new Date(m.read_at), "'le' d MMM 'à' HH:mm", { locale: fr })}
                         </span>
                       )}
@@ -227,7 +227,7 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
-        <p className="mt-1.5 hidden px-1 text-[11px] text-muted-foreground md:block">Entrée pour envoyer · Maj + Entrée pour aller à la ligne</p>
+        <p className="mt-1.5 hidden px-1 text-xs text-muted-foreground md:block">Entrée pour envoyer · Maj + Entrée pour aller à la ligne</p>
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ function LikesPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Événements likés</h1>
+        <h1>Événements likés</h1>
         <p className="text-muted-foreground">
           Les événements que tu as likés, du plus récent au plus ancien. Clique sur le cœur pour retirer un like.
         </p>

@@ -60,7 +60,7 @@ export function EventMiniCard({ event, past = false, className = "" }: { event: 
         {event.cover_image_url
           ? <img src={event.cover_image_url} alt="" className={cn("h-full w-full object-cover", past && "grayscale-[40%]")} loading="lazy" />
           : <img src="/plav-cocotte.svg" alt="" className="absolute -bottom-3 -right-3 h-16 w-16 opacity-30" />}
-        <span className="absolute left-1.5 top-1.5 rounded-lg bg-card/95 px-1.5 py-0.5 text-center text-[10px] font-bold leading-tight text-primary shadow">
+        <span className="absolute left-1.5 top-1.5 rounded-lg bg-card/95 px-1.5 py-0.5 text-center text-xs font-bold leading-tight text-primary shadow">
           {format(d, "d MMM", { locale: fr }).replace(".", "")}
         </span>
       </div>
@@ -74,7 +74,7 @@ export function EventMiniCard({ event, past = false, className = "" }: { event: 
         </p>
       </div>
       {event.price != null && !past && (
-        <span className="self-start rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-accent-foreground">
+        <span className="self-start rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">
           {event.price > 0 ? `${Number(event.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
         </span>
       )}

@@ -27,7 +27,7 @@ export function CountBadge({ count, compact = false, className = "" }: { count: 
   if (count <= 0) return null;
   if (compact) return <span aria-label={`${count} nouveau(x)`} className={`absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-jaune-300 ring-2 ring-sidebar ${className}`} />;
   return (
-    <span className={`ml-auto min-w-[1.25rem] rounded-full bg-jaune-300 px-1.5 text-center text-[11px] font-bold leading-5 text-bordeaux-800 ${className}`}>
+    <span className={`ml-auto min-w-[1.25rem] rounded-full bg-jaune-300 px-1.5 text-center text-xs font-bold leading-5 text-bordeaux-600 ${className}`}>
       {count > 99 ? "99+" : count}
     </span>
   );
@@ -101,7 +101,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url} className="flex items-center gap-2">
                       <span className="relative">
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className="h-5 w-5" strokeWidth={2} />
                         {collapsed && <CountBadge compact count={badgeFor(item.url, notifications)} />}
                       </span>
                       {!collapsed && <span>{item.title}</span>}
@@ -122,7 +122,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
                       <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className="h-5 w-5" strokeWidth={2} />
                         {!collapsed && <span>{item.title}</span>}
                       </Link>
                     </SidebarMenuButton>
@@ -145,7 +145,7 @@ export function AppSidebar() {
             }}
             className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
-            <Bell className="h-4 w-4" />
+            <Bell className="h-5 w-5" strokeWidth={2} />
             {!collapsed && <span className="ml-2">Activer les notifications</span>}
           </Button>
         )}
@@ -175,7 +175,7 @@ export function AppSidebar() {
           onClick={async () => { await signOut(); navigate({ to: "/" }); }}
           className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-5 w-5" strokeWidth={2} />
           {!collapsed && <span className="ml-2">Déconnexion</span>}
         </Button>
       </SidebarFooter>

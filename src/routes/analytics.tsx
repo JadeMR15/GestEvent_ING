@@ -224,7 +224,7 @@ function AnalyticsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analyses</h1>
+        <h1>Analyses</h1>
         <p className="text-muted-foreground">Visualisez les performances de vos événements.</p>
       </div>
 

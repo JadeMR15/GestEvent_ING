@@ -68,7 +68,7 @@ export function Monogram({ name, src, size = "md", className = "" }: { name: str
   for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   const color = MONOGRAM_COLORS[h % MONOGRAM_COLORS.length];
   return (
-    <div aria-hidden className={`flex shrink-0 items-center justify-center font-display font-bold tracking-wide ${dims} ${color} ${className}`}>
+    <div aria-hidden className={`flex shrink-0 items-center justify-center font-display font-black ${dims} ${color} ${className}`}>
       {initials(name)}
     </div>
   );
@@ -131,7 +131,7 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
           <Monogram name={school.name} src={role === "school_admin" ? avatarUrl(avatarPath) : null} size="lg"
             className="max-md:h-14 max-md:w-14 max-md:text-xl" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Espace administration</p>
+            <p className="t-surtitre text-gris-chaud">Espace administration</p>
             <h1 className="truncate font-display text-3xl font-bold leading-tight text-primary md:text-5xl">{school.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
@@ -155,7 +155,7 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
                 className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm font-semibold transition-colors ${active ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
                 <Icon className="h-4 w-4" />
                 {t.label}
-                {count > 0 && <span className="rounded-full bg-jaune-300 px-1.5 text-[11px] font-bold text-bordeaux-800">{count}</span>}
+                {count > 0 && <span className="rounded-full bg-jaune-300 px-1.5 text-xs font-bold text-bordeaux-800">{count}</span>}
               </Link>
             );
           })}
@@ -165,7 +165,7 @@ export function SchoolAdminShell({ title, subtitle, actions, children }: ShellPr
       {(title || actions) && (
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            {title && <h2 className="text-2xl font-bold tracking-tight">{title}</h2>}
+            {title && <h2>{title}</h2>}
             {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           </div>
           {actions}

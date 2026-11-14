@@ -892,7 +892,7 @@ function EventDetail() {
                   <span className="text-center text-xs text-bordeaux-600">
                     Cliquer pour uploader votre <strong>{event.required_document}</strong>
                   </span>
-                  <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG — max 10 Mo</span>
+                  <span className="text-xs text-muted-foreground">PDF, JPG, PNG — max 10 Mo</span>
                   <input
                     type="file"
                     className="hidden"
@@ -957,7 +957,7 @@ function EventDetail() {
                 </div>
                 <div className="flex gap-2 pt-1">
                   {["VISA", "MC", "AMEX"].map((b) => (
-                    <span key={b} className="rounded border px-2 py-0.5 text-[10px] font-bold text-muted-foreground">{b}</span>
+                    <span key={b} className="rounded border px-2 py-0.5 text-xs font-bold text-muted-foreground">{b}</span>
                   ))}
                 </div>
               </div>
@@ -1100,7 +1100,7 @@ function EventDetail() {
       <Card className="overflow-hidden rounded-3xl border shadow-elegant md:border-2">
         <CardContent className="p-5 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <h1 className="text-2xl font-bold tracking-tight not-italic md:text-3xl">{event.title}</h1>
+            <h1 className="not-italic">{event.title}</h1>
             <div className="flex gap-2">
               <LikeButton size="page" count={likes.counts[eventId] ?? 0} liked={likes.mine.has(eventId)} onToggle={() => likes.toggle(eventId)} />
               <ShareButton event={event} />

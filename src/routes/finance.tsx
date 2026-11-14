@@ -163,7 +163,7 @@ function FinancePage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Finances</h1>
+          <h1>Finances</h1>
           <p className="text-muted-foreground">Suivez vos revenus et demandez des virements.</p>
         </div>
         <Button
@@ -217,7 +217,7 @@ function FinancePage() {
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-bold text-bordeaux-600">+{fmt(r._price ?? 0)}</p>
-                        <Badge variant="secondary" className={`text-[10px] mt-0.5 ${r.status === "attended" ? "bg-emerald-100 text-emerald-800" : ""}`}>
+                        <Badge variant="secondary" className={`text-xs mt-0.5 ${r.status === "attended" ? "bg-emerald-100 text-emerald-800" : ""}`}>
                           {r.status === "attended" ? "Présent" : "Inscrit"}
                         </Badge>
                       </div>

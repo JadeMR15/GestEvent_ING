@@ -52,7 +52,7 @@ function ConfirmSchoolEmailPage() {
             {state === "done" ? (
               <>
                 <BadgeCheck className="mx-auto h-12 w-12 text-green-600" />
-                <h1 className="text-2xl font-bold" style={{ color: "var(--text-title)" }}>C'est confirmé !</h1>
+                <h1 style={{ color: "var(--text-title)" }}>C'est confirmé !</h1>
                 <p className="text-muted-foreground">Ton compte étudiant est vérifié jusqu'au 31 août.</p>
                 {school && <SchoolBadge school={school} className="text-sm" />}
                 <Button asChild className="w-full bg-gradient-primary shadow-glow">
@@ -62,7 +62,7 @@ function ConfirmSchoolEmailPage() {
             ) : state === "error" ? (
               <>
                 <XCircle className="mx-auto h-12 w-12 text-red-500" />
-                <h1 className="text-2xl font-bold" style={{ color: "var(--text-title)" }}>Lien non valable</h1>
+                <h1 style={{ color: "var(--text-title)" }}>Lien non valable</h1>
                 <p className="text-muted-foreground">{message}</p>
                 <Button asChild variant="outline" className="w-full">
                   <Link to={user ? "/verification" : "/login"}>{user ? "Vérifier mon compte" : "Me connecter"}</Link>
@@ -71,7 +71,7 @@ function ConfirmSchoolEmailPage() {
             ) : (
               <>
                 <MailCheck className="mx-auto h-12 w-12 text-bordeaux-600" />
-                <h1 className="text-2xl font-bold" style={{ color: "var(--text-title)" }}>Confirmer mon adresse d'école</h1>
+                <h1 style={{ color: "var(--text-title)" }}>Confirmer mon adresse d'école</h1>
                 <p className="text-muted-foreground">
                   Un clic pour confirmer que cette adresse est bien la tienne et vérifier ton compte étudiant.
                 </p>

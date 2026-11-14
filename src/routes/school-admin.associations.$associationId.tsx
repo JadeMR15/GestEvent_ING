@@ -111,8 +111,8 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
               <AssociationLogoEditor associationId={association.id} name={association.name} path={association.logo_path} fallbackSrc={fallback}
                 onChange={(logo_path) => setAssociation({ ...association, logo_path })} />
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fiche association</p>
-                <h2 className="truncate text-2xl font-bold tracking-tight md:text-3xl">{association.name}</h2>
+                <p className="t-surtitre text-gris-chaud">Fiche association</p>
+                <h2 className="truncate">{association.name}</h2>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <Badge className={badge.className}>{badge.label}</Badge>
                   {association.created_at && <span>Créée le {format(new Date(association.created_at), "d MMMM yyyy", { locale: fr })}</span>}
@@ -231,8 +231,8 @@ function AssociationDetail({ school, refresh }: { school: School; refresh: () =>
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="px-5 py-4 md:px-6">
-      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-2xl font-bold tracking-tight">{value}</dd>
+      <dt className="t-surtitre text-gris-chaud">{label}</dt>
+      <dd className="mt-1 font-display text-2xl font-black">{value}</dd>
       {hint && <dd className="text-xs text-muted-foreground">{hint}</dd>}
     </div>
   );

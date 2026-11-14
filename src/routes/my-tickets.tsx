@@ -156,7 +156,7 @@ function MyTicketsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mes billets</h1>
+        <h1>Mes billets</h1>
         <p className="text-sm text-muted-foreground md:text-base">Tes places et tes QR codes d'entrée.</p>
       </div>
 
@@ -193,15 +193,15 @@ function MyTicketsPage() {
                     <h3 className="mt-2 font-display text-xl font-semibold leading-tight text-primary-foreground">{ev.title}</h3>
                     <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider opacity-70">Date</p>
+                        <p className="t-surtitre opacity-70">Date</p>
                         <p className="font-medium capitalize">{format(new Date(ev.starts_at), "EEE d MMM", { locale: fr })}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider opacity-70">Heure</p>
+                        <p className="t-surtitre opacity-70">Heure</p>
                         <p className="font-medium">{format(new Date(ev.starts_at), "HH'h'mm")}</p>
                       </div>
                       <div className="col-span-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider opacity-70">Lieu</p>
+                        <p className="t-surtitre opacity-70">Lieu</p>
                         <p className="line-clamp-1 font-medium">{ev.location || "En ligne"}</p>
                       </div>
                     </div>
@@ -230,7 +230,7 @@ function MyTicketsPage() {
                             <QRCodeCanvas value={reg.qr_code} size={240} />
                           </div>
                           <p className="text-sm text-muted-foreground">Présente ce code à l'entrée.</p>
-                          <code className="max-w-full break-all rounded bg-muted px-2 py-1 text-[11px]">{reg.qr_code}</code>
+                          <code className="max-w-full break-all rounded bg-muted px-2 py-1 text-xs">{reg.qr_code}</code>
                           {canCancel && (
                             <button
                               className="mt-2 text-sm font-medium text-destructive"

@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
-const SIZES = { xs: "h-6 w-6 text-[9px]", sm: "h-8 w-8 text-[11px]", md: "h-10 w-10 text-xs", lg: "h-14 w-14 text-base" } as const;
+const SIZES = { xs: "h-6 w-6 text-xs", sm: "h-8 w-8 text-xs", md: "h-10 w-10 text-xs", lg: "h-14 w-14 text-base" } as const;
 
 /** Photo de profil d'une personne (initiales sans photo), pour les listes. */
 export function UserAvatar({ path, name, size = "sm", className }: {

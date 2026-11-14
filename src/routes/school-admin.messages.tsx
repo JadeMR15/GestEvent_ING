@@ -121,14 +121,14 @@ function Inbox({ school }: { school: School }) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <p className={`truncate text-sm ${n ? "font-bold" : "font-semibold"}`}>{a.name}</p>
-                      {last && <span className={`shrink-0 text-[11px] capitalize ${n ? "font-semibold text-primary" : "text-muted-foreground"}`}>{shortTime(last.created_at)}</span>}
+                      {last && <span className={`shrink-0 text-xs capitalize ${n ? "font-semibold text-primary" : "text-muted-foreground"}`}>{shortTime(last.created_at)}</span>}
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <p className={`truncate text-xs ${n ? "font-medium text-foreground" : "text-muted-foreground"}`}>
                         {last ? `${last.from_school ? "Vous : " : ""}${last.body}` : a.status === "pending" ? "Association à valider" : "Démarrer la conversation"}
                       </p>
                       {n > 0 && (
-                        <span className="min-w-[1.25rem] shrink-0 rounded-full bg-jaune-300 px-1.5 text-center text-[11px] font-bold leading-5 text-bordeaux-800">{n}</span>
+                        <span className="min-w-[1.25rem] shrink-0 rounded-full bg-jaune-300 px-1.5 text-center text-xs font-bold leading-5 text-bordeaux-800">{n}</span>
                       )}
                     </div>
                   </div>
@@ -150,7 +150,7 @@ function Inbox({ school }: { school: School }) {
               <Monogram name={selected.name} src={associationImage(selected.logo_path, fallbacks[selected.id])} className="!h-10 !w-10 text-sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{selected.name}</p>
-                <Badge className={`${STATUS_BADGE[selected.status].className} h-5 text-[10px]`}>{STATUS_BADGE[selected.status].label}</Badge>
+                <Badge className={`${STATUS_BADGE[selected.status].className} h-5 text-xs`}>{STATUS_BADGE[selected.status].label}</Badge>
               </div>
               <Button asChild variant="outline" size="sm">
                 <Link to="/school-admin/associations/$associationId" params={{ associationId: selected.id }}>

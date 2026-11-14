@@ -80,7 +80,7 @@ function WaitlistPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mes listes d'attente</h1>
+        <h1>Mes listes d'attente</h1>
         <p className="text-muted-foreground">
           Quand une place se libère, elle est proposée dans l'ordre d'arrivée. Tu es prévenu(e) par email.
         </p>

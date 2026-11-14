@@ -203,7 +203,7 @@ function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight not-italic">Dashboard</h1>
+          <h1 className="not-italic">Dashboard</h1>
           <p className="text-muted-foreground">Vue d'ensemble de votre activité.</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -308,9 +308,9 @@ function DashboardPage() {
                       ) : (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Users className="h-3.5 w-3.5" />{confirmed} inscrits
-                          {ev.status === "draft" && <Badge variant="secondary" className="text-[10px]">Brouillon</Badge>}
+                          {ev.status === "draft" && <Badge variant="secondary" className="text-xs">Brouillon</Badge>}
                           {(ev.approval_status === "pending" || ev.approval_status === "rejected") && (
-                            <Badge className={`text-[10px] ${APPROVAL_BADGE[ev.approval_status as ApprovalStatus]}`}>{APPROVAL_LABEL[ev.approval_status as ApprovalStatus]}</Badge>
+                            <Badge className={`text-xs ${APPROVAL_BADGE[ev.approval_status as ApprovalStatus]}`}>{APPROVAL_LABEL[ev.approval_status as ApprovalStatus]}</Badge>
                           )}
                         </div>
                       )}

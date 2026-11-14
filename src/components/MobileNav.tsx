@@ -76,12 +76,12 @@ export function MobileTabBar() {
             <li key={tab.url} className="flex-1">
               <Link
                 to={tab.url}
-                className={`tap flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
+                className={`tap flex flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
               >
                 <span className={`relative flex h-8 w-14 items-center justify-center rounded-full transition-colors ${active ? "bg-secondary" : ""}`}>
                   <tab.icon className="h-6 w-6" strokeWidth={2} />
                   {badgeFor(tab.url, notifications) > 0 && (
-                    <span className="absolute right-1.5 top-0 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-bordeaux-800">
+                    <span className="absolute right-1.5 top-0 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-xs font-bold leading-[1.1rem] text-bordeaux-800">
                       {badgeFor(tab.url, notifications)}
                     </span>
                   )}
@@ -115,7 +115,7 @@ function NotificationBell() {
       }}>
       <Bell className="h-5 w-5" />
       {total > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-bordeaux-800">
+        <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-xs font-bold leading-[1.1rem] text-bordeaux-800">
           {total > 99 ? "99+" : total}
         </span>
       )}

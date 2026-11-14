@@ -147,7 +147,7 @@ function AdminSchoolsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Écoles</h1>
+        <h1>Écoles</h1>
         <p className="text-muted-foreground">
           Domaines d'adresses email qui prouvent l'appartenance à une école. Les sous-domaines sont acceptés
           (ex. <code>etu.esme.fr</code> pour <code>esme.fr</code>). Les messageries grand public sont refusées.

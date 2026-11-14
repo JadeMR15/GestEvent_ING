@@ -111,7 +111,7 @@ function Feed() {
     <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr_300px]">
       <div className="min-w-0 space-y-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fil d'actu</h1>
+          <h1>Fil d'actu</h1>
           <p className="text-muted-foreground">Les nouveautés des associations que tu suis.</p>
         </div>
 
@@ -179,7 +179,7 @@ function Feed() {
                 {followed.map((a) => (
                   <li key={a.id}>
                     <Link to="/associations/$associationId" params={{ associationId: a.id }} className="flex items-center gap-3 hover:text-primary">
-                      <AssociationAvatar name={a.name} logoPath={a.logo_path} fallback={fallbacks[a.id]} className="!h-9 !w-9 !rounded-full text-[11px]" />
+                      <AssociationAvatar name={a.name} logoPath={a.logo_path} fallback={fallbacks[a.id]} className="!h-9 !w-9 !rounded-full text-xs" />
                       <span className="truncate text-sm font-medium">{a.name}</span>
                     </Link>
                   </li>

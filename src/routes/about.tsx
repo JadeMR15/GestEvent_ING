@@ -126,14 +126,14 @@ function AboutPage() {
 
             {/* Content */}
             <div className="flex-1">
-              <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${role.iconColor}`}>
+              <p className={`t-surtitre mb-2 ${role.iconColor}`}>
                 Rôle
               </p>
               <h2 className="font-display text-3xl font-bold text-bordeaux-600 mb-2">{role.title}</h2>
               <p className="text-encre/50 text-sm mb-4 italic">{role.tagline}</p>
               <p className="text-encre/70 mb-6 leading-relaxed">{role.description}</p>
 
-              <h3 className="text-sm font-semibold text-encre mb-3 uppercase tracking-wide">Ce qu'il peut faire</h3>
+              <h3 className="t-surtitre mb-3 text-encre">Ce qu'il peut faire</h3>
               <ul className="space-y-2">
                 {role.powers.map((p) => (
                   <li key={p} className="flex items-start gap-2 text-sm text-encre/70">

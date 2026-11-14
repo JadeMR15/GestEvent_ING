@@ -59,7 +59,7 @@ function MessagesPage() {
         <header className="flex items-center gap-3 border-b px-4 py-3 md:px-6">
           <Monogram name={names.school} className="!h-11 !w-11 text-sm" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Messagerie</p>
+            <p className="t-surtitre text-gris-chaud">Messagerie</p>
             <p className="truncate text-lg font-bold leading-tight">{names.school}</p>
           </div>
           <span className="hidden text-right text-xs text-muted-foreground sm:block">

@@ -34,7 +34,7 @@ export function ProtectedLayout({ children, allow }: Props) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Accès refusé</h1>
+          <h1>Accès refusé</h1>
           <p className="mt-2 text-muted-foreground">Votre rôle ne permet pas d'accéder à cette page.</p>
         </div>
       </div>

@@ -277,7 +277,7 @@ function CreateEventPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-3xl font-bold tracking-tight">Créer un événement</h1>
+      <h1 className="mb-6">Créer un événement</h1>
       <Card className="border-2 shadow-elegant">
         <CardHeader><CardTitle>Détails de l'événement</CardTitle></CardHeader>
         <CardContent>
@@ -301,11 +301,11 @@ function CreateEventPage() {
                       ) : (
                         <div className="flex h-full flex-col items-center justify-center gap-1 bg-black/80">
                           <PlayCircle className="h-6 w-6 text-white" />
-                          <span className="w-full truncate px-1 text-center text-[10px] text-white/70">Vidéo</span>
+                          <span className="w-full truncate px-1 text-center text-xs text-white/70">Vidéo</span>
                         </div>
                       )}
                       {i === 0 && item.type === "image" && (
-                        <span className="absolute bottom-0 left-0 right-0 bg-bordeaux-600/80 py-0.5 text-center text-[9px] text-white">
+                        <span className="absolute bottom-0 left-0 right-0 bg-bordeaux-600/80 py-0.5 text-center text-xs text-white">
                           Couverture
                         </span>
                       )}

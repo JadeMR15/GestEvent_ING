@@ -136,7 +136,7 @@ function Overview({ school, refresh }: { school: School; refresh: () => Promise<
       <section className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Associations</h2>
+            <h2>Associations</h2>
             <p className="text-sm text-muted-foreground">
               Les fiches de chaque association de {school.name} : activité, chiffres et règles de publication.
             </p>
@@ -223,9 +223,9 @@ function AssociationCard({ association: a, stats: st, busy, onUpdate, fallbackLo
         <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border">
           {metrics.map((m) => (
             <div key={m.label} className="bg-card px-3 py-2.5">
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{m.label}</dt>
+              <dt className="t-surtitre text-gris-chaud">{m.label}</dt>
               <dd className="text-lg font-bold leading-tight">{m.value}</dd>
-              <dd className="text-[11px] text-muted-foreground">{m.hint}</dd>
+              <dd className="text-xs text-muted-foreground">{m.hint}</dd>
             </div>
           ))}
         </dl>
@@ -334,10 +334,10 @@ function AddAssociationDialog({ open, onOpenChange, school, onCreated }: {
 function Kpi({ icon: Icon, label, value, hint }: { icon: typeof UsersRound; label: string; value: string; hint?: string }) {
   return (
     <div className="p-4 md:p-5">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="t-surtitre flex items-center gap-2 text-gris-chaud">
         <Icon className="h-4 w-4 text-primary" />{label}
       </div>
-      <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
+      <p className="mt-2 font-display text-3xl font-black">{value}</p>
       {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );

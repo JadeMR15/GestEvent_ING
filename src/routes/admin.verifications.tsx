@@ -191,7 +191,7 @@ function AdminVerificationsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Vérifications étudiantes</h1>
+        <h1>Vérifications étudiantes</h1>
         <p className="text-muted-foreground">
           Justificatifs que la vérification automatique n'a pas pu valider seule. Le document est supprimé après ta décision.
         </p>

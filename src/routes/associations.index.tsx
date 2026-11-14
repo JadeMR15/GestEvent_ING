@@ -70,7 +70,7 @@ function Directory() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Associations</h1>
+        <h1>Associations</h1>
         <p className="text-muted-foreground">Découvre les assos, abonne-toi et ne rate plus aucun de leurs événements.</p>
       </div>
 

@@ -138,7 +138,7 @@ function VerificationPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Vérifier mon compte</h1>
+        <h1>Vérifier mon compte</h1>
         <p className="text-muted-foreground">
           Plav' est réservé aux étudiants. Confirme ton adresse email d'école, ou envoie ton certificat
           de scolarité ou ta carte étudiante de cette année, pour pouvoir t'inscrire aux événements et en créer.

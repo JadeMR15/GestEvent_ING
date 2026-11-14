@@ -122,7 +122,7 @@ function Landing() {
           <div className="flex gap-2">
             {!loading && user ? (
               <Button asChild className="bg-gradient-primary shadow-glow">
-                <Link to="/dashboard">Mon espace <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                <Link to="/dashboard">Mon espace <ArrowRight /></Link>
               </Button>
             ) : (
               <>
@@ -165,13 +165,13 @@ function Landing() {
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               {!loading && user ? (
                 <>
-                  <Button asChild size="lg" variant="secondary" className="shadow-glow"><Link to="/dashboard">Accéder à mon espace <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-                  <Button asChild size="lg" variant="outline" className="border-jaune-100/60 text-creme hover:bg-creme/10 hover:text-creme"><a href="#evenements">Voir les soirées</a></Button>
+                  <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
+                  <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Voir les soirées</a></Button>
                 </>
               ) : (
                 <>
-                  <Button asChild size="lg" variant="secondary" className="shadow-glow"><Link to="/register">Créer un compte <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-                  <Button asChild size="lg" variant="outline" className="border-jaune-100/60 text-creme hover:bg-creme/10 hover:text-creme"><a href="#evenements">Découvrir les soirées</a></Button>
+                  <Button asChild size="lg" variant="secondary"><Link to="/register">Créer un compte <ArrowRight /></Link></Button>
+                  <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Découvrir les soirées</a></Button>
                 </>
               )}
             </div>
@@ -189,7 +189,7 @@ function Landing() {
                 <p className="font-display text-xl sm:text-3xl font-bold" style={{ color: "var(--text-title)" }}>
                   {eventsLoading ? "—" : s.value}
                 </p>
-                <p className="mt-1 text-[10px] sm:text-xs text-encre/60 leading-tight">{s.label}</p>
+                <p className="mt-1 text-xs sm:text-xs text-encre/60 leading-tight">{s.label}</p>
               </div>
             ))}
           </div>
@@ -202,7 +202,7 @@ function Landing() {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "var(--neutre-creme)" }} />
         <div className="relative z-10 container mx-auto px-6">
         <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
+          <h2 style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
           <p className="mt-2 text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
@@ -253,7 +253,7 @@ function Landing() {
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
         <div ref={featuresAnim.ref} className="container mx-auto px-6">
           <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>Simple. <span className="plav-highlight">Complet.</span></h2>
+          <h2 style={{ color: "var(--text-title)" }}>Simple. <span className="plav-highlight">Complet.</span></h2>
             <p className="mt-3 text-encre/60 max-w-xl mx-auto">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
           <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
@@ -291,10 +291,10 @@ function Landing() {
               <h2 className="t-titre-2 text-creme">T'attends <span className="text-jaune-300">quoi ?</span></h2>
               <p className="mt-4 text-creme/80">Rejoins les assos qui font confiance à plav'.</p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg" variant="secondary" className="shadow-glow">
-                  <Link to="/register">Créer un compte gratuitement <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Button asChild size="lg" variant="secondary">
+                  <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="text-creme border border-creme/30 hover:bg-creme/10 hover:text-creme">
+                <Button asChild size="lg" variant="outlineLight">
                   <Link to="/login">Se connecter</Link>
                 </Button>
               </div>
@@ -314,7 +314,7 @@ function Landing() {
               <p className="text-sm text-encre/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-bordeaux-600 mb-3 uppercase tracking-wide">Navigation</h4>
+              <h4 className="t-surtitre mb-3 text-bordeaux-600">Navigation</h4>
               <ul className="space-y-2 text-sm text-encre/70">
                 <li><a href="#evenements" className="hover:text-bordeaux-600 transition-colors">Événements</a></li>
                 <li><a href="#fonctionnalites" className="hover:text-bordeaux-600 transition-colors">Fonctionnalités</a></li>
@@ -323,7 +323,7 @@ function Landing() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-bordeaux-600 mb-3 uppercase tracking-wide">À propos</h4>
+              <h4 className="t-surtitre mb-3 text-bordeaux-600">À propos</h4>
               <ul className="space-y-2 text-sm text-encre/70">
                 <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-600 transition-colors">Organisateur</Link></li>
                 <li><Link to="/about" hash="participant" className="hover:text-bordeaux-600 transition-colors">Participant</Link></li>
@@ -331,7 +331,7 @@ function Landing() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-bordeaux-600 mb-3 uppercase tracking-wide">Contact</h4>
+              <h4 className="t-surtitre mb-3 text-bordeaux-600">Contact</h4>
               <div className="flex items-center gap-2 text-sm text-encre/70 mb-4">
                 <Mail className="h-4 w-4" /><span>support@plav.app</span>
               </div>
@@ -381,7 +381,7 @@ function StackedHowItWorks() {
         padding:    "1rem 0 1.5rem",
         background: "linear-gradient(to bottom, var(--bg-page) 70%, transparent 100%)",
       }}>
-        <h2 className="text-4xl font-bold" style={{ color: "var(--text-title)" }}>
+        <h2 style={{ color: "var(--text-title)" }}>
           Comment ça marche ?
         </h2>
       </div>
@@ -475,9 +475,9 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
               ) : (
                 <div className="relative h-2 bg-gradient-vibrant">
                   <div className="absolute -bottom-3 right-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600 text-[10px]"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
-                    {isFull ? <Badge variant="destructive" className="text-[10px]">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-[10px]">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
+                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600 text-xs"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+                    {isFull ? <Badge variant="destructive" className="text-xs">Complet</Badge>
+                      : remaining > 0 && remaining < 10 ? <Badge className="bg-orange-500 hover:bg-orange-500 text-xs">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
                       : null}
                   </div>
                 </div>
