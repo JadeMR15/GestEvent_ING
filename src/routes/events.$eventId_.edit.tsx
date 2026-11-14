@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImagePlus, Loader2, Plus, PlayCircle, Trash2, X, CalendarDays, Clock } from "lucide-react";
+import { ImagePlus, Loader2, Plus, PlayCircle, Trash2, X, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { notifyWaitlist } from "@/lib/waitlist";
 
@@ -393,7 +393,7 @@ function EditEventPage() {
               <Label>Date & heure *</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
-                  <CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="date"
                     className="pl-9"

@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarDays, CheckCircle2, ExternalLink, Loader2, MapPin, Users, XCircle } from "lucide-react";
+import { Calendar, CheckCircle2, ExternalLink, Loader2, MapPin, Users, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { db, schoolErrorMessage, type School } from "@/lib/schools";
 
@@ -93,7 +93,7 @@ function Reviews({ school, refresh }: { school: School; refresh: () => Promise<v
             <div className="h-40 bg-secondary md:h-full">
               {e.cover_image_url
                 ? <img src={e.cover_image_url} alt="" className="h-full w-full object-cover" />
-                : <div className="flex h-full items-center justify-center"><CalendarDays className="h-10 w-10 text-primary/40" /></div>}
+                : <div className="flex h-full items-center justify-center"><Calendar className="h-10 w-10 text-primary/40" /></div>}
             </div>
             <div className="space-y-3 p-5 md:pl-0">
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -109,7 +109,7 @@ function Reviews({ school, refresh }: { school: School; refresh: () => Promise<v
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1"><CalendarDays className="h-4 w-4" />{format(new Date(e.starts_at), "EEEE d MMMM yyyy, HH:mm", { locale: fr })}</span>
+                <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />{format(new Date(e.starts_at), "EEEE d MMMM yyyy, HH:mm", { locale: fr })}</span>
                 <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{[e.location, e.city].filter(Boolean).join(", ")}</span>
                 <span className="flex items-center gap-1"><Users className="h-4 w-4" />{e.capacity} places · {Number(e.price) > 0 ? `dès ${e.price} €` : "gratuit"}</span>
               </div>

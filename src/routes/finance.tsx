@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Euro, ArrowDownToLine, Clock, TrendingUp, Ticket, Loader2, CheckCircle2, AlertCircle, RefreshCcw } from "lucide-react";
+import { Euro, ArrowDownToLine, Clock, TrendingUp, Ticket, Loader2, CheckCircle2, CircleAlert, RefreshCcw } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";

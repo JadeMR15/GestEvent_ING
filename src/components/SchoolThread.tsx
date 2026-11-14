@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { Link } from "@tanstack/react-router";
 import { format, isSameDay, isToday, isYesterday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarDays, CheckCheck, Loader2, MessageSquare, Send } from "lucide-react";
+import { Calendar, CheckCheck, Loader2, MessageSquare, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -187,7 +187,7 @@ export function SchoolThread({ associationId, side, schoolName = "L'école", ass
                         {m.event_id && m.events?.title && (
                           <Link to="/events/$eventId" params={{ eventId: m.event_id }}
                             className={`mb-1.5 flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium ${me ? "bg-white/15 text-primary-foreground" : "bg-secondary text-primary"}`}>
-                            <CalendarDays className="h-3.5 w-3.5" />{m.events.title}
+                            <Calendar className="h-3.5 w-3.5" />{m.events.title}
                           </Link>
                         )}
                         <p className="whitespace-pre-wrap break-words">{m.body}</p>

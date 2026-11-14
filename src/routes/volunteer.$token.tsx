@@ -7,10 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  CalendarDays, MapPin, Camera, CameraOff, CheckCircle2,
-  XCircle, ScanLine, Loader2, AlertTriangle, Users, Heart,
-} from "lucide-react";
+import { Calendar, MapPin, Camera, CameraOff, CheckCircle2, XCircle, ScanLine, Loader2, AlertTriangle, Users, Heart } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -184,7 +181,7 @@ function VolunteerPage() {
             <h1 className="text-xl font-bold">{event.title}</h1>
             <div className="flex flex-col gap-1 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-primary shrink-0" />
+                <Calendar className="h-4 w-4 text-primary shrink-0" />
                 {format(new Date(event.starts_at), "PPP à p", { locale: fr })}
               </div>
               <div className="flex items-center gap-2">

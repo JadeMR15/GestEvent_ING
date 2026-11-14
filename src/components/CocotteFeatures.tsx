@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
-import { CalendarDays, QrCode, Users, TrendingUp } from "lucide-react";
+import { Calendar, QrCode, Users, TrendingUp } from "lucide-react";
 import "./CocotteFeatures.css";
 
 /*
@@ -27,7 +27,7 @@ type Feature = {
 const FEATURES: Feature[] = [
   {
     label: "Crée",
-    icon: CalendarDays,
+    icon: Calendar,
     title: "Ton event en ligne en une minute",
     desc: "Titre, date, lieu, capacité : c'est publié, avec la carte. Tu modifies quand tu veux, tout le monde voit la mise à jour.",
   },
@@ -531,7 +531,7 @@ export function CocotteFeatures() {
                           className="cocotte-face__content"
                           style={{ left: f.centroid[0], top: f.h * (f.kind === "wall" ? 0.66 : 0.64), fontSize: size * (f.kind === "wall" ? 0.2 : 0.17) }}
                         >
-                          <Icon className="cocotte-face__icon" strokeWidth={1.6} />
+                          <Icon className="cocotte-face__icon" strokeWidth={2} />
                         </div>
                       )}
                       {f.role === "label" && (

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useState, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
@@ -162,14 +163,12 @@ function MyTicketsPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : active.length === 0 ? (
-        <Card className="rounded-3xl border-2 border-dashed">
-          <CardContent className="py-12 text-center">
-            <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-3 h-16 w-16 opacity-40" />
-            <p className="text-muted-foreground">Aucun billet à venir pour l'instant.</p>
-            <Button asChild className="mt-4 bg-gradient-primary shadow-glow">
+        <Card>
+          <EmptyState title="Aucun billet à venir pour l'instant.">
+            <Button asChild variant="secondary">
               <Link to="/events">Découvrir les événements</Link>
             </Button>
-          </CardContent>
+          </EmptyState>
         </Card>
       ) : (
         <div className="space-y-5">

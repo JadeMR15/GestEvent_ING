@@ -1,9 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import {
-  BadgeCheck, BarChart2, Building2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut,
-  MessageSquare, Newspaper, Settings, ShieldAlert, ShieldCheck, Store, Ticket, Users, type LucideIcon,
-} from "lucide-react";
+import { BadgeCheck, ChartNoAxesColumn, Building2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut, MessageSquare, Newspaper, Settings, ShieldAlert, ShieldCheck, Store, Ticket, Users, type LucideIcon } from "lucide-react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
@@ -93,7 +90,7 @@ function ProfilePage() {
         <Row to="/settings" icon={Settings} label="Paramètres" />
         {role === "participant" && <Row to="/my-tickets" icon={Ticket} label="Mes billets" />}
         {((role === "participant" && isStudent) || role === "organizer") && (
-          <Row to="/verification" icon={BadgeCheck} label="Vérification étudiante"
+          <Row to="/verification" icon={ShieldCheck} label="Vérification étudiante"
             hint={isVerified ? <span className="text-xs font-semibold text-success">Validée</span> : undefined} />
         )}
       </Group>
@@ -104,7 +101,7 @@ function ProfilePage() {
           {role === "organizer" && associationId && membershipStatus === "approved" && (
             <Row to={`/associations/${associationId}`} icon={Store} label="Page de l'association" />
           )}
-          <Row to="/analytics" icon={BarChart2} label="Analyses" />
+          <Row to="/analytics" icon={ChartNoAxesColumn} label="Analyses" />
           <Row to="/finance" icon={Euro} label="Finances" />
           <Row to="/export" icon={Download} label="Exporter" />
           {role === "organizer" && <Row to="/messages" icon={MessageSquare} label="Messages de l'école" />}

@@ -1,4 +1,5 @@
 import { createFileRoute, useParams, useNavigate, Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/EmptyState";
 import { SITE_URL } from "@/lib/site";
 import { useLikes } from "@/lib/likes";
 import { LikeButton } from "@/components/LikeButton";
@@ -24,13 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  CalendarDays, MapPin, Users, Loader2, Ticket, Pencil,
-  CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send,
-  Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2,
-  UserPlus, Trash2, Copy, Link as LinkIcon, Minus, Plus, Check, ArrowLeft,
-  ChevronLeft, ChevronRight, PlayCircle, Upload, FileText, X, Hourglass, BellRing,
-} from "lucide-react";
+import { Calendar, MapPin, Users, Loader2, Ticket, Pencil, CheckCircle2, Lock, CreditCard, ShoppingCart, Timer, XCircle, Send, Search, MoreVertical, Mail, RefreshCw, UserCheck, UserX, GraduationCap, Building2, UserPlus, Trash2, Copy, Link as LinkIcon, Minus, Plus, Check, ArrowLeft, ChevronLeft, ChevronRight, PlayCircle, Upload, FileText, X, Hourglass, BellRing } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -102,7 +97,7 @@ function PublicEventView() {
 
         <div className="mb-6 space-y-2 text-encre/70">
           {eventDate && (
-            <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 flex-shrink-0" /><span>{eventDate}</span></div>
+            <div className="flex items-center gap-2"><Calendar className="h-4 w-4 flex-shrink-0" /><span>{eventDate}</span></div>
           )}
           {event.location && (
             <div className="flex items-center gap-2"><MapPin className="h-4 w-4 flex-shrink-0" /><span>{event.location}</span></div>
@@ -760,7 +755,7 @@ function EventDetail() {
           <div className="rounded-xl border bg-muted/30 p-4 space-y-1">
             <p className="font-semibold text-bordeaux-600">{event.title}</p>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-              <CalendarDays className="h-3.5 w-3.5" />
+              <Calendar className="h-3.5 w-3.5" />
               {format(new Date(event.starts_at), "PPP à p", { locale: fr })}
             </p>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
@@ -1018,7 +1013,7 @@ function EventDetail() {
               <div className={`pointer-events-none absolute left-0 right-0 z-30 p-5 ${allMedia.length >= 2 ? "bottom-[72px]" : "bottom-0"}`}>
                 <h1 className="text-3xl font-bold leading-tight text-white drop-shadow-md sm:text-4xl">{event.title}</h1>
                 <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/80">
-                  <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{format(new Date(event.starts_at), "PPP à p", { locale: fr })}</span>
+                  <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{format(new Date(event.starts_at), "PPP à p", { locale: fr })}</span>
                   {event.location && (
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.location, event.city].filter(Boolean).join(", "))}`}
@@ -1180,7 +1175,7 @@ function EventDetail() {
           )}
 
           <div className="mt-5 grid gap-2 text-sm sm:grid-cols-3">
-            <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" />{format(new Date(event.starts_at), "PPP p", { locale: fr })}</div>
+            <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" />{format(new Date(event.starts_at), "PPP p", { locale: fr })}</div>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
               {event.location ? (
@@ -1664,14 +1659,14 @@ function EventDetail() {
             </div>
 
             {registrations.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucune inscription pour l'instant.</p>
+              <EmptyState title="Aucune inscription pour l'instant." />
             ) : (() => {
               const filtered = registrations.filter((r) =>
                 r.status !== "cancelled" &&
                 (r.full_name || "").toLowerCase().includes(participantSearch.toLowerCase())
               );
               if (filtered.length === 0) return (
-                <p className="py-4 text-center text-sm text-muted-foreground">Aucun résultat pour « {participantSearch} ».</p>
+                <EmptyState title={<>Aucun résultat pour « {participantSearch} ».</>} />
               );
               return (
                 <ul className="divide-y">

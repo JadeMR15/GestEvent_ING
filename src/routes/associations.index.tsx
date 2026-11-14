@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, GraduationCap, Loader2, Search, Users } from "lucide-react";
+import { Calendar, GraduationCap, Loader2, Search, Users } from "lucide-react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { useAssociationFallbacks } from "@/components/AssociationLogo";
 import { AssociationAvatar, FollowButton } from "@/components/social/SocialBits";
@@ -119,7 +119,7 @@ function Directory() {
                     <p className="line-clamp-2 flex-1 text-sm text-muted-foreground">{a.description || " "}</p>
                     <div className="flex items-center gap-4 border-t pt-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /><strong className="text-foreground">{followers}</strong> abonné{followers > 1 ? "s" : ""}</span>
-                      <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /><strong className="text-foreground">{next}</strong> à venir</span>
+                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /><strong className="text-foreground">{next}</strong> à venir</span>
                     </div>
                   </CardContent>
                 </Card>

@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertTriangle, ArrowRight, MessageSquare, CalendarDays, Euro, Loader2, Plus, Search, ShieldCheck, Ticket, UsersRound } from "lucide-react";
+import { AlertTriangle, ArrowRight, MessageSquare, Calendar, Euro, Loader2, Plus, Search, ShieldCheck, Ticket, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 import { db, euro, pct, schoolErrorMessage, ASSOCIATION_STATUS_BADGE as STATUS_BADGE, type Association, type AssociationStats, type School } from "@/lib/schools";
 
@@ -113,7 +113,7 @@ function Overview({ school, refresh }: { school: School; refresh: () => Promise<
         <CardContent className="grid grid-cols-2 p-0 lg:grid-cols-4 [&>*]:border-border max-lg:[&>*:nth-child(odd)]:border-r max-lg:[&>*:nth-child(-n+2)]:border-b lg:[&>*:not(:last-child)]:border-r">
           <Kpi icon={UsersRound} label="Associations actives" value={String(totals.active)}
             hint={counts.pending ? `${counts.pending} en attente de validation` : `${associations.length} au total`} />
-          <Kpi icon={CalendarDays} label="Événements à venir" value={String(totals.upcoming)}
+          <Kpi icon={Calendar} label="Événements à venir" value={String(totals.upcoming)}
             hint={totals.pendingEvents ? `${totals.pendingEvents} à valider` : `${totals.events} depuis le début`} />
           <Kpi icon={Ticket} label="Inscriptions" value={String(totals.registrations)}
             hint={`Remplissage ${pct(totals.registrations, totals.capacity)} · présence ${pct(totals.attended, totals.registrations)}`} />

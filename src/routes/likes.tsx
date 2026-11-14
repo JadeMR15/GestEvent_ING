@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarDays, Heart, Loader2, MapPin } from "lucide-react";
+import { Calendar, Heart, Loader2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -68,15 +69,12 @@ function LikesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : events.length === 0 ? (
-        <Card className="border-2 border-dashed">
-          <CardContent className="py-12 text-center">
-            <Heart className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">Tu n'as encore liké aucun événement.</p>
-            <p className="mt-1 text-sm text-muted-foreground">Clique sur le cœur d'un événement pour le retrouver ici.</p>
-            <Button asChild className="mt-4 bg-gradient-primary shadow-glow">
+        <Card>
+          <EmptyState title="Tu n'as encore liké aucun événement." message="Clique sur le cœur d'un événement pour le retrouver ici.">
+            <Button asChild variant="secondary">
               <Link to="/events">Découvrir les événements</Link>
             </Button>
-          </CardContent>
+          </EmptyState>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -91,7 +89,7 @@ function LikesPage() {
                   <Link to="/events/$eventId" params={{ eventId: e.id }} className="min-w-0 flex-1 hover:text-primary">
                     <p className="truncate text-lg font-semibold">{e.title}</p>
                     <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <CalendarDays className="h-4 w-4 flex-shrink-0" />
+                      <Calendar className="h-4 w-4 flex-shrink-0" />
                       {format(new Date(e.starts_at), "PPP 'à' p", { locale: fr })}{past && " · passé"}
                     </p>
                     {(e.city || e.location) && (

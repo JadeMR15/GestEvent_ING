@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CalendarDays, Ticket, ChevronLeft } from "lucide-react";
+import { Loader2, Calendar, Ticket, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { OAuthButtons } from "@/components/OAuthButtons";
 import { Switch } from "@/components/ui/switch";
@@ -185,7 +185,7 @@ function RegisterPage() {
               <div className="grid grid-cols-2 gap-3">
                 {([
                   { value: "participant", label: "Participant",  desc: "Je m'inscris aux événements", icon: Ticket,      bg: "var(--bordeaux-100)", border: "var(--bordeaux-600)", text: "var(--bordeaux-600)" },
-                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: CalendarDays, bg: "var(--bordeaux-100)", border: "var(--bordeaux-600)", text: "var(--bordeaux-600)" },
+                  { value: "organizer",  label: "Organisateur", desc: "Je crée des événements",      icon: Calendar, bg: "var(--bordeaux-100)", border: "var(--bordeaux-600)", text: "var(--bordeaux-600)" },
                 ] as const).map((opt) => {
                   const selected = role === opt.value;
                   return (
@@ -234,7 +234,7 @@ function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="birthDate">Date de naissance *</Label>
                 <div className="relative">
-                  <CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input id="birthDate" type="date" className="pl-9" value={birthDate} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setBirthDate(e.target.value)} required />
                 </div>
               </div>

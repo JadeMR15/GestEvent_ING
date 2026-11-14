@@ -13,7 +13,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend,
 } from "recharts";
-import { Users, TrendingUp, Euro, CalendarDays, BarChart2, UserCircle, ArrowLeft } from "lucide-react";
+import { Users, TrendingUp, Euro, Calendar, ChartNoAxesColumn, ArrowLeft } from "lucide-react";
 import { format, subDays, eachDayOfInterval } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -230,7 +230,7 @@ function AnalyticsPage() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={CalendarDays} label="Événements" value={filteredEvents.length} />
+        <StatCard icon={Calendar} label="Événements" value={filteredEvents.length} />
         <StatCard icon={Users} label="Inscrits" value={totalRegistrations} />
         <StatCard icon={TrendingUp} label="Taux de présence" value={`${attendanceRate}%`} sub={`${totalAttended} présents`} />
         <StatCard icon={Euro} label="Revenus estimés" value={`${totalRevenue} €`} />
@@ -238,9 +238,9 @@ function AnalyticsPage() {
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); if (v !== "global") setSelectedEventId("all"); }} className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="global" className="gap-2"><BarChart2 className="h-4 w-4" />Vue globale</TabsTrigger>
-          <TabsTrigger value="events" className="gap-2"><CalendarDays className="h-4 w-4" />Par événement</TabsTrigger>
-          <TabsTrigger value="participants" className="gap-2"><UserCircle className="h-4 w-4" />Participants</TabsTrigger>
+          <TabsTrigger value="global" className="gap-2"><ChartNoAxesColumn className="h-4 w-4" />Vue globale</TabsTrigger>
+          <TabsTrigger value="events" className="gap-2"><Calendar className="h-4 w-4" />Par événement</TabsTrigger>
+          <TabsTrigger value="participants" className="gap-2"><Users className="h-4 w-4" />Participants</TabsTrigger>
         </TabsList>
 
         {/* ═══════════ VUE GLOBALE ═══════════ */}
@@ -399,7 +399,7 @@ function AnalyticsPage() {
           {!hasDemoData ? (
             <Card className="border-2 shadow-elegant">
               <CardContent className="py-16 text-center space-y-3">
-                <UserCircle className="mx-auto h-12 w-12 text-muted-foreground/30" />
+                <Users className="mx-auto h-12 w-12 text-muted-foreground/30" />
                 <p className="font-medium">Aucune donnée démographique disponible</p>
                 <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                   Les données s'alimenteront automatiquement lors des prochaines inscriptions (genre, âge, école collectés dans le formulaire).

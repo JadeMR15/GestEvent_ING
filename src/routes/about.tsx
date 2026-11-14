@@ -121,7 +121,7 @@ function AboutPage() {
           >
             {/* Icon block */}
             <div className={`flex-shrink-0 rounded-2xl ${role.color} p-6 flex items-center justify-center`}>
-              <role.icon className={`h-16 w-16 ${role.iconColor}`} strokeWidth={1.5} aria-hidden />
+              <role.icon className={`h-16 w-16 ${role.iconColor}`} strokeWidth={2} aria-hidden />
             </div>
 
             {/* Content */}

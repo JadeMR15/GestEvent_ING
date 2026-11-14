@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, Building2, MessageSquare, Newspaper, CalendarDays, CheckSquare, Compass, Home, Plus, QrCode, Ticket, UserRound, Users, type LucideIcon } from "lucide-react";
+import { Bell, Building2, MessageSquare, Newspaper, Calendar, CheckSquare, Compass, House, Plus, QrCode, Ticket, User, Users, type LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
@@ -13,7 +13,7 @@ function tabsFor(role: AppRole | null): Tab[] {
     case "volunteer":
       return [
         { title: "Scanner", url: "/scanner", icon: QrCode },
-        { title: "Profil", url: "/profile", icon: UserRound },
+        { title: "Profil", url: "/profile", icon: User },
       ];
     case "school_admin":
       return [
@@ -21,23 +21,23 @@ function tabsFor(role: AppRole | null): Tab[] {
         { title: "Messages", url: "/school-admin/messages", icon: MessageSquare },
         { title: "Validation", url: "/school-admin/reviews", icon: CheckSquare },
         { title: "Membres", url: "/school-admin/members", icon: Users },
-        { title: "Profil", url: "/profile", icon: UserRound },
+        { title: "Profil", url: "/profile", icon: User },
       ];
     case "organizer":
     case "admin":
       return [
-        { title: "Accueil", url: "/dashboard", icon: Home },
-        { title: "Événements", url: "/events", icon: CalendarDays },
+        { title: "Accueil", url: "/dashboard", icon: House },
+        { title: "Événements", url: "/events", icon: Calendar },
         { title: "Créer", url: "/events/new", icon: Plus, primary: true },
         { title: "Scanner", url: "/scanner", icon: QrCode },
-        { title: "Profil", url: "/profile", icon: UserRound },
+        { title: "Profil", url: "/profile", icon: User },
       ];
     default:
       return [
         { title: "Explorer", url: "/events", icon: Compass },
         { title: "Fil", url: "/feed", icon: Newspaper },
         { title: "Billets", url: "/my-tickets", icon: Ticket },
-        { title: "Profil", url: "/profile", icon: UserRound },
+        { title: "Profil", url: "/profile", icon: User },
       ];
   }
 }
@@ -67,7 +67,7 @@ export function MobileTabBar() {
             return (
               <li key={tab.url} className="flex flex-1 justify-center">
                 <Link to={tab.url} aria-label={tab.title} className="tap -mt-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-glow ring-4 ring-background">
-                  <tab.icon className="h-6 w-6" strokeWidth={2.5} />
+                  <tab.icon className="h-6 w-6" strokeWidth={2} />
                 </Link>
               </li>
             );
@@ -79,7 +79,7 @@ export function MobileTabBar() {
                 className={`tap flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
               >
                 <span className={`relative flex h-8 w-14 items-center justify-center rounded-full transition-colors ${active ? "bg-secondary" : ""}`}>
-                  <tab.icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
+                  <tab.icon className="h-6 w-6" strokeWidth={2} />
                   {badgeFor(tab.url, notifications) > 0 && (
                     <span className="absolute right-1.5 top-0 min-w-[1.1rem] rounded-full bg-jaune-300 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-bordeaux-800">
                       {badgeFor(tab.url, notifications)}

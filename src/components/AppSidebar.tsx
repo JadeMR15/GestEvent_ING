@@ -1,27 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { BrandName } from "@/components/BrandName";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  PlusCircle,
-  QrCode,
-  Users,
-  Ticket,
-  LogOut,
-  Download,
-  BarChart2,
-  Euro,
-  BadgeCheck,
-  ShieldCheck,
-  Settings,
-  Building2,
-  MessageSquare,
-  Hourglass,
-  Heart,
-  Bell,
-  Newspaper,
-  Store,
-} from "lucide-react";
+import { LayoutDashboard, Calendar, CirclePlus, QrCode, Users, Ticket, LogOut, Download, ChartNoAxesColumn, Euro, ShieldCheck, Settings, Building2, MessageSquare, Hourglass, Heart, Bell, Newspaper, Store } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -68,7 +47,7 @@ export function AppSidebar() {
 
   const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
-    { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
+    { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: Calendar, roles: ["admin", "organizer", "participant"] },
     // Réseau (fil, abonnements) : participants uniquement.
     { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["participant"] },
     { title: "Associations", url: "/associations", icon: Store, roles: ["participant"] },
@@ -78,9 +57,9 @@ export function AppSidebar() {
       : []),
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
-    { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
+    { title: "Créer un événement", url: "/events/new", icon: CirclePlus, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
-    ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
+    ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: ShieldCheck, roles: ["organizer", "participant"] }] : []),
     { title: "Messages école", url: "/messages", icon: MessageSquare, roles: ["organizer"] },
     { title: "Espace école", url: "/school-admin", icon: Building2, roles: ["school_admin"] },
     { title: "Messages", url: "/school-admin/messages", icon: MessageSquare, roles: ["school_admin"] },
@@ -91,7 +70,7 @@ export function AppSidebar() {
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
-    { title: "Analyses", url: "/analytics", icon: BarChart2, roles: ["admin", "organizer"] },
+    { title: "Analyses", url: "/analytics", icon: ChartNoAxesColumn, roles: ["admin", "organizer"] },
     { title: "Finances", url: "/finance", icon: Euro, roles: ["admin", "organizer"] },
     { title: "Exporter", url: "/export", icon: Download, roles: ["admin", "organizer"] },
   ].filter((i) => role && i.roles.includes(role));

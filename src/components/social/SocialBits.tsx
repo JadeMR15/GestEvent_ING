@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Bell, BellRing, CalendarDays, Check, Heart, ImagePlus, Loader2, MapPin, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
+import { Bell, BellRing, Calendar, Check, Heart, ImagePlus, Loader2, MapPin, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,7 +67,7 @@ export function EventMiniCard({ event, past = false, className = "" }: { event: 
       <div className="min-w-0 flex-1 py-0.5">
         <p className="line-clamp-2 font-semibold leading-snug group-hover:text-primary">{event.title}</p>
         <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-          <CalendarDays className="h-3.5 w-3.5 shrink-0" />{format(d, "EEE d MMM · HH'h'mm", { locale: fr })}
+          <Calendar className="h-3.5 w-3.5 shrink-0" />{format(d, "EEE d MMM · HH'h'mm", { locale: fr })}
         </p>
         <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{place}</span>
@@ -234,7 +234,7 @@ export function PostComposer({ associationId, associationName, logoPath, fallbac
           {events.length > 0 && (
             <Select value={eventId} onValueChange={setEventId}>
               <SelectTrigger className="h-9 w-auto max-w-[240px] gap-1.5 border-dashed text-sm">
-                <CalendarDays className="h-4 w-4 shrink-0" /><SelectValue />
+                <Calendar className="h-4 w-4 shrink-0" /><SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Sans événement</SelectItem>

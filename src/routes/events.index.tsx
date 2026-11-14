@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/EmptyState";
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { APPROVAL_BADGE, APPROVAL_LABEL, type ApprovalStatus } from "@/lib/schools";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Users, Search, PlusCircle, Clock, GraduationCap, Map as MapIcon, List, ArrowUpDown, SlidersHorizontal } from "lucide-react";
+import { MapPin, Users, Search, CirclePlus, Clock, GraduationCap, Map as MapIcon, List, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { format, isThisWeek, isThisMonth } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -120,8 +121,8 @@ function EventList() {
 
   const citySelect = cities.length > 0 && (
     <Select value={cityFilter} onValueChange={setCityFilter}>
-      <SelectTrigger className="w-full md:w-44">
-        <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+      <SelectTrigger className="w-full md:w-auto">
+        <MapPin />
         <SelectValue placeholder="Toutes les villes" />
       </SelectTrigger>
       <SelectContent>
@@ -132,8 +133,8 @@ function EventList() {
   );
   const schoolSelect = (
     <Select value={schoolFilter} onValueChange={setSchoolFilter}>
-      <SelectTrigger className="w-full md:w-48">
-        <GraduationCap className="mr-2 h-4 w-4 text-muted-foreground" />
+      <SelectTrigger className="w-full md:w-auto">
+        <GraduationCap />
         <SelectValue placeholder="Toutes les écoles" />
       </SelectTrigger>
       <SelectContent>
@@ -144,8 +145,8 @@ function EventList() {
   );
   const sortSelect = (
     <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-      <SelectTrigger className="w-full md:w-48">
-        <ArrowUpDown className="mr-2 h-4 w-4 text-muted-foreground" />
+      <SelectTrigger className="w-full md:w-auto">
+        <ArrowUpDown />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -199,8 +200,8 @@ function EventList() {
             </button>
           </div>
           {isOrga && (
-            <Button asChild className="hidden bg-gradient-primary shadow-glow md:inline-flex">
-              <Link to="/events/new"><PlusCircle className="mr-2 h-4 w-4" />Nouvel événement</Link>
+            <Button asChild className="hidden md:inline-flex">
+              <Link to="/events/new"><CirclePlus />Nouvel événement</Link>
             </Button>
           )}
         </div>
@@ -210,13 +211,13 @@ function EventList() {
       <div className="space-y-3 md:hidden">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Soirée, lieu, école…" className="h-11 rounded-full bg-card pl-10" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Soirée, lieu, école…" className="peer pl-[46px]" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gris-chaud peer-focus:text-bordeaux-600" strokeWidth={2} />
           </div>
           <Drawer>
             <DrawerTrigger asChild>
-              <button aria-label="Filtres" className="tap relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border bg-card text-primary">
-                <SlidersHorizontal className="h-4 w-4" />
+              <button aria-label="Filtres" className="tap relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] border-sable bg-blanc text-bordeaux-600">
+                <SlidersHorizontal className="h-5 w-5" strokeWidth={2} />
                 {advancedCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">{advancedCount}</span>
                 )}
@@ -233,16 +234,16 @@ function EventList() {
               </div>
               <DrawerFooter className="flex-row">
                 <Button variant="outline" className="flex-1" onClick={() => { setCityFilter("all"); setSchoolFilter("all"); setSortBy("date_asc"); }}>Réinitialiser</Button>
-                <DrawerClose asChild><Button className="flex-1 bg-gradient-primary">Voir {sorted.length} résultat{sorted.length > 1 ? "s" : ""}</Button></DrawerClose>
+                <DrawerClose asChild><Button className="flex-1">Voir {sorted.length} résultat{sorted.length > 1 ? "s" : ""}</Button></DrawerClose>
               </DrawerFooter>
             </DrawerContent>
           </Drawer>
           <button
             aria-label={viewMode === "list" ? "Voir la carte" : "Voir la liste"}
             onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
-            className={`tap flex h-11 w-11 shrink-0 items-center justify-center rounded-full border ${viewMode === "map" ? "border-primary bg-primary text-primary-foreground" : "bg-card text-primary"}`}
+            className={`tap flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] ${viewMode === "map" ? "border-bordeaux-600 bg-bordeaux-600 text-creme" : "border-sable bg-blanc text-bordeaux-600"}`}
           >
-            {viewMode === "list" ? <MapIcon className="h-4 w-4" /> : <List className="h-4 w-4" />}
+            {viewMode === "list" ? <MapIcon className="h-5 w-5" strokeWidth={2} /> : <List className="h-5 w-5" strokeWidth={2} />}
           </button>
         </div>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
@@ -250,7 +251,7 @@ function EventList() {
             <button
               key={c.label}
               onClick={c.onClick}
-              className={`tap shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${c.active ? "border-primary bg-primary text-primary-foreground" : "bg-card text-foreground"}`}
+              className={`tap min-h-11 shrink-0 rounded-[var(--radius-pilule)] border px-4 text-sm font-semibold transition-colors ${c.active ? "border-bordeaux-600 bg-bordeaux-600 text-creme" : "border-sable bg-blanc text-encre"}`}
             >
               {c.label}
             </button>
@@ -261,14 +262,14 @@ function EventList() {
       {/* Recherche + filtres — ordinateur */}
       <div className="hidden flex-wrap gap-3 md:flex">
         <div className="relative min-w-56 flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Titre, lieu, ville, école…" className="pl-9" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Titre, lieu, ville, école…" className="peer pl-[46px]" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gris-chaud peer-focus:text-bordeaux-600" strokeWidth={2} />
         </div>
         {citySelect}
         {schoolSelect}
         <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-          <SelectTrigger className="w-40">
-            <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+          <SelectTrigger className="w-auto">
+            <Clock />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -283,8 +284,8 @@ function EventList() {
       {loading ? (
         <p className="text-muted-foreground">Chargement…</p>
       ) : sorted.length === 0 ? (
-        <Card className="rounded-3xl border-2 border-dashed">
-          <CardContent className="py-12 text-center text-muted-foreground"><img src="/plav-cocotte.svg" alt="" className="mx-auto mb-3 h-16 w-16 opacity-40" />Aucun événement trouvé.</CardContent>
+        <Card>
+          <EmptyState title="Aucun événement trouvé." />
         </Card>
       ) : viewMode === "map" ? (
         /* ── Vue carte ── */
@@ -309,62 +310,68 @@ function EventList() {
             const remaining = e.capacity - taken;
 
             return (
-              <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }} className="tap block">
-                <Card className="group h-full overflow-hidden rounded-3xl border shadow-elegant transition-all md:hover:shadow-glow md:hover:-translate-y-0.5">
-                  <div className="relative h-44 w-full overflow-hidden bg-gradient-vibrant md:h-40">
+              <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }} className="tap block rounded-[var(--radius-carte)]">
+                {/* Carte d'événement — charte § 5 */}
+                <Card className="group flex h-full flex-col overflow-hidden transition-shadow md:hover:shadow-[var(--ombre-menu)]">
+                  {/* Visuel 4:3 ; sans image : dégradé bordeaux 600 → 400 */}
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-vibrant">
                     {e.cover_image_url ? (
                       <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
                     ) : (
                       <img src="/plav-cocotte.svg" alt="" className="absolute -bottom-8 -right-8 h-40 w-40 opacity-25" />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    {/* Date façon billet */}
-                    <div className="absolute left-3 top-3 flex w-14 flex-col items-center overflow-hidden rounded-2xl bg-card text-center shadow-elegant">
-                      <span className="w-full bg-primary py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
-                        {format(new Date(e.starts_at), "MMM", { locale: fr }).replace(".", "")}
-                      </span>
-                      <span className="font-display text-2xl font-bold leading-8 text-primary">{format(new Date(e.starts_at), "d")}</span>
-                    </div>
-                    <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
-                      <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow">
-                        {e.price > 0 ? `${Number(e.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
-                      </span>
-                      {e.status === "draft" && <Badge variant="secondary">Brouillon</Badge>}
+                    {/* En haut à gauche : statut urgent (ou état de publication pour l'organisateur) */}
+                    <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
+                      {e.capacity > 0 && (isFull || remaining < 10) && (
+                        <Badge variant={isFull ? "destructive" : "warning"}>
+                          {isFull ? "Complet · liste d'attente" : `Plus que ${remaining} place${remaining > 1 ? "s" : ""}`}
+                        </Badge>
+                      )}
+                      {e.status === "draft" && <Badge variant="neutral">Brouillon</Badge>}
                       {(e.approval_status === "pending" || e.approval_status === "rejected") && (
                         <Badge className={APPROVAL_BADGE[e.approval_status as ApprovalStatus]}>{APPROVAL_LABEL[e.approval_status as ApprovalStatus]}</Badge>
                       )}
                     </div>
-                    {e.capacity > 0 && (isFull || remaining < 10) && (
-                      <span className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-xs font-bold text-white ${isFull ? "bg-destructive" : "bg-orange-500"}`}>
-                        {isFull ? "Complet · liste d'attente" : `Plus que ${remaining} place${remaining > 1 ? "s" : ""}`}
+                    {/* En haut à droite : prix */}
+                    <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
+                      {e.price > 0 ? `${Number(e.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
+                    </span>
+                    {/* Date façon billet */}
+                    <div className="absolute bottom-3 left-3 flex w-14 flex-col items-center overflow-hidden rounded-[var(--radius-moyen)] bg-blanc text-center shadow-[var(--ombre-carte)]">
+                      <span className="w-full bg-bordeaux-600 py-0.5 text-xs font-bold uppercase text-creme">
+                        {format(new Date(e.starts_at), "MMM", { locale: fr }).replace(".", "")}
                       </span>
-                    )}
-                  </div>
-                  <CardContent className="p-4 md:p-5">
-                    <div className="mb-1.5 flex flex-wrap gap-1">
-                      {e.school && <Badge variant="secondary" className="text-[10px] bg-jaune-200 text-bordeaux-800"><GraduationCap className="mr-1 h-3 w-3" />{e.school}</Badge>}
-                      {e.association && <Badge variant="secondary" className="text-[10px]">{e.association}</Badge>}
+                      <span className="font-display text-2xl font-black leading-8 text-bordeaux-600">{format(new Date(e.starts_at), "d")}</span>
                     </div>
-                    <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2">{e.title}</h3>
-                    <p className="mt-1 hidden line-clamp-2 text-sm text-muted-foreground md:block">{e.description || "Aucune description."}</p>
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4" />{format(new Date(e.starts_at), "EEE d MMM · HH'h'mm", { locale: fr })}
-                      </span>
-                      <span className="flex min-w-0 items-center gap-1.5">
-                        <MapPin className="h-4 w-4 shrink-0" />
-                        <span className="line-clamp-1">{e.city ? `${e.city}${e.location ? ` — ${e.location}` : ""}` : e.location || "En ligne"}</span>
-                      </span>
-                      <span className="ml-auto">
-                        <LikeButton count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
-                      </span>
+                  </div>
+                  <CardContent className="flex flex-1 flex-col gap-2.5 px-5 pb-5 pt-4">
+                    {(e.school || e.association) && (
+                      <div className="flex flex-wrap gap-1">
+                        {e.school && <Badge><GraduationCap className="h-4 w-4" strokeWidth={2} />{e.school}</Badge>}
+                        {e.association && <Badge>{e.association}</Badge>}
+                      </div>
+                    )}
+                    <h3 className="t-titre-3 line-clamp-2 text-encre group-hover:text-bordeaux-600">{e.title}</h3>
+                    <p className="hidden line-clamp-2 text-sm text-gris-chaud md:block">{e.description || "Aucune description."}</p>
+                    <div className="flex items-start gap-2">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="flex items-center gap-2 t-legende text-gris-chaud">
+                          <Clock className="h-4 w-4 shrink-0" strokeWidth={2} />{format(new Date(e.starts_at), "EEE d MMM · HH'h'mm", { locale: fr })}
+                        </p>
+                        <p className="flex min-w-0 items-center gap-2 t-legende text-gris-chaud">
+                          <MapPin className="h-4 w-4 shrink-0" strokeWidth={2} />
+                          <span className="line-clamp-1">{e.city ? `${e.city}${e.location ? ` — ${e.location}` : ""}` : e.location || "En ligne"}</span>
+                        </p>
+                      </div>
+                      <LikeButton count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
                     </div>
                     {e.capacity > 0 && (
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                          <div className={`h-full transition-all ${isFull ? "bg-destructive" : remaining < 10 ? "bg-orange-500" : "bg-gradient-primary"}`} style={{ width: `${pct}%` }} />
+                      <div className="mt-auto space-y-1.5 pt-1">
+                        {/* Jauge : piste 6 px sable, remplissage selon le statut */}
+                        <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-sable">
+                          <div className={`h-full rounded-[var(--radius-pilule)] transition-all ${isFull ? "bg-statut-rouge-500" : remaining < 10 ? "bg-statut-orange-500" : "bg-bordeaux-600"}`} style={{ width: `${isFull ? 100 : pct}%` }} />
                         </div>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground"><Users className="h-3.5 w-3.5" />{taken}/{e.capacity}</span>
+                        <p className="flex items-center gap-2 t-legende text-gris-chaud"><Users className="h-4 w-4" strokeWidth={2} />{taken}/{e.capacity}</p>
                       </div>
                     )}
                   </CardContent>

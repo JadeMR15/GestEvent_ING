@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { APPROVAL_BADGE, APPROVAL_LABEL, type ApprovalStatus } from "@/lib/schools";
-import { CalendarDays, CheckCircle2, PlusCircle, Clock, Ticket, Bell, Download, Users } from "lucide-react";
+import { Calendar, CheckCircle2, CirclePlus, Clock, Ticket, Bell, Download, Users } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -179,7 +179,7 @@ function DashboardPage() {
     {
       label: role === "participant" ? "Mes inscriptions" : "Événements",
       value: stats.total,
-      icon: CalendarDays,
+      icon: Calendar,
       color: "from-bordeaux-500 to-bordeaux-800",
       format: "number",
     },
@@ -223,7 +223,7 @@ function DashboardPage() {
                 {exporting ? "Export…" : "Exporter CSV"}
               </Button>
               <Button asChild className="bg-gradient-primary shadow-glow">
-                <Link to="/events/new"><PlusCircle className="mr-2 h-4 w-4" />Nouvel événement</Link>
+                <Link to="/events/new"><CirclePlus className="mr-2 h-4 w-4" />Nouvel événement</Link>
               </Button>
             </>
           )}

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
 import { LikeButton } from "@/components/LikeButton";
-import {
-  CalendarDays, QrCode, Users, ArrowRight, Timer,
-  MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight,
-  Star, Globe, Mail, Lock, Instagram, Facebook, Youtube,
-} from "lucide-react";
+import { Calendar, QrCode, Users, ArrowRight, Timer, MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight, Star, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
 import { format, isThisWeek, isThisMonth } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { fr } from "date-fns/locale";
@@ -183,7 +180,7 @@ function Landing() {
           {/* Stats */}
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3">
             {[
-              { value: stats.events, label: "events publiés", icon: CalendarDays },
+              { value: stats.events, label: "events publiés", icon: Calendar },
               { value: stats.participants, label: "participants", icon: Users },
               { value: stats.organizers, label: "organisateurs", icon: Star },
             ].map((s) => (
@@ -241,11 +238,8 @@ function Landing() {
             {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-sable/50 bg-white/60 h-64 animate-pulse" />)}
           </div>
         ) : upcoming.length === 0 ? (
-          <Card className="border-2 border-dashed mx-auto max-w-md">
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <CalendarDays className="mx-auto mb-3 h-8 w-8 opacity-40" />
-              Aucun événement trouvé.
-            </CardContent>
+          <Card className="mx-auto max-w-md">
+            <EmptyState title="Aucun événement trouvé." />
           </Card>
         ) : (
           <EventGrid events={upcoming} user={user} />
@@ -264,7 +258,7 @@ function Landing() {
           </div>
           <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
             {[
-              { icon: CalendarDays, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
+              { icon: Calendar, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
               { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
               { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", color: "bg-gradient-primary", iconColor: "text-white" },
               { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
@@ -369,7 +363,7 @@ function Landing() {
 }
 
 const HOW_CARDS = [
-  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: CalendarDays },
+  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: Calendar },
   { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
   { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-creme)", accent: "var(--jaune-100)", icon: TrendingUp  },
   { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: QrCode      },
@@ -493,7 +487,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
                 <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{e.description || "Aucune description."}</p>
                 <div className="mt-4 space-y-1.5 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <CalendarDays className="h-4 w-4 flex-shrink-0" />
+                    <Calendar className="h-4 w-4 flex-shrink-0" />
                     <span>{format(new Date(e.starts_at), "PPP 'à' p", { locale: fr })}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">

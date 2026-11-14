@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/EmptyState";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BellRing, CalendarDays, ExternalLink, Hourglass, Loader2, MapPin } from "lucide-react";
+import { BellRing, Calendar, ExternalLink, Loader2, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -88,17 +89,12 @@ function WaitlistPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : current.length === 0 ? (
-        <Card className="border-2 border-dashed">
-          <CardContent className="py-12 text-center">
-            <Hourglass className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">Tu n'es sur aucune liste d'attente.</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Sur un événement complet, clique sur « Rejoindre la liste d'attente ».
-            </p>
-            <Button asChild className="mt-4 bg-gradient-primary shadow-glow">
+        <Card>
+          <EmptyState title="Tu n'es sur aucune liste d'attente." message="Sur un événement complet, clique sur « Rejoindre la liste d'attente ».">
+            <Button asChild variant="secondary">
               <Link to="/events">Découvrir les événements</Link>
             </Button>
-          </CardContent>
+          </EmptyState>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -113,7 +109,7 @@ function WaitlistPage() {
                       <h3 className="text-lg font-semibold">{e.event_title}</h3>
                       <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
-                          <CalendarDays className="h-3.5 w-3.5" />{format(new Date(e.event_starts_at), "PPP p", { locale: fr })}
+                          <Calendar className="h-3.5 w-3.5" />{format(new Date(e.event_starts_at), "PPP p", { locale: fr })}
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="h-3.5 w-3.5" />{e.event_location || "En ligne"}
