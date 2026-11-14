@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { APPROVAL_BADGE, APPROVAL_LABEL, type ApprovalStatus } from "@/lib/schools";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Users, Search, PlusCircle, Clock, GraduationCap, Map as MapIcon, List, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -335,6 +336,9 @@ function EventList() {
                         {e.price > 0 ? `${Number(e.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
                       </span>
                       {e.status === "draft" && <Badge variant="secondary">Brouillon</Badge>}
+                      {(e.approval_status === "pending" || e.approval_status === "rejected") && (
+                        <Badge className={APPROVAL_BADGE[e.approval_status as ApprovalStatus]}>{APPROVAL_LABEL[e.approval_status as ApprovalStatus]}</Badge>
+                      )}
                     </div>
                     {e.capacity > 0 && (isFull || remaining < 10) && (
                       <span className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-xs font-bold text-white ${isFull ? "bg-destructive" : "bg-orange-500"}`}>

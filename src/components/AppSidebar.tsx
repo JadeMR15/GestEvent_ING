@@ -14,6 +14,8 @@ import {
   BadgeCheck,
   ShieldCheck,
   Settings,
+  Building2,
+  MessageSquare,
 } from "lucide-react";
 import {
   Sidebar,
@@ -51,8 +53,11 @@ export function AppSidebar() {
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
+    { title: "Messages école", url: "/messages", icon: MessageSquare, roles: ["organizer"] },
+    { title: "Espace école", url: "/school-admin", icon: Building2, roles: ["school_admin"] },
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
-    { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer"] },
+    { title: "Écoles", url: "/admin/schools", icon: Building2, roles: ["admin"] },
+    { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer", "school_admin"] },
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
@@ -70,7 +75,7 @@ export function AppSidebar() {
             <div className="flex flex-col flex-1 items-start gap-1">
               <BrandName className="h-10" onDark />
               <span className="text-xs text-sidebar-foreground/60">
-                {role ? { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" }[role] : "Invité"}
+                {role ? { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole", school_admin: "Administration école" }[role] : "Invité"}
               </span>
             </div>
           )}

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Camera, Loader2, Trash2, User, Mail, KeyRound, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { SchoolMembershipCard } from "@/components/SchoolMembershipCard";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,9 @@ type Info = z.infer<typeof infoSchema>;
 const EMPTY_INFO: Info = { fullName: "", school: "", association: "", birthDate: "", gender: "" };
 
 function SettingsPage() {
-  const { user, role, verificationStatus, avatarPath, refreshProfile } = useAuth();
+  const { user, role, verificationStatus, avatarPath, refreshProfile, schoolId, isStudent } = useAuth();
+  // Compte rattaché à une école inscrite : école / association gérées dans « Mon école ».
+  const linkedToSchool = !!schoolId;
 
   // ── Infos ──
   const [info, setInfo] = useState<Info>(EMPTY_INFO);
@@ -101,7 +104,8 @@ function SettingsPage() {
     if (!user) return;
     const parsed = infoSchema.safeParse(info);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
-    if (!parsed.data.school && role !== "admin") { toast.error("École requise."); return; }
+    const schoolNeeded = !linkedToSchool && (role === "organizer" || (role === "participant" && isStudent));
+    if (!parsed.data.school && schoolNeeded) { toast.error("École requise."); return; }
     if (identityChanged && verificationStatus === "verified" && role !== "admin") {
       const ok = confirm(
         "Ton nom ou ton école change : ton compte devra être vérifié à nouveau avec un justificatif. Continuer ?",
@@ -261,12 +265,14 @@ function SettingsPage() {
               <Input id="fullName" value={info.fullName} maxLength={160}
                 onChange={(e) => setInfo({ ...info, fullName: e.target.value })} />
             </div>
+            {!linkedToSchool && role !== "school_admin" && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="school">École</Label>
               <Input id="school" value={info.school} maxLength={120}
                 onChange={(e) => setInfo({ ...info, school: e.target.value })} />
             </div>
-            {isOrganizer && (
+            )}
+            {isOrganizer && !linkedToSchool && (
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="association">Association</Label>
                 <Input id="association" value={info.association} maxLength={120}
@@ -304,6 +310,8 @@ function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <SchoolMembershipCard />
 
       {/* Email */}
       <Card className="border-2 shadow-elegant">

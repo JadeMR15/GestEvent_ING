@@ -6,6 +6,7 @@ import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { APPROVAL_BADGE, APPROVAL_LABEL, type ApprovalStatus } from "@/lib/schools";
 import { CalendarDays, CheckCircle2, PlusCircle, Clock, Ticket, Bell, Download, Users } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -308,6 +309,9 @@ function DashboardPage() {
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Users className="h-3.5 w-3.5" />{confirmed} inscrits
                           {ev.status === "draft" && <Badge variant="secondary" className="text-[10px]">Brouillon</Badge>}
+                          {(ev.approval_status === "pending" || ev.approval_status === "rejected") && (
+                            <Badge className={`text-[10px] ${APPROVAL_BADGE[ev.approval_status as ApprovalStatus]}`}>{APPROVAL_LABEL[ev.approval_status as ApprovalStatus]}</Badge>
+                          )}
                         </div>
                       )}
                     </div>

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, CalendarDays, Ticket, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { OAuthButtons } from "@/components/OAuthButtons";
+import { Switch } from "@/components/ui/switch";
+import { emailMatchesDomains, fetchActiveSchools, fetchSchoolAssociations, type Association, type School } from "@/lib/schools";
+
+const OTHER_SCHOOL = "__other__";
+const NEW_ASSOCIATION = "__new__";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -27,7 +32,8 @@ const schema = z.object({
     return !Number.isNaN(d.getTime()) && d.getFullYear() >= 1900 && d <= new Date();
   }, "Date de naissance invalide"),
   gender:      z.enum(GENDERS, { message: "Genre requis" }),
-  school:      z.string().trim().min(1, "École requise").max(120),
+  school:      z.string().trim().max(120),
+  isStudent:   z.boolean(),
   association: z.string().trim().max(120).optional(),
   password:    z.string()
     .min(8, "Mot de passe : 8 caractères minimum")
@@ -44,7 +50,8 @@ const schema = z.object({
   }, {
     message: "Le mot de passe ne doit pas contenir ton email",
   })
-  .refine((d) => d.role !== "organizer" || !!d.association, { message: "Nom de l'association requis" });
+  .refine((d) => !(d.role === "organizer" || d.isStudent) || !!d.school, { message: "École requise" })
+  .refine((d) => d.role !== "organizer" || !!d.association, { message: "Association requise" });
 
 // Traduit les erreurs Supabase sans en dire trop (pas de confirmation qu'un email existe déjà).
 function signUpErrorMessage(message: string): string {
@@ -65,19 +72,54 @@ function RegisterPage() {
   const [gender, setGender]           = useState("");
   const [school, setSchool]           = useState("");
   const [association, setAssociation] = useState("");
+  const [isStudent, setIsStudent]     = useState(true);
+  const [schools, setSchools]         = useState<School[]>([]);
+  const [schoolId, setSchoolId]       = useState("");
+  const [associations, setAssociations] = useState<Association[]>([]);
+  const [associationId, setAssociationId] = useState("");
   const [password, setPassword]       = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [website, setWebsite]         = useState(""); // piège à robots, invisible pour les humains
   const [loading, setLoading]         = useState(false);
+
+  // Écoles inscrites sur Plav' (vide tant qu'aucune n'est validée : on garde la saisie libre).
+  useEffect(() => { fetchActiveSchools().then(setSchools); }, []);
+
+  const selectedSchool = schools.find((s) => s.id === schoolId) ?? null;
+  const needsSchool = role === "organizer" || isStudent;
+  const domainMatch = !!selectedSchool && emailMatchesDomains(email, selectedSchool.email_domains);
+
+  // Email sur le domaine d'une école : on la présélectionne.
+  const schoolFromEmail = useMemo(
+    () => schools.find((s) => emailMatchesDomains(email, s.email_domains)) ?? null,
+    [schools, email],
+  );
+  useEffect(() => {
+    if (schoolFromEmail && !schoolId) setSchoolId(schoolFromEmail.id);
+  }, [schoolFromEmail, schoolId]);
+
+  // Associations de l'école choisie (organisateurs).
+  useEffect(() => {
+    setAssociationId("");
+    if (!selectedSchool || role !== "organizer") { setAssociations([]); return; }
+    fetchSchoolAssociations(selectedSchool.id).then(setAssociations);
+  }, [selectedSchool, role]);
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     if (loading) return;
     // Un humain ne voit pas ce champ : s'il est rempli, c'est un robot. On fait semblant que tout va bien.
     if (website) { toast.success("Compte créé ! Vérifie ta boîte mail."); return; }
+    const listedSchool = needsSchool && selectedSchool ? selectedSchool : null;
+    const listedAssociation = role === "organizer" && listedSchool
+      ? associations.find((a) => a.id === associationId) ?? null
+      : null;
+    if (role === "organizer" && listedSchool && !associationId) { toast.error("Choisis ton association."); return; }
     const parsed = schema.safeParse({
-      nom, prenom, email, birthDate, gender, school,
-      association: role === "organizer" ? association || undefined : undefined,
+      nom, prenom, email, birthDate, gender,
+      isStudent: role === "organizer" ? true : isStudent,
+      school: !needsSchool ? "" : listedSchool ? listedSchool.name : school,
+      association: role !== "organizer" ? undefined : listedAssociation ? listedAssociation.name : association || undefined,
       password, passwordConfirm, role,
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
@@ -91,6 +133,11 @@ function RegisterPage() {
         data: {
           full_name:   fullName,
           role:        parsed.data.role,
+          account_type: parsed.data.role,
+          is_student:  parsed.data.isStudent ? "true" : "false",
+          school_id:   listedSchool?.id ?? "",
+          association_id: listedAssociation?.id ?? "",
+          new_association: role === "organizer" && listedSchool && !listedAssociation ? parsed.data.association ?? "" : "",
           birth_date:  parsed.data.birthDate,
           gender:      parsed.data.gender,
           school:      parsed.data.school,
@@ -106,6 +153,11 @@ function RegisterPage() {
     if (!data.session) {
       toast.success("Compte créé ! Clique sur le lien reçu par email pour l'activer.");
       navigate({ to: "/login" });
+      return;
+    }
+    if (!parsed.data.isStudent) {
+      toast.success("Compte créé ! Bienvenue sur Plav'.");
+      navigate({ to: "/events" });
       return;
     }
     toast.success("Compte créé ! Dernière étape : vérifie ton statut étudiant.");
@@ -202,15 +254,63 @@ function RegisterPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="school">École *</Label>
-              <Input id="school" value={school} onChange={(e) => setSchool(e.target.value)} required />
-            </div>
+            {role === "participant" && (
+              <div className="flex items-center justify-between gap-3 rounded-xl border bg-muted/30 px-3 py-2.5">
+                <div>
+                  <Label htmlFor="isStudent" className="cursor-pointer">Je suis étudiant(e)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {isStudent
+                      ? "Un justificatif te sera demandé : il donne accès aux événements réservés à ton école."
+                      : "Pas de justificatif : tu peux t'inscrire aux événements ouverts à tous."}
+                  </p>
+                </div>
+                <Switch id="isStudent" checked={isStudent} onCheckedChange={setIsStudent} />
+              </div>
+            )}
+
+            {needsSchool && (
+              <div className="space-y-2">
+                <Label>École *</Label>
+                {schools.length > 0 && (
+                  <Select value={schoolId} onValueChange={setSchoolId}>
+                    <SelectTrigger><SelectValue placeholder="Choisir mon école" /></SelectTrigger>
+                    <SelectContent>
+                      {schools.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                      <SelectItem value={OTHER_SCHOOL}>Mon école n'est pas encore sur Plav'</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+                {(schools.length === 0 || schoolId === OTHER_SCHOOL) && (
+                  <Input id="school" placeholder="Nom de l'école" value={school} onChange={(e) => setSchool(e.target.value)} required />
+                )}
+                {selectedSchool && email.includes("@") && (
+                  <p className={`text-xs ${domainMatch ? "text-success" : "text-muted-foreground"}`}>
+                    {domainMatch
+                      ? "Ton email est reconnu : tu seras rattaché(e) automatiquement à l'école."
+                      : `Ton email n'est pas sur un domaine de l'école (${selectedSchool.email_domains.map((d) => "@" + d).join(", ")}) : l'école validera ton rattachement.`}
+                  </p>
+                )}
+              </div>
+            )}
 
             {role === "organizer" && (
               <div className="space-y-2">
-                <Label htmlFor="association">Nom de l'association *</Label>
-                <Input id="association" value={association} onChange={(e) => setAssociation(e.target.value)} required />
+                <Label htmlFor="association">Association *</Label>
+                {selectedSchool && (
+                  <Select value={associationId} onValueChange={setAssociationId}>
+                    <SelectTrigger><SelectValue placeholder="Choisir mon association" /></SelectTrigger>
+                    <SelectContent>
+                      {associations.map((a) => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                      <SelectItem value={NEW_ASSOCIATION}>+ Nouvelle association</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+                {(!selectedSchool || associationId === NEW_ASSOCIATION) && (
+                  <Input id="association" placeholder="Nom de l'association" value={association} onChange={(e) => setAssociation(e.target.value)} required />
+                )}
+                {selectedSchool && associationId === NEW_ASSOCIATION && (
+                  <p className="text-xs text-muted-foreground">L'école validera la nouvelle association avant ton premier événement.</p>
+                )}
               </div>
             )}
 
@@ -241,6 +341,10 @@ function RegisterPage() {
             </p>
           </form>
           <div className="mt-4"><OAuthButtons /></div>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Tu représentes une école ?{" "}
+            <Link to="/register-school" className="font-medium text-primary hover:underline">Inscrire mon école</Link>
+          </p>
         </CardContent>
       </Card>
     </div>

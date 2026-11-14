@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import {
-  BadgeCheck, BarChart2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut,
-  Settings, ShieldAlert, ShieldCheck, Ticket, type LucideIcon,
+  BadgeCheck, BarChart2, Building2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut,
+  MessageSquare, Settings, ShieldAlert, ShieldCheck, Ticket, Users, type LucideIcon,
 } from "lucide-react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profil — Plav'" }] }),
 });
 
-const ROLE_LABEL = { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole" } as const;
+const ROLE_LABEL = { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole", school_admin: "Administration école" } as const;
 
 function Row({ to, icon: Icon, label, hint }: { to: string; icon: LucideIcon; label: string; hint?: ReactNode }) {
   return (
@@ -39,11 +39,11 @@ function Group({ title, children }: { title?: string; children: ReactNode }) {
 }
 
 function ProfilePage() {
-  const { user, role, fullName, avatarPath, isVerified, verificationStatus, signOut } = useAuth();
+  const { user, role, fullName, avatarPath, isVerified, verificationStatus, isStudent, signOut } = useAuth();
   const navigate = useNavigate();
   const photo = avatarUrl(avatarPath);
   const isOrga = role === "organizer" || role === "admin";
-  const needsVerification = (role === "participant" || role === "organizer") && !isVerified;
+  const needsVerification = ((role === "participant" && isStudent) || role === "organizer") && !isVerified;
   const inReview = verificationStatus === "pending" || verificationStatus === "review";
 
   return (
@@ -85,7 +85,7 @@ function ProfilePage() {
       <Group title="Mon compte">
         <Row to="/settings" icon={Settings} label="Paramètres" />
         {role === "participant" && <Row to="/my-tickets" icon={Ticket} label="Mes billets" />}
-        {(role === "participant" || role === "organizer") && (
+        {((role === "participant" && isStudent) || role === "organizer") && (
           <Row to="/verification" icon={BadgeCheck} label="Vérification étudiante"
             hint={isVerified ? <span className="text-xs font-semibold text-success">Validée</span> : undefined} />
         )}
@@ -97,7 +97,17 @@ function ProfilePage() {
           <Row to="/analytics" icon={BarChart2} label="Analyses" />
           <Row to="/finance" icon={Euro} label="Finances" />
           <Row to="/export" icon={Download} label="Exporter" />
+          {role === "organizer" && <Row to="/messages" icon={MessageSquare} label="Messages de l'école" />}
           {role === "admin" && <Row to="/admin/verifications" icon={ShieldCheck} label="Vérifications étudiantes" />}
+          {role === "admin" && <Row to="/admin/schools" icon={Building2} label="Écoles" />}
+        </Group>
+      )}
+
+      {role === "school_admin" && (
+        <Group title="Administration école">
+          <Row to="/school-admin" icon={Building2} label="Espace école" />
+          <Row to="/school-admin/reviews" icon={ShieldCheck} label="Validation des événements" />
+          <Row to="/school-admin/members" icon={Users} label="Membres" />
         </Group>
       )}
 

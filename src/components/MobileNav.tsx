@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CalendarDays, Compass, Home, Plus, QrCode, Ticket, UserRound, type LucideIcon } from "lucide-react";
+import { Building2, CalendarDays, CheckSquare, Compass, Home, Plus, QrCode, Ticket, UserRound, Users, type LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
@@ -12,6 +12,13 @@ function tabsFor(role: AppRole | null): Tab[] {
     case "volunteer":
       return [
         { title: "Scanner", url: "/scanner", icon: QrCode },
+        { title: "Profil", url: "/profile", icon: UserRound },
+      ];
+    case "school_admin":
+      return [
+        { title: "École", url: "/school-admin", icon: Building2 },
+        { title: "Validation", url: "/school-admin/reviews", icon: CheckSquare },
+        { title: "Membres", url: "/school-admin/members", icon: Users },
         { title: "Profil", url: "/profile", icon: UserRound },
       ];
     case "organizer":
@@ -36,6 +43,7 @@ function useIsActive() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (url: string) => {
     if (url === "/events") return pathname === "/events" || (pathname.startsWith("/events/") && pathname !== "/events/new");
+    if (url === "/school-admin") return pathname === "/school-admin" || pathname === "/school-admin/" || pathname.startsWith("/school-admin/associations");
     if (url === "/profile") return pathname === "/profile" || pathname === "/settings" || pathname === "/verification";
     return pathname === url || pathname.startsWith(url + "/");
   };

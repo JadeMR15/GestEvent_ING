@@ -3,6 +3,7 @@ import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
+import { schoolErrorMessage } from "@/lib/schools";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -149,7 +150,7 @@ function fmtExpiry(v: string) {
 
 function EventDetail() {
   const { eventId } = useParams({ from: "/events/$eventId" });
-  const { user, role, isVerified } = useAuth();
+  const { user, role, isVerified, canRegister, schoolId: mySchoolId } = useAuth();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState<any>(null);
@@ -361,11 +362,14 @@ function EventDetail() {
   const isPrivateBlocked =
     event.status === "private" &&
     !isOwner &&
-    userSchool.toLowerCase().trim() !== (event.school || "").toLowerCase().trim();
+    (event.school_id
+      ? event.school_id !== mySchoolId
+      : userSchool.toLowerCase().trim() !== (event.school || "").toLowerCase().trim());
 
   async function openCart() {
     if (!user) return;
-    if (!isVerified) {
+    // Événement privé (école) : justificatif étudiant obligatoire. Sinon les non-étudiants peuvent s'inscrire.
+    if (event.status === "private" ? !isVerified : !canRegister) {
       toast.error("Vérifie ton compte étudiant pour t'inscrire aux événements.");
       navigate({ to: "/verification" });
       return;
@@ -392,7 +396,7 @@ function EventDetail() {
       setActing(false);
       if (error) {
         if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
-        else if (error.message.includes("account_not_verified")) toast.error("Vérifie ton compte étudiant pour t'inscrire.");
+        else if (/account_not_verified|event_private|event_not_available/.test(error.message)) toast.error(schoolErrorMessage(error.message));
         else toast.error(error.message);
         load(); return;
       }
@@ -405,7 +409,7 @@ function EventDetail() {
       setActing(false);
       if (error) {
         if (error.message.includes("event_full")) toast.error("Désolé, il n'y a plus de places disponibles.");
-        else if (error.message.includes("account_not_verified")) toast.error("Vérifie ton compte étudiant pour t'inscrire.");
+        else if (/account_not_verified|event_private|event_not_available/.test(error.message)) toast.error(schoolErrorMessage(error.message));
         else toast.error(error.message);
         load(); return;
       }
@@ -1051,6 +1055,23 @@ function EventDetail() {
               )}
             </div>
           </div>
+
+          {isOwner && event.approval_status === "pending" && (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              En attente de validation par l'école : l'événement n'est pas encore visible.
+            </div>
+          )}
+          {isOwner && event.approval_status === "rejected" && (
+            <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+              <p className="font-semibold">Refusé par l'école</p>
+              {event.approval_note && <p className="mt-1 whitespace-pre-wrap">{event.approval_note}</p>}
+              <p className="mt-1">
+                <Link to="/events/$eventId/edit" params={{ eventId }} className="font-semibold underline">Modifier et renvoyer</Link>
+                {" · "}
+                <Link to="/messages" className="font-semibold underline">Répondre à l'école</Link>
+              </p>
+            </div>
+          )}
 
           <div className="mt-3 flex flex-wrap gap-2">
             {event.status === "private" && (

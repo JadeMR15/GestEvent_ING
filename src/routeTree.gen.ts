@@ -17,20 +17,27 @@ import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as ExportRouteImport } from './routes/export'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as RegisterSchoolRouteImport } from './routes/register-school'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 import { Route as EventsNewRouteImport } from './routes/events.new'
+import { Route as SchoolAdminIndexRouteImport } from './routes/school-admin.index'
+import { Route as SchoolAdminMembersRouteImport } from './routes/school-admin.members'
+import { Route as SchoolAdminReviewsRouteImport } from './routes/school-admin.reviews'
 import { Route as VolunteerTokenRouteImport } from './routes/volunteer.$token'
 import { Route as EventsEventIdEditRouteImport } from './routes/events.$eventId_.edit'
+import { Route as SchoolAdminAssociationsAssociationIdRouteImport } from './routes/school-admin.associations.$associationId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -72,6 +79,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyTicketsRoute = MyTicketsRouteImport.update({
   id: '/my-tickets',
   path: '/my-tickets',
@@ -85,6 +97,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterSchoolRoute = RegisterSchoolRouteImport.update({
+  id: '/register-school',
+  path: '/register-school',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScannerRoute = ScannerRouteImport.update({
@@ -105,6 +122,11 @@ const VerificationRoute = VerificationRouteImport.update({
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
   path: '/waitlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
+  id: '/admin/schools',
+  path: '/admin/schools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
@@ -132,6 +154,21 @@ const EventsNewRoute = EventsNewRouteImport.update({
   path: '/events/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolAdminIndexRoute = SchoolAdminIndexRouteImport.update({
+  id: '/school-admin/',
+  path: '/school-admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolAdminMembersRoute = SchoolAdminMembersRouteImport.update({
+  id: '/school-admin/members',
+  path: '/school-admin/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolAdminReviewsRoute = SchoolAdminReviewsRouteImport.update({
+  id: '/school-admin/reviews',
+  path: '/school-admin/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VolunteerTokenRoute = VolunteerTokenRouteImport.update({
   id: '/volunteer/$token',
   path: '/volunteer/$token',
@@ -142,6 +179,12 @@ const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
   path: '/events/$eventId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolAdminAssociationsAssociationIdRoute =
+  SchoolAdminAssociationsAssociationIdRouteImport.update({
+    id: '/school-admin/associations/$associationId',
+    path: '/school-admin/associations/$associationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,20 +195,27 @@ export interface FileRoutesByFullPath {
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/my-tickets': typeof MyTicketsRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/register-school': typeof RegisterSchoolRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
+  '/school-admin/members': typeof SchoolAdminMembersRoute
+  '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
   '/events/': typeof EventsIndexRoute
+  '/school-admin/': typeof SchoolAdminIndexRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/school-admin/associations/$associationId': typeof SchoolAdminAssociationsAssociationIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -176,20 +226,27 @@ export interface FileRoutesByTo {
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/my-tickets': typeof MyTicketsRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/register-school': typeof RegisterSchoolRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
+  '/school-admin/members': typeof SchoolAdminMembersRoute
+  '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
   '/events': typeof EventsIndexRoute
+  '/school-admin': typeof SchoolAdminIndexRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/school-admin/associations/$associationId': typeof SchoolAdminAssociationsAssociationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -201,20 +258,27 @@ export interface FileRoutesById {
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/my-tickets': typeof MyTicketsRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/register-school': typeof RegisterSchoolRoute
   '/scanner': typeof ScannerRoute
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
+  '/school-admin/members': typeof SchoolAdminMembersRoute
+  '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
   '/events/': typeof EventsIndexRoute
+  '/school-admin/': typeof SchoolAdminIndexRoute
   '/events/$eventId_/edit': typeof EventsEventIdEditRoute
+  '/school-admin/associations/$associationId': typeof SchoolAdminAssociationsAssociationIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -227,20 +291,27 @@ export interface FileRouteTypes {
     | '/export'
     | '/finance'
     | '/login'
+    | '/messages'
     | '/my-tickets'
     | '/profile'
     | '/register'
+    | '/register-school'
     | '/scanner'
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/schools'
     | '/admin/verifications'
     | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
+    | '/school-admin/members'
+    | '/school-admin/reviews'
     | '/volunteer/$token'
     | '/events/'
+    | '/school-admin/'
     | '/events/$eventId/edit'
+    | '/school-admin/associations/$associationId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -251,20 +322,27 @@ export interface FileRouteTypes {
     | '/export'
     | '/finance'
     | '/login'
+    | '/messages'
     | '/my-tickets'
     | '/profile'
     | '/register'
+    | '/register-school'
     | '/scanner'
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/schools'
     | '/admin/verifications'
     | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
+    | '/school-admin/members'
+    | '/school-admin/reviews'
     | '/volunteer/$token'
     | '/events'
+    | '/school-admin'
     | '/events/$eventId/edit'
+    | '/school-admin/associations/$associationId'
   id:
     | '__root__'
     | '/'
@@ -275,20 +353,27 @@ export interface FileRouteTypes {
     | '/export'
     | '/finance'
     | '/login'
+    | '/messages'
     | '/my-tickets'
     | '/profile'
     | '/register'
+    | '/register-school'
     | '/scanner'
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/schools'
     | '/admin/verifications'
     | '/auth/callback'
     | '/events/$eventId'
     | '/events/new'
+    | '/school-admin/members'
+    | '/school-admin/reviews'
     | '/volunteer/$token'
     | '/events/'
+    | '/school-admin/'
     | '/events/$eventId_/edit'
+    | '/school-admin/associations/$associationId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -300,20 +385,27 @@ export interface RootRouteChildren {
   ExportRoute: typeof ExportRoute
   FinanceRoute: typeof FinanceRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   MyTicketsRoute: typeof MyTicketsRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
+  RegisterSchoolRoute: typeof RegisterSchoolRoute
   ScannerRoute: typeof ScannerRoute
   SettingsRoute: typeof SettingsRoute
   VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
+  AdminSchoolsRoute: typeof AdminSchoolsRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
+  SchoolAdminMembersRoute: typeof SchoolAdminMembersRoute
+  SchoolAdminReviewsRoute: typeof SchoolAdminReviewsRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
   EventsIndexRoute: typeof EventsIndexRoute
+  SchoolAdminIndexRoute: typeof SchoolAdminIndexRoute
   EventsEventIdEditRoute: typeof EventsEventIdEditRoute
+  SchoolAdminAssociationsAssociationIdRoute: typeof SchoolAdminAssociationsAssociationIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -374,6 +466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-tickets': {
       id: '/my-tickets'
       path: '/my-tickets'
@@ -393,6 +492,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register-school': {
+      id: '/register-school'
+      path: '/register-school'
+      fullPath: '/register-school'
+      preLoaderRoute: typeof RegisterSchoolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scanner': {
@@ -421,6 +527,13 @@ declare module '@tanstack/react-router' {
       path: '/waitlist'
       fullPath: '/waitlist'
       preLoaderRoute: typeof WaitlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/schools': {
+      id: '/admin/schools'
+      path: '/admin/schools'
+      fullPath: '/admin/schools'
+      preLoaderRoute: typeof AdminSchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/verifications': {
@@ -458,6 +571,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school-admin/': {
+      id: '/school-admin/'
+      path: '/school-admin'
+      fullPath: '/school-admin/'
+      preLoaderRoute: typeof SchoolAdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school-admin/members': {
+      id: '/school-admin/members'
+      path: '/school-admin/members'
+      fullPath: '/school-admin/members'
+      preLoaderRoute: typeof SchoolAdminMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school-admin/reviews': {
+      id: '/school-admin/reviews'
+      path: '/school-admin/reviews'
+      fullPath: '/school-admin/reviews'
+      preLoaderRoute: typeof SchoolAdminReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/volunteer/$token': {
       id: '/volunteer/$token'
       path: '/volunteer/$token'
@@ -472,6 +606,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school-admin/associations/$associationId': {
+      id: '/school-admin/associations/$associationId'
+      path: '/school-admin/associations/$associationId'
+      fullPath: '/school-admin/associations/$associationId'
+      preLoaderRoute: typeof SchoolAdminAssociationsAssociationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -484,20 +625,28 @@ const rootRouteChildren: RootRouteChildren = {
   ExportRoute: ExportRoute,
   FinanceRoute: FinanceRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   MyTicketsRoute: MyTicketsRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
+  RegisterSchoolRoute: RegisterSchoolRoute,
   ScannerRoute: ScannerRoute,
   SettingsRoute: SettingsRoute,
   VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
+  AdminSchoolsRoute: AdminSchoolsRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
+  SchoolAdminMembersRoute: SchoolAdminMembersRoute,
+  SchoolAdminReviewsRoute: SchoolAdminReviewsRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,
   EventsIndexRoute: EventsIndexRoute,
+  SchoolAdminIndexRoute: SchoolAdminIndexRoute,
   EventsEventIdEditRoute: EventsEventIdEditRoute,
+  SchoolAdminAssociationsAssociationIdRoute:
+    SchoolAdminAssociationsAssociationIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

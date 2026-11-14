@@ -12,11 +12,11 @@ interface Props {
 }
 
 export function ProtectedLayout({ children, allow }: Props) {
-  const { user, role, loading, isVerified, verificationStatus } = useAuth();
+  const { user, role, loading, isVerified, verificationStatus, isStudent } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showVerifyBanner =
-    (role === "participant" || role === "organizer") && verificationStatus !== null && !isVerified && pathname !== "/verification";
+    ((role === "participant" && isStudent) || role === "organizer") && verificationStatus !== null && !isVerified && pathname !== "/verification";
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/" });

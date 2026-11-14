@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { db, type ApprovalStatus } from "@/lib/schools";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -93,6 +94,10 @@ function EditEventPage() {
     max_per_person: "0",
     status: "published" as "draft" | "published" | "closed" | "private",
   });
+  // Validation par l'école (événements d'une association rattachée).
+  const [approval, setApproval] = useState<{ status: ApprovalStatus; note: string | null; linked: boolean; required: boolean }>(
+    { status: "not_required", note: null, linked: false, required: false },
+  );
   const [tickets, setTickets] = useState<TicketDraft[]>([
     { uid: crypto.randomUUID(), name: "Tarif standard", description: "", price: "0", capacity: "50" },
   ]);
@@ -117,6 +122,10 @@ function EditEventPage() {
         association: ev.association ?? "",
         status: (ev.status ?? "published") as "draft" | "published" | "closed" | "private",
       });
+      const required = ev.association_id
+        ? !!(await db.rpc("association_requires_approval", { _association_id: ev.association_id })).data
+        : false;
+      setApproval({ status: (ev.approval_status ?? "not_required") as ApprovalStatus, note: ev.approval_note ?? null, linked: !!ev.school_id, required });
 
       // Load existing ticket types
       const { data: types } = await (supabase as any).from("ticket_types").select("*").eq("event_id", eventId).order("sort_order");
@@ -242,9 +251,9 @@ function EditEventPage() {
 
     if (error) { setLoading(false); toast.error("Erreur : " + error.message); return; }
 
-    // Mémoriser école/association dans le profil et localStorage
-    localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: parsed.data.school, association: parsed.data.association }));
-    if (parsed.data.school || parsed.data.association) {
+    // Mémoriser école/association dans le profil et localStorage (compte non rattaché à une école)
+    if (!approval.linked) localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: parsed.data.school, association: parsed.data.association }));
+    if (!approval.linked && (parsed.data.school || parsed.data.association)) {
       await supabase.from("profiles").update({ school: parsed.data.school, association: parsed.data.association }).eq("id", user!.id);
     }
 
@@ -267,7 +276,8 @@ function EditEventPage() {
     }
 
     setLoading(false);
-    toast.success("Événement mis à jour !");
+    const sentForReview = approval.required && approval.status !== "approved" && (parsed.data.status === "published" || parsed.data.status === "private");
+    toast.success(sentForReview ? "Événement envoyé à ton école pour validation." : "Événement mis à jour !");
     navigate({ to: "/events/$eventId", params: { eventId } });
   }
 
@@ -406,6 +416,24 @@ function EditEventPage() {
               </div>
             </div>
 
+            {approval.status === "rejected" && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+                <p className="font-semibold">Refusé par ton école</p>
+                {approval.note && <p className="mt-1 whitespace-pre-wrap">{approval.note}</p>}
+                <p className="mt-1 text-red-800/80">Corrige l'événement puis enregistre-le (publié ou privé) pour le renvoyer en validation.</p>
+              </div>
+            )}
+            {approval.status === "pending" && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                En attente de validation par ton école. Il sera visible dès qu'elle l'aura accepté.
+              </div>
+            )}
+
+            {approval.linked ? (
+              <div className="rounded-xl border bg-muted/30 px-4 py-3 text-sm">
+                Publié au nom de <strong>{form.association || "ton association"}</strong>{form.school && <> · {form.school}</>}
+              </div>
+            ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="school">École</Label>
@@ -416,6 +444,7 @@ function EditEventPage() {
                 <Input id="association" value={form.association} onChange={(e) => { const v = e.target.value; setForm((f) => { localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: f.school, association: v })); return { ...f, association: v }; }); }} />
               </div>
             </div>
+            )}
 
             {/* Tarifs */}
             <div className="space-y-3">
@@ -501,7 +530,8 @@ function EditEventPage() {
             <div className="flex gap-3">
               <Button type="submit" disabled={loading} className="flex-1 bg-gradient-primary shadow-glow">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Enregistrer les modifications
+                {approval.required && approval.status !== "approved" && (form.status === "published" || form.status === "private")
+                  ? "Envoyer à l'école pour validation" : "Enregistrer les modifications"}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate({ to: "/events/$eventId", params: { eventId } })}>
                 Annuler

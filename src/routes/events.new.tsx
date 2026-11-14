@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { db, schoolErrorMessage } from "@/lib/schools";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,7 +72,23 @@ const schema = z.object({
 });
 
 function CreateEventPage() {
-  const { user, isVerified } = useAuth();
+  const { user, isVerified, schoolId, associationId, membershipStatus } = useAuth();
+  // Association de l'organisateur rattaché à une école (null sinon : saisie libre comme avant).
+  const [myAssociation, setMyAssociation] = useState<{ name: string; status: string; requires_approval: boolean; schoolName: string } | null>(null);
+  useEffect(() => {
+    if (!associationId) { setMyAssociation(null); return; }
+    db.from("associations").select("name, status, requires_approval, schools(name)").eq("id", associationId).maybeSingle()
+      .then(({ data }: { data: { name: string; status: string; requires_approval: boolean; schools: { name: string } | null } | null }) => {
+        setMyAssociation(data ? { name: data.name, status: data.status, requires_approval: data.requires_approval, schoolName: data.schools?.name ?? "" } : null);
+      });
+  }, [associationId]);
+  const linked = !!schoolId;
+  const blockedReason = !linked ? null
+    : !associationId ? "Choisis ton association dans Paramètres pour créer un événement."
+    : membershipStatus !== "approved" ? "Ton école doit d'abord valider ton rattachement (ton email n'est pas sur son domaine)."
+    : myAssociation && myAssociation.status !== "active" ? `${myAssociation.name} doit d'abord être validée par ton école.`
+    : null;
+  const needsApproval = linked && !!myAssociation?.requires_approval;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [mediaDragOver, setMediaDragOver] = useState(false);
@@ -209,11 +226,16 @@ function CreateEventPage() {
       .select()
       .single();
 
-    if (error) { setLoading(false); toast.error(error.message); return; }
+    if (error) {
+      setLoading(false);
+      const friendly = schoolErrorMessage(error.message);
+      toast.error(friendly.startsWith("Une erreur") ? error.message : friendly);
+      return;
+    }
 
-    // Mémoriser école/association dans le profil et localStorage
-    localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: parsed.data.school, association: parsed.data.association }));
-    if (parsed.data.school || parsed.data.association) {
+    // Mémoriser école/association dans le profil et localStorage (saisie libre, compte non rattaché)
+    if (!linked) localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: parsed.data.school, association: parsed.data.association }));
+    if (!linked && (parsed.data.school || parsed.data.association)) {
       await supabase.from("profiles").update({ school: parsed.data.school, association: parsed.data.association }).eq("id", user.id);
     }
 
@@ -248,7 +270,8 @@ function CreateEventPage() {
     }
 
     setLoading(false);
-    toast.success("Événement créé !");
+    if (data.approval_status === "pending") toast.success("Événement envoyé à ton école : il sera publié dès sa validation.");
+    else toast.success("Événement créé !");
     navigate({ to: "/events/$eventId", params: { eventId: data.id } });
   }
 
@@ -384,6 +407,18 @@ function CreateEventPage() {
               </div>
             </div>
 
+            {linked ? (
+              <div className="rounded-xl border bg-muted/30 px-4 py-3 text-sm">
+                <p>
+                  Publié au nom de <strong>{myAssociation?.name ?? "ton association"}</strong>
+                  {myAssociation?.schoolName && <> · {myAssociation.schoolName}</>}
+                </p>
+                {blockedReason && <p className="mt-1 font-medium text-red-700">{blockedReason}</p>}
+                {!blockedReason && needsApproval && (
+                  <p className="mt-1 text-muted-foreground">Ton école valide les événements de ton association avant leur publication.</p>
+                )}
+              </div>
+            ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="school">École</Label>
@@ -394,6 +429,7 @@ function CreateEventPage() {
                 <Input id="association" value={form.association} onChange={(e) => { const v = e.target.value; setForm((f) => { const next = { ...f, association: v }; localStorage.setItem("ge_organizer_identity", JSON.stringify({ school: f.school, association: v })); return next; }); }} />
               </div>
             </div>
+            )}
 
             {/* Tarifs */}
             <div className="space-y-3">
@@ -473,9 +509,11 @@ function CreateEventPage() {
               </Select>
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
+            <Button type="submit" disabled={loading || !!blockedReason} className="w-full bg-gradient-primary shadow-glow">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {form.status === "draft" ? "Enregistrer en brouillon" : form.status === "private" ? "Publier (privé)" : "Publier l'événement"}
+              {form.status === "draft" ? "Enregistrer en brouillon"
+                : needsApproval ? "Envoyer à l'école pour validation"
+                : form.status === "private" ? "Publier (privé)" : "Publier l'événement"}
             </Button>
           </form>
         </CardContent>

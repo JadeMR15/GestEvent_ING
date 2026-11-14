@@ -2,7 +2,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "admin" | "organizer" | "participant" | "volunteer";
+export type AppRole = "admin" | "organizer" | "participant" | "volunteer" | "school_admin";
+export type MembershipStatus = "none" | "pending" | "approved" | "rejected";
 export type VerificationStatus = "unverified" | "pending" | "review" | "verified" | "rejected";
 
 interface AuthContextValue {
@@ -18,6 +19,13 @@ interface AuthContextValue {
   fullName: string | null;
   avatarPath: string | null;
   refreshProfile: () => Promise<void>;
+  // Rattachement école (null tant que la migration school_admin n'est pas lancée).
+  isStudent: boolean;
+  schoolId: string | null;
+  associationId: string | null;
+  membershipStatus: MembershipStatus;
+  // Peut s'inscrire aux événements non privés : étudiant vérifié, ou non étudiant.
+  canRegister: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -32,6 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [verificationNote, setVerificationNote] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [isStudent, setIsStudent] = useState(true);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [associationId, setAssociationId] = useState<string | null>(null);
+  const [membershipStatus, setMembershipStatus] = useState<MembershipStatus>("none");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,20 +51,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        setTimeout(() => { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); }, 0);
+        setTimeout(() => { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); fetchSchool(sess.user.id); }, 0);
       } else {
         setRole(null);
         setVerificationStatus(null);
         setVerificationNote(null);
         setFullName(null);
         setAvatarPath(null);
+        setIsStudent(true);
+        setSchoolId(null);
+        setAssociationId(null);
+        setMembershipStatus("none");
       }
     });
 
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
       setSession(sess);
       setUser(sess?.user ?? null);
-      if (sess?.user) { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); }
+      if (sess?.user) { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); fetchSchool(sess.user.id); }
       setLoading(false);
     });
 
@@ -97,8 +113,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAvatarPath(data?.avatar_path ?? null);
   }
 
+  // Requête séparée : sans la migration school_admin, ces colonnes n'existent pas et on garde les valeurs par défaut.
+  async function fetchSchool(userId: string) {
+    const { data, error } = await (supabase as any)
+      .from("profiles")
+      .select("is_student, school_id, association_id, membership_status")
+      .eq("id", userId)
+      .maybeSingle();
+    if (error || !data) return;
+    setIsStudent(data.is_student !== false);
+    setSchoolId(data.school_id ?? null);
+    setAssociationId(data.association_id ?? null);
+    setMembershipStatus((data.membership_status as MembershipStatus) ?? "none");
+  }
+
   async function refreshProfile() {
-    if (user) await Promise.all([fetchProfile(user.id), fetchVerification(user.id)]);
+    if (user) await Promise.all([fetchProfile(user.id), fetchVerification(user.id), fetchSchool(user.id)]);
   }
 
   async function refreshVerification() {
@@ -106,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const isVerified = role === "admin" || verificationStatus === "verified";
+  const canRegister = isVerified || (role === "participant" && !isStudent);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -113,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, role, verificationStatus, verificationNote, isVerified, refreshVerification, fullName, avatarPath, refreshProfile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, role, verificationStatus, verificationNote, isVerified, refreshVerification, fullName, avatarPath, refreshProfile, isStudent, schoolId, associationId, membershipStatus, canRegister, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
