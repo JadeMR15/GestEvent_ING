@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { encodeCanvas } from "@/lib/image-encode";
 
 export const AVATAR_BUCKET = "avatars";
 export const AVATAR_ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
@@ -36,8 +37,7 @@ export async function prepareAvatar(file: File): Promise<Blob> {
   ctx.drawImage(bitmap, sx, sy, side, side, 0, 0, size, size);
   bitmap.close();
 
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.85));
-  if (!blob) throw new Error("Traitement de l'image impossible.");
+  const blob = await encodeCanvas(canvas, 0.85);
   return blob;
 }
 

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { db, schoolErrorMessage } from "@/lib/schools";
+import { encodeCanvas, imageExt } from "@/lib/image-encode";
 
 export const POST_IMAGE_BUCKET = "post-images";
 
@@ -160,10 +161,9 @@ export async function uploadPostImage(associationId: string, file: File): Promis
   canvas.height = Math.round(bitmap.height * scale);
   canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
-  const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/webp", 0.85));
-  if (!blob) throw new Error("Traitement de l'image impossible.");
-  const path = `${associationId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
-  const { error } = await supabase.storage.from(POST_IMAGE_BUCKET).upload(path, blob, { contentType: "image/webp" });
+  const blob = await encodeCanvas(canvas, 0.85);
+  const path = `${associationId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${imageExt(blob)}`;
+  const { error } = await supabase.storage.from(POST_IMAGE_BUCKET).upload(path, blob, { contentType: blob.type });
   if (error) throw new Error("Envoi de la photo impossible.");
   return path;
 }

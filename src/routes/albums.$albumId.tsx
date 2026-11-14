@@ -358,7 +358,7 @@ function PhotoViewer({ album, photos, index, onIndex, total, canDelete, onDelete
 
   async function download() {
     if (!photo || index == null) return;
-    const u = await downloadUrl(photo.path, photoFileName(album.title, index));
+    const u = await downloadUrl(photo.path, photoFileName(album.title, index, photo.path));
     if (u) window.location.href = u;
   }
 

@@ -3,6 +3,7 @@ import { Loader2, Move, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { encodeCanvas } from "@/lib/image-encode";
 
 interface Props {
   /** Image choisie ; la fenêtre s'ouvre quand elle est renseignée. */
@@ -16,7 +17,7 @@ interface Props {
   title: string;
   description?: string;
   onCancel: () => void;
-  /** Image recadrée (WebP), sans les métadonnées de la photo d'origine (lieu GPS…). */
+  /** Image recadrée (WebP, ou JPEG sur Safari), sans les métadonnées de la photo d'origine (lieu GPS…). */
   onConfirm: (blob: Blob) => Promise<void> | void;
 }
 
@@ -132,8 +133,7 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, outW, outH);
       bitmap.close();
-      const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/webp", 0.88));
-      if (!blob) throw new Error("Traitement de l'image impossible.");
+      const blob = await encodeCanvas(canvas, 0.88);
       await onConfirm(blob);
     } finally {
       setBusy(false);

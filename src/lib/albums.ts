@@ -3,6 +3,7 @@
 // accordés par la base selon les droits (album public ou réservé aux inscrits).
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/lib/schools";
+import { encodeCanvas, imageExt } from "@/lib/image-encode";
 
 export const PHOTO_BUCKET = "event-photos";
 const FULL_SIDE = 2560;   // assez pour imprimer ou partager en story
@@ -58,8 +59,10 @@ export function albumSlug(albumTitle: string) {
   return albumTitle.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photos";
 }
 
-export function photoFileName(albumTitle: string, index: number) {
-  return `${albumSlug(albumTitle)}-${String(index + 1).padStart(4, "0")}.webp`;
+/** Nom du fichier téléchargé, avec l'extension réelle (WebP, ou JPEG si envoyé depuis Safari). */
+export function photoFileName(albumTitle: string, index: number, path: string) {
+  const ext = path.split(".").pop() || "jpg";
+  return `${albumSlug(albumTitle)}-${String(index + 1).padStart(4, "0")}.${ext}`;
 }
 
 // --- Envoi ---------------------------------------------------------------------------------
@@ -74,9 +77,8 @@ async function toWebp(bitmap: ImageBitmap, maxSide: number, quality: number): Pr
   if (!ctx) throw new Error("canvas");
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(bitmap, 0, 0, w, h);
-  const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/webp", quality));
+  const blob = await encodeCanvas(canvas, quality);
   canvas.width = canvas.height = 0; // libère la mémoire tout de suite
-  if (!blob) throw new Error("webp");
   return { blob, w, h };
 }
 
@@ -87,12 +89,12 @@ async function uploadOne(albumId: string, file: File): Promise<void> {
     const full = await toWebp(bitmap, FULL_SIDE, 0.86);
     const thumb = await toWebp(bitmap, THUMB_SIDE, 0.72);
     const id = crypto.randomUUID();
-    const path = `${albumId}/${id}.webp`;
-    const thumbPath = `${albumId}/thumb/${id}.webp`;
+    const path = `${albumId}/${id}.${imageExt(full.blob)}`;
+    const thumbPath = `${albumId}/thumb/${id}.${imageExt(thumb.blob)}`;
     const store = supabase.storage.from(PHOTO_BUCKET);
     const [a, b] = await Promise.all([
-      store.upload(path, full.blob, { contentType: "image/webp" }),
-      store.upload(thumbPath, thumb.blob, { contentType: "image/webp" }),
+      store.upload(path, full.blob, { contentType: full.blob.type }),
+      store.upload(thumbPath, thumb.blob, { contentType: thumb.blob.type }),
     ]);
     if (a.error || b.error) {
       await store.remove([path, thumbPath]);
@@ -167,7 +169,7 @@ export async function downloadAlbumZip(album: Album, onProgress: (done: number, 
       while (i < slice.length && !shouldStop()) {
         const idx = i++;
         const res = await fetch(urls[slice[idx]]);
-        if (res.ok) zip.file(photoFileName(album.title, part * ZIP_PART + idx), await res.blob());
+        if (res.ok) zip.file(photoFileName(album.title, part * ZIP_PART + idx, slice[idx]), await res.blob());
         done++;
         onProgress(done, total);
       }
