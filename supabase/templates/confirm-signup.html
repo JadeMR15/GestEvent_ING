@@ -1,9 +1,17 @@
 <!--
   Modèle "Confirm signup" de Supabase.
-  À coller dans Supabase > Authentication > Emails > Confirm signup.
-  Sujet conseillé : Confirme ton inscription sur Plav'
+  À coller dans Supabase > Authentication > Emails > Confirm signup (onglet Source).
+  Sujet :
+    {{ if .Data.school_name }}Confirmez l'inscription de {{ .Data.school_name }} sur Plav'{{ else }}Confirme ton inscription sur Plav'{{ end }}
+  (Variables $type / $student : évitent une erreur de modèle si la métadonnée manque.)
+  Le message s'adapte au type de compte (métadonnées envoyées à l'inscription) :
+    - account_type = "school"      → compte école (register-school)
+    - account_type = "organizer"   → organisateur d'association
+    - is_student = "false"         → participant non étudiant
+    - sinon                        → participant étudiant
   Même mise en page que supabase/functions/_shared/email-layout.ts.
 -->
+{{ $type := "" }}{{ with .Data.account_type }}{{ $type = . }}{{ end }}{{ $student := "" }}{{ with .Data.is_student }}{{ $student = . }}{{ end }}
 <div style="background:#FBF5EA;padding:24px 12px;font-family:'DM Sans',Helvetica,Arial,sans-serif;color:#2B1A1F;font-size:15px;line-height:1.55">
   <div style="max-width:560px;margin:0 auto">
     <div style="text-align:center;padding:4px 0 16px">
@@ -12,17 +20,35 @@
     <div style="background:#FFFDF8;border:1px solid #E8D6AE;border-radius:16px;overflow:hidden">
       <div style="height:6px;background:#E8B22E;background-image:linear-gradient(90deg,#F3D27A,#E8B22E 45%,#6B1A2F)"></div>
       <div style="padding:32px">
+{{ if eq $type "school" }}
+        <h1 style="font-family:'Fredoka','DM Sans',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;line-height:1.2;color:#6B1A2F;margin:0 0 20px">Bienvenue {{ if .Data.school_name }}{{ .Data.school_name }} {{ end }}sur Plav' !</h1>
+        <p>Bonjour{{ if .Data.full_name }} <strong>{{ .Data.full_name }}</strong>{{ end }},</p>
+        <p>Merci d'avoir inscrit {{ if .Data.school_name }}<strong>{{ .Data.school_name }}</strong>{{ else }}votre école{{ end }} sur Plav'. Confirmez votre adresse email pour activer votre compte administrateur :</p>
+{{ else }}
         <h1 style="font-family:'Fredoka','DM Sans',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;line-height:1.2;color:#6B1A2F;margin:0 0 20px">Bienvenue sur Plav' !</h1>
         <p>Bonjour{{ if .Data.full_name }} <strong>{{ .Data.full_name }}</strong>{{ end }},</p>
         <p>Merci pour ton inscription. Confirme ton adresse email pour activer ton compte :</p>
+{{ end }}
         <div style="text-align:center;margin:28px 0 8px">
-          <a href="{{ .ConfirmationURL }}" style="background:#6B1A2F;background-image:linear-gradient(135deg,#7C2238,#5A1426);color:#FBF5EA;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block;font-size:15px">Confirmer mon email</a>
+          <a href="{{ .ConfirmationURL }}" style="background:#6B1A2F;background-image:linear-gradient(135deg,#7C2238,#5A1426);color:#FBF5EA;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block;font-size:15px">Confirmer {{ if eq $type "school" }}l'adresse{{ else }}mon email{{ end }}</a>
         </div>
         <div style="background:#F8E7B5;color:#4A0F20;border-radius:12px;padding:16px;margin:24px 0 16px;font-size:14px">
+{{ if eq $type "school" }}
+          <strong>Et ensuite ?</strong> L'équipe Plav' vérifie chaque école avant d'ouvrir son espace : connectez-vous
+          pour suivre l'état de la demande. Dès que {{ if .Data.school_name }}{{ .Data.school_name }}{{ else }}votre école{{ end }} sera validée, vous pourrez valider
+          les associations de l'école, suivre leurs statistiques et approuver leurs événements.
+{{ else if eq $type "organizer" }}
+          <strong>Étape suivante :</strong> envoie ton certificat de scolarité ou ta carte étudiante dans « Vérifier mon compte ».
+          Une fois vérifié{{ if .Data.school }} et ton rattachement à {{ .Data.school }} accepté{{ end }}, tu pourras créer
+          les événements de ton association.
+{{ else if eq $student "false" }}
+          <strong>C'est tout !</strong> Une fois ton email confirmé, tu peux réserver tes places pour les événements ouverts à tous.
+{{ else }}
           <strong>Étape suivante :</strong> envoie ton certificat de scolarité ou ta carte étudiante
           dans « Vérifier mon compte » pour pouvoir t'inscrire aux événements.
+{{ end }}
         </div>
-        <p style="font-size:12px;color:#7A5560;margin:0">Tu n'es pas à l'origine de cette inscription ? Ignore simplement cet email.</p>
+        <p style="font-size:12px;color:#7A5560;margin:0">{{ if eq $type "school" }}Vous n'êtes pas à l'origine de cette inscription ? Ignorez simplement cet email.{{ else }}Tu n'es pas à l'origine de cette inscription ? Ignore simplement cet email.{{ end }}</p>
       </div>
     </div>
     <p style="margin:16px 0 0;font-size:12px;color:#7A5560;text-align:center">Plav' · la billetterie étudiante</p>

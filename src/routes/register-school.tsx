@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +57,7 @@ function RegisterSchoolPage() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/school-admin`,
+        emailRedirectTo: `${SITE_URL}/school-admin`,
         data: {
           account_type:   "school",
           full_name:      parsed.data.fullName,
