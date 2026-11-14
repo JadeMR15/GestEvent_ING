@@ -153,3 +153,44 @@ export function AssociationChip({ associationId, name, className = "", linkable 
     ? <Link to="/associations/$associationId" params={{ associationId }} className={`${cls} hover:bg-secondary/70 hover:underline`}>{inner}</Link>
     : <span className={cls}>{inner}</span>;
 }
+
+/** URL publique de la photo de couverture (même stockage que le logo). */
+export function associationCoverUrl(path: string | null | undefined): string | null {
+  return associationLogoUrl(path);
+}
+
+/** Couverture : 1920 px de large max, WebP (sans les métadonnées de la photo). */
+async function prepareCover(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1920 / bitmap.width);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Traitement de l'image impossible.");
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.85));
+  if (!blob) throw new Error("Traitement de l'image impossible.");
+  return blob;
+}
+
+/** Envoie (ou retire, file = null) la couverture ; renvoie le nouveau chemin. */
+export async function saveAssociationCover(associationId: string, file: File | null, oldPath: string | null | undefined): Promise<string | null> {
+  let newPath: string | null = null;
+  if (file) {
+    if (!LOGO_ACCEPTED.includes(file.type)) throw new Error("Formats acceptés : JPG, PNG ou WebP.");
+    if (file.size > 20 * 1024 * 1024) throw new Error("Image trop lourde (20 Mo maximum).");
+    const blob = await prepareCover(file);
+    newPath = `${associationId}/cover-${Date.now()}.webp`;
+    const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: "image/webp" });
+    if (upErr) throw new Error("Envoi de la photo impossible.");
+  }
+  const { error } = await db.rpc("set_association_cover", { _association_id: associationId, _path: newPath });
+  if (error) {
+    if (newPath) await supabase.storage.from(LOGO_BUCKET).remove([newPath]);
+    throw new Error(schoolErrorMessage(error.message));
+  }
+  if (oldPath) await supabase.storage.from(LOGO_BUCKET).remove([oldPath]);
+  return newPath;
+}

@@ -1,13 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { format } from "date-fns";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { differenceInCalendarDays, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarClock, ChevronLeft, Eye, Globe, GraduationCap, History, Instagram, Loader2, Newspaper, Pencil, Settings2, Users } from "lucide-react";
+import {
+  Calendar, CalendarClock, Camera, ChevronLeft, Eye, Globe, GraduationCap, History, Images, Info, Instagram, Loader2,
+  Newspaper, Pencil, Settings2, Share2, Trash2, Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Monogram } from "@/components/SchoolAdminShell";
-import { associationImage, useAssociationFallbacks } from "@/components/AssociationLogo";
-import { EventMiniCard, FollowButton, FollowHint, PostCard, PostComposer } from "@/components/social/SocialBits";
+import { associationCoverUrl, associationImage, saveAssociationCover, useAssociationFallbacks } from "@/components/AssociationLogo";
+import { EmptyState } from "@/components/EmptyState";
+import { UserAvatar } from "@/components/UserAvatar";
+import { EventMiniCard, EventTile, FollowButton, FollowHint, PostCard, PostComposer } from "@/components/social/SocialBits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +23,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAuth } from "@/hooks/useAuth";
 import { db, schoolErrorMessage } from "@/lib/schools";
 import { isPastEvent } from "@/lib/event-dates";
-import { fetchVisibleEvents, POST_SELECT, useFollows, usePostLikes, type FeedEvent, type Post, type PublicAssociation } from "@/lib/social";
+import { fetchVisibleEvents, POST_SELECT, postImageUrl, useFollows, usePostLikes, type FeedEvent, type Post, type PublicAssociation } from "@/lib/social";
 
 export const Route = createFileRoute("/associations/$associationId")({
   component: () => (
@@ -34,15 +39,29 @@ const PROFILE_ERRORS: Record<string, string> = {
   invalid_website: "Adresse du site invalide.",
 };
 
+type Association = PublicAssociation & { cover_path?: string | null };
+type Member = { id: string; full_name: string | null; avatar_path: string | null };
+
+// Onglets soulignés (bordeaux sur l'onglet actif).
+const TAB = "relative h-11 shrink-0 gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 text-[15px] font-semibold text-gris-chaud shadow-none data-[state=active]:border-bordeaux-600 data-[state=active]:bg-transparent data-[state=active]:text-bordeaux-600 data-[state=active]:shadow-none [&_svg]:size-5";
+
+function Count({ n }: { n: number }) {
+  return n > 0 ? <span className="rounded-[var(--radius-pilule)] bg-bordeaux-100 px-2 text-xs font-bold leading-5 text-bordeaux-600">{n}</span> : null;
+}
+
 function AssociationPage() {
   const { associationId } = Route.useParams();
   const { user, role, associationId: myAssociationId, membershipStatus } = useAuth();
-  const [association, setAssociation] = useState<PublicAssociation | null>(null);
+  const [association, setAssociation] = useState<Association | null>(null);
   const [events, setEvents] = useState<FeedEvent[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [team, setTeam] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [canManage, setCanManage] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const coverInput = useRef<HTMLInputElement>(null);
   const fallback = useAssociationFallbacks([associationId])[associationId];
   const follows = useFollows([associationId]);
   const likes = usePostLikes(posts.map((p) => p.id));
@@ -57,16 +76,19 @@ function AssociationPage() {
   }, [associationId]);
 
   const load = useCallback(async () => {
-    const [{ data: a }, visible, manage] = await Promise.all([
-      db.from("associations").select("id, name, description, logo_path, instagram, website, school_id, status, created_at, schools(name)")
+    const [{ data: a }, visible, manage, { data: members }] = await Promise.all([
+      db.from("associations").select("id, name, description, logo_path, cover_path, instagram, website, school_id, status, created_at, schools(name)")
         .eq("id", associationId).maybeSingle(),
       fetchVisibleEvents(),
       user ? db.rpc("can_manage_association", { _association_id: associationId }) : Promise.resolve({ data: false }),
+      // Équipe : organisateurs validés de l'association.
+      db.from("profiles").select("id, full_name, avatar_path").eq("association_id", associationId).eq("membership_status", "approved").limit(24),
       loadPosts(),
     ]);
-    setAssociation((a as PublicAssociation | null) ?? null);
+    setAssociation((a as Association | null) ?? null);
     setEvents(visible.filter((e) => e.association_id === associationId));
     setCanManage(manage.data === true);
+    setTeam((members as Member[] | null) ?? []);
     setLoading(false);
   }, [associationId, user, loadPosts]);
 
@@ -78,6 +100,37 @@ function AssociationPage() {
 
   const upcoming = useMemo(() => events.filter((e) => !isPastEvent(e.starts_at)).sort((a, b) => a.starts_at.localeCompare(b.starts_at)), [events]);
   const past = useMemo(() => events.filter((e) => isPastEvent(e.starts_at)).sort((a, b) => b.starts_at.localeCompare(a.starts_at)), [events]);
+  // Galerie : photos des actualités, puis affiches des événements.
+  const gallery = useMemo(() => {
+    const urls = [
+      ...posts.map((p) => postImageUrl(p.image_path)),
+      ...[...upcoming, ...past].map((e) => e.cover_image_url),
+    ].filter((u): u is string => !!u);
+    return [...new Set(urls)];
+  }, [posts, upcoming, past]);
+
+  async function changeCover(file: File | null) {
+    if (!association) return;
+    setCoverBusy(true);
+    try {
+      const path = await saveAssociationCover(association.id, file, association.cover_path);
+      setAssociation({ ...association, cover_path: path });
+      toast.success(file ? "Photo de couverture mise à jour." : "Photo de couverture retirée.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Modification impossible.");
+    } finally {
+      setCoverBusy(false);
+    }
+  }
+
+  async function share() {
+    const url = window.location.href;
+    try {
+      if (navigator.share) { await navigator.share({ title: association?.name ?? "Plav'", url }); return; }
+      await navigator.clipboard.writeText(url);
+      toast.success("Lien de la page copié.");
+    } catch { /* partage annulé */ }
+  }
 
   if (loading) return <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
@@ -108,159 +161,238 @@ function AssociationPage() {
   const following = follows.following.has(associationId);
   const followers = follows.counts[associationId] ?? 0;
   const logo = associationImage(association.logo_path, fallback);
+  const cover = associationCoverUrl(association.cover_path);
   const isOwnPage = canPost && role === "organizer";
+  const next = upcoming[0];
+  const daysToNext = next ? differenceInCalendarDays(new Date(next.starts_at), new Date()) : null;
+
+  const stats = [
+    { n: followers, label: `abonné${followers > 1 ? "s" : ""}` },
+    { n: upcoming.length, label: "à venir" },
+    { n: past.length, label: `passé${past.length > 1 ? "s" : ""}` },
+    { n: posts.length, label: `actualité${posts.length > 1 ? "s" : ""}` },
+  ];
 
   const about = (
     <Card>
-      <CardHeader className="pb-3"><CardTitle className="text-base">À propos</CardTitle></CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardHeader className="pb-3"><CardTitle className="t-sous-titre text-encre">À propos</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
         {association.description
-          ? <p className="whitespace-pre-wrap leading-relaxed">{association.description}</p>
-          : <p className="text-muted-foreground">{canPost ? "Ajoute une description pour présenter ton association." : "Pas encore de description."}</p>}
-        <div className="space-y-1.5 text-muted-foreground">
-          {association.schools?.name && <p className="flex items-center gap-2"><GraduationCap className="h-4 w-4" />{association.schools.name}</p>}
+          ? <p className="t-corps whitespace-pre-wrap text-encre">{association.description}</p>
+          : <p className="t-corps text-gris-chaud">{canPost ? "Ajoute une description pour présenter ton association." : "Pas encore de description."}</p>}
+        <ul className="space-y-2.5 border-t border-sable pt-4 t-legende text-gris-chaud">
+          {association.schools?.name && <li className="flex items-center gap-2"><GraduationCap className="h-4 w-4 shrink-0" />{association.schools.name}</li>}
           {association.instagram && (
-            <a href={`https://instagram.com/${association.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
-              <Instagram className="h-4 w-4" />@{association.instagram}
-            </a>
+            <li>
+              <a href={`https://instagram.com/${association.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-bordeaux-600">
+                <Instagram className="h-4 w-4 shrink-0" />@{association.instagram}
+              </a>
+            </li>
           )}
           {association.website && (
-            <a href={association.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 truncate hover:text-primary">
-              <Globe className="h-4 w-4 shrink-0" /><span className="truncate">{association.website.replace(/^https?:\/\//, "")}</span>
-            </a>
+            <li>
+              <a href={association.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-bordeaux-600">
+                <Globe className="h-4 w-4 shrink-0" /><span className="truncate">{association.website.replace(/^https?:\/\//, "")}</span>
+              </a>
+            </li>
           )}
-          <p className="flex items-center gap-2"><CalendarClock className="h-4 w-4" />Sur Plav' depuis {format(new Date(association.created_at), "MMMM yyyy", { locale: fr })}</p>
-        </div>
+          <li className="flex items-center gap-2"><CalendarClock className="h-4 w-4 shrink-0" />Sur Plav' depuis {format(new Date(association.created_at), "MMMM yyyy", { locale: fr })}</li>
+        </ul>
+      </CardContent>
+    </Card>
+  );
+
+  const teamCard = team.length > 0 && (
+    <Card>
+      <CardHeader className="pb-3"><CardTitle className="t-sous-titre text-encre">L'équipe</CardTitle></CardHeader>
+      <CardContent>
+        <ul className="space-y-3">
+          {team.map((m) => (
+            <li key={m.id} className="flex items-center gap-3">
+              <UserAvatar path={m.avatar_path} name={m.full_name} size="md" />
+              <span className="t-corps-fort truncate text-encre">{m.full_name || "Organisateur"}</span>
+            </li>
+          ))}
+        </ul>
       </CardContent>
     </Card>
   );
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {isParticipant ? (
-        <Link to="/associations" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-          <ChevronLeft className="h-4 w-4" />Associations
-        </Link>
-      ) : role === "school_admin" ? (
-        <Link to="/school-admin/associations/$associationId" params={{ associationId }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-          <ChevronLeft className="h-4 w-4" />Fiche de l'association
-        </Link>
-      ) : (
-        <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-          <ChevronLeft className="h-4 w-4" />Tableau de bord
-        </Link>
-      )}
+    <div className="mx-auto max-w-6xl space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {isParticipant ? (
+          <Link to="/associations" className="inline-flex items-center gap-1 t-legende text-gris-chaud hover:text-bordeaux-600">
+            <ChevronLeft className="h-4 w-4" />Associations
+          </Link>
+        ) : role === "school_admin" ? (
+          <Link to="/school-admin/associations/$associationId" params={{ associationId }} className="inline-flex items-center gap-1 t-legende text-gris-chaud hover:text-bordeaux-600">
+            <ChevronLeft className="h-4 w-4" />Fiche de l'association
+          </Link>
+        ) : (
+          <Link to="/dashboard" className="inline-flex items-center gap-1 t-legende text-gris-chaud hover:text-bordeaux-600">
+            <ChevronLeft className="h-4 w-4" />Tableau de bord
+          </Link>
+        )}
 
-      {!isParticipant && (
-        <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-secondary/50 px-4 py-3 text-sm">
-          <Eye className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-          <p>
-            <strong>Aperçu de la page publique</strong> : c'est ce que voient les étudiants.{" "}
+        {/* Aperçu (organisateur, école) : information discrète */}
+        {!isParticipant && (
+          <span className="inline-flex items-center gap-2 rounded-[var(--radius-pilule)] bg-statut-bleu-100 py-1.5 pl-3 pr-4 text-[13px] font-semibold text-statut-bleu-700">
+            <Eye className="h-4 w-4" />
             {isOwnPage
-              ? <>Publie des actualités et complète la description : tes {followers} abonné{followers > 1 ? "s sont prévenus" : " est prévenu"} à chaque nouveauté.</>
-              : role === "school_admin" ? "Vous pouvez supprimer une actualité inappropriée depuis son menu." : null}
-          </p>
-        </div>
-      )}
+              ? `Aperçu de ta page publique · ${followers} abonné${followers > 1 ? "s" : ""} prévenu${followers > 1 ? "s" : ""} à chaque nouveauté`
+              : role === "school_admin" ? "Aperçu de la page publique · modération des actualités" : "Aperçu de la page publique"}
+          </span>
+        )}
+      </div>
 
-      {/* En-tête façon profil */}
-      <Card className="overflow-hidden">
-        <div className="relative h-28 bg-gradient-to-r from-bordeaux-600 via-bordeaux-500 to-jaune-300 md:h-40">
-          <img src="/plav-cocotte.svg" alt="" className="absolute -right-6 -top-8 h-48 w-48 opacity-15 md:h-64 md:w-64" />
-        </div>
-        <CardContent className="relative px-5 pb-5 md:px-8">
-          <div className="-mt-12 flex flex-col gap-4 md:-mt-14 md:flex-row md:items-end">
-            <Monogram name={association.name} src={logo} size="lg" className="!rounded-full border-4 border-card shadow-lg md:!h-28 md:!w-28" />
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display text-3xl font-bold leading-tight text-primary md:text-4xl">{association.name}</h1>
+      {/* En-tête : photo de couverture, nom posé sur la photo */}
+      <section className="overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)]">
+        <div className="relative h-60 bg-gradient-vibrant md:h-80">
+          {cover
+            ? <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            : <img src="/plav-cocotte.svg" alt="" className="absolute -right-10 -top-12 h-72 w-72 opacity-15 md:h-96 md:w-96" />}
+          {/* Texte sur photo : dégradé de la charte */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(49,13,23,0)_30%,rgba(49,13,23,0.85))]" />
+
+          {canManage && (
+            <div className="absolute right-3 top-3 flex gap-2">
+              <Button size="sm" variant="outlineLight" disabled={coverBusy} onClick={() => coverInput.current?.click()}
+                className="bg-bordeaux-900/40 backdrop-blur">
+                {coverBusy ? <Loader2 className="animate-spin" /> : <Camera />}
+                {cover ? "Changer la couverture" : "Ajouter une couverture"}
+              </Button>
+              {cover && (
+                <Button size="icon" variant="outlineLight" disabled={coverBusy} onClick={() => changeCover(null)}
+                  className="bg-bordeaux-900/40 backdrop-blur" aria-label="Retirer la couverture">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              <input ref={coverInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) changeCover(f); }} />
+            </div>
+          )}
+
+          <div className="absolute inset-x-0 bottom-0 flex items-end gap-4 p-5 md:gap-6 md:p-8">
+            <Monogram name={association.name} src={logo} size="lg"
+              className="!h-20 !w-20 !rounded-full ring-4 ring-blanc shadow-[var(--ombre-menu)] md:!h-28 md:!w-28" />
+            <div className="min-w-0 pb-1">
+              <h1 className="line-clamp-2 text-creme max-md:text-[28px]">{association.name}</h1>
               {association.schools?.name && (
-                <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground"><GraduationCap className="h-4 w-4" />{association.schools.name}</p>
+                <p className="mt-1 flex items-center gap-1.5 t-corps-fort text-jaune-200"><GraduationCap className="h-5 w-5" />{association.schools.name}</p>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {canPost || canManage ? (
-                <Button variant="outline" onClick={() => setEditing(true)}><Pencil className="mr-1.5 h-4 w-4" />Modifier la page</Button>
-              ) : null}
-              {canManage && role === "school_admin" && (
-                <Button asChild variant="ghost"><Link to="/school-admin/associations/$associationId" params={{ associationId }}><Settings2 className="mr-1.5 h-4 w-4" />Fiche école</Link></Button>
-              )}
-              {isParticipant && <FollowButton following={following} onToggle={() => follows.toggle(associationId, association.name)} />}
-            </div>
           </div>
+        </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-            <span><strong className="text-base">{followers}</strong> <span className="text-muted-foreground">abonné{followers > 1 ? "s" : ""}</span></span>
-            <span><strong className="text-base">{upcoming.length}</strong> <span className="text-muted-foreground">à venir</span></span>
-            <span><strong className="text-base">{past.length}</strong> <span className="text-muted-foreground">passé{past.length > 1 ? "s" : ""}</span></span>
-            <span><strong className="text-base">{posts.length}</strong> <span className="text-muted-foreground">actualité{posts.length > 1 ? "s" : ""}</span></span>
-            {isParticipant && <span className="md:ml-auto"><FollowHint following={following} /></span>}
+        <div className="flex flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8">
+          <dl className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {stats.map((s, i) => (
+              <div key={s.label} className={`flex items-baseline gap-1.5 ${i > 0 ? "md:border-l md:border-sable md:pl-6" : ""}`}>
+                <dt className="sr-only">{s.label}</dt>
+                <dd className="font-display text-2xl font-black text-bordeaux-600">{s.n}</dd>
+                <span className="t-legende text-gris-chaud">{s.label}</span>
+              </div>
+            ))}
+          </dl>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" onClick={share}><Share2 />Partager</Button>
+            {(canPost || canManage) && (
+              <Button variant="outline" size="sm" onClick={() => setEditing(true)}><Pencil />Modifier la page</Button>
+            )}
+            {canManage && role === "school_admin" && (
+              <Button asChild variant="ghost" size="sm"><Link to="/school-admin/associations/$associationId" params={{ associationId }}><Settings2 />Fiche école</Link></Button>
+            )}
+            {isParticipant && <FollowButton following={following} onToggle={() => follows.toggle(associationId, association.name)} />}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        {isParticipant && <div className="border-t border-sable px-5 py-2.5 md:px-8"><FollowHint following={following} /></div>}
+      </section>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <Tabs defaultValue={upcoming.length || !posts.length ? "upcoming" : "news"} className="min-w-0">
-          <TabsList className="w-full justify-start overflow-x-auto">
-            <TabsTrigger value="upcoming"><CalendarClock className="mr-1.5 h-4 w-4" />À venir ({upcoming.length})</TabsTrigger>
-            <TabsTrigger value="news"><Newspaper className="mr-1.5 h-4 w-4" />Actualités</TabsTrigger>
-            <TabsTrigger value="past"><History className="mr-1.5 h-4 w-4" />Passés</TabsTrigger>
-            <TabsTrigger value="about" className="lg:hidden">À propos</TabsTrigger>
+          <TabsList className="no-scrollbar h-auto w-full justify-start gap-6 overflow-x-auto rounded-none border-b border-sable bg-transparent p-0">
+            <TabsTrigger value="upcoming" className={TAB}><Calendar />À venir<Count n={upcoming.length} /></TabsTrigger>
+            <TabsTrigger value="news" className={TAB}><Newspaper />Actualités<Count n={posts.length} /></TabsTrigger>
+            <TabsTrigger value="photos" className={TAB}><Images />Photos<Count n={gallery.length} /></TabsTrigger>
+            <TabsTrigger value="past" className={TAB}><History />Passés<Count n={past.length} /></TabsTrigger>
+            <TabsTrigger value="about" className={`${TAB} lg:hidden`}><Info />À propos</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upcoming" className="space-y-3">
+          <TabsContent value="upcoming" className="mt-5">
             {upcoming.length === 0
-              ? <Empty text="Aucun événement à venir pour l'instant." hint={!following && isParticipant ? "Abonne-toi pour être prévenu du prochain." : undefined} />
-              : upcoming.map((e) => <EventMiniCard key={e.id} event={e} />)}
+              ? <Card><EmptyState title="Aucun événement à venir pour l'instant." message={!following && isParticipant ? "Abonne-toi pour être prévenu du prochain." : undefined} /></Card>
+              : <div className="grid gap-4 sm:grid-cols-2">{upcoming.map((e) => <EventTile key={e.id} event={e} />)}</div>}
           </TabsContent>
 
-          <TabsContent value="news" className="space-y-4">
+          <TabsContent value="news" className="mt-5 space-y-4">
             {canPost && (
               <PostComposer associationId={associationId} associationName={association.name} logoPath={association.logo_path}
                 fallbackLogo={fallback} events={upcoming} onPosted={loadPosts} />
             )}
             {posts.length === 0
-              ? <Empty text="Pas encore d'actualité." hint={canPost ? "Partage une photo, une annonce ou un événement à venir." : undefined} />
+              ? <Card><EmptyState title="Pas encore d'actualité." message={canPost ? "Partage une photo, une annonce ou un événement à venir." : undefined} /></Card>
               : posts.map((p) => (
                 <PostCard key={p.id} post={p} fallbackLogo={fallback} likes={likes.counts[p.id] ?? 0} liked={likes.mine.has(p.id)}
                   onLike={() => likes.toggle(p.id)} canDelete={canPost || canManage || p.author_id === user?.id} onDeleted={loadPosts} />
               ))}
           </TabsContent>
 
-          <TabsContent value="past" className="space-y-3">
-            {past.length === 0
-              ? <Empty text="Aucun événement passé." />
-              : past.map((e) => <EventMiniCard key={e.id} event={e} past />)}
+          <TabsContent value="photos" className="mt-5">
+            {gallery.length === 0
+              ? <Card><EmptyState title="Pas encore de photo." message={canPost ? "Les photos de tes actualités et les affiches de tes événements apparaissent ici." : undefined} /></Card>
+              : (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {gallery.map((url) => (
+                    <button key={url} type="button" onClick={() => setPhoto(url)}
+                      className="group relative aspect-square overflow-hidden rounded-[var(--radius-moyen)] bg-sable">
+                      <img src={url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    </button>
+                  ))}
+                </div>
+              )}
           </TabsContent>
 
-          <TabsContent value="about" className="lg:hidden">{about}</TabsContent>
+          <TabsContent value="past" className="mt-5">
+            {past.length === 0
+              ? <Card><EmptyState title="Aucun événement passé." /></Card>
+              : <div className="grid gap-4 sm:grid-cols-2">{past.map((e) => <EventTile key={e.id} event={e} past />)}</div>}
+          </TabsContent>
+
+          <TabsContent value="about" className="mt-5 space-y-4 lg:hidden">{about}{teamCard}</TabsContent>
         </Tabs>
 
         <aside className="hidden space-y-4 lg:block">
-          {about}
-          {upcoming[0] && (
-            <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">Prochain événement</CardTitle></CardHeader>
-              <CardContent><EventMiniCard event={upcoming[0]} /></CardContent>
+          {next && (
+            <Card className="overflow-hidden border-bordeaux-600 bg-bordeaux-600">
+              <CardContent className="space-y-3 p-5">
+                <p className="t-surtitre text-bordeaux-200">Prochain événement</p>
+                <p className="font-display text-[28px] font-black leading-tight text-jaune-300">
+                  {daysToNext === 0 ? "Aujourd'hui" : daysToNext === 1 ? "Demain" : `Dans ${daysToNext} jours`}
+                </p>
+                <EventMiniCard event={next} className="border-bordeaux-700" />
+              </CardContent>
             </Card>
+          )}
+          {about}
+          {teamCard}
+          {team.length === 0 && canPost && (
+            <p className="flex items-center gap-2 t-legende text-gris-chaud"><Users className="h-4 w-4" />L'équipe apparaît ici quand les organisateurs sont validés par l'école.</p>
           )}
         </aside>
       </div>
 
+      {/* Photo en grand */}
+      <Dialog open={!!photo} onOpenChange={(o) => !o && setPhoto(null)}>
+        <DialogContent className="max-w-4xl border-0 bg-transparent p-0 shadow-none">
+          <DialogTitle className="sr-only">Photo</DialogTitle>
+          {photo && <img src={photo} alt="" className="max-h-[85vh] w-full rounded-[var(--radius-carte)] object-contain" />}
+        </DialogContent>
+      </Dialog>
+
       <EditProfileDialog open={editing} onOpenChange={setEditing} association={association}
         onSaved={(a) => setAssociation({ ...association, ...a })} />
     </div>
-  );
-}
-
-function Empty({ text, hint }: { text: string; hint?: string }) {
-  return (
-    <Card className="border-2 border-dashed">
-      <CardContent className="flex flex-col items-center gap-1 py-10 text-center">
-        <Users className="mb-1 h-8 w-8 text-primary/40" />
-        <p className="font-medium">{text}</p>
-        {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
-      </CardContent>
-    </Card>
   );
 }
 

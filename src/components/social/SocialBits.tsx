@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Bell, BellRing, Calendar, Check, Heart, ImagePlus, Loader2, MapPin, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
+import { Clock, Bell, BellRing, Calendar, Check, Heart, ImagePlus, Loader2, MapPin, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -60,7 +60,7 @@ export function EventMiniCard({ event, past = false, className = "" }: { event: 
         {event.cover_image_url
           ? <img src={event.cover_image_url} alt="" className={cn("h-full w-full object-cover", past && "grayscale-[40%]")} loading="lazy" />
           : <img src="/plav-cocotte.svg" alt="" className="absolute -bottom-3 -right-3 h-16 w-16 opacity-30" />}
-        <span className="absolute left-1.5 top-1.5 rounded-lg bg-card/95 px-1.5 py-0.5 text-center text-xs font-bold leading-tight text-primary shadow">
+        <span className="absolute left-1.5 top-1.5 rounded-[var(--radius-petit)] bg-blanc px-1.5 py-0.5 text-center text-xs font-bold leading-tight text-bordeaux-600 shadow-[var(--ombre-carte)]">
           {format(d, "d MMM", { locale: fr }).replace(".", "")}
         </span>
       </div>
@@ -74,7 +74,7 @@ export function EventMiniCard({ event, past = false, className = "" }: { event: 
         </p>
       </div>
       {event.price != null && !past && (
-        <span className="self-start rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">
+        <span className="self-start rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
           {event.price > 0 ? `${Number(event.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
         </span>
       )}
@@ -260,4 +260,37 @@ export function FollowHint({ following }: { following: boolean }) {
   return following
     ? <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><BellRing className="h-3.5 w-3.5 text-primary" />Tu reçois ses nouveautés</span>
     : <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Bell className="h-3.5 w-3.5" />Abonne-toi pour recevoir ses nouveautés</span>;
+}
+
+/** Événement en grande carte (page d'une association) — format de la carte d'événement de la charte. */
+export function EventTile({ event, past = false }: { event: Pick<FeedEvent, "id" | "title" | "starts_at" | "cover_image_url" | "location" | "city"> & { price?: number | null }; past?: boolean }) {
+  const d = new Date(event.starts_at);
+  const place = event.city ? `${event.city}${event.location ? ` — ${event.location}` : ""}` : event.location || "En ligne";
+  return (
+    <Link to="/events/$eventId" params={{ eventId: event.id }} className="group block rounded-[var(--radius-carte)]">
+      <article className="flex h-full flex-col overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)] transition-shadow group-hover:shadow-[var(--ombre-menu)]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-vibrant">
+          {event.cover_image_url
+            ? <img src={event.cover_image_url} alt="" loading="lazy" className={cn("h-full w-full object-cover transition-transform duration-300 group-hover:scale-105", past && "opacity-55")} />
+            : <img src="/plav-cocotte.svg" alt="" className={cn("absolute -bottom-6 -right-6 h-32 w-32 opacity-25", past && "opacity-15")} />}
+          <span className="absolute left-3 top-3 flex flex-col items-center overflow-hidden rounded-[var(--radius-moyen)] bg-blanc text-center shadow-[var(--ombre-carte)]">
+            <span className="w-full bg-bordeaux-600 px-2.5 py-0.5 text-xs font-bold uppercase text-creme">{format(d, "MMM", { locale: fr }).replace(".", "")}</span>
+            <span className="font-display text-xl font-black leading-7 text-bordeaux-600">{format(d, "d")}</span>
+          </span>
+          {past
+            ? <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-pilule)] bg-sable py-1 pl-2.5 pr-3 text-[13px] font-semibold text-encre before:size-[7px] before:rounded-full before:bg-gris-chaud before:content-['']">Terminé</span>
+            : event.price != null && (
+              <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
+                {event.price > 0 ? `${Number(event.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
+              </span>
+            )}
+        </div>
+        <div className="flex flex-1 flex-col gap-2.5 px-5 pb-5 pt-4">
+          <h3 className={cn("t-titre-3 line-clamp-2", past ? "text-gris-chaud" : "text-encre group-hover:text-bordeaux-600")}>{event.title}</h3>
+          <p className="flex items-center gap-2 t-legende text-gris-chaud"><Clock className="h-4 w-4 shrink-0" />{format(d, "EEEE d MMMM · HH'h'mm", { locale: fr })}</p>
+          <p className="flex items-center gap-2 t-legende text-gris-chaud"><MapPin className="h-4 w-4 shrink-0" /><span className="truncate">{place}</span></p>
+        </div>
+      </article>
+    </Link>
+  );
 }
