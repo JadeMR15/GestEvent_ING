@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Plav' — Design tokens (charte graphique v1, novembre 2026)
+   Source : Figma « Plav' – Charte Graphique », page Charte.
+   À importer une seule fois, en tête de la feuille de style globale.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  /* ---- Bordeaux : couleur de marque (600 = couleur du logo) ---- */
+  --bordeaux-100: #E9DDE0;
+  --bordeaux-200: #D3BAC1;
+  --bordeaux-300: #B58C98;
+  --bordeaux-400: #975F6E;
+  --bordeaux-500: #803A4D;
+  --bordeaux-600: #6B1A30;
+  --bordeaux-700: #571627;
+  --bordeaux-800: #42111E;
+  --bordeaux-900: #310D17;
+
+  /* ---- Jaune : accent et actions (300 = couleur du logo) ---- */
+  --jaune-100: #F7E7C2;
+  --jaune-200: #F0D28C;
+  --jaune-300: #E4AD2E;
+  --jaune-400: #C69429;
+  --jaune-500: #9D7322;
+
+  /* ---- Neutres ---- */
+  --neutre-blanc: #FFFFFF;
+  --neutre-creme: #F9F4E8;      /* fond de page par défaut */
+  --neutre-sable: #EBE4D7;      /* bordures, séparateurs, états désactivés */
+  --neutre-gris-chaud: #7A6960; /* texte secondaire, icônes secondaires */
+  --neutre-encre: #2B161B;      /* texte principal */
+
+  /* ---- Statuts : réservés aux états, jamais à la décoration ---- */
+  --statut-vert-100: #E2F0E5;   --statut-vert-500: #3F8A5C;   --statut-vert-700: #235739;
+  --statut-orange-100: #FCE7D4; --statut-orange-500: #E07B2E; --statut-orange-700: #93460F;
+  --statut-rouge-100: #F8E0DC;  --statut-rouge-500: #C23B2C;  --statut-rouge-700: #8A2A1F;
+  --statut-bleu-100: #E1EBF5;   --statut-bleu-500: #3C6E9E;   --statut-bleu-700: #234A70;
+
+  /* ---- Typographie ---- */
+  --font-titre: "Nunito", system-ui, sans-serif;       /* titres et accroches uniquement */
+  --font-texte: "Nunito Sans", system-ui, sans-serif;  /* tout le reste */
+
+  /* ---- Arrondis ---- */
+  --radius-petit: 8px;    /* bouton petit, pastille de prix */
+  --radius-moyen: 10px;   /* bouton grand, champs, menus */
+  --radius-carte: 16px;   /* cartes, panneaux */
+  --radius-pilule: 999px; /* badges, avatars */
+
+  /* ---- Ombres et focus ---- */
+  --ombre-carte: 0 4px 16px rgba(107, 26, 48, 0.08);
+  --ombre-menu: 0 8px 24px rgba(107, 26, 48, 0.12);
+  --focus-halo: 0 0 0 3px rgba(228, 173, 46, 0.45); /* + bordure 1.5px bordeaux-600 */
+
+  /* ---- Hauteurs de contrôles ---- */
+  --hauteur-controle: 48px;       /* boutons grands, champs, menus */
+  --hauteur-controle-petit: 36px; /* boutons petits (tableaux, dashboard) */
+}
+
+/* ---- Échelle typographique (classes utilitaires) ---- */
+.t-display    { font: 900 48px/1.10 var(--font-titre); }
+.t-titre-1    { font: 900 36px/1.15 var(--font-titre); }
+.t-titre-2    { font: 800 28px/1.20 var(--font-titre); }
+.t-titre-3    { font: 800 22px/1.25 var(--font-titre); }
+.t-sous-titre { font: 700 18px/1.30 var(--font-titre); }
+.t-corps-l    { font: 400 18px/1.55 var(--font-texte); }
+.t-corps      { font: 400 16px/1.55 var(--font-texte); }
+.t-corps-fort { font: 600 16px/1.55 var(--font-texte); }
+.t-bouton     { font: 600 16px/1.00 var(--font-texte); }
+.t-legende    { font: 500 13px/1.40 var(--font-texte); }
+.t-surtitre   { font: 700 12px/1.30 var(--font-texte); letter-spacing: 0.06em; text-transform: uppercase; }

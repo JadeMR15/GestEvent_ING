@@ -48,11 +48,8 @@ function VolunteerPage() {
       if (error) { setDebugMsg(`RPC error: ${JSON.stringify(error)}`); setInvalid(true); setLoading(false); return; }
       if (!vol) { setDebugMsg(`Token not found: ${token}`); setInvalid(true); setLoading(false); return; }
 
-      const { data: ev, error: evErr } = await supabase
-        .from("events")
-        .select("id, title, starts_at, location, cover_image_url")
-        .eq("id", vol.event_id)
-        .maybeSingle();
+      // Lien sans compte : l'événement est lu par le jeton (il peut être réservé à une école).
+      const { data: ev, error: evErr } = await (supabase as any).rpc("get_volunteer_event", { p_token: token });
 
       if (!ev) { setDebugMsg(`Event not found: ${vol.event_id} | err: ${JSON.stringify(evErr)}`); setInvalid(true); setLoading(false); return; }
       setVolunteer(vol);
