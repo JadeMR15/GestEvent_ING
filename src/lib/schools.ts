@@ -87,7 +87,8 @@ export async function fetchSchoolAssociations(schoolId: string): Promise<Associa
 export function schoolErrorMessage(message: string | undefined | null): string {
   const m = (message ?? "").toLowerCase();
   const map: [string, string][] = [
-    ["membership_pending", "Ton école doit d'abord valider ton rattachement (ton email n'est pas sur le domaine de l'école)."],
+    ["membership_pending", "Ton école doit d'abord valider ton rattachement."],
+    ["association_locked", "Ton association a été validée par ton école : contacte-la pour en changer."],
     ["association_inactive", "Ton association doit d'abord être validée par l'école."],
     ["association_required", "Choisis ton association dans Paramètres."],
     ["association_not_found", "Association introuvable."],

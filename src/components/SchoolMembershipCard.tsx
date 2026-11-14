@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Building2, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Building2, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { AssociationLogoEditor } from "@/components/AssociationLogo";
 import { avatarUrl } from "@/lib/avatar";
@@ -99,6 +100,11 @@ export function SchoolMembershipCard() {
   const showSchool = isOrganizer || isStudent;
   const selected = schools.find((s) => s.id === pickSchool);
   const status = MEMBERSHIP[membershipStatus];
+  // Organisateur validé par l'école : association définitive (l'école peut retirer le rattachement).
+  const locked = isOrganizer && !!associationId && membershipStatus === "approved";
+  const hint = isOrganizer && membershipStatus === "pending"
+    ? "Ton école doit valider ton association. Tu pourras ensuite créer des événements en son nom."
+    : status?.hint;
 
   return (
     <Card className="border-2 shadow-elegant">
@@ -134,11 +140,16 @@ export function SchoolMembershipCard() {
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">{current.school}</p>
                 {isOrganizer && <p className="text-sm text-muted-foreground">{current.association ?? "Aucune association"}</p>}
-                {status?.hint && <p className="mt-1 text-xs text-muted-foreground">{status.hint}</p>}
+                {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+                {locked && (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Lock className="h-3 w-3" />Validée par ton école : tous tes événements sont publiés au nom de cette association. Pour en changer, <Link to="/messages" className="underline">écris à ton école</Link>.
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 {status && <Badge className={status.className}>{status.label}</Badge>}
-                <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Changer</Button>
+                {!locked && <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Changer</Button>}
               </div>
             </div>
           ) : (
