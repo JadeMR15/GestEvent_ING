@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,7 +130,7 @@ function RegisterPage() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/verification`,
+        emailRedirectTo: `${SITE_URL}/verification`,
         data: {
           full_name:   fullName,
           role:        parsed.data.role,

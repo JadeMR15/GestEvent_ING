@@ -12,13 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as ConfirmerEcoleRouteImport } from './routes/confirmer-ecole'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as ExportRouteImport } from './routes/export'
 import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as LikesRouteImport } from './routes/likes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
+import { Route as NouveauMotDePasseRouteImport } from './routes/nouveau-mot-de-passe'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RegisterSchoolRouteImport } from './routes/register-school'
@@ -54,6 +58,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfirmerEcoleRoute = ConfirmerEcoleRouteImport.update({
+  id: '/confirmer-ecole',
+  path: '/confirmer-ecole',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -74,6 +83,11 @@ const FinanceRoute = FinanceRouteImport.update({
   path: '/finance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LikesRoute = LikesRouteImport.update({
+  id: '/likes',
+  path: '/likes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -84,9 +98,19 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MotDePasseOublieRoute = MotDePasseOublieRouteImport.update({
+  id: '/mot-de-passe-oublie',
+  path: '/mot-de-passe-oublie',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyTicketsRoute = MyTicketsRouteImport.update({
   id: '/my-tickets',
   path: '/my-tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NouveauMotDePasseRoute = NouveauMotDePasseRouteImport.update({
+  id: '/nouveau-mot-de-passe',
+  path: '/nouveau-mot-de-passe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -190,13 +214,17 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/register-school': typeof RegisterSchoolRoute
@@ -221,13 +249,17 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/register-school': typeof RegisterSchoolRoute
@@ -253,13 +285,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
   '/export': typeof ExportRoute
   '/finance': typeof FinanceRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
+  '/nouveau-mot-de-passe': typeof NouveauMotDePasseRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/register-school': typeof RegisterSchoolRoute
@@ -286,13 +322,17 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
     | '/messages'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/profile'
     | '/register'
     | '/register-school'
@@ -317,13 +357,17 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
     | '/messages'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/profile'
     | '/register'
     | '/register-school'
@@ -348,13 +392,17 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
     | '/export'
     | '/finance'
+    | '/likes'
     | '/login'
     | '/messages'
+    | '/mot-de-passe-oublie'
     | '/my-tickets'
+    | '/nouveau-mot-de-passe'
     | '/profile'
     | '/register'
     | '/register-school'
@@ -380,13 +428,17 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  ConfirmerEcoleRoute: typeof ConfirmerEcoleRoute
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
   ExportRoute: typeof ExportRoute
   FinanceRoute: typeof FinanceRoute
+  LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
+  MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   MyTicketsRoute: typeof MyTicketsRoute
+  NouveauMotDePasseRoute: typeof NouveauMotDePasseRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   RegisterSchoolRoute: typeof RegisterSchoolRoute
@@ -431,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/confirmer-ecole': {
+      id: '/confirmer-ecole'
+      path: '/confirmer-ecole'
+      fullPath: '/confirmer-ecole'
+      preLoaderRoute: typeof ConfirmerEcoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -459,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/likes': {
+      id: '/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof LikesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -473,11 +539,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mot-de-passe-oublie': {
+      id: '/mot-de-passe-oublie'
+      path: '/mot-de-passe-oublie'
+      fullPath: '/mot-de-passe-oublie'
+      preLoaderRoute: typeof MotDePasseOublieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-tickets': {
       id: '/my-tickets'
       path: '/my-tickets'
       fullPath: '/my-tickets'
       preLoaderRoute: typeof MyTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nouveau-mot-de-passe': {
+      id: '/nouveau-mot-de-passe'
+      path: '/nouveau-mot-de-passe'
+      fullPath: '/nouveau-mot-de-passe'
+      preLoaderRoute: typeof NouveauMotDePasseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -620,13 +700,17 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
+  ConfirmerEcoleRoute: ConfirmerEcoleRoute,
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
   ExportRoute: ExportRoute,
   FinanceRoute: FinanceRoute,
+  LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
+  MotDePasseOublieRoute: MotDePasseOublieRoute,
   MyTicketsRoute: MyTicketsRoute,
+  NouveauMotDePasseRoute: NouveauMotDePasseRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   RegisterSchoolRoute: RegisterSchoolRoute,

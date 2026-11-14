@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Camera, Loader2, Trash2, User, Mail, KeyRound, AlertTriangle } from "lucide-react";
+import { Camera, Loader2, Trash2, User, Mail, KeyRound, AlertTriangle, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SchoolMembershipCard } from "@/components/SchoolMembershipCard";
@@ -11,11 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, initials, prepareAvatar,
+  AVATAR_ACCEPTED, AVATAR_BUCKET, AVATAR_MAX_INPUT_BYTES, avatarUrl, prepareAvatar,
 } from "@/lib/avatar";
+import { SchoolEmailForm } from "@/components/SchoolEmailForm";
+import { RoleAvatar } from "@/components/RoleAvatar";
+import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -53,9 +56,11 @@ type Info = z.infer<typeof infoSchema>;
 const EMPTY_INFO: Info = { fullName: "", school: "", association: "", birthDate: "", gender: "" };
 
 function SettingsPage() {
-  const { user, role, verificationStatus, avatarPath, refreshProfile, schoolId, isStudent } = useAuth();
+  const { user, role, verificationStatus, verificationMethod, isVerified, schoolEmail, avatarPath, refreshProfile, schoolId, isStudent } = useAuth();
   // Compte rattaché à une école inscrite : école / association gérées dans « Mon école ».
   const linkedToSchool = !!schoolId;
+  // Vérifié par email d'école : l'école vient du domaine et ne se modifie pas ici.
+  const schoolLocked = isVerified && verificationMethod === "school_email";
 
   // ── Infos ──
   const [info, setInfo] = useState<Info>(EMPTY_INFO);
@@ -98,7 +103,9 @@ function SettingsPage() {
 
   const isOrganizer = role === "organizer" || role === "admin";
   const infoChanged = JSON.stringify(info) !== JSON.stringify(saved);
-  const identityChanged = info.fullName.trim() !== saved.fullName || info.school.trim() !== saved.school;
+  // Seule une vérification par justificatif dépend du nom et de l'école saisis.
+  const identityChanged = verificationMethod !== "school_email"
+    && (info.fullName.trim() !== saved.fullName || info.school.trim() !== saved.school);
 
   async function saveInfo() {
     if (!user) return;
@@ -179,7 +186,7 @@ function SettingsPage() {
     setSavingEmail(true);
     const { error } = await supabase.auth.updateUser(
       { email },
-      { emailRedirectTo: `${window.location.origin}/settings` },
+      { emailRedirectTo: `${SITE_URL}/settings` },
     );
     setSavingEmail(false);
     if (error) { toast.error("Changement d'email impossible pour le moment."); return; }
@@ -223,13 +230,14 @@ function SettingsPage() {
           <CardTitle className="flex items-center gap-2"><Camera className="h-5 w-5" />Photo de profil</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-5">
-          <Avatar className="h-24 w-24 border-2 border-accent">
-            {photo && <AvatarImage src={photo} alt="Ta photo de profil" className="object-cover" />}
-            <AvatarFallback className="bg-secondary text-2xl font-semibold text-secondary-foreground">
-              {initials(saved.fullName)}
-            </AvatarFallback>
-          </Avatar>
+          <RoleAvatar path={avatarPath} name={saved.fullName} role={role} size="lg" />
           <div className="space-y-2">
+            {saved.fullName && (
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold">{saved.fullName}</p>
+                <MySchoolBadge />
+              </div>
+            )}
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
@@ -268,8 +276,11 @@ function SettingsPage() {
             {!linkedToSchool && role !== "school_admin" && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="school">École</Label>
-              <Input id="school" value={info.school} maxLength={120}
+              <Input id="school" value={info.school} maxLength={120} disabled={schoolLocked}
                 onChange={(e) => setInfo({ ...info, school: e.target.value })} />
+              {schoolLocked && (
+                <p className="text-xs text-muted-foreground">Déduite de ton adresse d'école {schoolEmail}.</p>
+              )}
             </div>
             )}
             {isOrganizer && !linkedToSchool && (
@@ -331,6 +342,20 @@ function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Adresse d'école (en plus de l'adresse perso) */}
+      {role !== "admin" && (
+        <Card className="border-2 shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5" />Adresse d'école</CardTitle>
+            <CardDescription>
+              Confirme ton adresse d'école pour vérifier ton compte et afficher « Fait partie de [ton école] ».
+              Tu continues à te connecter avec ton adresse perso.
+            </CardDescription>
+          </CardHeader>
+          <CardContent><SchoolEmailForm /></CardContent>
+        </Card>
+      )}
 
       {/* Mot de passe */}
       <Card className="border-2 shadow-elegant">

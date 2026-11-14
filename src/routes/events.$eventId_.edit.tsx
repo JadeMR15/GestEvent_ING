@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImagePlus, Loader2, Plus, PlayCircle, Trash2, X, CalendarDays, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { notifyWaitlist } from "@/lib/waitlist";
 
 export const Route = createFileRoute("/events/$eventId_/edit")({
   component: () => (
@@ -274,6 +275,9 @@ function EditEventPage() {
     if (uploadedMedia.length > 0) {
       await (supabase as any).from("event_media").insert(uploadedMedia.map((m) => ({ ...m, event_id: eventId })));
     }
+
+    // Capacité augmentée : la base a proposé les nouvelles places à la liste d'attente.
+    notifyWaitlist();
 
     setLoading(false);
     const sentForReview = approval.required && approval.status !== "approved" && (parsed.data.status === "published" || parsed.data.status === "private");

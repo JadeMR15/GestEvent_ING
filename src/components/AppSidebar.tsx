@@ -16,6 +16,8 @@ import {
   Settings,
   Building2,
   MessageSquare,
+  Hourglass,
+  Heart,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,14 +35,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { avatarUrl, initials } from "@/lib/avatar";
+import { RoleAvatar } from "@/components/RoleAvatar";
+import { MySchoolBadge } from "@/components/SchoolBadge";
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { role, signOut, user, isVerified, fullName, avatarPath } = useAuth();
-  const photo = avatarUrl(avatarPath);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -50,6 +51,7 @@ export function AppSidebar() {
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
     { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: CalendarDays, roles: ["admin", "organizer", "participant"] },
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
+    { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
     { title: "Créer un événement", url: "/events/new", icon: PlusCircle, roles: ["admin", "organizer"] },
     { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: BadgeCheck, roles: ["organizer", "participant"] }] : []),
@@ -57,6 +59,7 @@ export function AppSidebar() {
     { title: "Espace école", url: "/school-admin", icon: Building2, roles: ["school_admin"] },
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
     { title: "Écoles", url: "/admin/schools", icon: Building2, roles: ["admin"] },
+    { title: "Événements likés", url: "/likes", icon: Heart, roles: ["admin", "organizer", "participant", "volunteer"] },
     { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer", "school_admin"] },
   ].filter((i) => role && i.roles.includes(role));
 
@@ -131,16 +134,13 @@ export function AppSidebar() {
             title="Paramètres"
             className={`flex items-center gap-2 rounded-md p-1.5 hover:bg-sidebar-accent ${collapsed ? "justify-center" : ""}`}
           >
-            <Avatar className="h-8 w-8 border border-sidebar-border">
-              {photo && <AvatarImage src={photo} alt="" className="object-cover" />}
-              <AvatarFallback className="bg-secondary text-xs font-semibold text-secondary-foreground">
-                {initials(fullName)}
-              </AvatarFallback>
-            </Avatar>
+            <RoleAvatar path={avatarPath} name={fullName} role={role} size="sm" showBadge={!collapsed}
+              className={role === "admin" && !collapsed ? "mb-1.5" : undefined} />
             {!collapsed && (
               <div className="min-w-0 text-xs">
                 <p className="truncate font-medium text-sidebar-foreground">{fullName || "Mon compte"}</p>
                 <p className="truncate text-sidebar-foreground/60">{user.email}</p>
+                <MySchoolBadge onDark className="mt-1" />
               </div>
             )}
           </Link>
