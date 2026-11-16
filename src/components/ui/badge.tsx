@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Charte Plav' § 6 : pilule, padding 4/12 px (10 px à gauche), Nunito Sans 600 13 px,
+// Charte Plav' § 6 : pilule, padding 4/12 px (10 px à gauche), Inter Tight 600 13 px,
 // pastille ronde 7 px (statuts) avec un écart de 6 px.
 const DOT = "before:inline-block before:size-[7px] before:shrink-0 before:rounded-full before:content-['']";
 

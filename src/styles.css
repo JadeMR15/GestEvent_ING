@@ -1,4 +1,4 @@
-/* Charte graphique Plav' v1 : tokens (couleurs, polices Nunito / Nunito Sans, arrondis, ombres).
+/* Charte graphique Plav' v1 : tokens (couleurs, polices — ESSAI : Inter Tight + Fredoka —, arrondis, ombres).
    Source de vérité : plav-tokens.css à la racine du projet. */
 @import "../plav-tokens.css";
 
@@ -9,7 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Polices de la charte : Nunito (titres uniquement), Nunito Sans (tout le reste) */
+  /* Polices (ESSAI design-tests) : Inter Tight partout, Fredoka pour les mots mis en avant */
+  /* Jamais plus gras que 600 : titres 600, texte fort et boutons 500–600 (ESSAI design-tests) */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 600;
   --font-display: var(--font-titre);
   --font-body:    var(--font-texte);
   --font-sans:    var(--font-texte);
@@ -252,7 +256,7 @@
     border-color: var(--color-border);
   }
 
-  /* Texte courant : Nunito Sans 400, 16 px / 155 % (.t-corps) */
+  /* Texte courant : Inter Tight 400, 16 px / 155 % (.t-corps) */
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -260,17 +264,17 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Titres : Nunito, interlettrage par défaut (échelle .t-titre-1 / 2 / 3 / sous-titre) */
+  /* Titres (ESSAI design-tests) : Inter Tight 600, -0.02em, interligne serré */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-titre);
     color: var(--text-title);
-    letter-spacing: normal;
+    letter-spacing: -0.02em;
   }
 
-  h1 { font-size: 36px; line-height: 1.15; font-weight: 900; }
-  h2 { font-size: 28px; line-height: 1.20; font-weight: 800; }
-  h3 { font-size: 22px; line-height: 1.25; font-weight: 800; }
-  h4, h5, h6 { font-size: 18px; line-height: 1.30; font-weight: 700; }
+  h1 { font-size: 36px; line-height: 1.05; font-weight: 600; }
+  h2 { font-size: 28px; line-height: 1.10; font-weight: 600; }
+  h3 { font-size: 22px; line-height: 1.15; font-weight: 600; }
+  h4, h5, h6 { font-size: 18px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
 
   ::selection {
     background: var(--jaune-300);
@@ -330,7 +334,7 @@ html {
 
 /* ── DA Component overrides ── */
 
-/* Boutons : Nunito Sans 600 (.t-bouton) */
+/* Boutons : Inter Tight 600 (.t-bouton) */
 button, [role="button"] {
   font-family: var(--font-texte);
   font-weight: 600;
@@ -382,7 +386,7 @@ button, [role="button"] {
   /* Évite le zoom automatique d'iOS sur les champs */
   input, select, textarea { font-size: 16px !important; }
   /* Mobile : titre de page en taille Titre 2 (deux niveaux de titre maximum à l'écran) */
-  h1 { font-size: 28px; line-height: 1.20; }
+  h1 { font-size: 28px; line-height: 1.10; }
 }
 /* Encoche et barre d'accueil de l'iPhone */
 .pt-safe { padding-top: env(safe-area-inset-top); }

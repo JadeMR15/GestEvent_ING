@@ -143,7 +143,7 @@ function Landing() {
             <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Pour ceux qui</span>{" "}
             <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>organisent,</span>{" "}
             <span className="lp-line text-bordeaux-600" style={{ "--i": 2 } as CSSProperties}>et ceux qui</span>{" "}
-            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}>viennent.</span>
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">viennent.</span></span>
           </h1>
 
           {/* Petit texte : sous-titre */}
@@ -190,7 +190,7 @@ function Landing() {
       <section id="evenements" className="lp-events relative py-20 md:py-28">
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-          <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
+          <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="t-accent plav-highlight">events</span></h2>
           <p className="mt-4 t-corps-l text-encre">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
@@ -240,7 +240,7 @@ function Landing() {
       <section id="fonctionnalites" className="lp-dark-fade relative overflow-hidden">
         <div ref={featuresAnim.ref} className="container mx-auto px-4 sm:px-6">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-            <h2 className="lp-section-title text-blanc">Simple. <span className="text-jaune-300">Complet.</span></h2>
+            <h2 className="lp-section-title text-blanc">Simple. <span className="t-accent text-jaune-300">Complet.</span></h2>
             <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
           <FeaturesBento features={features} />
@@ -264,7 +264,7 @@ function Landing() {
           />
           <Reveal className="relative z-10 container mx-auto text-center">
             <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" />
-            <h2 className="lp-cta-title">T'attends <span className="text-jaune-300">quoi ?</span></h2>
+            <h2 className="lp-cta-title">T'attends <span className="t-accent text-jaune-300">quoi ?</span></h2>
             <p className="mt-6 t-corps-l text-blanc/80">Rejoins les assos qui font confiance à plav'.</p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary">

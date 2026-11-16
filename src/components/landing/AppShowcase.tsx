@@ -46,7 +46,7 @@ export function AppShowcase() {
         <div>
           <Reveal>
             <h2 className="lp-section-title text-encre">
-              Ton billet, <span className="plav-highlight text-bordeaux-600">dans ta poche.</span>
+              Ton billet, <span className="t-accent plav-highlight text-bordeaux-600">dans ta poche.</span>
             </h2>
           </Reveal>
           <ul ref={listAnim.ref} className="mt-10 space-y-5">

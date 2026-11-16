@@ -7,7 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const labelVariants = cva(
-  // Charte § 7 : étiquette Nunito Sans 600 14 px encre.
+  // Charte § 7 : étiquette Inter Tight 600 14 px encre.
   "font-body text-sm font-semibold leading-none text-encre peer-disabled:cursor-not-allowed peer-disabled:text-gris-chaud",
 );
 

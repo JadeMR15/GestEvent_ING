@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Charte Plav' § 4. Grand 48 px (défaut) / Petit 36 px ; Nunito Sans 600 ; icône 20 px, écart 8 px.
+// Charte Plav' § 4. Grand 48 px (défaut) / Petit 36 px ; Inter Tight 600 ; icône 20 px, écart 8 px.
 // Focus clavier : halo jaune (--focus-halo).
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap font-body font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:shadow-[var(--focus-halo)] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0",

@@ -63,18 +63,18 @@
 
 /* Petites capitales espacées */
 .lp-caps {
-  font: 600 13px/1.2 var(--font-texte);
+  font: 500 13px/1.2 var(--font-texte);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 .lp-caps-sm {
-  font: 600 12px/1.6 var(--font-texte);
+  font: 500 12px/1.6 var(--font-texte);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--neutre-encre);
 }
 .lp-caps-xs {
-  font: 600 12px/1.3 var(--font-texte);
+  font: 500 12px/1.3 var(--font-texte);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--neutre-encre); /* encre : le gris chaud n'est pas assez lisible sur le dégradé */
@@ -158,13 +158,13 @@
 }
 .lp-hero-sub { max-width: 17rem; }
 
-/* Titre empilé, majuscules (le texte HTML reste identique) */
+/* Titre empilé (Inter Tight 600, casse normale) */
 .lp-hero-title {
   font-family: var(--font-titre);
-  font-weight: 900;
-  font-size: clamp(40px, 11vw, 48px);
-  line-height: 0.95;
-  text-transform: uppercase;
+  font-weight: 600;
+  font-size: clamp(44px, 12vw, 52px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
   color: var(--neutre-encre);
 }
 .lp-line {
@@ -186,7 +186,8 @@
 .lp-stat { text-align: right; }
 .lp-stat-value {
   font-family: var(--font-titre);
-  font-weight: 900;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   font-size: clamp(36px, 10vw, 56px);
   line-height: 1;
   color: var(--neutre-encre);
@@ -292,7 +293,7 @@
     grid-area: title;
     justify-self: end;
     text-align: right;
-    font-size: clamp(56px, 6.2vw, 120px);
+    font-size: clamp(60px, 6.8vw, 124px);
   }
   .lp-stat-value { font-size: clamp(44px, 3.8vw, 56px); }
 }
@@ -315,9 +316,10 @@
 /* ── Titres de section ── */
 .lp-section-title {
   font-family: var(--font-titre);
-  font-weight: 900;
+  font-weight: 600;
   font-size: clamp(40px, 6.5vw, 76px);
-  line-height: 1.04;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 }
 
 /* ── Apparition au défilement ── */
@@ -399,9 +401,10 @@
 }
 .lp-bento-title {
   font-family: var(--font-titre);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 22px;
-  line-height: 1.25;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   color: var(--neutre-blanc);
 }
 .lp-bento-desc {
@@ -499,7 +502,8 @@
   display: flex;
   align-items: baseline;
   font-family: var(--font-titre);
-  font-weight: 900;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   font-size: clamp(56px, 9vw, 96px);
   line-height: 1;
   color: var(--jaune-300);
@@ -543,7 +547,8 @@
   right: -0.04em;
   bottom: -0.2em;
   font-family: var(--font-titre);
-  font-weight: 900;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   font-size: clamp(110px, 30vw, 300px);
   line-height: 1;
   color: transparent;
@@ -623,7 +628,8 @@
 .lp-ticket-body { padding: 12px 14px 4px; }
 .lp-ticket-title {
   font-family: var(--font-titre);
-  font-weight: 800;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   font-size: 18px;
   line-height: 1.25;
   color: var(--neutre-encre);
@@ -659,9 +665,10 @@
 /* ── Appel final ── */
 .lp-cta-title {
   font-family: var(--font-titre);
-  font-weight: 900;
+  font-weight: 600;
   font-size: clamp(56px, 12vw, 160px);
-  line-height: 0.98;
+  line-height: 1;
+  letter-spacing: -0.03em;
   color: var(--neutre-blanc);
 }
 .lp-cta-cocotte {

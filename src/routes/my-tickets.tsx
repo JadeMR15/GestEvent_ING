@@ -84,7 +84,7 @@ function MyTicketsPage() {
     .ticket{width:100%;max-width:480px;background:${CHARTE.blanc};border:1px solid ${CHARTE.bordure};border-radius:16px;overflow:hidden;box-shadow:${CHARTE.ombreMenu}}
     .header{background:${CHARTE.bordeaux600};padding:36px 32px 28px;text-align:center;border-bottom:6px solid ${CHARTE.jaune300}}
     .brand{margin-bottom:14px}
-    .event-title{font-family:${CHARTE.fontTitre};font-size:28px;font-weight:800;color:${CHARTE.blanc};line-height:1.2}
+    .event-title{font-family:${CHARTE.fontTitre};font-size:28px;font-weight:600;letter-spacing:-0.02em;color:${CHARTE.blanc};line-height:1.2}
     .body{padding:24px 32px 0}
     .details{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
     .detail-label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:${CHARTE.grisChaud};margin-bottom:5px;font-weight:700}

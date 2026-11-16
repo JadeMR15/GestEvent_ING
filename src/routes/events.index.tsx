@@ -175,7 +175,7 @@ function EventList() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="not-italic">
-            {isOrga ? "Vos événements" : <>Ce soir, on <span className="plav-highlight">sort</span> ?</>}
+            {isOrga ? "Vos événements" : <>Ce soir, on <span className="t-accent plav-highlight">sort</span> ?</>}
           </h1>
           <p className="text-sm text-muted-foreground md:text-base">
             {isOrga ? "Gérez vos événements." : "Les prochaines soirées, à portée de main."}
