@@ -352,7 +352,7 @@ function AssociationPage() {
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {gallery.map((url) => (
                     <button key={url} type="button" onClick={() => setPhoto(url)}
-                      className="group relative aspect-square overflow-hidden rounded-[var(--radius-moyen)] bg-sable">
+                      className="group relative aspect-square overflow-hidden rounded-[var(--radius-moyen)] bg-bordure">
                       <img src={url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     </button>
                   ))}

@@ -368,7 +368,7 @@ function EventList() {
                     {e.capacity > 0 && (
                       <div className="mt-auto space-y-1.5 pt-1">
                         {/* Jauge : piste 6 px sable, remplissage selon le statut */}
-                        <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-sable">
+                        <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-bordure">
                           <div className={`h-full rounded-[var(--radius-pilule)] transition-all ${isFull ? "bg-statut-rouge-500" : remaining < 10 ? "bg-statut-orange-500" : "bg-bordeaux-600"}`} style={{ width: `${isFull ? 100 : pct}%` }} />
                         </div>
                         <p className="flex items-center gap-2 t-legende text-gris-chaud"><Users className="h-4 w-4" strokeWidth={2} />{taken}/{e.capacity}</p>

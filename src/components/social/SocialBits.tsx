@@ -278,7 +278,7 @@ export function EventTile({ event, past = false }: { event: Pick<FeedEvent, "id"
             <span className="font-display text-xl font-black leading-7 text-bordeaux-600">{format(d, "d")}</span>
           </span>
           {past
-            ? <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-pilule)] bg-sable py-1 pl-2.5 pr-3 text-[13px] font-semibold text-encre before:size-[7px] before:rounded-full before:bg-gris-chaud before:content-['']">Terminé</span>
+            ? <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-pilule)] bg-bordure py-1 pl-2.5 pr-3 text-[13px] font-semibold text-encre before:size-[7px] before:rounded-full before:bg-gris-chaud before:content-['']">Terminé</span>
             : event.price != null && (
               <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-fond px-2.5 py-1 t-corps-fort text-bordeaux-600">
                 {event.price > 0 ? `${Number(event.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}

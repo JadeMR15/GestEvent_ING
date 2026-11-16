@@ -183,7 +183,7 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
           </button>
           <input type="range" min={1} max={MAX_ZOOM} step={0.01} value={zoom} aria-label="Zoom"
             onChange={(e) => applyZoom(Number(e.target.value))}
-            className={cn("h-2 flex-1 cursor-pointer appearance-none rounded-[var(--radius-pilule)] bg-sable accent-bordeaux-600")} />
+            className={cn("h-2 flex-1 cursor-pointer appearance-none rounded-[var(--radius-pilule)] bg-bordure accent-bordeaux-600")} />
           <button type="button" aria-label="Zoomer" onClick={() => applyZoom(zoom * 1.2)} className="rounded-[var(--radius-petit)] p-2 text-gris-chaud hover:bg-bordeaux-100 hover:text-bordeaux-600">
             <ZoomIn className="h-5 w-5" />
           </button>

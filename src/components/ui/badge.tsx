@@ -26,7 +26,7 @@ const badgeVariants = cva(
         /* Information */
         info: `bg-statut-bleu-100 text-statut-bleu-700 ${DOT} before:bg-statut-bleu-500`,
         /* Neutre (terminé, brouillon) */
-        neutral: `bg-sable text-encre ${DOT} before:bg-gris-chaud`,
+        neutral: `bg-bordure text-encre ${DOT} before:bg-gris-chaud`,
       },
     },
     defaultVariants: {

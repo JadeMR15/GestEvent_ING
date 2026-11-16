@@ -41,7 +41,7 @@
   --color-creme:      var(--neutre-creme);
   --color-fond:       var(--neutre-fond);     /* ESSAI design-tests */
   --color-bordure:    var(--neutre-bordure);  /* ESSAI design-tests */
-  --color-sable:      var(--neutre-sable);
+  --color-sable:      var(--neutre-bordure);  /* ESSAI design-tests : plus de sable en fond */
   --color-gris-chaud: var(--neutre-gris-chaud);
   --color-encre:      var(--neutre-encre);
   --color-white:      var(--neutre-blanc);
@@ -181,7 +181,7 @@
   --secondary-foreground: var(--bordeaux-600);
 
   /* Muted = sable (zones neutres), texte secondaire gris chaud */
-  --muted:              var(--neutre-sable);
+  --muted:              var(--neutre-bordure); /* ESSAI design-tests : plus de sable */
   --muted-foreground:   var(--neutre-gris-chaud);
 
   /* Accent = jaune 300 ; texte dessus toujours bordeaux (jamais blanc) */
