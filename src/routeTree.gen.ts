@@ -36,6 +36,7 @@ import { Route as AdminVerificationsRouteImport } from './routes/admin.verificat
 import { Route as AssociationsIndexRouteImport } from './routes/associations.index'
 import { Route as AssociationsAssociationIdRouteImport } from './routes/associations.$associationId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as DevCocotteRouteImport } from './routes/dev.cocotte'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 import { Route as EventsNewRouteImport } from './routes/events.new'
@@ -184,6 +185,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevCocotteRoute = DevCocotteRouteImport.update({
+  id: '/dev/cocotte',
+  path: '/dev/cocotte',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/admin/verifications': typeof AdminVerificationsRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dev/cocotte': typeof DevCocotteRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/admin/verifications': typeof AdminVerificationsRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dev/cocotte': typeof DevCocotteRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
@@ -349,6 +357,7 @@ export interface FileRoutesById {
   '/admin/verifications': typeof AdminVerificationsRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dev/cocotte': typeof DevCocotteRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
     | '/admin/verifications'
     | '/associations/$associationId'
     | '/auth/callback'
+    | '/dev/cocotte'
     | '/events/$eventId'
     | '/events/new'
     | '/school-admin/members'
@@ -431,6 +441,7 @@ export interface FileRouteTypes {
     | '/admin/verifications'
     | '/associations/$associationId'
     | '/auth/callback'
+    | '/dev/cocotte'
     | '/events/$eventId'
     | '/events/new'
     | '/school-admin/members'
@@ -471,6 +482,7 @@ export interface FileRouteTypes {
     | '/admin/verifications'
     | '/associations/$associationId'
     | '/auth/callback'
+    | '/dev/cocotte'
     | '/events/$eventId'
     | '/events/new'
     | '/school-admin/members'
@@ -512,6 +524,7 @@ export interface RootRouteChildren {
   AdminVerificationsRoute: typeof AdminVerificationsRoute
   AssociationsAssociationIdRoute: typeof AssociationsAssociationIdRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  DevCocotteRoute: typeof DevCocotteRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
   SchoolAdminMembersRoute: typeof SchoolAdminMembersRoute
@@ -717,6 +730,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dev/cocotte': {
+      id: '/dev/cocotte'
+      path: '/dev/cocotte'
+      fullPath: '/dev/cocotte'
+      preLoaderRoute: typeof DevCocotteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
@@ -824,6 +844,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminVerificationsRoute: AdminVerificationsRoute,
   AssociationsAssociationIdRoute: AssociationsAssociationIdRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  DevCocotteRoute: DevCocotteRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
   SchoolAdminMembersRoute: SchoolAdminMembersRoute,
