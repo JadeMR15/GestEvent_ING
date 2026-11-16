@@ -24,13 +24,13 @@ type Phase =
   // Scène de danse
   | "toStage" | "stageWave" | "stage" | "stageAppear" | "fromStage" | "away"
   // Révélation du titre « Comment ça marche ? »
-  | "runIn" | "reveal" | "titleWave" | "toCorner";
+  | "toTitle" | "scrub" | "qHop" | "qWave" | "toCorner";
 
 type Pos = { x: number; y: number; s: number };
 
 const DUR = {
   emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750, vanish: 450,
-  toStage: 1300, stageWave: 1000, fromStage: 750, runIn: 650, titleWave: 1000, toCorner: 750,
+  toStage: 1300, stageWave: 1000, fromStage: 750, toTitle: 500, qHop: 450, qWave: 1200, toCorner: 750,
 };
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -48,6 +48,7 @@ export function CocotteCompanion() {
   const [flip, setFlip] = useState(false);
   const [shown, setShown] = useState(false);
   const [sparks, setSparks] = useState(0);
+  const [scrub, setScrubState] = useState(false);
   const hopRef = useRef<() => void>(() => {});
 
   useEffect(() => {
@@ -72,7 +73,10 @@ export function CocotteCompanion() {
     let hopUntil = 0;
     let from: Pos = { x: 0, y: 0, s: 1 };
     let stageGreeted = false;
-    let revealDur = 1200;
+    // Révélation au rythme du défilement
+    let scrubDist = 0; // distance parcourue le long du titre (px) → cycle de marche
+    let scrubLastX: number | null = null;
+    let scrubMovedAt = 0;
     let facingLeft = false;
     // Coucou régulier au repos
     let idleAction: { start: number } | null = null;
@@ -81,6 +85,7 @@ export function CocotteCompanion() {
     let curPose: CocotteState = "repos";
     let curShown = false;
     let curFlip = false;
+    let curScrub = false;
     let raf = 0;
     let last = 0;
     let active = false;
@@ -91,6 +96,7 @@ export function CocotteCompanion() {
     const setP = (p: CocotteState) => { if (p !== curPose) { curPose = p; setPose(p); } };
     const setS = (v: boolean) => { if (v !== curShown) { curShown = v; setShown(v); } };
     const setF = (v: boolean) => { if (v !== curFlip) { curFlip = v; setFlip(v); } };
+    const setScrub = (v: boolean) => { if (v !== curScrub) { curScrub = v; setScrubState(v); } };
     // La petite cocotte du titre est masquée pendant que la mascotte est posée à sa place
     const atSlot = (v: boolean) => page?.classList.toggle("ck-at-slot", v);
     const go = (p: Phase, now: number) => { phase = p; phaseStart = now; };
@@ -112,30 +118,111 @@ export function CocotteCompanion() {
       const s = r.height / H;
       return { x: r.left + r.width / 2 - base.x - (W * s) / 2, y: r.bottom - base.y - H * s, s };
     };
-    /** Pose « sur la ligne du titre » : pieds au bas du titre, centre horizontal en `cx`. */
-    const titlePose = (base: { x: number; y: number }, H: number, cx: number): Pos => {
-      const r = howTitle!.getBoundingClientRect();
-      const font = parseFloat(getComputedStyle(howTitle!).fontSize) || 28;
-      const s = (font * 2.3) / H;
-      const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
-      return { x: cx - base.x - (W * s) / 2, y: r.bottom + font * 0.15 - base.y - H * s, s };
-    };
-    const titleSpan = () => {
-      const r = howTitle!.getBoundingClientRect();
-      return { start: r.left - 6, end: r.right + 6 };
-    };
     const letters = () => Array.from(howTitle?.querySelectorAll<HTMLElement>(".rv-ch") ?? []);
-    const revealUpTo = (x: number) => {
-      for (const l of letters()) {
-        if (l.classList.contains("is-in")) continue;
-        const r = l.getBoundingClientRect();
-        if (x >= r.left + r.width / 2) l.classList.add("is-in");
-      }
+    /** Position d'une lettre sans son décalage d'animation (lettre cachée = descendue de 45 %). */
+    const box = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      const m = new DOMMatrixReadOnly(getComputedStyle(el).transform === "none" ? undefined : getComputedStyle(el).transform);
+      return { left: r.left - m.e, right: r.right - m.e, top: r.top - m.f, bottom: r.bottom - m.f, width: r.width };
     };
     const revealAll = () => {
       letters().forEach((l) => l.classList.add("is-in"));
+      howTitle?.querySelector<HTMLElement>(".rv-accent")?.style.setProperty("--hl", "1");
       if (howTitle) howTitle.dataset.armed = "done";
     };
+    /** Taille de Cocotte le long du titre : ~1,15 fois la taille du texte. */
+    const titleScale = (H: number) => {
+      const font = parseFloat(getComputedStyle(howTitle!).fontSize) || 40;
+      return { s: (font * 1.15) / H, font };
+    };
+    /**
+     * Chemin le long du titre : une ligne par ligne de texte (pieds sur la ligne), du début du
+     * premier mot jusqu'au point d'interrogation ; un petit saut d'une ligne à la suivante.
+     */
+    const titlePath = (H: number) => {
+      const { s, font } = titleScale(H);
+      const Wb = ((H * COCOTTE_BOX.w) / COCOTTE_BOX.h) * s;
+      const ls = letters();
+      const rows: { x0: number; x1: number; feet: number }[] = [];
+      for (const l of ls) {
+        const r = box(l);
+        const row = rows.find((rw) => Math.abs(rw.feet - (r.bottom - font * 0.2)) < font * 0.5);
+        if (row) { row.x0 = Math.min(row.x0, r.left); row.x1 = Math.max(row.x1, r.right); }
+        else rows.push({ x0: r.left, x1: r.right, feet: r.bottom - font * 0.2 });
+      }
+      const q = ls.length ? box(ls[ls.length - 1]) : undefined;
+      const vw = window.innerWidth;
+      const keep = (x: number) => clamp(x, 8 + Wb / 2, vw - 8 - Wb / 2); // jamais coupée par l'écran
+      const segs = rows.map((rw, i) => ({
+        a: keep(rw.x0 + Wb / 2),
+        b: keep(i === rows.length - 1 && q ? q.left + q.width / 2 : rw.x1 - Wb / 2),
+        feet: rw.feet,
+      }));
+      const HOP = 60; // longueur « virtuelle » du saut entre deux lignes
+      const total = segs.reduce((n, sg, i) => n + Math.max(1, sg.b - sg.a) + (i > 0 ? HOP : 0), 0);
+      const at = (p: number) => {
+        let d = p * total;
+        for (let i = 0; i < segs.length; i++) {
+          if (i > 0) {
+            if (d < HOP) {
+              const k = d / HOP;
+              const a = segs[i - 1], b = segs[i];
+              // Pendant le saut, elle compte encore sur la ligne qu'elle quitte
+              return { x: lerp(a.b, b.a, k), feet: lerp(a.feet, b.feet, k) - Math.sin(Math.PI * k) * font * 0.6, row: k < 1 ? i - 1 : i, hop: true };
+            }
+            d -= HOP;
+          }
+          const len = Math.max(1, segs[i].b - segs[i].a);
+          if (d <= len || i === segs.length - 1) return { x: segs[i].a + Math.min(d, len), feet: segs[i].feet, row: i, hop: false };
+          d -= len;
+        }
+        return { x: segs[0]?.a ?? 0, feet: segs[0]?.feet ?? 0, row: 0, hop: false };
+      };
+      return { s, font, Wb, at, q, rows };
+    };
+    /** Pose à partir d'un point (centre x, pieds y) en coordonnées de l'écran. */
+    const poseAt = (base: { x: number; y: number }, H: number, s: number, x: number, feet: number): Pos => {
+      const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
+      return { x: x - base.x - (W * s) / 2, y: feet - base.y - H * s * 0.951, s };
+    };
+    /** Progression de la révélation : haut du titre à 85 % de l'écran → 0, à 45 % → 1. */
+    const titleProgress = (vh: number) => {
+      const top = howTitle!.getBoundingClientRect().top;
+      return clamp((0.85 * vh - top) / (0.4 * vh), 0, 1);
+    };
+    /** Fait apparaître les lettres dépassées par Cocotte et dessine le surlignage derrière elle. */
+    const revealBehind = (x: number, row: number, rows: { feet: number }[], font: number, hop = false) => {
+      for (const l of letters()) {
+        if (l.classList.contains("is-in")) continue;
+        const r = box(l);
+        const lrow = rows.findIndex((rw) => Math.abs(rw.feet - (r.bottom - font * 0.2)) < font * 0.5);
+        // En sautant à la ligne suivante, toute la ligne quittée est révélée
+        if (lrow < row || (hop && lrow === row) || (lrow === row && x >= r.left + r.width / 2)) l.classList.add("is-in");
+      }
+      const acc = howTitle?.querySelector<HTMLElement>(".rv-accent");
+      const first = acc?.querySelector<HTMLElement>(".rv-ch");
+      if (acc && first) {
+        const r = acc.getBoundingClientRect();
+        // Ligne du mot : celle de sa première lettre (même repère que les autres lettres)
+        const fr = box(first);
+        const accRow = rows.findIndex((rw) => Math.abs(rw.feet - (fr.bottom - font * 0.2)) < font * 0.5);
+        const hl = accRow < 0 ? 0 : accRow < row || (hop && accRow === row) ? 1 : accRow > row ? 0 : clamp((x - r.left) / r.width, 0, 1);
+        const prev = parseFloat(acc.style.getPropertyValue("--hl") || "0");
+        if (hl > prev) acc.style.setProperty("--hl", hl.toFixed(3));
+      }
+    };
+    /** Cycle de marche synchronisé avec la distance : un pas complet = 24 px. */
+    const limbs = () => wrap.querySelectorAll<SVGGElement>(".ck-leg-l, .ck-leg-r, .ck-arm-l, .ck-arm-r, .ck-fig");
+    const stepPose = (dist: number) => {
+      const ph = Math.sin((2 * Math.PI * dist) / 24);
+      const [legL, legR, armL, armR, fig] = [".ck-leg-l", ".ck-leg-r", ".ck-arm-l", ".ck-arm-r", ".ck-fig"].map((q) => wrap.querySelector<SVGGElement>(q));
+      if (legL) legL.style.transform = `rotate(${20 * ph}deg)`;
+      if (legR) legR.style.transform = `rotate(${-20 * ph}deg)`;
+      if (armL) armL.style.transform = `rotate(${-14 * ph}deg)`;
+      if (armR) armR.style.transform = `rotate(${12 * ph}deg)`;
+      if (fig) fig.style.transform = `translateY(${-3.5 * Math.abs(ph)}%)`;
+    };
+    const clearStep = () => limbs().forEach((el) => { el.style.transform = ""; });
     const titleArmed = () => howTitle?.dataset.armed === "true";
 
     /**
@@ -163,6 +250,12 @@ export function CocotteCompanion() {
       }
       void vh;
       return { pos: { x: left - base.x, y: 0, s: 1 } as Pos, ok };
+    };
+
+    /** On remonte au-dessus du titre pendant la révélation : retour à sa place (ou effacement). */
+    const leaveTitle = (now: number, seat: { pos: Pos; ok: boolean }) => {
+      if (seat.ok) { go("toCorner", now); setP("saut"); }
+      else { go("vanish", now); setP("saut"); }
     };
 
     const settleAfterAnimation = (now: number, seatOk: boolean) => {
@@ -207,10 +300,10 @@ export function CocotteCompanion() {
       const stagePassed = !!fr && fr.bottom < 0.1 * vh;
       const stageBelow = !fr || fr.top > 0.85 * vh;
       const featuresDone = !!features && features.getBoundingClientRect().bottom < 0.5 * vh;
-      // Titre suivant : entre à l'écran (~70 % de la hauteur) / repassé en dessous
+      // Titre suivant : la révélation commence quand son haut passe sous 85 % de l'écran
       const ht = howTitle?.getBoundingClientRect();
-      const titleIn = !!ht && ht.top < 0.7 * vh && ht.bottom > 0;
-      const titleBelow = !ht || ht.top > 0.9 * vh;
+      const titleIn = !!ht && ht.top < 0.85 * vh && ht.bottom > 0;
+      const titleBelow = !ht || ht.top > 0.85 * vh;
 
       const t = now - phaseStart;
       let pos: Pos = seat.pos;
@@ -270,9 +363,9 @@ export function CocotteCompanion() {
             }
             // Ses animations : la révélation du titre, la danse sur le cadre
             if (titleArmed() && titleIn && howTitle) {
-              const sp = titleSpan();
-              revealDur = clamp((sp.end - sp.start) * 4.5, 1300, 2600);
-              go("runIn", now); setP("marche"); idleAction = null;
+              // Elle saute de sa place jusqu'au titre (ou apparaît s'il n'y a pas de place)
+              from = seat.ok ? seat.pos : { x: 0, y: 0, s: 1 };
+              go("toTitle", now); setP(seat.ok ? "saut" : "apparition"); idleAction = null;
               break;
             }
             if (stageVisible) {
@@ -365,42 +458,69 @@ export function CocotteCompanion() {
             // Pendant le cadre des fonctionnalités, Cocotte n'est pas visible
             if (stageVisible) { go("stageAppear", now); setP("apparition"); }
             else if (titleArmed() && titleIn && howTitle) {
-              const sp = titleSpan();
-              revealDur = clamp((sp.end - sp.start) * 4.5, 1300, 2600);
-              go("runIn", now); setP("marche"); facingLeft = false;
+              from = { x: 0, y: 0, s: 1 };
+              go("toTitle", now); setP("apparition"); facingLeft = false;
             } else if (!titleArmed() && featuresDone) { go("seat", now); setP("repos"); nextIdleAt = now + 4000; }
             break;
-          case "runIn": {
-            // Elle arrive en courant par la gauche
-            const sp = titleSpan();
-            const k = clamp(t / DUR.runIn, 0, 1);
-            const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
-            pos = titlePose(base, H, lerp(-W, sp.start, 1 - Math.pow(1 - k, 2)));
-            setP("marche"); facingLeft = false;
-            if (titleBelow) { revealAll(); go("away", now); break; }
-            if (t > DUR.runIn) go("reveal", now);
+          case "toTitle": {
+            // Arrivée au point du titre correspondant à la progression actuelle
+            const tp = titlePath(H);
+            const p = titleProgress(vh);
+            const pt = tp.at(p);
+            const target = poseAt(base, H, tp.s, pt.x, pt.feet);
+            if (from.s === 1 && from.x === 0 && from.y === 0) pos = target; // apparition sur place
+            else pos = lerpPos(from, target, ease(clamp(t / DUR.toTitle, 0, 1)), 80);
+            facingLeft = false;
+            if (titleBelow && t > 120) { from = pos; leaveTitle(now, seat); break; }
+            if (t > DUR.toTitle) { scrubLastX = pt.x; scrubMovedAt = 0; go("scrub", now); setP("repos"); }
             break;
           }
-          case "reveal": {
-            // Elle marche le long du titre : chaque lettre apparaît quand elle passe
-            const sp = titleSpan();
-            const k = clamp(t / revealDur, 0, 1);
-            const cx = lerp(sp.start, sp.end, k);
-            pos = titlePose(base, H, cx);
-            revealUpTo(cx);
-            setP("marche"); facingLeft = false;
-            if (titleBelow) { revealAll(); go("away", now); break; }
-            if (k >= 1) { revealAll(); go("titleWave", now); setP("coucou"); }
+          case "scrub": {
+            // La position de Cocotte suit le défilement : elle avance, s'arrête, ou recule
+            const tp = titlePath(H);
+            const p = titleProgress(vh);
+            const pt = tp.at(p);
+            pos = poseAt(base, H, tp.s, pt.x, pt.feet);
+            const dx = scrubLastX === null ? 0 : pt.x - scrubLastX;
+            scrubLastX = pt.x;
+            if (Math.abs(dx) > 0.2) {
+              scrubDist += Math.abs(dx);
+              scrubMovedAt = now;
+              facingLeft = dx < 0;
+            }
+            const moving = now - scrubMovedAt < 140;
+            setScrub(moving);
+            setP("repos");
+            if (moving) stepPose(scrubDist); else clearStep();
+            revealBehind(pt.x, pt.row, tp.rows, tp.font, pt.hop);
+            if (titleBelow && p <= 0) { setScrub(false); clearStep(); from = pos; leaveTitle(now, seat); break; }
+            if (p >= 1) {
+              // Fin : petit saut pour se poser sur le point d'interrogation
+              setScrub(false); clearStep();
+              from = pos; facingLeft = false;
+              go("qHop", now); setP("saut");
+            }
             break;
           }
-          case "titleWave":
-            pos = titlePose(base, H, titleSpan().end);
-            if (titleBelow) { go("away", now); break; }
-            if (t > DUR.titleWave) {
+          case "qHop": {
+            const tp = titlePath(H);
+            const q = tp.q!;
+            const target = poseAt(base, H, tp.s, q.left + q.width / 2, q.top + tp.font * 0.2);
+            pos = lerpPos(from, target, ease(clamp(t / DUR.qHop, 0, 1)), tp.font * 0.6);
+            if (t > DUR.qHop) { revealAll(); go("qWave", now); setP("coucou"); }
+            break;
+          }
+          case "qWave": {
+            // Debout sur le « ? », elle fait coucou, puis retourne à sa place
+            const tp = titlePath(H);
+            const q = tp.q!;
+            pos = poseAt(base, H, tp.s, q.left + q.width / 2, q.top + tp.font * 0.2);
+            if (t > DUR.qWave) {
               from = pos;
               if (seat.ok) { go("toCorner", now); setP("saut"); } else { go("vanish", now); setP("saut"); }
             }
             break;
+          }
           case "toCorner": {
             // Saut vers sa place
             const k = ease(clamp(t / DUR.toCorner, 0, 1));
@@ -424,7 +544,7 @@ export function CocotteCompanion() {
       wrap.classList.toggle("is-tucked", phase === "seat" && hide > 0.9);
 
       // La boucle continue tant que quelque chose bouge
-      const animating = !["off", "seat", "away", "stage"].includes(phase);
+      const animating = !["off", "seat", "away", "stage", "scrub"].includes(phase) || (phase === "scrub" && now - scrubMovedAt < 160);
       const busy =
         animating || scrolling || now < hopUntil || !!idleAction ||
         Math.abs(hide - (footerIn ? 1 : 0)) > 0.01 ||
@@ -473,7 +593,7 @@ export function CocotteCompanion() {
         tabIndex={shown ? 0 : -1}
         onClick={onHop}
       >
-        <Cocotte state={pose} flip={flip} className="ck-companion-figure" />
+        <Cocotte state={pose} flip={flip} scrub={scrub} className="ck-companion-figure" />
         {sparks > 0 && (
           <span key={sparks} className="ck-sparks" aria-hidden="true">
             {[0, 1, 2, 3, 4, 5].map((i) => <span key={i} style={{ "--a": `${i * 60 - 90}deg` } as CSSProperties} />)}

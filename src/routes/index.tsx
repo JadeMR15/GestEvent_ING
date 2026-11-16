@@ -352,11 +352,14 @@ function StackedHowItWorks() {
         top:        110,
         zIndex:     0, /* sous les cartes : elles le recouvrent en remontant (pas de bande de fond) */
         width:      "100%",
-        textAlign:  "center",
+        textAlign:  "left",
         padding:    "1rem 0 1.5rem",
         background: "transparent",
       }}>
-        <RevealTitle id="lp-how-title" text="Comment ça marche ?" style={{ color: "var(--text-title)" }} />
+        {/* Même style et même alignement que les autres grands titres (« Simple. Complet. ») */}
+        <div className="container mx-auto px-4 sm:px-6">
+          <RevealTitle id="lp-how-title" text="Comment ça marche ?" accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
+        </div>
       </div>
 
       <div>

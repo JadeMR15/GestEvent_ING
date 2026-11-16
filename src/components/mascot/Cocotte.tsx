@@ -44,19 +44,22 @@ const SHOULDER_R = { x: 1395, y: 352 };
 export function Cocotte({
   state = "repos",
   flip = false,
+  scrub = false,
   className = "",
   style,
 }: {
   state?: CocotteState;
   /** true : regarde vers la gauche (retournée horizontalement). */
   flip?: boolean;
+  /** Pas pilotés de l'extérieur (révélation du titre) : les animations CSS des membres sont coupées. */
+  scrub?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
   return (
     <svg
       viewBox={`${COCOTTE_BOX.x} ${COCOTTE_BOX.y} ${COCOTTE_BOX.w} ${COCOTTE_BOX.h}`}
-      className={`ck ck--${state} ${flip ? "ck--flip" : ""} ${className}`}
+      className={`ck ck--${state} ${flip ? "ck--flip" : ""} ${scrub ? "ck--scrub" : ""} ${className}`}
       style={style}
       aria-hidden="true"
       focusable="false"

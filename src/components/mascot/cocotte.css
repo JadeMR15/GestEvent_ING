@@ -106,6 +106,9 @@
 }
 
 
+/* ── Pas pilotés par la distance parcourue (révélation du titre) ── */
+.ck--scrub .ck-fig, .ck--scrub .ck-sway, .ck--scrub .ck-arm, .ck--scrub .ck-leg { animation: none !important; }
+
 /* ── Animations réduites : pose de repos fixe ── */
 @media (prefers-reduced-motion: reduce) {
   .ck *, .ck { animation: none !important; }
