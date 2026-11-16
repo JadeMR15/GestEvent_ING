@@ -7,13 +7,14 @@ import "./companion.css";
 /**
  * Cocotte compagnon (ESSAI design-tests) — page d'accueil uniquement.
  * - Présentation : quand la grande cocotte s'est posée à côté du titre « Les prochains events »,
- *   la mascotte prend sa place (apparition → coucou), puis va s'asseoir à sa place.
- * - Sa place : assise dans la marge vide à gauche du contenu, en bas de l'écran. Elle ne passe
+ *   la mascotte prend sa place (apparition → coucou), puis va à sa place.
+ * - Sa place : debout dans la marge vide à gauche du contenu, en bas de l'écran. Elle ne passe
  *   jamais sur le contenu : si la marge est trop étroite (ou qu'un cadre passe à cet endroit),
  *   elle est cachée en dehors de ses animations.
- * - Pendant le défilement, elle balance les jambes et penche légèrement dans le sens du défilement.
+ * - Au repos, elle fait coucou régulièrement (toutes les ~4 à 6 s), avec une légère respiration
+ *   entre deux coucous. Pendant le défilement, elle reste simplement debout.
  * - Elle ne se lève que pour ses animations : la danse sur le cadre et la révélation du titre
- *   « Comment ça marche ? ». Ensuite elle revient s'asseoir (ou disparaît en douceur s'il n'y a
+ *   « Comment ça marche ? ». Ensuite elle revient à sa place (ou disparaît en douceur s'il n'y a
  *   pas de place, par exemple sur mobile).
  * Une seule boucle requestAnimationFrame (défilement passif), transform / opacity uniquement.
  */
@@ -46,8 +47,6 @@ export function CocotteCompanion() {
   const [pose, setPose] = useState<CocotteState>("repos");
   const [flip, setFlip] = useState(false);
   const [shown, setShown] = useState(false);
-  const [seated, setSeated] = useState(false);
-  const [swing, setSwing] = useState(false);
   const [sparks, setSparks] = useState(0);
   const hopRef = useRef<() => void>(() => {});
 
@@ -63,7 +62,6 @@ export function CocotteCompanion() {
     // Référence pour la marge de gauche : le conteneur de la section des événements
     const contentRef = document.querySelector<HTMLElement>("#evenements > .container");
     if (!wrap || !slot) return;
-    const lean = wrap.querySelector<HTMLElement>(".ck-lean");
 
     let phase: Phase = "off";
     let phaseStart = 0;
@@ -71,23 +69,18 @@ export function CocotteCompanion() {
     let lastScrollY = window.scrollY;
     let lastScrollAt = 0;
     let scrollSpeed = 0; // px/ms, lissé
-    let scrollDir = 1;
-    let leanDeg = 0;
     let hopUntil = 0;
     let from: Pos = { x: 0, y: 0, s: 1 };
     let stageGreeted = false;
     let revealDur = 1200;
     let facingLeft = false;
-    // Petites actions au repos (regarder à gauche puis à droite, ou coucou)
-    let idleAction: { type: "look" | "wave"; start: number } | null = null;
+    // Coucou régulier au repos
+    let idleAction: { start: number } | null = null;
     let nextIdleAt = Infinity;
     let idleTimer = 0;
     let curPose: CocotteState = "repos";
     let curShown = false;
     let curFlip = false;
-    let curSeated = false;
-    let curSwing = false;
-    let curSwingDur = "";
     let raf = 0;
     let last = 0;
     let active = false;
@@ -98,8 +91,6 @@ export function CocotteCompanion() {
     const setP = (p: CocotteState) => { if (p !== curPose) { curPose = p; setPose(p); } };
     const setS = (v: boolean) => { if (v !== curShown) { curShown = v; setShown(v); } };
     const setF = (v: boolean) => { if (v !== curFlip) { curFlip = v; setFlip(v); } };
-    const setSeat = (v: boolean) => { if (v !== curSeated) { curSeated = v; setSeated(v); } };
-    const setSw = (v: boolean) => { if (v !== curSwing) { curSwing = v; setSwing(v); } };
     // La petite cocotte du titre est masquée pendant que la mascotte est posée à sa place
     const atSlot = (v: boolean) => page?.classList.toggle("ck-at-slot", v);
     const go = (p: Phase, now: number) => { phase = p; phaseStart = now; };
@@ -148,7 +139,7 @@ export function CocotteCompanion() {
     const titleArmed = () => howTitle?.dataset.armed === "true";
 
     /**
-     * Sa place : assise dans la marge vide à gauche du contenu, en bas de l'écran.
+     * Sa place : debout dans la marge vide à gauche du contenu, en bas de l'écran.
      * `ok` = la marge est assez large (Cocotte + 16 px) et rien (cadre…) n'y passe.
      */
     const seatOf = (base: { x: number; y: number }, H: number, vh: number) => {
@@ -202,7 +193,7 @@ export function CocotteCompanion() {
       const y = window.scrollY;
       const dy = y - lastScrollY;
       lastScrollY = y;
-      if (dy !== 0) { lastScrollAt = now; scrollDir = dy > 0 ? 1 : -1; }
+      if (dy !== 0) lastScrollAt = now;
       scrollSpeed = lerp(scrollSpeed, Math.abs(dy) / dt, 0.25);
       const scrolling = now - lastScrollAt < 250;
 
@@ -224,14 +215,12 @@ export function CocotteCompanion() {
       const t = now - phaseStart;
       let pos: Pos = seat.pos;
       let opacity = 1;
-      let sit = false;
 
       if (reduced) {
-        // Pas de transformation ni de mouvement : assise à sa place (si elle a de la place), ou sur la scène
+        // Pas de transformation ni de mouvement : debout à sa place (si elle a de la place), ou sur la scène
         phase = !active ? "off" : stageVisible ? "stage" : stagePassed && !featuresDone ? "away" : "seat";
         if (phase === "stage") pos = stagePose(base, H);
         if (titleArmed()) revealAll();
-        sit = phase === "seat";
         setP("repos");
       } else {
         switch (phase) {
@@ -292,29 +281,24 @@ export function CocotteCompanion() {
               idleAction = null;
               break;
             }
-            // À sa place : assise
-            sit = true;
+            // À sa place : debout ; au repos, un coucou toutes les ~4 à 6 s
             pos = seat.pos;
-            if (now < hopUntil) { setP("saut"); sit = false; idleAction = null; nextIdleAt = now + 4000; }
+            facingLeft = false;
+            if (now < hopUntil) { setP("saut"); idleAction = null; nextIdleAt = now + 4000; }
             else if (scrolling) {
-              setP("repos");
-              idleAction = null;
-              nextIdleAt = now + 4000; // première petite action après ~4 s d'immobilité
+              // Pendant le défilement, elle reste simplement debout
+              if (!idleAction) setP("repos");
+              nextIdleAt = Math.max(nextIdleAt, now + 1500);
             } else {
-              if (!idleAction && now >= nextIdleAt) {
-                idleAction = { type: Math.random() < 0.5 ? "look" : "wave", start: now };
-              }
+              if (!idleAction && now >= nextIdleAt) idleAction = { start: now };
               if (idleAction) {
-                const it = now - idleAction.start;
-                if (idleAction.type === "look") {
-                  setP("repos");
-                  facingLeft = it < 650; // regarde à gauche… puis à droite
-                  if (it > 1500) { idleAction = null; facingLeft = false; nextIdleAt = now + 5000 + Math.random() * 3000; }
-                } else {
-                  setP("coucou");
-                  if (it > 1050) { idleAction = null; setP("repos"); nextIdleAt = now + 5000 + Math.random() * 3000; }
+                setP("coucou");
+                if (now - idleAction.start > 1050) {
+                  idleAction = null;
+                  setP("repos"); // légère respiration entre deux coucous
+                  nextIdleAt = now + 4000 + Math.random() * 2000;
                 }
-              } else { setP("repos"); facingLeft = false; }
+              } else setP("repos");
             }
             break;
           }
@@ -418,7 +402,7 @@ export function CocotteCompanion() {
             }
             break;
           case "toCorner": {
-            // Saut vers sa place, puis elle se rassoit
+            // Saut vers sa place
             const k = ease(clamp(t / DUR.toCorner, 0, 1));
             pos = lerpPos(from, seat.pos, k, isMobile() ? 90 : 150);
             facingLeft = seat.pos.x < from.x;
@@ -427,18 +411,6 @@ export function CocotteCompanion() {
           }
         }
       }
-
-      // Pendant le défilement, assise : elle balance les jambes et penche dans le sens du défilement
-      const swingNow = sit && scrolling && !reduced;
-      setSeat(sit);
-      setSw(swingNow);
-      if (swingNow) {
-        // Plus on défile vite, plus elle balance vite (avec une limite)
-        const dur = `${clamp(0.9 - scrollSpeed * 0.25, 0.28, 0.9).toFixed(1)}s`;
-        if (dur !== curSwingDur) { curSwingDur = dur; wrap.style.setProperty("--swing", dur); }
-      }
-      leanDeg = sit && scrolling && !reduced ? clamp(scrollSpeed * 6, 2, 8) * scrollDir : 0;
-      if (lean) lean.style.transform = `rotate(${leanDeg}deg)`;
 
       setF(facingLeft);
       // Visible : en animation, ou à sa place si elle y a de la place
@@ -501,9 +473,7 @@ export function CocotteCompanion() {
         tabIndex={shown ? 0 : -1}
         onClick={onHop}
       >
-        <span className="ck-lean">
-          <Cocotte state={pose} flip={flip} seated={seated} swing={swing} className="ck-companion-figure" />
-        </span>
+        <Cocotte state={pose} flip={flip} className="ck-companion-figure" />
         {sparks > 0 && (
           <span key={sparks} className="ck-sparks" aria-hidden="true">
             {[0, 1, 2, 3, 4, 5].map((i) => <span key={i} style={{ "--a": `${i * 60 - 90}deg` } as CSSProperties} />)}
