@@ -270,10 +270,10 @@ function ScannerPage() {
   const pct = stats.total > 0 ? Math.round((stats.attended / stats.total) * 100) : 0;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="relative isolate mx-auto max-w-3xl space-y-6">
       {/* En-tête : Cocotte fait la videuse à l'entrée */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <div className="min-w-0 sm:pb-2">
+      <div className="min-h-[12.5rem] pr-36 md:min-h-[11.5rem] md:pr-72">
+        <div className="min-w-0">
           <h1>Scanner QR</h1>
           <p className="text-muted-foreground">Validez les entrées par QR code.</p>
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -450,21 +450,25 @@ function Bouncer({ flash }: { flash: "success" | "error" | null }) {
   }, [flash]);
 
   const ok = reaction?.type === "success";
+  const shake = reaction?.type === "error" ? "sc-shake" : "";
   return (
-    <div className="flex shrink-0 items-start gap-2 self-end md:gap-3" aria-live="polite">
+    <>
+      {/* Cocotte géante, un peu transparente, derrière les cartes de scan */}
+      <div aria-hidden="true" className={`sc-giant pointer-events-none absolute -z-10 ${shake}`}>
+        <div className="db-cocotte">
+          <Cocotte key={pose === "saut" ? `j${reaction?.n}` : pose} state={pose} flip className="h-auto w-full" />
+        </div>
+      </div>
+      {/* Sa bulle, au premier plan */}
       <div
         key={reaction ? `b${reaction.n}` : "b"}
-        className={`db-bubble db-bubble--right relative z-[2] mt-3 max-w-[11rem] px-3.5 py-2.5 md:mt-6 md:max-w-[13rem] md:px-5 md:py-3.5 ${reaction ? "sc-now" : ""} ${reaction?.type === "error" ? "sc-shake" : ""}`}
+        aria-live="polite"
+        className={`sc-bubble db-bubble db-bubble--right absolute z-20 max-w-[10rem] px-3.5 py-2.5 md:max-w-[14rem] md:px-5 md:py-3.5 ${reaction ? "sc-now" : ""} ${shake}`}
       >
         <p className={`text-sm font-semibold leading-snug md:text-lg ${ok ? "text-statut-vert-700" : "text-bordeaux-600"}`}>
           {ok ? "C'est bon, bonne soirée !" : "Pas de ticket, pas d'entrée !"}
         </p>
       </div>
-      <div className={`db-stage db-stage--light w-24 sm:w-32 md:w-48 lg:w-56 ${reaction?.type === "error" ? "sc-shake" : ""}`}>
-        <div className="db-cocotte relative z-[1]">
-          <Cocotte key={pose === "saut" ? `j${reaction?.n}` : pose} state={pose} flip className="h-auto w-full drop-shadow-[0_14px_24px_rgba(66,17,30,0.3)]" />
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
