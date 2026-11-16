@@ -119,7 +119,7 @@
 .lp-cocotte-tilt {
   width: 100%;
   height: 100%;
-  animation: lpTilt 15s ease-in-out infinite alternate;
+  animation: lpTilt 25s ease-in-out infinite alternate;
 }
 @keyframes lpTilt {
   from { transform: perspective(1400px) rotateX(10deg) rotateY(-12deg); }
@@ -130,7 +130,7 @@
   width: 100%;
   height: 100%;
   max-width: none;
-  animation: plavDrift 40s linear infinite;
+  animation: plavDrift 70s linear infinite;
 }
 .lp-cocotte-tilt.is-paused,
 .lp-cocotte-spin.is-paused { animation-play-state: paused; }
