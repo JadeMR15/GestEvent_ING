@@ -8,14 +8,14 @@ import "./dance.css";
 export const COCOTTE_ON_STAGE = "plav:cocotte-on-stage";
 
 /**
- * Scène de danse (ESSAI design-tests) entre les événements et les fonctionnalités :
- * Cocotte vient au centre, puis les créatrices de Plav' arrivent une par une et toutes
- * dansent tant que la scène est visible. Au survol / toucher, une danseuse montre son
+ * Scène de danse (ESSAI design-tests) : une transition posée sur le bord haut du cadre
+ * « Simple. Complet. ». Cocotte vient au milieu du groupe, puis les créatrices de Plav'
+ * arrivent une par une et toutes dansent tant que la scène est visible. Au survol / toucher, une danseuse montre son
  * prénom et fait coucou (pas de lien, pas de clic).
  */
 export function DanceScene() {
   const reduced = usePrefersReducedMotion();
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [arrived, setArrived] = useState(false);
   const [visible, setVisible] = useState(false);
   const [near, setNear] = useState(false); // photos demandées seulement quand la scène approche
@@ -58,33 +58,28 @@ export function DanceScene() {
   const stateOf = (i: number): DanseurState => (hovered === i ? "coucou" : dancing ? "danse" : "repos");
 
   return (
-    <section
+    <div
       ref={ref}
+      role="group"
+      aria-label="Les créatrices de Plav' : Olivia, Jade et Mélissa"
       className={`lp-dance ${arrived ? "is-arrived" : ""} ${visible ? "" : "is-paused"}`}
-      aria-labelledby="lp-dance-title"
     >
-      <div className="container mx-auto px-4 sm:px-6">
-        <h2 id="lp-dance-title" className="lp-dance-title">
-          Les <span className="t-accent plav-highlight">créatrices</span> de Plav'
-        </h2>
-        <div className="lp-dance-floor">
-          {/* Place de Cocotte, au centre de la scène */}
-          <div id="lp-dance-spot" className="lp-dance-spot" aria-hidden="true" />
-          {DANSEURS.map((d, i) => (
-            <div
-              key={d.prenom}
-              className={`lp-dancer-slot d${i} ${hovered === i ? "is-hovered" : ""}`}
-              onPointerEnter={(e) => { if (e.pointerType === "mouse") setHovered(i); }}
-              onPointerLeave={(e) => { if (e.pointerType === "mouse") setHovered((h) => (h === i ? null : h)); }}
-              onPointerDown={(e) => { if (e.pointerType !== "mouse") setHovered((h) => (h === i ? null : i)); }}
-            >
-              <div className="lp-dancer-hop" style={{ "--n": i } as CSSProperties}>
-                <Danseur prenom={d.prenom} photo={d.photo} index={i} state={stateOf(i)} load={near} />
-              </div>
-            </div>
-          ))}
+      {/* Place de Cocotte, au milieu du groupe (la mascotte fixe vient s'y caler) */}
+      <div id="lp-dance-spot" className="lp-dance-spot" aria-hidden="true" />
+      {DANSEURS.map((d, i) => (
+        <div
+          key={d.prenom}
+          aria-hidden="true"
+          className={`lp-dancer-slot d${i} ${hovered === i ? "is-hovered" : ""}`}
+          onPointerEnter={(e) => { if (e.pointerType === "mouse") setHovered(i); }}
+          onPointerLeave={(e) => { if (e.pointerType === "mouse") setHovered((h) => (h === i ? null : h)); }}
+          onPointerDown={(e) => { if (e.pointerType !== "mouse") setHovered((h) => (h === i ? null : i)); }}
+        >
+          <div className="lp-dancer-hop" style={{ "--n": i } as CSSProperties}>
+            <Danseur prenom={d.prenom} photo={d.photo} index={i} state={stateOf(i)} load={near} />
+          </div>
         </div>
-      </div>
-    </section>
+      ))}
+    </div>
   );
 }

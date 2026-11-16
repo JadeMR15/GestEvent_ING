@@ -227,11 +227,10 @@ function Landing() {
         </div>
       </section>
 
-      {/* ── Scène de danse : Cocotte et les créatrices de Plav' (essai) ── */}
-      <DanceScene />
-
       {/* ── Features (sombre) : grille bento ── */}
       <section id="fonctionnalites" className="lp-frame-section relative">
+        {/* Scène de danse posée sur le bord haut du cadre : Cocotte et les créatrices (essai) */}
+        <DanceScene />
         <Frame>
         <div ref={featuresAnim.ref} className="mx-auto max-w-[1216px]">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>

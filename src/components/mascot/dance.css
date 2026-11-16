@@ -14,21 +14,31 @@
   top: 12.667%;
   width: 60%;
   aspect-ratio: 1;
-  border-radius: var(--radius-pilule);
+  border-radius: 50%;
   border: 3px solid var(--neutre-blanc);
   box-shadow: 0 6px 16px rgba(109, 29, 48, 0.25);
   overflow: hidden;
   background: var(--bordeaux-600);
   transform-origin: 50% 70%;
 }
-.dz-body img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dz-body img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 35%; /* centré sur le visage */
+  display: block;
+}
 .dz-initial {
+  position: absolute;
+  inset: 0;
   display: flex;
   width: 100%;
   height: 100%;
   align-items: center;
   justify-content: center;
-  font: 600 clamp(20px, 2.6vw, 34px) / 1 var(--font-titre);
+  font: 600 clamp(16px, 1.6vw, 24px) / 1 var(--font-titre);
   color: var(--neutre-blanc);
 }
 
@@ -62,9 +72,17 @@
 .is-hovered .dz-bubble { opacity: 1; transform: translate(-50%, 0) scale(1); }
 
 /* États */
-.dz--repos .dz-body { animation: ckBreathe 3.2s ease-in-out infinite alternate; }
+/* Le corps reste un cercle parfait : aucune mise à l'échelle non uniforme */
+.dz--repos .dz-fig { animation: dzRest 3.2s ease-in-out infinite alternate; }
+@keyframes dzRest { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
 .dz--coucou .dz-arm-r { animation: ckWave 1s ease-in-out infinite; }
-.dz--saut .dz-fig { animation: ckJump 0.75s cubic-bezier(0.33, 0, 0.3, 1) both; }
+.dz--saut .dz-fig { animation: dzJump 0.75s cubic-bezier(0.33, 0, 0.3, 1) both; }
+@keyframes dzJump {
+  0%, 100% { transform: none; }
+  18% { transform: translateY(4%); }
+  50% { transform: translateY(-34%); }
+  82% { transform: translateY(2%); }
+}
 .dz--saut .ck-leg { animation: ckTuck 0.75s ease-in-out both; }
 .dz--saut .dz-arm-l { animation: ckArmUpL 0.75s ease-in-out both; }
 .dz--saut .dz-arm-r { animation: ckArmUpR 0.75s ease-in-out both; }
@@ -77,48 +95,63 @@
 .dz--danse .dz-leg-r  { animation: ckStep 0.8s ease-in-out infinite alternate-reverse; animation-delay: calc(var(--i, 0) * -0.2s); }
 /* (keyframes dzSway / dzArmL / dzArmR : dans cocotte.css, partagées avec Cocotte) */
 
-/* ── La scène ── */
-.lp-dance { position: relative; padding: 24px 0 8px; }
-.lp-dance-title {
-  text-align: center;
-  font: 600 clamp(26px, 3.2vw, 40px) / 1.1 var(--font-titre);
-  letter-spacing: -0.02em;
-  color: var(--neutre-encre);
-}
-.lp-dance-floor { position: relative; height: 220px; margin-top: 8px; }
-@media (min-width: 768px) { .lp-dance-floor { height: 320px; } }
-
-/* Emplacements (sol invisible à 24 px du bas) */
-.lp-dance-spot,
-.lp-dancer-slot {
+/* ── La scène : posée sur le bord haut du cadre « Simple. Complet. » ── */
+/* Le groupe est dans la section du cadre, juste au-dessus du bord haut (pieds sur la ligne),
+   dans sa partie droite. Il est derrière le cadre : rien ne passe devant son contenu. */
+.lp-dance {
+  --dz-w: 67px;   /* largeur d'une danseuse (rond de 40 px = 60 %) */
+  --dz-h: 84px;
+  --ck-h: 58px;   /* Cocotte à la même échelle (corps ≈ 40 px) */
+  --gap: 2px;
   position: absolute;
-  bottom: 24px;
-  transform: translateX(-50%);
+  z-index: 0;
+  top: 80px;      /* = marge du haut de .lp-frame-section : bord haut du cadre */
+  right: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--gap);
+  transform: translateY(-100%);
+  pointer-events: none;
 }
-/* Cocotte au centre de la scène (la mascotte fixe vient s'y caler) */
-.lp-dance-spot { left: 40%; width: 80px; height: 88px; }
-@media (min-width: 768px) { .lp-dance-spot { left: 47%; width: 118px; height: 130px; } }
-
-.lp-dancer-slot { width: 74px; height: 92px; }
-@media (min-width: 768px) { .lp-dancer-slot { width: 124px; height: 155px; } }
-.lp-dancer-slot.d0 { left: 14%; margin-bottom: 0; }
-.lp-dancer-slot.d1 { left: 64%; margin-bottom: 8px; }
-.lp-dancer-slot.d2 { left: 88%; margin-bottom: 3px; }
 @media (min-width: 768px) {
-  .lp-dancer-slot.d0 { left: 29%; }
-  .lp-dancer-slot.d1 { left: 66%; margin-bottom: 12px; }
-  .lp-dancer-slot.d2 { left: 82%; margin-bottom: 4px; }
+  .lp-dance {
+    --dz-w: 93px;  /* rond de 56 px */
+    --dz-h: 117px;
+    --ck-h: 81px;  /* corps ≈ 56 px */
+    --gap: 14px;
+    top: 112px;
+    right: calc(28px + 56px);
+  }
 }
 
-/* Arrivée : elles sautent depuis le bas de la scène, une par une (~150 ms d'écart) */
-.lp-dancer-hop { width: 100%; height: 100%; opacity: 0; transform: translateY(120%); }
+/* Emplacements, pieds exactement sur le bord du cadre (le bas du dessin est un peu sous les pieds) */
+.lp-dancer-slot {
+  position: relative;
+  width: var(--dz-w);
+  height: var(--dz-h);
+  margin-bottom: calc(var(--dz-h) * -0.09); /* pieds à 91 % du dessin */
+  pointer-events: auto;
+}
+.lp-dance-spot {
+  width: calc(var(--ck-h) * 1300 / 1430);
+  height: var(--ck-h);
+  margin-bottom: calc(var(--ck-h) * -0.05);
+}
+/* Ordre : une danseuse à gauche, Cocotte, deux à droite */
+.lp-dancer-slot.d0 { order: 0; }
+.lp-dance-spot      { order: 1; }
+.lp-dancer-slot.d1 { order: 2; }
+.lp-dancer-slot.d2 { order: 3; }
+
+/* Arrivée : elles sautent depuis derrière le bord du cadre, une par une (~150 ms d'écart) */
+.lp-dancer-hop { width: 100%; height: 100%; opacity: 0; transform: translateY(110%); }
 .lp-dance.is-arrived .lp-dancer-hop {
   animation: dzArrive 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both;
   animation-delay: calc(var(--n, 0) * 150ms);
 }
 @keyframes dzArrive {
-  0%   { opacity: 0; transform: translateY(120%); }
-  55%  { opacity: 1; transform: translateY(-28%); }
+  0%   { opacity: 1; transform: translateY(110%); }
+  55%  { opacity: 1; transform: translateY(-30%); }
   100% { opacity: 1; transform: none; }
 }
 
