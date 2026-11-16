@@ -143,29 +143,37 @@
   z-index: 3; /* textes du hero au-dessus de la cocotte */
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  align-items: flex-start;
   padding-top: 16px;
   padding-bottom: 48px;
 }
-.lp-hero-stats   { order: 1; }
-.lp-hero-title   { order: 2; }
-.lp-hero-badge   { order: 3; }
-.lp-hero-sub     { order: 4; }
-.lp-hero-actions { order: 5; }
+/* Ordre : étiquette, titre, phrase, boutons, chiffres */
+.lp-hero-badge   { order: 1; }
+.lp-hero-title   { order: 2; margin-top: 16px; }
+.lp-hero-sub     { order: 3; margin-top: 24px; }
+.lp-hero-actions { order: 4; margin-top: 32px; align-self: stretch; }
+.lp-hero-stats   { order: 5; }
 
 .lp-hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
-.lp-hero-sub { max-width: 17rem; }
+/* Phrase d'accroche : casse normale, 18 px, encre à ~75 % */
+.lp-hero-sub {
+  max-width: 36ch;
+  font: 400 18px/1.5 var(--font-texte);
+  letter-spacing: normal;
+  text-transform: none;
+  color: color-mix(in srgb, var(--neutre-encre) 75%, transparent);
+}
 
 /* Titre empilé (Inter Tight 600, casse normale) */
 .lp-hero-title {
   font-family: var(--font-titre);
   font-weight: 600;
-  font-size: clamp(44px, 12vw, 52px);
-  line-height: 1.02;
+  font-size: 44px;
+  line-height: 1;
   letter-spacing: -0.03em;
   color: var(--neutre-encre);
 }
@@ -182,15 +190,20 @@
 /* Chiffres */
 .lp-hero-stats {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  align-self: stretch;
+  justify-content: flex-start;
+  gap: 20px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid color-mix(in srgb, var(--neutre-encre) 15%, transparent);
 }
-.lp-stat { text-align: right; }
+.lp-stat { text-align: left; min-width: 0; }
+@media (min-width: 400px) { .lp-hero-stats { gap: 32px; } .lp-stat-value { font-size: 40px; } }
 .lp-stat-value {
   font-family: var(--font-titre);
   font-weight: 600;
   letter-spacing: -0.03em;
-  font-size: clamp(36px, 10vw, 56px);
+  font-size: 32px;
   line-height: 1;
   color: var(--neutre-encre);
   font-variant-numeric: tabular-nums;
@@ -217,6 +230,7 @@
   justify-content: center;
   gap: 6px;
   min-height: 48px;
+  white-space: nowrap;
   color: var(--bordeaux-800); /* 5,4:1 sur bordeaux 300 (bordeaux 600 : 3,8:1) */
 }
 .lp-arrow-link svg {
@@ -225,7 +239,7 @@
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .lp-arrow-link:hover svg { transform: translate(3px, -3px); }
-.lp-hero-actions > a:last-child { width: 100%; }
+.lp-hero-actions > a:first-child { width: 100%; }
 
 .lp-fade-late {
   animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -244,9 +258,7 @@
        maximum (au-delà, elle part à gauche au lieu d'être réduite). Le texte commence après. */
     --cs: clamp(560px, 92svh, 980px);
     --right: min(calc(var(--cs) * 0.88), 50vw);
-    height: 100vh;
-    height: 100svh;
-    min-height: 640px;
+    min-height: max(640px, 100svh);
     padding-top: 0;
   }
   .lp-cocotte {
@@ -261,50 +273,53 @@
   }
   /* Le texte occupe la droite de l'écran, à côté de la cocotte */
   .lp-hero-grid {
-    height: 100%;
+    min-height: max(640px, 100svh);
     max-width: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr auto auto auto;
+    grid-template-rows: auto auto auto auto auto;
     grid-template-areas:
-      "stats"
-      "actions"
-      "."
       "badge"
+      "title"
       "sub"
-      "title";
+      "actions"
+      "stats";
+    align-content: center;
     gap: 0;
     padding-top: calc(var(--hdr) + 24px);
     padding-bottom: 32px;
     padding-left: calc(var(--right) + 32px);
     padding-right: max(24px, calc((100vw - 1280px) / 2 + 24px));
   }
-  .lp-hero-stats   { grid-area: stats; justify-self: end; gap: 48px; }
+  /* Tout est aligné à droite, à côté de la cocotte */
+  .lp-hero-badge   { grid-area: badge; justify-self: end; }
+  .lp-hero-title {
+    grid-area: title;
+    justify-self: end;
+    text-align: right;
+    margin-top: 16px;
+    /* 44 → 88 px, et jamais plus large que la place à droite de la cocotte
+       (la ligne la plus longue, « Pour ceux qui », fait ~5,7 fois la taille). */
+    font-size: clamp(
+      44px,
+      min(6vw, calc((100vw - var(--right) - 32px - max(24px, (100vw - 1280px) / 2 + 24px)) / 5.9)),
+      88px
+    );
+  }
+  .lp-hero-sub     { grid-area: sub; justify-self: end; text-align: right; margin-top: 24px; }
   .lp-hero-actions {
     grid-area: actions;
     justify-self: end;
     flex-direction: row;
     align-items: center;
-    gap: 28px;
-    margin-top: 28px;
+    align-self: auto;
+    gap: 12px;
+    margin-top: 32px;
   }
-  .lp-hero-actions > a:last-child { width: auto; }
-  /* Petits textes : badge puis sous-titre, alignés à droite au-dessus du titre */
-  .lp-hero-badge   { grid-area: badge; justify-self: end; margin-bottom: 10px; }
-  .lp-hero-sub     { grid-area: sub; justify-self: end; text-align: right; margin-bottom: 20px; }
-  .lp-hero-title {
-    grid-area: title;
-    justify-self: end;
-    text-align: right;
-    /* Limité aussi par la hauteur (écrans bas, 1280×720) et par la largeur disponible à droite
-       de la cocotte : la ligne la plus longue (« Pour ceux qui ») fait ~5,7 fois la taille. */
-    font-size: clamp(
-      56px,
-      min(6.8vw, 11.5svh, calc((100vw - var(--right) - 32px - max(24px, (100vw - 1280px) / 2 + 24px)) / 5.9)),
-      124px
-    );
-  }
-  .lp-stat-value { font-size: clamp(44px, 3.8vw, 56px); }
+  .lp-hero-actions > a { width: auto; }
+  .lp-hero-stats   { grid-area: stats; justify-self: stretch; justify-content: flex-end; gap: 32px; }
+  .lp-stat         { text-align: right; }
+  .lp-stat-value   { font-size: 40px; }
 }
 
 .lp-paused { animation-play-state: paused; }

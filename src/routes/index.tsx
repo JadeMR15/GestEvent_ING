@@ -141,7 +141,7 @@ function Landing() {
             <span>plav' · la billetterie étudiante</span>
           </p>
 
-          {/* Titre empilé, aligné à droite */}
+          {/* Titre empilé */}
           <h1 className="lp-hero-title">
             <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Pour ceux qui</span>{" "}
             <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>organisent,</span>{" "}
@@ -149,12 +149,12 @@ function Landing() {
             <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">viennent.</span></span>
           </h1>
 
-          {/* Petit texte : sous-titre */}
-          <p className="lp-hero-sub lp-caps-sm lp-fade-later">
+          {/* Phrase d'accroche */}
+          <p className="lp-hero-sub lp-fade-later">
             Organise ou participe — <span className="text-bordeaux-800">plav' s'occupe du reste.</span>
           </p>
 
-          {/* Chiffres en haut à droite */}
+          {/* Chiffres, sous les boutons (séparés par un fin trait) */}
           <div ref={statsAnim.ref} className="lp-hero-stats lp-fade-late">
             {[
               { value: stats.events, label: "events publiés" },
@@ -171,17 +171,17 @@ function Landing() {
             ))}
           </div>
 
-          {/* Actions : lien vers les soirées + bouton Principal */}
+          {/* Actions : bouton Principal + lien vers les soirées */}
           <div className="lp-hero-actions lp-fade-later">
             {!loading && user ? (
               <>
-                <a href="#evenements" className="lp-arrow-link lp-caps">Voir les soirées <ArrowUpRight /></a>
                 <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
+                <a href="#evenements" className="lp-arrow-link lp-caps">Voir les soirées <ArrowUpRight /></a>
               </>
             ) : (
               <>
-                <a href="#evenements" className="lp-arrow-link lp-caps">Découvrir les soirées <ArrowUpRight /></a>
                 <Button asChild size="lg" variant="secondary"><Link to="/register">Créer un compte <ArrowRight /></Link></Button>
+                <a href="#evenements" className="lp-arrow-link lp-caps">Découvrir les soirées <ArrowUpRight /></a>
               </>
             )}
           </div>
