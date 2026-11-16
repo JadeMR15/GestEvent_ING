@@ -41,24 +41,6 @@
   to   { transform: translate3d(6%, 4%, 0) rotate(14deg); }
 }
 
-/* Sections sombres : bordeaux 900 sans bord net, fondu de 160 px en haut et en bas */
-.lp-dark-fade {
-  --fade: 160px;
-  background: linear-gradient(
-    to bottom,
-    rgba(49, 13, 23, 0) 0,
-    var(--bordeaux-900) var(--fade),
-    var(--bordeaux-900) calc(100% - var(--fade)),
-    rgba(49, 13, 23, 0) 100%
-  );
-  /* Le contenu commence là où le fond est entièrement sombre */
-  padding-top: calc(var(--fade) + 48px);
-  padding-bottom: calc(var(--fade) + 48px);
-}
-@media (min-width: 768px) {
-  .lp-dark-fade { padding-top: calc(var(--fade) + 80px); padding-bottom: calc(var(--fade) + 80px); }
-}
-
 /* Grands cadres bordeaux 900 posés sur le dégradé (fonctionnalités, appel final) */
 .lp-frame-section { padding: 80px 12px; }
 @media (min-width: 768px) { .lp-frame-section { padding: 112px 28px; } }
@@ -73,6 +55,9 @@
   transform-origin: center;
 }
 @media (min-width: 768px) { .lp-frame { border-radius: 40px; padding: 80px 72px; } }
+/* Appel final : plus d'air au-dessus et en dessous du titre */
+.lp-frame-cta { padding-top: 88px; padding-bottom: 96px; }
+@media (min-width: 768px) { .lp-frame-cta { padding-top: 120px; padding-bottom: 128px; } }
 .lp-frame.is-in { animation: lpFrameIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes lpFrameIn {
   from { opacity: 0; transform: scale(0.96); }

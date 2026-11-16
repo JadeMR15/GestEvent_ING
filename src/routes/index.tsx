@@ -15,7 +15,7 @@ import { isPastEvent } from "@/lib/event-dates";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
 import { useInView } from "@/components/landing/hooks";
-import { CountUp, Reveal } from "@/components/landing/Motion";
+import { CountUp } from "@/components/landing/Motion";
 import { HeroCocotte } from "@/components/landing/HeroCocotte";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
@@ -245,14 +245,15 @@ function Landing() {
 
       {/* ── CTA (sombre) ── */}
       {!loading && !user && (
-        <section ref={ctaAnim.ref} className="lp-dark-fade relative overflow-hidden px-4 sm:px-6">
+        <section ref={ctaAnim.ref} className="lp-frame-section relative">
+          <Frame className="lp-frame-cta">
           <img
             src="/plav-cocotte.svg"
             alt=""
             aria-hidden="true"
             className={`lp-cta-cocotte pointer-events-none plav-drift ${ctaAnim.visible ? "" : "lp-paused"}`}
           />
-          <Reveal className="relative z-10 container mx-auto text-center">
+          <div className="relative z-10 mx-auto text-center">
             <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" />
             <h2 className="lp-cta-title">T'attends <span className="t-accent text-jaune-300">quoi ?</span></h2>
             <p className="mt-6 t-corps-l text-blanc/80">Rejoins les assos qui font confiance à plav'.</p>
@@ -264,7 +265,8 @@ function Landing() {
                 <Link to="/login">Se connecter</Link>
               </Button>
             </div>
-          </Reveal>
+          </div>
+          </Frame>
         </section>
       )}
 
