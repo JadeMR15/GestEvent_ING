@@ -106,6 +106,16 @@
 }
 
 
+/* ── assise : jambes tendues vers l'avant, corps posé (repos / coucou) ── */
+.ck--seated.ck--repos .ck-fig,
+.ck--seated.ck--coucou .ck-fig { transform: translateY(16%); }
+.ck--seated.ck--repos .ck-leg,
+.ck--seated.ck--coucou .ck-leg { transform: rotate(-78deg); }
+/* On défile : elle balance les jambes, plus ou moins vite (--swing) */
+.ck--seated.ck--swing .ck-leg-l { animation: ckSit var(--swing, 0.6s) ease-in-out infinite alternate; }
+.ck--seated.ck--swing .ck-leg-r { animation: ckSit var(--swing, 0.6s) ease-in-out infinite alternate-reverse; }
+@keyframes ckSit { from { transform: rotate(-62deg); } to { transform: rotate(-96deg); } }
+
 /* ── Animations réduites : pose de repos fixe ── */
 @media (prefers-reduced-motion: reduce) {
   .ck *, .ck { animation: none !important; }
