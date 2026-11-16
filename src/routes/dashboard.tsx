@@ -242,17 +242,17 @@ function EventsDashboard() {
         </div>
         <div className="flex flex-wrap gap-2">
           {role === "participant" && (
-            <Button asChild variant="outline" className="bg-white/70 backdrop-blur">
+            <Button asChild variant="outline" className="bg-white/85">
               <Link to="/my-tickets"><Ticket className="mr-2 h-4 w-4" />Mes billets</Link>
             </Button>
           )}
           {(role === "organizer" || role === "admin") && (
             <>
-              <Button variant="outline" className="bg-white/70 backdrop-blur" onClick={sendReminders24h} disabled={sendingReminders}>
+              <Button variant="outline" className="bg-white/85" onClick={sendReminders24h} disabled={sendingReminders}>
                 <Bell className="mr-2 h-4 w-4" />
                 {sendingReminders ? "Envoi…" : "Rappels 24h"}
               </Button>
-              <Button variant="outline" className="bg-white/70 backdrop-blur" onClick={exportCSV} disabled={exporting}>
+              <Button variant="outline" className="bg-white/85" onClick={exportCSV} disabled={exporting}>
                 <Download className="mr-2 h-4 w-4" />
                 {exporting ? "Export…" : "Exporter CSV"}
               </Button>

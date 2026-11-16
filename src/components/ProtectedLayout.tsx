@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { MobileHeader, MobileTabBar } from "./MobileNav";
 import { AppTopBar } from "./nav/AppTopBar";
@@ -11,18 +11,11 @@ interface Props {
   allow?: AppRole[];
 }
 
-/** Fond de l'espace connecté : le dégradé de l'accueil, qui dérive lentement, sous un voile clair. */
+/** Fond de l'espace connecté : le dégradé de l'accueil (fixe), sous un voile clair. */
 function AppSky() {
-  const [hidden, setHidden] = useState(false);
-  useEffect(() => {
-    const onChange = () => setHidden(document.visibilityState === "hidden");
-    onChange();
-    document.addEventListener("visibilitychange", onChange);
-    return () => document.removeEventListener("visibilitychange", onChange);
-  }, []);
   return (
     <>
-      <div aria-hidden="true" className={`app-sky ${hidden ? "is-paused" : ""}`} />
+      <div aria-hidden="true" className="app-sky" />
       <div aria-hidden="true" className="app-veil" />
     </>
   );
