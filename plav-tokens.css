@@ -32,7 +32,7 @@
   --neutre-gris-chaud: #7A6960; /* texte secondaire, icônes secondaires */
   --neutre-encre: #2B161B;      /* texte principal */
   /* ESSAI design-tests : neutres moins beiges (non reportés dans CHARTE-PLAV.md) */
-  --neutre-fond: #FCF6F5;       /* ESSAI design-tests : fond des pages de travail (version très pâle du dégradé) */
+  --neutre-fond: #FBF5F7;       /* ESSAI design-tests : fond des pages de travail (blanc très légèrement rosé) */
   --neutre-bordure: #E9E0E3;    /* ESSAI design-tests : bordures, séparateurs, états désactivés (remplace le sable) */
 
   /* ---- Dégradé de la page d'accueil, couleurs de la charte (ESSAI design-tests) ---- */

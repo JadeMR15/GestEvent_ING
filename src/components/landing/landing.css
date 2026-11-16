@@ -23,15 +23,40 @@
 }
 .lp-header-bg.is-on { opacity: 1; }
 
-/* ── Dégradé aux couleurs de la charte (ESSAI design-tests) : jaune 200 → bordeaux 100 → bordeaux 300 ── */
-.lp-sky-events {
-  background: linear-gradient(165deg, var(--degrade-3) 0%, var(--degrade-2) 45%, var(--degrade-1) 100%);
+/* ── Fond commun de la page (ESSAI design-tests) ──
+   Un seul calque jaune 200 → bordeaux 100 → bordeaux 300, fixé derrière toute la page :
+   aucune section claire n'a de fond propre, donc aucune démarcation au défilement. */
+.lp-page { position: relative; isolation: isolate; background: transparent; }
+.lp-sky {
+  position: fixed;
+  inset: -50%;
+  z-index: -1;
+  background: linear-gradient(135deg, var(--degrade-1) 25%, var(--degrade-2) 50%, var(--degrade-3) 75%);
+  animation: lpSky 36s ease-in-out infinite alternate;
+  pointer-events: none;
 }
-.lp-sky-app {
-  background: linear-gradient(120deg, var(--degrade-1) 0%, var(--degrade-2) 55%, var(--degrade-3) 100%);
+.lp-sky.is-paused { animation-play-state: paused; }
+@keyframes lpSky {
+  from { transform: translate3d(-6%, -4%, 0) rotate(-8deg); }
+  to   { transform: translate3d(6%, 4%, 0) rotate(14deg); }
 }
-.lp-sky-footer {
-  background: linear-gradient(150deg, var(--degrade-2) 0%, var(--degrade-1) 55%, var(--degrade-3) 100%);
+
+/* Sections sombres : bordeaux 900 sans bord net, fondu de 160 px en haut et en bas */
+.lp-dark-fade {
+  --fade: 160px;
+  background: linear-gradient(
+    to bottom,
+    rgba(49, 13, 23, 0) 0,
+    var(--bordeaux-900) var(--fade),
+    var(--bordeaux-900) calc(100% - var(--fade)),
+    rgba(49, 13, 23, 0) 100%
+  );
+  /* Le contenu commence là où le fond est entièrement sombre */
+  padding-top: calc(var(--fade) + 48px);
+  padding-bottom: calc(var(--fade) + 48px);
+}
+@media (min-width: 768px) {
+  .lp-dark-fade { padding-top: calc(var(--fade) + 80px); padding-bottom: calc(var(--fade) + 80px); }
 }
 
 /* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */
@@ -59,23 +84,11 @@
   --hdr: 72px;
   position: relative;
   isolation: isolate;
-  background: linear-gradient(135deg, var(--degrade-1) 0%, var(--degrade-2) 50%, var(--degrade-3) 100%);
-  overflow: hidden;
+  background: transparent;
+  /* La cocotte peut déborder visuellement sur la section suivante
+     (le débordement horizontal est coupé par .lp-page) */
+  overflow: visible;
   padding-top: var(--hdr);
-}
-/* Calque de dégradé plus grand que le hero, qui dérive très lentement (transform uniquement) */
-.lp-hero-sky {
-  position: absolute;
-  inset: -50%;
-  z-index: -1;
-  background: linear-gradient(135deg, var(--degrade-1) 20%, var(--degrade-2) 50%, var(--degrade-3) 80%);
-  animation: lpSky 36s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-.lp-hero-sky.is-paused { animation-play-state: paused; }
-@keyframes lpSky {
-  from { transform: translate3d(-6%, -4%, 0) rotate(-8deg); }
-  to   { transform: translate3d(6%, 4%, 0) rotate(14deg); }
 }
 
 /* Cocotte (mobile : en haut, ~85vw, coupée à gauche) */
@@ -86,16 +99,6 @@
   max-width: 640px;
   max-height: 640px;
   margin: 8px 0 0 -25vw;
-}
-.lp-cocotte-ground {
-  position: absolute;
-  left: 14%;
-  right: 14%;
-  bottom: -5%;
-  height: 12%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(43, 22, 27, 0.2), rgba(43, 22, 27, 0));
-  animation: fadeIn 1.2s ease 0.6s both;
 }
 .lp-cocotte-enter {
   position: relative;
@@ -674,8 +677,8 @@
 
 /* ── Animations réduites : tout s'affiche directement ── */
 @media (prefers-reduced-motion: reduce) {
-  .lp-line, .lp-fade-late, .lp-fade-later, .lp-tick, .lp-hero-sky,
-  .lp-cocotte-enter, .lp-cocotte-tilt, .lp-cocotte-ground,
+  .lp-line, .lp-fade-late, .lp-fade-later, .lp-tick, .lp-sky,
+  .lp-cocotte-enter, .lp-cocotte-tilt,
   .lp-reveal, .lp-reveal.is-in,
   .lp-qr-scan, .lp-phone-float, .lp-cocotte-spin, .lp-cta-cocotte {
     animation: none !important;

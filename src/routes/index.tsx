@@ -24,6 +24,7 @@ import { HeroCocotte } from "@/components/landing/HeroCocotte";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
 import { AppShowcase } from "@/components/landing/AppShowcase";
+import { LandingSky } from "@/components/landing/LandingSky";
 import "@/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -107,7 +108,8 @@ function Landing() {
   ];
 
   return (
-    <div className="lp-page min-h-screen" style={{ background: "var(--bg-page)", overflowX: "clip" }}>
+    <div className="lp-page min-h-screen" style={{ overflowX: "clip" }}>
+      <LandingSky />
 
       {/* ── Header : blanc, logo couleur, liens en petites capitales ── */}
       <LandingHeader
@@ -127,7 +129,6 @@ function Landing() {
 
       {/* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */}
       <section ref={heroAnim.ref} className="lp-hero">
-        <div aria-hidden="true" className={`lp-hero-sky ${heroAnim.visible ? "" : "is-paused"}`} />
         <HeroCocotte playing={heroAnim.visible} />
 
         <div className="lp-hero-grid container mx-auto px-4 sm:px-6">
@@ -186,7 +187,7 @@ function Landing() {
 
 
       {/* ── Events section (clair) ── */}
-      <section id="evenements" className="lp-events lp-sky-events relative py-20 md:py-28">
+      <section id="evenements" className="lp-events relative py-20 md:py-28">
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
@@ -236,7 +237,7 @@ function Landing() {
       </section>
 
       {/* ── Features (sombre) : grille bento ── */}
-      <section id="fonctionnalites" className="relative overflow-hidden bg-bordeaux-900 py-24 md:py-32">
+      <section id="fonctionnalites" className="lp-dark-fade relative overflow-hidden">
         <div ref={featuresAnim.ref} className="container mx-auto px-4 sm:px-6">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
             <h2 className="lp-section-title text-blanc">Simple. <span className="text-jaune-300">Complet.</span></h2>
@@ -254,7 +255,7 @@ function Landing() {
 
       {/* ── CTA (sombre) ── */}
       {!loading && !user && (
-        <section ref={ctaAnim.ref} className="relative overflow-hidden bg-bordeaux-900 px-4 py-24 sm:px-6 md:py-36">
+        <section ref={ctaAnim.ref} className="lp-dark-fade relative overflow-hidden px-4 sm:px-6">
           <img
             src="/plav-cocotte.svg"
             alt=""
@@ -278,7 +279,7 @@ function Landing() {
       )}
 
       {/* ── Footer ── */}
-      <footer id="contact" className="lp-sky-footer relative py-12">
+      <footer id="contact" className="relative py-12">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
@@ -349,11 +350,11 @@ function StackedHowItWorks() {
       <div style={{
         position:   "sticky",
         top:        110,
-        zIndex:     6,
+        zIndex:     0, /* sous les cartes : elles le recouvrent en remontant (pas de bande de fond) */
         width:      "100%",
         textAlign:  "center",
         padding:    "1rem 0 1.5rem",
-        background: "linear-gradient(to bottom, var(--bg-page) 70%, transparent 100%)",
+        background: "transparent",
       }}>
         <h2 style={{ color: "var(--text-title)" }}>
           Comment ça marche ?

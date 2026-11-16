@@ -13,7 +13,7 @@ export function AppShowcase() {
   ];
 
   return (
-    <section className="lp-app lp-sky-app relative overflow-hidden py-24 md:py-32">
+    <section className="lp-app relative overflow-hidden py-24 md:py-32">
       <div className="container mx-auto grid items-center gap-16 px-4 sm:px-6 md:grid-cols-2">
         {/* Téléphone (décoratif) */}
         <div ref={ref} className="relative flex justify-center" aria-hidden="true">

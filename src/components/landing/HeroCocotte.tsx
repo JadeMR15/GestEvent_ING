@@ -5,7 +5,6 @@ import { usePrefersReducedMotion } from "./hooks";
  * Hero « studio » : la cocotte comme un grand objet 3D.
  * - Arrivée : glisse depuis la gauche en tournant, avec un fondu.
  * - Boucle : rotation lente (un tour en ~40 s) + légère inclinaison 3D qui oscille (~15 s).
- * - Ombre douce statique en dessous (ne tourne pas, aucun recalcul pendant la rotation).
  * - Parallaxe souris : ordinateur uniquement (pointeur précis).
  * - `playing` = hero visible : sinon les boucles sont en pause.
  * - prefers-reduced-motion : cocotte fixe.
@@ -43,7 +42,6 @@ export function HeroCocotte({ playing }: { playing: boolean }) {
 
   return (
     <div className="lp-cocotte" aria-hidden="true">
-      <div className="lp-cocotte-ground" />
       <div className="lp-cocotte-enter">
         <div ref={parallaxRef} className="lp-cocotte-parallax">
           <div className={`lp-cocotte-tilt ${paused}`}>

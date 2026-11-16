@@ -19,7 +19,7 @@ export const CHARTE = {
   blanc: "#FFFFFF",
   creme: "#F9F4E8",
   sable: "#EBE4D7",
-  fond: "#FCF6F5",    // ESSAI design-tests (--neutre-fond)
+  fond: "#FBF5F7",    // ESSAI design-tests (--neutre-fond)
   bordure: "#E9E0E3", // ESSAI design-tests (--neutre-bordure)
   grisChaud: "#7A6960",
   encre: "#2B161B",
