@@ -13,7 +13,7 @@ export const Route = createFileRoute("/dev/cocotte")({
   component: CocotteLab,
 });
 
-const STATES: CocotteState[] = ["apparition", "repos", "marche", "coucou", "saut", "retrait"];
+const STATES: CocotteState[] = ["apparition", "repos", "marche", "coucou", "saut", "retrait", "danse"];
 
 function CocotteLab() {
   const [flip, setFlip] = useState(false);

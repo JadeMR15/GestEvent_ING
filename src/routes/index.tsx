@@ -22,6 +22,7 @@ import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesB
 import { AppShowcase } from "@/components/landing/AppShowcase";
 import { Frame } from "@/components/landing/Frame";
 import { CocotteCompanion } from "@/components/mascot/CocotteCompanion";
+import { DanceScene } from "@/components/mascot/DanceScene";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
@@ -224,6 +225,9 @@ function Landing() {
 
         </div>
       </section>
+
+      {/* ── Scène de danse : Cocotte et les créatrices de Plav' (essai) ── */}
+      <DanceScene />
 
       {/* ── Features (sombre) : grille bento ── */}
       <section id="fonctionnalites" className="lp-frame-section relative">

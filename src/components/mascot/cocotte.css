@@ -84,6 +84,28 @@
   100% { transform: none; }
 }
 
+/* ── danse : balancement, bras levés en alternance, petits pas (scène des créatrices) ── */
+.ck--danse .ck-fig   { animation: dzSway 1.6s ease-in-out infinite; }
+.ck--danse .ck-arm-l { animation: dzArmL 1.6s ease-in-out infinite; }
+.ck--danse .ck-arm-r { animation: dzArmR 1.6s ease-in-out infinite; }
+.ck--danse .ck-leg-l { animation: ckStep 0.8s ease-in-out infinite alternate; }
+.ck--danse .ck-leg-r { animation: ckStep 0.8s ease-in-out infinite alternate-reverse; }
+@keyframes dzSway {
+  0%, 100% { transform: rotate(-6deg) translateY(0); }
+  25%      { transform: rotate(0deg) translateY(-6%); }
+  50%      { transform: rotate(6deg) translateY(0); }
+  75%      { transform: rotate(0deg) translateY(-6%); }
+}
+@keyframes dzArmL {
+  0%, 45%, 100% { transform: none; }
+  20%, 30%      { transform: rotate(62deg); }
+}
+@keyframes dzArmR {
+  0%, 45%, 100% { transform: none; }
+  65%, 80%      { transform: rotate(-24deg); }
+}
+
+
 /* ── Animations réduites : pose de repos fixe ── */
 @media (prefers-reduced-motion: reduce) {
   .ck *, .ck { animation: none !important; }

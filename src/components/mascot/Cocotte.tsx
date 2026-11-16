@@ -8,7 +8,7 @@ import "./cocotte.css";
  * animé en CSS (transform uniquement), avec ses origines aux épaules et aux hanches.
  */
 
-export type CocotteState = "apparition" | "repos" | "marche" | "coucou" | "saut" | "retrait";
+export type CocotteState = "apparition" | "repos" | "marche" | "coucou" | "saut" | "retrait" | "danse";
 
 /** Repère du dessin : celui du fichier plav-cocotte.svg, élargi pour les membres. */
 export const COCOTTE_BOX = { x: 260, y: -110, w: 1300, h: 1430 };

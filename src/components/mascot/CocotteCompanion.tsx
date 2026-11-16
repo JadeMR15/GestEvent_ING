@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Cocotte, COCOTTE_BODY, COCOTTE_BOX, type CocotteState } from "./Cocotte";
 import { usePrefersReducedMotion } from "@/components/landing/hooks";
+import { COCOTTE_ON_STAGE } from "./DanceScene";
 import "./companion.css";
 
 /**
@@ -12,9 +13,12 @@ import "./companion.css";
  * Une seule boucle requestAnimationFrame (défilement passif), transform / opacity uniquement.
  */
 
-type Phase = "off" | "emerge" | "wave" | "jumpOut" | "companion" | "jumpIn" | "retract";
+type Phase =
+  | "off" | "emerge" | "wave" | "jumpOut" | "companion" | "jumpIn" | "retract"
+  // Scène de danse
+  | "toStage" | "stageWave" | "stage" | "stageAppear" | "fromStage" | "away";
 
-const DUR = { emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750 };
+const DUR = { emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750, toStage: 1300, stageWave: 1000, fromStage: 750 };
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -32,6 +36,9 @@ export function CocotteCompanion() {
     const wrap = wrapRef.current;
     const slot = document.getElementById("lp-cocotte-slot");
     const footer = document.getElementById("contact");
+    const spot = document.getElementById("lp-dance-spot");
+    const floor = spot?.parentElement ?? null;
+    const features = document.getElementById("fonctionnalites");
     const page = wrap?.closest(".lp-page") as HTMLElement | null;
     if (!wrap || !slot) return;
 
@@ -49,6 +56,8 @@ export function CocotteCompanion() {
     let lastScrollAt = 0;
     let scrollSpeed = 0; // px/ms, lissé
     let hopUntil = 0;
+    let from = { x: 0, y: 0, s: 1 }; // point de départ d'un trajet (coin → scène)
+    let stageGreeted = false;
     let curPose: CocotteState = "repos";
     let curShown = false;
     let curFlip = false;
@@ -74,6 +83,15 @@ export function CocotteCompanion() {
       const cx = ((COCOTTE_BODY.cx - COCOTTE_BOX.x) / COCOTTE_BOX.w) * W;
       const cy = ((COCOTTE_BODY.cy - COCOTTE_BOX.y) / COCOTTE_BOX.h) * H;
       return { x: r.left + r.width / 2 - base.x - cx * s, y: r.top + r.height / 2 - base.y - cy * s, s };
+    };
+
+    /** Pose « sur la scène » : debout sur le sol invisible, à la place prévue au centre. */
+    const stagePose = (base: { x: number; y: number }, H: number) => {
+      if (!spot) return { x: walkX, y: 0, s: 1 };
+      const r = spot.getBoundingClientRect();
+      const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
+      const s = r.height / H;
+      return { x: r.left + r.width / 2 - base.x - (W * s) / 2, y: r.bottom - base.y - H * s, s };
     };
 
     const go = (p: Phase, now: number) => {
@@ -107,12 +125,20 @@ export function CocotteCompanion() {
       const footerIn = footer ? footer.getBoundingClientRect().top < vh : false;
       hide = reduced ? (footerIn ? 1 : 0) : lerp(hide, footerIn ? 1 : 0, 1 - Math.exp(-dt / 140));
 
+      // Scène de danse : visible au milieu de l'écran, dépassée (au-dessus), ou encore en dessous
+      const fr = floor?.getBoundingClientRect();
+      const stageVisible = !!fr && fr.top < 0.7 * vh && fr.bottom > 0.15 * vh;
+      const stagePassed = !!fr && fr.bottom < 0.1 * vh;
+      const stageBelow = !fr || fr.top > 0.85 * vh;
+      const featuresDone = !!features && features.getBoundingClientRect().bottom < 0.5 * vh;
+
       const t = now - phaseStart;
       let pos = { x: walkX, y: 0, s: 1 };
 
       if (reduced) {
         // Pas de transformation ni de marche : directement en place, pose de repos
-        phase = active ? "companion" : "off";
+        phase = !active ? "off" : stageVisible ? "stage" : stagePassed && !featuresDone ? "away" : "companion";
+        if (phase === "stage") pos = stagePose(base, H);
         setP("repos");
       } else {
         switch (phase) {
@@ -143,6 +169,12 @@ export function CocotteCompanion() {
           }
           case "companion": {
             if (!active) { go("jumpIn", now); setP("saut"); idleAction = null; break; }
+            if (stageVisible) {
+              // Elle quitte son coin et marche jusqu'au centre de la scène
+              from = { x: walkX, y: 0, s: 1 };
+              go("toStage", now); setP("marche"); idleAction = null;
+              break;
+            }
             facingLeft = walkDir < 0;
             if (now < hopUntil) { setP("saut"); idleAction = null; nextIdleAt = now + 4000; }
             else if (scrolling) {
@@ -186,6 +218,53 @@ export function CocotteCompanion() {
             if (t > DUR.jumpIn) { go("retract", now); atSlot(true); setP("retrait"); }
             break;
           }
+          case "toStage": {
+            const k = ease(clamp(t / DUR.toStage, 0, 1));
+            const b = stagePose(base, H);
+            pos = { x: lerp(from.x, b.x, k), y: lerp(from.y, b.y, k), s: lerp(from.s, b.s, k) };
+            facingLeft = b.x < from.x;
+            setP("marche");
+            if (stagePassed) { go("away", now); break; }
+            if (stageBelow) { go("fromStage", now); setP("saut"); break; }
+            if (t > DUR.toStage) { go("stageWave", now); setP("coucou"); facingLeft = false; }
+            break;
+          }
+          case "stageWave":
+            pos = stagePose(base, H);
+            if (stagePassed) { go("away", now); break; }
+            if (stageBelow) { go("fromStage", now); setP("saut"); break; }
+            if (t > DUR.stageWave) {
+              // Les danseuses peuvent arriver
+              if (!stageGreeted) { stageGreeted = true; window.dispatchEvent(new CustomEvent(COCOTTE_ON_STAGE)); }
+              go("stage", now); setP("danse");
+            }
+            break;
+          case "stageAppear":
+            pos = stagePose(base, H);
+            if (stagePassed) { go("away", now); break; }
+            if (stageBelow) { go("fromStage", now); setP("saut"); break; }
+            if (t > DUR.emerge) { go("stage", now); setP("danse"); }
+            break;
+          case "stage":
+            pos = stagePose(base, H);
+            setP(now < hopUntil ? "saut" : "danse");
+            if (stagePassed) { go("away", now); break; }   // on continue vers le bas : elle s'efface
+            if (stageBelow) { go("fromStage", now); setP("saut"); } // on remonte : retour au coin
+            break;
+          case "fromStage": {
+            const k = ease(clamp(t / DUR.fromStage, 0, 1));
+            const a = stagePose(base, H);
+            const arc = isMobile() ? 90 : 150;
+            pos = { x: lerp(a.x, walkX, k), y: lerp(a.y, 0, k) - Math.sin(Math.PI * k) * arc, s: lerp(a.s, 1, k) };
+            facingLeft = true;
+            if (t > DUR.fromStage) { go("companion", now); setP("repos"); nextIdleAt = now + 4000; }
+            break;
+          }
+          case "away":
+            // Pendant le cadre des fonctionnalités, Cocotte n'est pas visible
+            if (stageVisible) { go("stageAppear", now); setP("apparition"); }
+            else if (featuresDone) { go("companion", now); setP("apparition"); walkDir = 1; nextIdleAt = now + 4000; }
+            break;
           case "retract":
             pos = slotPose(base, H);
             if (t > DUR.retract) {
@@ -198,8 +277,8 @@ export function CocotteCompanion() {
       }
 
       // Regarde dans son sens de marche (le saut d'arrivée part toujours vers la droite)
-      setF(phase === "companion" || phase === "jumpIn" ? facingLeft : false);
-      setS(phase !== "off");
+      setF(["companion", "jumpIn", "toStage", "fromStage"].includes(phase) ? facingLeft : false);
+      setS(phase !== "off" && phase !== "away");
 
       // Discrétion près du footer : seulement en mode compagnon
       const drop = phase === "companion" ? hide * (H + 60) : 0;
@@ -209,6 +288,7 @@ export function CocotteCompanion() {
       // La boucle continue tant que quelque chose bouge
       const busy =
         phase === "emerge" || phase === "wave" || phase === "jumpOut" || phase === "jumpIn" || phase === "retract" ||
+        phase === "toStage" || phase === "stageWave" || phase === "stageAppear" || phase === "fromStage" ||
         scrolling || now < hopUntil || !!idleAction || Math.abs(hide - (footerIn ? 1 : 0)) > 0.01 ||
         // Titre proche du seuil (il peut encore bouger sans défilement, ex. son animation d'apparition)
         Math.abs(slotTop - 0.3 * vh) < 160;

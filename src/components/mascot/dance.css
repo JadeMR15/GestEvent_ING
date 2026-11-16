@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Scène de danse : Cocotte et les créatrices de Plav' (ESSAI design-tests)
+   transform / opacity uniquement ; pause hors écran ; fixe avec prefers-reduced-motion.
+   ========================================================================== */
+
+/* ── Danseuse ── */
+.dz { position: relative; width: 100%; height: 100%; }
+.dz-fig { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.dz-limbs { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dz-limbs .ck-arm, .dz-limbs .ck-leg { transform-box: fill-box; }
+.dz-body {
+  position: absolute;
+  left: 20%;
+  top: 12.667%;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-pilule);
+  border: 3px solid var(--neutre-blanc);
+  box-shadow: 0 6px 16px rgba(109, 29, 48, 0.25);
+  overflow: hidden;
+  background: var(--bordeaux-600);
+  transform-origin: 50% 70%;
+}
+.dz-body img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dz-initial {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font: 600 clamp(20px, 2.6vw, 34px) / 1 var(--font-titre);
+  color: var(--neutre-blanc);
+}
+
+/* Bulle avec le prénom */
+.dz-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  margin-bottom: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pilule);
+  background: var(--neutre-blanc);
+  color: var(--bordeaux-600);
+  font: 600 13px/1.2 var(--font-texte);
+  white-space: nowrap;
+  box-shadow: var(--ombre-carte);
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.9);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.dz-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  border: 6px solid transparent;
+  border-top-color: var(--neutre-blanc);
+  transform: translateX(-50%);
+}
+.is-hovered .dz-bubble { opacity: 1; transform: translate(-50%, 0) scale(1); }
+
+/* États */
+.dz--repos .dz-body { animation: ckBreathe 3.2s ease-in-out infinite alternate; }
+.dz--coucou .dz-arm-r { animation: ckWave 1s ease-in-out infinite; }
+.dz--saut .dz-fig { animation: ckJump 0.75s cubic-bezier(0.33, 0, 0.3, 1) both; }
+.dz--saut .ck-leg { animation: ckTuck 0.75s ease-in-out both; }
+.dz--saut .dz-arm-l { animation: ckArmUpL 0.75s ease-in-out both; }
+.dz--saut .dz-arm-r { animation: ckArmUpR 0.75s ease-in-out both; }
+
+/* Danse : balancement, bras levés en alternance, petits pas ; décalage par danseuse */
+.dz--danse .dz-fig    { animation: dzSway 1.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.35s); }
+.dz--danse .dz-arm-l  { animation: dzArmL 1.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.35s); }
+.dz--danse .dz-arm-r  { animation: dzArmR 1.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.35s); }
+.dz--danse .dz-leg-l  { animation: ckStep 0.8s ease-in-out infinite alternate; animation-delay: calc(var(--i, 0) * -0.2s); }
+.dz--danse .dz-leg-r  { animation: ckStep 0.8s ease-in-out infinite alternate-reverse; animation-delay: calc(var(--i, 0) * -0.2s); }
+/* (keyframes dzSway / dzArmL / dzArmR : dans cocotte.css, partagées avec Cocotte) */
+
+/* ── La scène ── */
+.lp-dance { position: relative; padding: 24px 0 8px; }
+.lp-dance-title {
+  text-align: center;
+  font: 600 clamp(26px, 3.2vw, 40px) / 1.1 var(--font-titre);
+  letter-spacing: -0.02em;
+  color: var(--neutre-encre);
+}
+.lp-dance-floor { position: relative; height: 220px; margin-top: 8px; }
+@media (min-width: 768px) { .lp-dance-floor { height: 320px; } }
+
+/* Emplacements (sol invisible à 24 px du bas) */
+.lp-dance-spot,
+.lp-dancer-slot {
+  position: absolute;
+  bottom: 24px;
+  transform: translateX(-50%);
+}
+/* Cocotte au centre de la scène (la mascotte fixe vient s'y caler) */
+.lp-dance-spot { left: 40%; width: 80px; height: 88px; }
+@media (min-width: 768px) { .lp-dance-spot { left: 47%; width: 118px; height: 130px; } }
+
+.lp-dancer-slot { width: 74px; height: 92px; }
+@media (min-width: 768px) { .lp-dancer-slot { width: 124px; height: 155px; } }
+.lp-dancer-slot.d0 { left: 14%; margin-bottom: 0; }
+.lp-dancer-slot.d1 { left: 64%; margin-bottom: 8px; }
+.lp-dancer-slot.d2 { left: 88%; margin-bottom: 3px; }
+@media (min-width: 768px) {
+  .lp-dancer-slot.d0 { left: 29%; }
+  .lp-dancer-slot.d1 { left: 66%; margin-bottom: 12px; }
+  .lp-dancer-slot.d2 { left: 82%; margin-bottom: 4px; }
+}
+
+/* Arrivée : elles sautent depuis le bas de la scène, une par une (~150 ms d'écart) */
+.lp-dancer-hop { width: 100%; height: 100%; opacity: 0; transform: translateY(120%); }
+.lp-dance.is-arrived .lp-dancer-hop {
+  animation: dzArrive 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  animation-delay: calc(var(--n, 0) * 150ms);
+}
+@keyframes dzArrive {
+  0%   { opacity: 0; transform: translateY(120%); }
+  55%  { opacity: 1; transform: translateY(-28%); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Pause hors écran */
+.lp-dance.is-paused *, .lp-dance.is-paused *::before { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-dance .lp-dancer-hop { opacity: 1; transform: none; animation: none !important; }
+  .dz *, .dz { animation: none !important; transition: none !important; }
+}
