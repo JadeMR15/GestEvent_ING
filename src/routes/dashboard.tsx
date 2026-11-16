@@ -1,5 +1,7 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Cocotte, type CocotteState } from "@/components/mascot/Cocotte";
+import { isPastEvent } from "@/lib/event-dates";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
@@ -7,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { APPROVAL_BADGE, APPROVAL_LABEL, type ApprovalStatus } from "@/lib/schools";
-import { Calendar, CheckCircle2, CirclePlus, Clock, Ticket, Bell, Download, Users } from "lucide-react";
-import { format } from "date-fns";
+import { Calendar, CheckCircle2, CirclePlus, Clock, Ticket, Bell, Download, Users, MapPin, ArrowRight, Sparkles } from "lucide-react";
+import { format, formatDistanceToNowStrict, isToday, isTomorrow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { invokeEmail } from "@/lib/emails";
@@ -29,6 +31,14 @@ interface Stats {
   revenue: number;
 }
 
+interface NextEvent {
+  event: any;
+  /** Participant : statut de son inscription. */
+  status?: string;
+  /** Organisateur : nombre d'inscrits confirmés. */
+  confirmed?: number;
+}
+
 function DashboardPage() {
   const { role } = useAuth();
   // L'admin Plav' n'organise pas de soirées : il a son propre espace.
@@ -37,9 +47,12 @@ function DashboardPage() {
 }
 
 function EventsDashboard() {
-  const { user, role } = useAuth();
+  const { user, role, fullName } = useAuth();
   const [stats, setStats] = useState<Stats>({ total: 0, upcoming: 0, revenue: 0 });
   const [recent, setRecent] = useState<any[]>([]);
+  // Prochain événement (calculé à partir des données déjà chargées) : celui dont parle Cocotte.
+  const [next, setNext] = useState<NextEvent | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [sendingReminders, setSendingReminders] = useState(false);
 
@@ -61,6 +74,10 @@ function EventsDashboard() {
           revenue: spent,
         });
         setRecent(list.slice(0, 5));
+        const upcomingRegs = list
+          .filter((r: any) => r.events && (r.status === "registered" || r.status === "pending") && !isPastEvent(r.events.starts_at))
+          .sort((a: any, b: any) => new Date(a.events.starts_at).getTime() - new Date(b.events.starts_at).getTime());
+        setNext(upcomingRegs[0] ? { event: upcomingRegs[0].events, status: upcomingRegs[0].status } : null);
       } else {
         const { data: events } = await supabase
           .from("events")
@@ -78,7 +95,16 @@ function EventsDashboard() {
           revenue,
         });
         setRecent(list.slice(0, 5));
+        const upcomingEvents = list
+          .filter((e: any) => e.status !== "cancelled" && !isPastEvent(e.starts_at))
+          .sort((a: any, b: any) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
+        const ev = upcomingEvents[0];
+        setNext(ev ? {
+          event: ev,
+          confirmed: (ev.registrations ?? []).filter((r: any) => r.status === "registered" || r.status === "attended").length,
+        } : null);
       }
+      setLoaded(true);
     })();
   }, [user, role]);
 
@@ -207,25 +233,26 @@ function EventsDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="not-italic">Dashboard</h1>
+          <p className="app-caps text-gris-chaud">{format(new Date(), "EEEE d MMMM", { locale: fr })}</p>
+          <h1 className="not-italic mt-1">Dashboard</h1>
           <p className="text-muted-foreground">Vue d'ensemble de votre activité.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {role === "participant" && (
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="bg-white/70 backdrop-blur">
               <Link to="/my-tickets"><Ticket className="mr-2 h-4 w-4" />Mes billets</Link>
             </Button>
           )}
           {(role === "organizer" || role === "admin") && (
             <>
-              <Button variant="outline" onClick={sendReminders24h} disabled={sendingReminders}>
+              <Button variant="outline" className="bg-white/70 backdrop-blur" onClick={sendReminders24h} disabled={sendingReminders}>
                 <Bell className="mr-2 h-4 w-4" />
                 {sendingReminders ? "Envoi…" : "Rappels 24h"}
               </Button>
-              <Button variant="outline" onClick={exportCSV} disabled={exporting}>
+              <Button variant="outline" className="bg-white/70 backdrop-blur" onClick={exportCSV} disabled={exporting}>
                 <Download className="mr-2 h-4 w-4" />
                 {exporting ? "Export…" : "Exporter CSV"}
               </Button>
@@ -237,66 +264,70 @@ function EventsDashboard() {
         </div>
       </div>
 
+      {/* Cocotte annonce le prochain événement */}
+      {loaded
+        ? <NextEventHero next={next} organizer={role !== "participant"} firstName={(fullName ?? "").trim().split(/\s+/)[0]} />
+        : <div className="h-[340px] animate-pulse rounded-[28px] bg-bordeaux-900/15 md:rounded-[40px]" />}
+
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <Card key={c.label} className="overflow-hidden border-2 shadow-elegant">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{c.label}</p>
-                  <p className="mt-1 text-3xl font-bold">
-                    {c.format === "currency"
-                      ? `${c.value.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`
-                      : c.value}
-                  </p>
-                </div>
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} shadow-glow`}>
-                  <c.icon className="h-6 w-6 text-white" />
-                </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((c, i) => (
+          <div key={c.label} className={`app-glass db-rise ${i === 0 ? "db-rise-3" : "db-rise-4"} rounded-3xl p-6`}>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="app-caps text-gris-chaud">{c.label}</p>
+                <p className="mt-3 font-display text-5xl leading-none tracking-tight text-encre">
+                  {c.format === "currency"
+                    ? `${c.value.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`
+                    : c.value}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${c.color} shadow-glow`}>
+                <c.icon className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Recent items */}
-      <Card className="border-2 shadow-elegant">
-        <CardHeader>
-          <CardTitle>
-            {role === "participant" ? "Mes inscriptions récentes" : "Événements récents"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recent.length === 0 ? (
-            <p className="py-8 text-center text-muted-foreground">
-              {role === "participant" ? "Aucune inscription pour l'instant." : "Aucun événement pour l'instant."}{" "}
-              <Link to="/events" className="font-medium text-primary hover:underline">
-                {role === "participant" ? "Découvrir les événements" : "Créer un événement"}
-              </Link>
-            </p>
-          ) : (
-            <ul className="divide-y">
-              {recent.map((item: any) => {
-                const ev = role === "participant" ? item.events : item;
-                if (!ev) return null;
-                const allRegs = item.registrations ?? [];
-                const confirmed = allRegs.filter((r: any) => r.status === "registered" || r.status === "attended").length;
-                return (
-                  <li key={item.id} className="flex items-center justify-between py-3">
-                    <div>
-                      <Link
-                        to="/events/$eventId"
-                        params={{ eventId: ev.id }}
-                        className="font-medium hover:text-primary"
-                      >
-                        {ev.title}
-                      </Link>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(ev.starts_at), "PPP", { locale: fr })} · {ev.location || "En ligne"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
+      <section className="app-glass rounded-3xl p-5 md:p-7">
+        <h2 className="t-titre-3 text-bordeaux-600">
+          {role === "participant" ? "Mes inscriptions récentes" : "Événements récents"}
+        </h2>
+        {recent.length === 0 ? (
+          <p className="py-10 text-center text-muted-foreground">
+            {role === "participant" ? "Aucune inscription pour l'instant." : "Aucun événement pour l'instant."}{" "}
+            <Link to="/events" className="font-medium text-primary hover:underline">
+              {role === "participant" ? "Découvrir les événements" : "Créer un événement"}
+            </Link>
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {recent.map((item: any) => {
+              const ev = role === "participant" ? item.events : item;
+              if (!ev) return null;
+              const allRegs = item.registrations ?? [];
+              const confirmed = allRegs.filter((r: any) => r.status === "registered" || r.status === "attended").length;
+              const d = new Date(ev.starts_at);
+              return (
+                <li key={item.id}>
+                  <Link
+                    to="/events/$eventId"
+                    params={{ eventId: ev.id }}
+                    className="group flex items-center gap-4 rounded-2xl p-2.5 transition-colors hover:bg-white/80"
+                  >
+                    <span className="db-date" aria-hidden="true">
+                      <span className="font-display text-xl leading-none">{format(d, "d")}</span>
+                      <span className="app-caps mt-1 text-[10px]">{format(d, "MMM", { locale: fr }).replace(".", "")}</span>
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium text-encre group-hover:text-primary">{ev.title}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {format(d, "PPP", { locale: fr })} · {ev.location || "En ligne"}
+                      </span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
                       {role === "participant" ? (
                         <Badge
                           variant="secondary"
@@ -313,22 +344,125 @@ function EventsDashboard() {
                            item.status}
                         </Badge>
                       ) : (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Users className="h-3.5 w-3.5" />{confirmed} inscrits
                           {ev.status === "draft" && <Badge variant="secondary" className="text-xs">Brouillon</Badge>}
                           {(ev.approval_status === "pending" || ev.approval_status === "rejected") && (
                             <Badge className={`text-xs ${APPROVAL_BADGE[ev.approval_status as ApprovalStatus]}`}>{APPROVAL_LABEL[ev.approval_status as ApprovalStatus]}</Badge>
                           )}
-                        </div>
+                        </span>
                       )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+                      <ArrowRight className="hidden h-4 w-4 text-gris-chaud transition-transform group-hover:translate-x-0.5 sm:block" />
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
+  );
+}
+
+/** « Dans 3 jours », « C'est demain ! »… */
+function countdown(startsAt: string): string {
+  const d = new Date(startsAt);
+  if (d.getTime() <= Date.now()) return "C'est en cours !";
+  if (isToday(d)) return d.getHours() >= 17 ? "C'est ce soir !" : "C'est aujourd'hui !";
+  if (isTomorrow(d)) return "C'est demain !";
+  return "Dans " + formatDistanceToNowStrict(d, { locale: fr, unit: "day", roundingMethod: "ceil" });
+}
+
+/**
+ * Grand cadre bordeaux (comme sur l'accueil) : Cocotte apparaît, salue, puis annonce
+ * le prochain événement dans une bulle — ou dit qu'il n'y en a pas encore.
+ */
+function NextEventHero({ next, organizer, firstName }: { next: NextEvent | null; organizer: boolean; firstName: string }) {
+  const [pose, setPose] = useState<CocotteState>("apparition");
+  useEffect(() => {
+    const t1 = setTimeout(() => setPose("coucou"), 1000);
+    const t2 = setTimeout(() => setPose("repos"), 2100);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  const ev = next?.event;
+  const hello = firstName ? `Coucou ${firstName} !` : "Coucou !";
+  const cta = "inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold transition-transform hover:-translate-y-0.5";
+
+  return (
+    <section className="db-hero">
+      <div aria-hidden="true" className="db-glow db-glow-1" />
+      <div aria-hidden="true" className="db-glow db-glow-2" />
+
+      <div className="relative grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-6 p-6 md:gap-x-10 md:p-10 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:p-12">
+        {/* Cocotte, sur son disque de lumière */}
+        <div className="db-stage col-start-1 row-start-1 w-20 self-center md:row-span-2 md:w-40 lg:w-48">
+          <div className="db-cocotte relative z-[1]">
+            <Cocotte state={pose} className="h-auto w-full drop-shadow-[0_14px_24px_rgba(66,17,30,0.45)]" />
+          </div>
+        </div>
+
+        {/* Bulle */}
+        <div className="col-start-2 row-start-1 min-w-0 self-center md:self-end">
+          <div className="db-bubble inline-block max-w-xl px-4 py-3 md:px-6 md:py-4">
+            <p className="font-semibold text-bordeaux-600">{hello}</p>
+            <p className="mt-0.5 text-sm text-encre/80 md:text-base">
+              {ev
+                ? "Ton prochain event, c'est…"
+                : (organizer
+                  ? "Aucun événement prévu pour l'instant. On en crée un ?"
+                  : "Tu n'as pas de prochain événement pour l'instant… On t'en trouve un ?")}
+            </p>
+          </div>
+        </div>
+
+        {/* Infos du prochain événement */}
+        <div className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-2 md:self-start">
+          {ev ? (
+            <>
+              <div className="db-rise db-rise-1">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-jaune-300 px-3 py-1 text-sm font-semibold text-bordeaux-800">
+                  <Sparkles className="h-3.5 w-3.5" />{countdown(ev.starts_at)}
+                </span>
+                <h2 className="mt-3 break-words font-display text-4xl leading-[1.05] tracking-tight text-blanc md:text-5xl">{ev.title}</h2>
+                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-blanc/80">
+                  <span className="inline-flex items-center gap-2"><Calendar className="h-4 w-4" />
+                    {format(new Date(ev.starts_at), "EEEE d MMMM 'à' HH'h'mm", { locale: fr })}
+                  </span>
+                  <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4" />{ev.location || "En ligne"}</span>
+                  {organizer && (
+                    <span className="inline-flex items-center gap-2"><Users className="h-4 w-4" />
+                      {next?.confirmed ?? 0}{ev.capacity > 0 ? ` / ${ev.capacity}` : ""} inscrits
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="db-rise db-rise-2 mt-7 flex flex-wrap items-center gap-3">
+                <Link to="/events/$eventId" params={{ eventId: ev.id }} className={`${cta} bg-jaune-300 text-bordeaux-800`}>
+                  {organizer ? "Gérer l'événement" : "Voir mon billet"}<ArrowRight className="h-4 w-4" />
+                </Link>
+                {!organizer && next?.status === "pending" && (
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-sm text-blanc/80">Inscription en attente</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="db-rise db-rise-1">
+              <Link to={organizer ? "/events/new" : "/events"} className={`${cta} bg-jaune-300 text-bordeaux-800`}>
+                {organizer ? <><CirclePlus className="h-4 w-4" />Créer un événement</> : <>Découvrir les soirées<ArrowRight className="h-4 w-4" /></>}
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Visuel de l'événement */}
+        {ev?.cover_image_url && (
+          <Link to="/events/$eventId" params={{ eventId: ev.id }} className="db-rise db-rise-2 hidden lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:block" aria-label={ev.title}>
+            <img src={ev.cover_image_url} alt="" className="db-cover h-56 w-72 object-cover" />
+          </Link>
+        )}
+      </div>
+    </section>
   );
 }

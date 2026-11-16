@@ -105,7 +105,7 @@ export function MobileTabBar() {
 }
 
 // Où mène la cloche : la première rubrique qui a du nouveau.
-const BELL_TARGETS = ["/messages", "/school-admin/messages", "/school-admin/reviews", "/school-admin/members", "/school-admin", "/admin/verifications", "/admin", "/waitlist"];
+export const BELL_TARGETS = ["/messages", "/school-admin/messages", "/school-admin/reviews", "/school-admin/members", "/school-admin", "/admin/verifications", "/admin", "/waitlist"];
 
 function NotificationBell() {
   const notifications = useNotifications();

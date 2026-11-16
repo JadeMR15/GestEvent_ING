@@ -93,7 +93,7 @@ function Inbox({ school }: { school: School }) {
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   return (
-    <Card className="flex h-[calc(100dvh-20rem)] min-h-[520px] overflow-hidden max-md:h-[calc(100dvh-17rem)]">
+    <Card className="flex h-[calc(100dvh-25rem)] min-h-[520px] overflow-hidden max-md:h-[calc(100dvh-17rem)]">
       {/* Liste des conversations */}
       <aside className={`flex w-full flex-col border-r md:w-80 lg:w-96 ${selected ? "max-md:hidden" : ""}`}>
         <div className="space-y-3 border-b p-4">
