@@ -240,10 +240,10 @@
 @media (min-width: 1024px) {
   .lp-hero {
     --hdr: 88px;
-    /* Cocotte ~92vh ; son bord droit s'arrête à ~38vw (zone du texte à droite) :
-       si elle est trop grande, elle part plus à gauche au lieu d'être réduite. */
+    /* Cocotte ~92vh, 12 % coupée à gauche ; son bord droit va jusqu'à 50 % de l'écran au
+       maximum (au-delà, elle part à gauche au lieu d'être réduite). Le texte commence après. */
     --cs: clamp(560px, 92svh, 980px);
-    --zone: 38vw;
+    --right: min(calc(var(--cs) * 0.88), 50vw);
     height: 100vh;
     height: 100svh;
     min-height: 640px;
@@ -256,7 +256,7 @@
     height: var(--cs);
     max-width: none;
     max-height: none;
-    left: calc(var(--zone) - var(--cs));
+    left: calc(var(--right) - var(--cs));
     top: calc(var(--hdr) - 4px);
   }
   /* Le texte occupe la droite de l'écran, à côté de la cocotte */
@@ -265,21 +265,20 @@
     max-width: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto 1fr auto auto;
+    grid-template-rows: auto auto 1fr auto auto auto;
     grid-template-areas:
-      "badge"
       "stats"
       "actions"
       "."
+      "badge"
       "sub"
       "title";
     gap: 0;
     padding-top: calc(var(--hdr) + 24px);
     padding-bottom: 32px;
-    padding-left: calc(var(--zone) + 32px);
+    padding-left: calc(var(--right) + 32px);
     padding-right: max(24px, calc((100vw - 1280px) / 2 + 24px));
   }
-  .lp-hero-badge   { grid-area: badge; justify-self: start; align-self: start; margin-bottom: 20px; }
   .lp-hero-stats   { grid-area: stats; justify-self: end; gap: 48px; }
   .lp-hero-actions {
     grid-area: actions;
@@ -290,27 +289,22 @@
     margin-top: 28px;
   }
   .lp-hero-actions > a:last-child { width: auto; }
+  /* Petits textes : badge puis sous-titre, alignés à droite au-dessus du titre */
+  .lp-hero-badge   { grid-area: badge; justify-self: end; margin-bottom: 10px; }
   .lp-hero-sub     { grid-area: sub; justify-self: end; text-align: right; margin-bottom: 20px; }
   .lp-hero-title {
     grid-area: title;
     justify-self: end;
     text-align: right;
-    font-size: clamp(60px, 6.8vw, 124px);
+    /* Limité aussi par la hauteur (écrans bas, 1280×720) et par la largeur disponible à droite
+       de la cocotte : la ligne la plus longue (« Pour ceux qui ») fait ~5,7 fois la taille. */
+    font-size: clamp(
+      56px,
+      min(6.8vw, 11.5svh, calc((100vw - var(--right) - 32px - max(24px, (100vw - 1280px) / 2 + 24px)) / 5.9)),
+      124px
+    );
   }
   .lp-stat-value { font-size: clamp(44px, 3.8vw, 56px); }
-}
-/* Grand écran : badge et chiffres sur la même ligne */
-@media (min-width: 1280px) {
-  .lp-hero-grid {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr auto auto;
-    grid-template-areas:
-      "badge   stats"
-      ".       actions"
-      ".       ."
-      "sub     sub"
-      "title   title";  }
-  .lp-hero-badge { margin-bottom: 0; }
 }
 
 .lp-paused { animation-play-state: paused; }
