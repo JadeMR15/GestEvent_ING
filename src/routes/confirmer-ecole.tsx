@@ -40,7 +40,7 @@ function ConfirmSchoolEmailPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
-      <header className="border-b border-sable/30 bg-white/60 backdrop-blur">
+      <header className="border-b border-bordure/30 bg-white/60 backdrop-blur">
         <div className="container mx-auto flex items-center px-6 py-4">
           <Link to="/"><BrandName className="h-10" /></Link>
         </div>

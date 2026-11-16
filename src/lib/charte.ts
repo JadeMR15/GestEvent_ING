@@ -19,6 +19,8 @@ export const CHARTE = {
   blanc: "#FFFFFF",
   creme: "#F9F4E8",
   sable: "#EBE4D7",
+  fond: "#F6F1F2",    // ESSAI design-tests (--neutre-fond)
+  bordure: "#E9E0E3", // ESSAI design-tests (--neutre-bordure)
   grisChaud: "#7A6960",
   encre: "#2B161B",
   ombreCarte: "0 4px 16px rgba(109, 29, 48, 0.08)",

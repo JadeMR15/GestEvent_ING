@@ -25,7 +25,7 @@ export function LandingHeader({ actions }: { actions: (onDark: boolean) => React
   }, []);
 
   const onDark = !scrolled;
-  const link = onDark ? "text-creme hover:text-jaune-300" : "text-bordeaux-600 hover:opacity-70";
+  const link = onDark ? "text-blanc hover:text-jaune-300" : "text-bordeaux-600 hover:opacity-70";
 
   return (
     <header className="lp-header fixed inset-x-0 top-0 z-50 w-full">

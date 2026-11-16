@@ -39,6 +39,8 @@
   --color-jaune-500: var(--jaune-500);
   --color-blanc:      var(--neutre-blanc);
   --color-creme:      var(--neutre-creme);
+  --color-fond:       var(--neutre-fond);     /* ESSAI design-tests */
+  --color-bordure:    var(--neutre-bordure);  /* ESSAI design-tests */
   --color-sable:      var(--neutre-sable);
   --color-gris-chaud: var(--neutre-gris-chaud);
   --color-encre:      var(--neutre-encre);
@@ -143,7 +145,7 @@
   --radius: var(--radius-moyen);
 
   /* ── Anciens noms de la DA, gardés pour le code existant, rebranchés sur la charte ── */
-  --bg-page:      var(--neutre-creme);
+  --bg-page:      var(--neutre-fond);
   --bg-primary:   var(--jaune-100);
   --bg-secondary: var(--jaune-200);
 
@@ -158,10 +160,10 @@
 
   --text-body:    var(--neutre-encre);
   --text-title:   var(--bordeaux-600);
-  --text-hint:    var(--neutre-creme);
+  --text-hint:    var(--neutre-blanc);
 
   /* ── shadcn/Tailwind → tokens de la charte ── */
-  --background:         var(--neutre-creme);
+  --background:         var(--neutre-fond);
   --foreground:         var(--neutre-encre);
 
   --card:               var(--neutre-blanc);
@@ -172,7 +174,7 @@
 
   /* Primary = bordeaux (couleur de marque) */
   --primary:            var(--bordeaux-600);
-  --primary-foreground: var(--neutre-creme);
+  --primary-foreground: var(--neutre-blanc);
 
   /* Secondary = jaune 100 (fond des badges « Marque »), texte bordeaux */
   --secondary:          var(--jaune-100);
@@ -195,13 +197,13 @@
   --warning-foreground: var(--statut-orange-700);
 
   /* Bordures et champs : sable ; focus : bordeaux + halo jaune */
-  --border:  var(--neutre-sable);
-  --input:   var(--neutre-sable);
+  --border:  var(--neutre-bordure);
+  --input:   var(--neutre-bordure);
   --ring:    var(--bordeaux-600);
 
   /* ── Menu latéral : bordeaux 600, actif bordeaux 700 + jaune 300 ── */
   --sidebar:                    var(--bordeaux-600);
-  --sidebar-foreground:         var(--neutre-creme);
+  --sidebar-foreground:         var(--neutre-blanc);
   --sidebar-primary:            var(--jaune-300);
   --sidebar-primary-foreground: var(--bordeaux-600);
   --sidebar-accent:             var(--bordeaux-700);
@@ -214,8 +216,8 @@
   --gradient-primary: linear-gradient(var(--bordeaux-600), var(--bordeaux-600));
   /* Visuel sans image : bordeaux 600 → bordeaux 400 */
   --gradient-vibrant: linear-gradient(135deg, var(--bordeaux-600), var(--bordeaux-400));
-  /* Fond de page : crème uni */
-  --gradient-mesh: linear-gradient(var(--neutre-creme), var(--neutre-creme));
+  /* Fond de page : blanc rosé uni (ESSAI design-tests) */
+  --gradient-mesh: linear-gradient(var(--neutre-fond), var(--neutre-fond));
 
   /* Ombres */
   --shadow-glow:    var(--ombre-menu);
@@ -225,11 +227,11 @@
 /* Mode sombre (non couvert par la charte) : rebranché sur les nuances de la charte */
 .dark {
   --background:         var(--bordeaux-900);
-  --foreground:         var(--neutre-creme);
+  --foreground:         var(--neutre-blanc);
   --card:               var(--bordeaux-800);
-  --card-foreground:    var(--neutre-creme);
+  --card-foreground:    var(--neutre-blanc);
   --popover:            var(--bordeaux-800);
-  --popover-foreground: var(--neutre-creme);
+  --popover-foreground: var(--neutre-blanc);
   --primary:            var(--jaune-300);
   --primary-foreground: var(--bordeaux-900);
   --secondary:          var(--bordeaux-700);
@@ -337,7 +339,7 @@ button, [role="button"] {
 /* Carte : fond blanc, bordure sable, arrondi carte */
 .card-da {
   background: var(--neutre-blanc);
-  border: 1px solid var(--neutre-sable);
+  border: 1px solid var(--neutre-bordure);
   border-radius: var(--radius-carte);
 }
 

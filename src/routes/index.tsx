@@ -118,7 +118,7 @@ function Landing() {
             </Button>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm" className={onDark ? "text-creme hover:bg-bordeaux-700 hover:text-creme" : ""}><Link to="/login">Connexion</Link></Button>
+              <Button asChild variant="ghost" size="sm" className={onDark ? "text-blanc hover:bg-bordeaux-700 hover:text-blanc" : ""}><Link to="/login">Connexion</Link></Button>
               <Button asChild size="sm" variant={onDark ? "outlineLight" : "default"} className={onDark ? "" : "bg-gradient-primary shadow-glow"}><Link to="/register">Commencer</Link></Button>
             </>
           )
@@ -139,7 +139,7 @@ function Landing() {
               <WordReveal text="Pour ceux qui organisent," />{" "}
               <span className="text-jaune-300"><WordReveal text="et ceux qui viennent." startIndex={4} /></span>
             </h1>
-            <p className="lp-fade-late mt-8 max-w-xl text-lg md:text-xl text-creme/75">
+            <p className="lp-fade-late mt-8 max-w-xl text-lg md:text-xl text-blanc/75">
               Organise ou participe — <span className="font-semibold text-jaune-100">plav' s'occupe du reste.</span>
             </p>
             <div className="lp-fade-later mt-10 flex flex-wrap items-center gap-3">
@@ -168,7 +168,7 @@ function Landing() {
                 <p className="lp-stat-value">
                   {eventsLoading ? "—" : <CountUp value={s.value} active={statsAnim.visible} />}
                 </p>
-                <p className="mt-2 flex items-center gap-1.5 text-xs sm:text-sm leading-tight text-creme/70">
+                <p className="mt-2 flex items-center gap-1.5 text-xs sm:text-sm leading-tight text-blanc/70">
                   <s.icon className="hidden h-4 w-4 shrink-0 text-jaune-300 sm:block" />
                   {s.label}
                 </p>
@@ -185,7 +185,7 @@ function Landing() {
 
 
       {/* ── Events section (clair) ── */}
-      <section id="evenements" className="lp-events relative bg-creme py-20 md:py-28">
+      <section id="evenements" className="lp-events relative bg-fond py-20 md:py-28">
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
@@ -221,7 +221,7 @@ function Landing() {
 
         {eventsLoading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-sable/50 bg-white/60 h-64 animate-pulse" />)}
+            {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-bordure/50 bg-white/60 h-64 animate-pulse" />)}
           </div>
         ) : upcoming.length === 0 ? (
           <Card className="mx-auto max-w-md">
@@ -238,7 +238,7 @@ function Landing() {
       <section id="fonctionnalites" className="relative overflow-hidden bg-bordeaux-900 py-24 md:py-32">
         <div ref={featuresAnim.ref} className="container mx-auto px-4 sm:px-6">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-            <h2 className="lp-section-title text-creme">Simple. <span className="text-jaune-300">Complet.</span></h2>
+            <h2 className="lp-section-title text-blanc">Simple. <span className="text-jaune-300">Complet.</span></h2>
             <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
           <FeaturesBento features={features} />
@@ -263,7 +263,7 @@ function Landing() {
           <Reveal className="relative z-10 container mx-auto text-center">
             <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" />
             <h2 className="lp-cta-title">T'attends <span className="text-jaune-300">quoi ?</span></h2>
-            <p className="mt-6 t-corps-l text-creme/80">Rejoins les assos qui font confiance à plav'.</p>
+            <p className="mt-6 t-corps-l text-blanc/80">Rejoins les assos qui font confiance à plav'.</p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary">
                 <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
@@ -277,7 +277,7 @@ function Landing() {
       )}
 
       {/* ── Footer ── */}
-      <footer id="contact" className="relative border-t border-sable/30 bg-creme py-12">
+      <footer id="contact" className="relative border-t border-bordure/30 bg-fond py-12">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
@@ -326,7 +326,7 @@ function Landing() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-sable/30 pt-6 text-center text-xs text-encre/40">
+          <div className="mt-8 border-t border-bordure/30 pt-6 text-center text-xs text-encre/40">
             © {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.
           </div>
         </div>
@@ -336,10 +336,10 @@ function Landing() {
 }
 
 const HOW_CARDS = [
-  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: Calendar },
+  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: Calendar },
   { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
-  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-creme)", accent: "var(--jaune-100)", icon: TrendingUp  },
-  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: QrCode      },
+  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-blanc)", accent: "var(--jaune-100)", icon: TrendingUp  },
+  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: QrCode      },
 ];
 
 function StackedHowItWorks() {

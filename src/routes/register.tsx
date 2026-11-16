@@ -194,7 +194,7 @@ function RegisterPage() {
                       type="button"
                       onClick={() => setRole(opt.value)}
                       style={{
-                        border: `2px solid ${selected ? opt.border : "var(--neutre-sable)"}`,
+                        border: `2px solid ${selected ? opt.border : "var(--neutre-bordure)"}`,
                         borderRadius: "var(--radius-carte)",
                         background: selected ? opt.bg : "var(--neutre-blanc)",
                         padding: "1rem",

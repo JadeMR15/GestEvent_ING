@@ -59,7 +59,7 @@ export default function EventMap({ events }: { events: any[] }) {
         iconCreateFunction: (cluster: any) => {
           const count = cluster.getChildCount();
           return L.divIcon({
-            html: `<div style="background:var(--bordeaux-600);color:var(--neutre-creme);font-weight:700;font-size:13px;font-family:var(--font-texte);width:36px;height:36px;border-radius:50%;border:3px solid var(--neutre-blanc);box-shadow:var(--ombre-menu);display:flex;align-items:center;justify-content:center">${count}</div>`,
+            html: `<div style="background:var(--bordeaux-600);color:var(--neutre-blanc);font-weight:700;font-size:13px;font-family:var(--font-texte);width:36px;height:36px;border-radius:50%;border:3px solid var(--neutre-blanc);box-shadow:var(--ombre-menu);display:flex;align-items:center;justify-content:center">${count}</div>`,
             className: "",
             iconSize: [36, 36],
             iconAnchor: [18, 18],
@@ -144,7 +144,7 @@ export default function EventMap({ events }: { events: any[] }) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-hidden rounded-xl border border-sable shadow-elegant"
+        className="overflow-hidden rounded-xl border border-bordure shadow-elegant"
         style={{ height: 520 }}
       />
       {withCoords.length === 0 && (

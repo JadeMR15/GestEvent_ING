@@ -164,15 +164,15 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
             <img src={url} alt="" draggable={false} className="pointer-events-none absolute max-w-none"
               style={{ width: dispW, height: dispH, left: pos.x, top: pos.y }} />
           )}
-          {!nat && <div className="absolute inset-0 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-creme" /></div>}
+          {!nat && <div className="absolute inset-0 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-blanc" /></div>}
           {/* Zone gardée : rond pour la photo de profil, grille des tiers pour aider à cadrer */}
           {round ? (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="aspect-square h-full rounded-full shadow-[0_0_0_9999px_rgba(49,13,23,0.55)] ring-2 ring-creme/80" />
+              <div className="aspect-square h-full rounded-full shadow-[0_0_0_9999px_rgba(49,13,23,0.55)] ring-2 ring-blanc/80" />
             </div>
           ) : (
-            <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3 ring-2 ring-inset ring-creme/80">
-              {Array.from({ length: 9 }).map((_, i) => <span key={i} className="border border-creme/20" />)}
+            <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3 ring-2 ring-inset ring-blanc/80">
+              {Array.from({ length: 9 }).map((_, i) => <span key={i} className="border border-blanc/20" />)}
             </div>
           )}
         </div>

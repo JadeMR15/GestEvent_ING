@@ -102,7 +102,7 @@ function LoginPage() {
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             {unconfirmed && (
-              <div className="space-y-2 rounded-xl border border-sable bg-creme p-3 text-sm">
+              <div className="space-y-2 rounded-xl border border-bordure bg-fond p-3 text-sm">
                 <p>
                   Clique sur le lien reçu par email après ton inscription (regarde aussi les indésirables
                   et, pour une adresse d'école, la quarantaine).

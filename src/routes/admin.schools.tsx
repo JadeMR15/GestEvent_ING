@@ -168,7 +168,7 @@ function AdminSchoolsPage() {
           ) : groups.map((g) => {
             const d = dec(g);
             return (
-              <div key={g.domain} className="space-y-3 rounded-xl border bg-creme p-4">
+              <div key={g.domain} className="space-y-3 rounded-xl border bg-fond p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <p className="font-mono font-semibold text-bordeaux-600">@{g.domain}</p>
                   <p className="text-xs text-muted-foreground">

@@ -104,7 +104,7 @@ function Directory() {
             const next = upcoming[a.id] ?? 0;
             return (
               <Link key={a.id} to="/associations/$associationId" params={{ associationId: a.id }} className="tap block rounded-[var(--radius-carte)]">
-                <article className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)] transition-shadow hover:shadow-[var(--ombre-menu)]">
+                <article className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-carte)] border border-bordure bg-blanc shadow-[var(--ombre-carte)] transition-shadow hover:shadow-[var(--ombre-menu)]">
                   {/* Bannière : photo de couverture de l'asso, sinon dégradé bordeaux */}
                   <div className="relative h-28 shrink-0 bg-gradient-vibrant">
                     {associationCoverUrl(a.cover_path)
@@ -123,7 +123,7 @@ function Directory() {
                     )}
                     {a.description && <p className="line-clamp-2 text-sm leading-snug text-gris-chaud">{a.description}</p>}
                     <div className="mt-auto flex w-full flex-col gap-3 pt-3">
-                      <div className="flex items-center justify-center gap-5 border-t border-sable pt-3 t-legende text-gris-chaud">
+                      <div className="flex items-center justify-center gap-5 border-t border-bordure pt-3 t-legende text-gris-chaud">
                         <span className="flex items-center gap-1.5"><Users className="h-4 w-4" /><strong className="text-encre">{followers}</strong> abonné{followers > 1 ? "s" : ""}</span>
                         <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /><strong className="text-encre">{next}</strong> à venir</span>
                       </div>

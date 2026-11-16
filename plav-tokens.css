@@ -31,6 +31,9 @@
   --neutre-sable: #EBE4D7;      /* bordures, séparateurs, états désactivés */
   --neutre-gris-chaud: #7A6960; /* texte secondaire, icônes secondaires */
   --neutre-encre: #2B161B;      /* texte principal */
+  /* ESSAI design-tests : neutres moins beiges (non reportés dans CHARTE-PLAV.md) */
+  --neutre-fond: #F6F1F2;       /* ESSAI design-tests : fond de page, de section et du footer (remplace le crème) */
+  --neutre-bordure: #E9E0E3;    /* ESSAI design-tests : bordures, séparateurs, états désactivés (remplace le sable) */
 
   /* ---- Statuts : réservés aux états, jamais à la décoration ---- */
   --statut-vert-100: #E2F0E5;   --statut-vert-500: #3F8A5C;   --statut-vert-700: #235739;

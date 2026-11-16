@@ -25,7 +25,7 @@ export function LikeButton({ count, liked, onToggle, size = "card", className }:
         size === "card" ? "px-2.5 py-1 text-xs" : "h-9 px-3 text-sm font-medium",
         liked
           ? "border-bordeaux-600/30 bg-bordeaux-600/10 text-bordeaux-600"
-          : "border-sable bg-white/70 text-muted-foreground hover:text-bordeaux-600 hover:border-bordeaux-600/30",
+          : "border-bordure bg-white/70 text-muted-foreground hover:text-bordeaux-600 hover:border-bordeaux-600/30",
         className,
       )}
     >

@@ -216,7 +216,7 @@ function EventList() {
           </div>
           <Drawer>
             <DrawerTrigger asChild>
-              <button aria-label="Filtres" className="tap relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] border-sable bg-blanc text-bordeaux-600">
+              <button aria-label="Filtres" className="tap relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] border-bordure bg-blanc text-bordeaux-600">
                 <SlidersHorizontal className="h-5 w-5" strokeWidth={2} />
                 {advancedCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">{advancedCount}</span>
@@ -241,7 +241,7 @@ function EventList() {
           <button
             aria-label={viewMode === "list" ? "Voir la carte" : "Voir la liste"}
             onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
-            className={`tap flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] ${viewMode === "map" ? "border-bordeaux-600 bg-bordeaux-600 text-creme" : "border-sable bg-blanc text-bordeaux-600"}`}
+            className={`tap flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-moyen)] border-[1.5px] ${viewMode === "map" ? "border-bordeaux-600 bg-bordeaux-600 text-blanc" : "border-bordure bg-blanc text-bordeaux-600"}`}
           >
             {viewMode === "list" ? <MapIcon className="h-5 w-5" strokeWidth={2} /> : <List className="h-5 w-5" strokeWidth={2} />}
           </button>
@@ -251,7 +251,7 @@ function EventList() {
             <button
               key={c.label}
               onClick={c.onClick}
-              className={`tap min-h-11 shrink-0 rounded-[var(--radius-pilule)] border px-4 text-sm font-semibold transition-colors ${c.active ? "border-bordeaux-600 bg-bordeaux-600 text-creme" : "border-sable bg-blanc text-encre"}`}
+              className={`tap min-h-11 shrink-0 rounded-[var(--radius-pilule)] border px-4 text-sm font-semibold transition-colors ${c.active ? "border-bordeaux-600 bg-bordeaux-600 text-blanc" : "border-bordure bg-blanc text-encre"}`}
             >
               {c.label}
             </button>
@@ -333,12 +333,12 @@ function EventList() {
                       )}
                     </div>
                     {/* En haut à droite : prix */}
-                    <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
+                    <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-fond px-2.5 py-1 t-corps-fort text-bordeaux-600">
                       {e.price > 0 ? `${Number(e.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
                     </span>
                     {/* Date façon billet */}
                     <div className="absolute bottom-3 left-3 flex w-14 flex-col items-center overflow-hidden rounded-[var(--radius-moyen)] bg-blanc text-center shadow-[var(--ombre-carte)]">
-                      <span className="w-full bg-bordeaux-600 py-0.5 text-xs font-bold uppercase text-creme">
+                      <span className="w-full bg-bordeaux-600 py-0.5 text-xs font-bold uppercase text-blanc">
                         {format(new Date(e.starts_at), "MMM", { locale: fr }).replace(".", "")}
                       </span>
                       <span className="font-display text-2xl font-black leading-8 text-bordeaux-600">{format(new Date(e.starts_at), "d")}</span>

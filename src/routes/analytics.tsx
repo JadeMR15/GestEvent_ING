@@ -260,7 +260,7 @@ function AnalyticsPage() {
             <CardContent>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.bordure} />
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={4} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip />
@@ -277,7 +277,7 @@ function AnalyticsPage() {
                 {regsByEvent.length === 0 ? <EmptyState message="Aucune donnée." /> : (
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart data={regsByEvent} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} horizontal={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.bordure} horizontal={false} />
                       <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                       <Tooltip /><Legend />
@@ -313,7 +313,7 @@ function AnalyticsPage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={fillRateData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.bordure} vertical={false} />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
                     <Tooltip formatter={(v) => [`${v}%`, "Remplissage"]} />
@@ -416,7 +416,7 @@ function AnalyticsPage() {
                     {ageData.every((d) => d.name === "N/A") ? <EmptyState message="Aucune date de naissance renseignée." /> : (
                       <ResponsiveContainer width="100%" height={220}>
                         <BarChart data={ageData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} />
+                          <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.bordure} />
                           <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                           <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                           <Tooltip formatter={(v) => [`${v} participant(s)`, "Effectif"]} />
@@ -455,7 +455,7 @@ function AnalyticsPage() {
                   <CardContent>
                     <ResponsiveContainer width="100%" height={Math.max(160, schoolData.length * 38)}>
                       <BarChart data={schoolData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.sable} horizontal={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={CHARTE.bordure} horizontal={false} />
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={130} />
                         <Tooltip formatter={(v) => [`${v} participant(s)`, "Effectif"]} />

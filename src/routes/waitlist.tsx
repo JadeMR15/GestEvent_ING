@@ -117,7 +117,7 @@ function WaitlistPage() {
                       </div>
                     </div>
                     {!offer && (
-                      <div className="rounded-xl bg-creme px-4 py-2 text-center">
+                      <div className="rounded-xl bg-fond px-4 py-2 text-center">
                         <p className="text-2xl font-bold text-bordeaux-600">{e.rank ? ordinal(e.rank) : "—"}</p>
                         <p className="text-xs text-muted-foreground">dans la file</p>
                       </div>
