@@ -38,7 +38,12 @@ export function CocotteCompanion() {
     let phase: Phase = "off";
     let phaseStart = 0;
     let walkX = 0; // position dans le couloir (px)
+    let walkDir = 1; // 1 → vers la droite, -1 → vers la gauche (change aux bouts du couloir)
     let facingLeft = false;
+    // Petites actions au repos (regarder à gauche puis à droite, ou coucou)
+    let idleAction: { type: "look" | "wave"; start: number } | null = null;
+    let nextIdleAt = Infinity;
+    let idleTimer = 0;
     let hide = 0; // 0 → visible, 1 → descendue hors de l'écran (footer)
     let lastScrollY = window.scrollY;
     let lastScrollAt = 0;
@@ -53,7 +58,7 @@ export function CocotteCompanion() {
 
     const isMobile = () => window.innerWidth < 768;
     const size = () => (isMobile() ? 52 : 72); // hauteur de la mascotte (px)
-    const corridor = () => (isMobile() ? 80 : 160);
+    const corridor = () => (isMobile() ? 120 : 240);
 
     const setP = (p: CocotteState) => { if (p !== curPose) { curPose = p; setPose(p); } };
     const setS = (v: boolean) => { if (v !== curShown) { curShown = v; setShown(v); } };
@@ -94,7 +99,7 @@ export function CocotteCompanion() {
       const y = window.scrollY;
       const dy = y - lastScrollY;
       lastScrollY = y;
-      if (dy !== 0) { lastScrollAt = now; facingLeft = dy < 0; }
+      if (dy !== 0) lastScrollAt = now;
       scrollSpeed = lerp(scrollSpeed, Math.abs(dy) / dt, 0.25);
       const scrolling = now - lastScrollAt < 250;
 
@@ -126,27 +131,53 @@ export function CocotteCompanion() {
           case "wave":
             pos = slotPose(base, H);
             if (!active) { go("retract", now); setP("retrait"); }
-            else if (t > DUR.wave) { go("jumpOut", now); atSlot(false); setP("saut"); facingLeft = false; }
+            else if (t > DUR.wave) { go("jumpOut", now); atSlot(false); setP("saut"); facingLeft = false; walkDir = 1; }
             break;
           case "jumpOut": {
             const k = ease(clamp(t / DUR.jumpOut, 0, 1));
             const a = slotPose(base, H);
             const arc = isMobile() ? 90 : 150;
             pos = { x: lerp(a.x, walkX, k), y: lerp(a.y, 0, k) - Math.sin(Math.PI * k) * arc, s: lerp(a.s, 1, k) };
-            if (t > DUR.jumpOut) { go("companion", now); setP("repos"); }
+            if (t > DUR.jumpOut) { go("companion", now); setP("repos"); nextIdleAt = now + 4000; }
             break;
           }
-          case "companion":
-            if (!active) { go("jumpIn", now); setP("saut"); break; }
-            if (now < hopUntil) setP("saut");
+          case "companion": {
+            if (!active) { go("jumpIn", now); setP("saut"); idleAction = null; break; }
+            facingLeft = walkDir < 0;
+            if (now < hopUntil) { setP("saut"); idleAction = null; nextIdleAt = now + 4000; }
             else if (scrolling) {
-              // La vitesse de marche suit celle du défilement, avec une limite
-              const v = clamp(scrollSpeed * 0.12, 0.02, 0.14); // px/ms
-              walkX = clamp(walkX + (facingLeft ? -v : v) * dt, 0, corridor());
+              // Elle avance tant qu'on défile (dans un sens ou dans l'autre) et fait demi-tour
+              // aux bouts du couloir ; sa vitesse suit celle du défilement, avec une limite.
+              const v = clamp(scrollSpeed * 0.12, 0.03, 0.16); // px/ms
+              walkX += walkDir * v * dt;
+              if (walkX >= corridor()) { walkX = corridor(); walkDir = -1; }
+              else if (walkX <= 0) { walkX = 0; walkDir = 1; }
+              facingLeft = walkDir < 0;
               setP("marche");
-            } else setP("repos");
+              idleAction = null;
+              nextIdleAt = now + 4000; // première petite action après ~4 s d'immobilité
+            } else {
+              if (!idleAction && now >= nextIdleAt) {
+                idleAction = { type: Math.random() < 0.5 ? "look" : "wave", start: now };
+              }
+              if (idleAction) {
+                const it = now - idleAction.start;
+                if (idleAction.type === "look") {
+                  // Regarde d'un côté puis de l'autre, puis revient dans son sens de marche
+                  setP("repos");
+                  if (it < 650) facingLeft = true; // regarde à gauche…
+                  else if (it < 1300) facingLeft = false; // …puis à droite
+                  else facingLeft = walkDir < 0;
+                  if (it > 1500) { idleAction = null; nextIdleAt = now + 5000 + Math.random() * 3000; }
+                } else {
+                  setP("coucou");
+                  if (it > 1050) { idleAction = null; setP("repos"); nextIdleAt = now + 5000 + Math.random() * 3000; }
+                }
+              } else setP("repos");
+            }
             pos = { x: walkX, y: 0, s: 1 };
             break;
+          }
           case "jumpIn": {
             const k = ease(clamp(t / DUR.jumpIn, 0, 1));
             const b = slotPose(base, H);
@@ -166,7 +197,7 @@ export function CocotteCompanion() {
         }
       }
 
-      // Regarde dans le sens du défilement (le saut d'arrivée part toujours vers la droite)
+      // Regarde dans son sens de marche (le saut d'arrivée part toujours vers la droite)
       setF(phase === "companion" || phase === "jumpIn" ? facingLeft : false);
       setS(phase !== "off");
 
@@ -178,10 +209,15 @@ export function CocotteCompanion() {
       // La boucle continue tant que quelque chose bouge
       const busy =
         phase === "emerge" || phase === "wave" || phase === "jumpOut" || phase === "jumpIn" || phase === "retract" ||
-        scrolling || now < hopUntil || Math.abs(hide - (footerIn ? 1 : 0)) > 0.01 ||
+        scrolling || now < hopUntil || !!idleAction || Math.abs(hide - (footerIn ? 1 : 0)) > 0.01 ||
         // Titre proche du seuil (il peut encore bouger sans défilement, ex. son animation d'apparition)
         Math.abs(slotTop - 0.3 * vh) < 160;
       if (busy && document.visibilityState === "visible") raf = requestAnimationFrame(tick);
+      else if (phase === "companion" && nextIdleAt < Infinity) {
+        // Au repos : la boucle s'arrête, un minuteur la relance pour la prochaine petite action
+        clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(wake, Math.max(50, nextIdleAt - now + 20));
+      }
     };
 
     const wake = () => { if (!raf && document.visibilityState === "visible") { last = 0; raf = requestAnimationFrame(tick); } };
@@ -200,6 +236,7 @@ export function CocotteCompanion() {
       window.removeEventListener("resize", wake);
       document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(raf);
+      clearTimeout(idleTimer);
       atSlot(false);
     };
   }, [reduced]);
