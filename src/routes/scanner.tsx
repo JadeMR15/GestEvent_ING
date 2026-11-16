@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { Cocotte, type CocotteState } from "@/components/mascot/Cocotte";
+import "@/components/nav/app-shell.css";
 import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
@@ -269,20 +271,22 @@ function ScannerPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      {/* En-tête : Cocotte fait la videuse à l'entrée */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0 sm:pb-2">
           <h1>Scanner QR</h1>
           <p className="text-muted-foreground">Validez les entrées par QR code.</p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Badge variant={isOnline ? "default" : "destructive"} className="gap-1">
+              {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {isOnline ? "En ligne" : "Hors-ligne"}
+            </Badge>
+            {pendingSync > 0 && (
+              <Badge variant="secondary" className="bg-orange-100 text-orange-700">{pendingSync} en attente</Badge>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={isOnline ? "default" : "destructive"} className="gap-1">
-            {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-            {isOnline ? "En ligne" : "Hors-ligne"}
-          </Badge>
-          {pendingSync > 0 && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700">{pendingSync} en attente</Badge>
-          )}
-        </div>
+        <Bouncer flash={scanFlash} />
       </div>
 
       {!isOnline && (
@@ -420,6 +424,47 @@ function ScannerPage() {
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+/**
+ * Cocotte en videuse : « Pas de ticket, pas d'entrée ! ». Elle réagit aux scans :
+ * saut de joie quand le billet est bon, petite secousse quand il ne l'est pas.
+ */
+function Bouncer({ flash }: { flash: "success" | "error" | null }) {
+  const [pose, setPose] = useState<CocotteState>("apparition");
+  const [reaction, setReaction] = useState<{ type: "success" | "error"; n: number } | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setPose("repos"), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (!flash) return;
+    setReaction((r) => ({ type: flash, n: (r?.n ?? 0) + 1 }));
+    setPose(flash === "success" ? "saut" : "repos");
+    const t = setTimeout(() => { setPose("repos"); setReaction(null); }, 1600);
+    return () => clearTimeout(t);
+  }, [flash]);
+
+  const ok = reaction?.type === "success";
+  return (
+    <div className="flex shrink-0 items-start gap-2 self-end md:gap-3" aria-live="polite">
+      <div
+        key={reaction ? `b${reaction.n}` : "b"}
+        className={`db-bubble db-bubble--right relative z-[2] mt-3 max-w-[11rem] px-3.5 py-2.5 md:mt-6 md:max-w-[13rem] md:px-5 md:py-3.5 ${reaction ? "sc-now" : ""} ${reaction?.type === "error" ? "sc-shake" : ""}`}
+      >
+        <p className={`text-sm font-semibold leading-snug md:text-lg ${ok ? "text-statut-vert-700" : "text-bordeaux-600"}`}>
+          {ok ? "C'est bon, bonne soirée !" : "Pas de ticket, pas d'entrée !"}
+        </p>
+      </div>
+      <div className={`db-stage db-stage--light w-24 sm:w-32 md:w-48 lg:w-56 ${reaction?.type === "error" ? "sc-shake" : ""}`}>
+        <div className="db-cocotte relative z-[1]">
+          <Cocotte key={pose === "saut" ? `j${reaction?.n}` : pose} state={pose} flip className="h-auto w-full drop-shadow-[0_14px_24px_rgba(66,17,30,0.3)]" />
+        </div>
+      </div>
     </div>
   );
 }

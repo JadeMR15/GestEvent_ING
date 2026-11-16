@@ -181,7 +181,21 @@
   color: var(--bordeaux-600);
 }
 
+/* ── Scanner : bulle à droite (queue vers Cocotte, à droite), secousse si billet refusé ── */
+.db-bubble--right { transform-origin: 100% 50%; }
+.db-bubble--right::after { left: auto; right: -8px; }
+.db-stage--light::before { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.45), 0 18px 50px rgba(109, 29, 48, 0.18); }
+.db-bubble.sc-now { animation-delay: 0s; animation-duration: 0.3s; }
+.sc-shake { animation: scShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+@keyframes scShake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-7px); }
+  40%, 60% { transform: translateX(7px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .sc-shake { animation: none !important; }
   .app-sky, .db-hero, .db-cocotte, .db-bubble, .db-rise, .db-stage::before { animation: none !important; opacity: 1 !important; transform: none !important; }
   .db-cover, .db-cover:hover { transform: none; }
 }
