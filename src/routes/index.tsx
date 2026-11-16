@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,13 @@ import { isPastEvent } from "@/lib/event-dates";
 import { fr } from "date-fns/locale";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
+import { useInView } from "@/components/landing/hooks";
+import { CountUp, Marquee, Reveal, WordReveal } from "@/components/landing/Motion";
+import { LandingHeader } from "@/components/landing/LandingHeader";
+import { HeroBackdrop } from "@/components/landing/HeroBackdrop";
+import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
+import { AppShowcase } from "@/components/landing/AppShowcase";
+import "@/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
   // Dans l'app native : écran d'accueil dédié au lieu de la page vitrine.
@@ -26,23 +33,6 @@ export const Route = createFileRoute("/")({
 
 type DateFilter = "all" | "week" | "month";
 type StatusFilter = "all" | "open" | "full";
-
-/* Hook scroll animation */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) { setVisible(true); return; }
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, visible };
-}
-
 
 function Landing() {
   const { user, loading } = useAuth();
@@ -99,70 +89,60 @@ function Landing() {
   // Les événements passés ne sont plus affichés (ils restent dans « Mes billets »).
   const upcoming = filtered.filter((e) => !isPastEvent(e.starts_at));
 
+  const heroAnim   = useInView<HTMLElement>(0, false);
+  const statsAnim  = useInView(0.3);
   const eventsAnim = useInView(0.1);
   const featuresAnim = useInView(0.1);
-  const ctaAnim    = useInView(0.1);
+  const ctaAnim    = useInView<HTMLElement>(0, false);
+
+  const features: BentoFeature[] = [
+    { icon: Calendar,     title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", area: "crea" },
+    { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", area: "timer" },
+    { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", area: "qr" },
+    { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", area: "insc" },
+    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", area: "dash" },
+    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", area: "roles" },
+    { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", area: "sync" },
+    { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", area: "web" },
+  ];
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-page)", overflowX: "clip" }}>
-      <div className="pointer-events-none fixed inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/cracki.webp')", opacity: 0.12 }} />
-      <div className="pointer-events-none fixed inset-0 bg-gradient-mesh opacity-60" />
+    <div className="lp-page min-h-screen" style={{ background: "var(--bg-page)", overflowX: "clip" }}>
 
-      {/* ── Header ── */}
-      <header className="relative z-50 w-full border-b border-sable/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <BrandName className="h-10 md:h-14" />
-          </div>
-          <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-bordeaux-600">
-            <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
-            <a href="#fonctionnalites" className="hover:opacity-70 transition-opacity">Fonctionnalités</a>
-            <a href="#contact" className="hover:opacity-70 transition-opacity">Contact</a>
-          </nav>
-          <div className="flex gap-2">
-            {!loading && user ? (
-              <Button asChild className="bg-gradient-primary shadow-glow">
-                <Link to="/dashboard">Mon espace <ArrowRight /></Link>
-              </Button>
-            ) : (
-              <>
-                <Button asChild variant="ghost" size="sm"><Link to="/login">Connexion</Link></Button>
-                <Button asChild size="sm" className="bg-gradient-primary shadow-glow"><Link to="/register">Commencer</Link></Button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* ── Header : transparent sur le hero, crème au défilement ── */}
+      <LandingHeader
+        actions={(onDark) =>
+          !loading && user ? (
+            <Button asChild variant={onDark ? "outlineLight" : "default"} className={onDark ? "" : "bg-gradient-primary shadow-glow"}>
+              <Link to="/dashboard">Mon espace <ArrowRight /></Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm" className={onDark ? "text-creme hover:bg-bordeaux-700 hover:text-creme" : ""}><Link to="/login">Connexion</Link></Button>
+              <Button asChild size="sm" variant={onDark ? "outlineLight" : "default"} className={onDark ? "" : "bg-gradient-primary shadow-glow"}><Link to="/register">Commencer</Link></Button>
+            </>
+          )
+        }
+      />
 
-      {/* ── Hero — bordeaux plein, cocotte géante en filigrane ── */}
-      <section className="relative overflow-hidden bg-bordeaux-600 px-6 pt-20 pb-24 lg:pt-28 lg:pb-32 rounded-b-[40px] shadow-elegant">
-        <img
-          src="/plav-cocotte.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -top-16 h-[520px] w-[520px] opacity-[0.12] md:-right-10 md:h-[720px] md:w-[720px] plav-drift"
-        />
-        <img
-          src="/plav-cocotte.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-20 bottom-[-90px] h-[260px] w-[260px] opacity-[0.08] rotate-12"
-        />
+      {/* ── Hero — bordeaux 900, photo de soirée assombrie, cocotte géante ── */}
+      <section ref={heroAnim.ref} className="lp-hero">
+        <HeroBackdrop playing={heroAnim.visible} />
 
-        <div className="relative z-10 container mx-auto">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-jaune-300/50 bg-bordeaux-800/40 px-4 py-1.5 text-xs font-medium backdrop-blur text-jaune-100">
+        <div className="relative z-10 container mx-auto flex flex-1 flex-col justify-center px-4 pt-32 pb-14 sm:px-6 md:pt-40 md:pb-20">
+          <div className="max-w-6xl">
+            <div className="lp-fade-late mb-8 inline-flex items-center gap-2 rounded-full border border-jaune-300/50 bg-bordeaux-800/60 px-4 py-1.5 text-xs font-medium text-jaune-100" style={{ animationDelay: "0s" }}>
               <img src="/plav-cocotte.svg" alt="" className="h-5 w-5 object-contain" />
               plav' · la billetterie étudiante
             </div>
-            <h1 className="t-display text-creme">
-              Pour ceux qui organisent,{" "}
-              <span className="text-jaune-300">et ceux qui viennent.</span>
+            <h1 className="lp-hero-title">
+              <WordReveal text="Pour ceux qui organisent," />{" "}
+              <span className="text-jaune-300"><WordReveal text="et ceux qui viennent." startIndex={4} /></span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-creme/75">
+            <p className="lp-fade-late mt-8 max-w-xl text-lg md:text-xl text-creme/75">
               Organise ou participe — <span className="font-semibold text-jaune-100">plav' s'occupe du reste.</span>
             </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <div className="lp-fade-later mt-10 flex flex-wrap items-center gap-3">
               {!loading && user ? (
                 <>
                   <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
@@ -177,43 +157,49 @@ function Landing() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3">
+          {/* Stats : gros chiffres jaunes qui comptent */}
+          <div ref={statsAnim.ref} className="lp-fade-later mt-14 grid max-w-3xl grid-cols-3 md:mt-20">
             {[
               { value: stats.events, label: "events publiés", icon: Calendar },
               { value: stats.participants, label: "participants", icon: Users },
               { value: stats.organizers, label: "organisateurs", icon: Star },
-            ].map((s) => (
-              <div key={s.label} className="rounded-[16px] border border-jaune-300/30 bg-creme p-3 sm:p-5 text-center shadow-elegant">
-                <s.icon className="mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5 text-jaune-300" />
-                <p className="font-display text-xl sm:text-3xl font-bold" style={{ color: "var(--text-title)" }}>
-                  {eventsLoading ? "—" : s.value}
+            ].map((s, i) => (
+              <div key={s.label} className={`min-w-0 ${i > 0 ? "border-l border-bordeaux-700 pl-4 sm:pl-8" : "pr-4 sm:pr-8"} ${i === 1 ? "pr-4 sm:pr-8" : ""}`}>
+                <p className="lp-stat-value">
+                  {eventsLoading ? "—" : <CountUp value={s.value} active={statsAnim.visible} />}
                 </p>
-                <p className="mt-1 text-xs sm:text-xs text-encre/60 leading-tight">{s.label}</p>
+                <p className="mt-2 flex items-center gap-1.5 text-xs sm:text-sm leading-tight text-creme/70">
+                  <s.icon className="hidden h-4 w-4 shrink-0 text-jaune-300 sm:block" />
+                  {s.label}
+                </p>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Bandeau qui défile */}
+        <div className="relative z-10">
+          <Marquee text="SOIRÉES ✦ GALAS ✦ AFTERWORKS ✦ WEI ✦ CONCERTS ✦ AFTERS ✦ " />
+        </div>
       </section>
 
 
-      {/* ── Events section ── */}
-      <section id="evenements" className="relative py-20">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "var(--neutre-creme)" }} />
-        <div className="relative z-10 container mx-auto px-6">
-        <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
-          <p className="mt-2 text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
+      {/* ── Events section (clair) ── */}
+      <section id="evenements" className="lp-events relative bg-creme py-20 md:py-28">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6">
+        <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+          <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
+          <p className="mt-4 t-corps-l text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
-        <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
+        <div className={`mb-10 flex flex-col gap-3 md:flex-row ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
           <div className="relative min-w-0 flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white/80 backdrop-blur w-full" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white w-full" />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 md:flex-nowrap">
             <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur">
+              <SelectTrigger className="flex-1 min-w-fit md:w-auto md:min-w-52 bg-white [&>span]:flex-1 [&>span]:text-left">
                 <Clock className="mr-2 h-4 w-4 text-muted-foreground" /><SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -223,7 +209,7 @@ function Landing() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="flex-1 min-w-fit md:w-auto md:min-w-52 bg-white"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous statuts</SelectItem>
                 <SelectItem value="open">Places disponibles</SelectItem>
@@ -248,63 +234,50 @@ function Landing() {
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section id="fonctionnalites" className="relative py-24">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
-        <div ref={featuresAnim.ref} className="container mx-auto px-6">
-          <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 style={{ color: "var(--text-title)" }}>Simple. <span className="plav-highlight">Complet.</span></h2>
-            <p className="mt-3 text-encre/60 max-w-xl mx-auto">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
+      {/* ── Features (sombre) : grille bento ── */}
+      <section id="fonctionnalites" className="relative overflow-hidden bg-bordeaux-900 py-24 md:py-32">
+        <div ref={featuresAnim.ref} className="container mx-auto px-4 sm:px-6">
+          <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+            <h2 className="lp-section-title text-creme">Simple. <span className="text-jaune-300">Complet.</span></h2>
+            <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
-          <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
-            {[
-              { icon: Calendar, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
-              { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
-              { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
-              { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
-              { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
-              { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
-            ].map((f) => (
-              <div key={f.title} className="rounded-[12px] border-[0.5px] border-sable bg-white/80 p-6 backdrop-blur shadow-elegant hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
-                <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-[8px] ${f.color}`}>
-                  <f.icon className={`h-5 w-5 ${f.iconColor}`} />
-                </div>
-                <h3 style={{ color: "var(--text-title)", fontSize: "1.1rem", fontWeight: 600 }}>{f.title}</h3>
-                <p className="mt-2 text-sm text-encre/70">{f.desc}</p>
-              </div>
-            ))}
-          </div>
+          <FeaturesBento features={features} />
         </div>
       </section>
 
       {/* ── How it works — scroll-driven stacked cards ── */}
       <StackedHowItWorks />
 
-      {/* ── CTA ── */}
+      {/* ── L'appli ── */}
+      <AppShowcase />
+
+      {/* ── CTA (sombre) ── */}
       {!loading && !user && (
-        <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : ""}`}>
-          <div className="container mx-auto px-6">
-            <div className="relative mx-auto max-w-2xl overflow-hidden rounded-[28px] bg-gradient-primary p-12 text-center shadow-elegant ring-4 ring-jaune-300/40">
-              <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-6 h-32 w-32 object-contain drop-shadow-lg plav-spin-in" />
-              <h2 className="t-titre-2 text-creme">T'attends <span className="text-jaune-300">quoi ?</span></h2>
-              <p className="mt-4 text-creme/80">Rejoins les assos qui font confiance à plav'.</p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg" variant="secondary">
-                  <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
-                </Button>
-                <Button asChild size="lg" variant="outlineLight">
-                  <Link to="/login">Se connecter</Link>
-                </Button>
-              </div>
+        <section ref={ctaAnim.ref} className="relative overflow-hidden bg-bordeaux-900 px-4 py-24 sm:px-6 md:py-36">
+          <img
+            src="/plav-cocotte.svg"
+            alt=""
+            aria-hidden="true"
+            className={`lp-cta-cocotte pointer-events-none plav-drift ${ctaAnim.visible ? "" : "lp-paused"}`}
+          />
+          <Reveal className="relative z-10 container mx-auto text-center">
+            <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" />
+            <h2 className="lp-cta-title">T'attends <span className="text-jaune-300">quoi ?</span></h2>
+            <p className="mt-6 t-corps-l text-creme/80">Rejoins les assos qui font confiance à plav'.</p>
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" variant="secondary">
+                <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outlineLight">
+                <Link to="/login">Se connecter</Link>
+              </Button>
             </div>
-          </div>
+          </Reveal>
         </section>
       )}
 
       {/* ── Footer ── */}
-      <footer id="contact" className="relative border-t border-sable/30 bg-white/60 backdrop-blur py-12">
+      <footer id="contact" className="relative border-t border-sable/30 bg-creme py-12">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
@@ -404,14 +377,13 @@ function StackedHowItWorks() {
               overflow:        "hidden",
               backgroundColor: card.bg,
               boxShadow:       "var(--ombre-menu)",
-            }}
+              ["--how-accent" as string]: card.accent,
+            } as CSSProperties}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 h-full">
+            <span className="lp-how-number">{card.step}</span>
+            <div className="relative grid grid-cols-1 sm:grid-cols-2 h-full">
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(1.5rem, 5vw, 2.5rem)" }}>
                 <div>
-                  <span style={{ display: "block", fontSize: "clamp(48px, 12vw, 88px)", lineHeight: 0.85, color: card.accent, opacity: 0.35, fontWeight: 900, fontFamily: "var(--font-titre)", userSelect: "none" }}>
-                    {card.step}
-                  </span>
                   <h3 className="t-titre-2" style={{ marginTop: "0.5rem", color: card.fg }}>
                     {card.title}
                   </h3>
@@ -432,8 +404,8 @@ function StackedHowItWorks() {
                   </Link>
                 </div>
               </div>
-              <div className="hidden sm:flex" style={{ alignItems: "center", justifyContent: "center", opacity: 0.16 }}>
-                <card.icon style={{ width: 150, height: 150, color: card.accent }} strokeWidth={2} />
+              <div className="hidden sm:flex" style={{ alignItems: "flex-start", justifyContent: "flex-end", padding: "clamp(1.5rem, 5vw, 2.5rem)", opacity: 0.16 }}>
+                <card.icon style={{ width: 110, height: 110, color: card.accent }} strokeWidth={2} />
               </div>
             </div>
           </div>,
@@ -452,18 +424,19 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
   const likes = useLikes(useMemo(() => events.map((e) => e.id), [events]));
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {events.map((e) => {
+      {events.map((e, i) => {
         const taken = takenOf(e);
         const pct = e.capacity > 0 ? Math.min(100, Math.round((taken / e.capacity) * 100)) : 0;
         const isFull = e.capacity > 0 && taken >= e.capacity;
         const remaining = e.capacity - taken;
 
         return (
-          <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }}>
-            <Card className={`group h-full overflow-hidden border transition-all duration-300 hover:shadow-glow hover:-translate-y-1 ${muted ? "opacity-60" : ""}`}>
+          <Reveal key={e.id} delay={(i % 3) * 80} className="h-full">
+          <Link to="/events/$eventId" params={{ eventId: e.id }} className="block h-full">
+            <Card className={`lp-event-card group h-full overflow-hidden border hover:shadow-glow ${muted ? "opacity-60" : ""}`}>
               {e.cover_image_url ? (
                 <div className="relative h-40 w-full overflow-hidden bg-muted">
-                  <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   <div className="absolute right-2 top-2 flex gap-1">
                     {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
@@ -513,6 +486,7 @@ function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boo
               </CardContent>
             </Card>
           </Link>
+          </Reveal>
         );
       })}
     </div>
