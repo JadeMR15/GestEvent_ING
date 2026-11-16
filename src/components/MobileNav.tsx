@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, Building2, MessageSquare, Newspaper, Calendar, CheckSquare, Compass, House, Plus, QrCode, Ticket, User, Users, type LucideIcon } from "lucide-react";
+import { Bell, Building2, MessageSquare, Newspaper, Calendar, CheckSquare, Compass, House, LayoutDashboard, Plus, QrCode, ShieldCheck, Ticket, User, Users, type LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
@@ -23,8 +23,15 @@ function tabsFor(role: AppRole | null): Tab[] {
         { title: "Membres", url: "/school-admin/members", icon: Users },
         { title: "Profil", url: "/profile", icon: User },
       ];
-    case "organizer":
     case "admin":
+      return [
+        { title: "Admin", url: "/admin", icon: LayoutDashboard },
+        { title: "Écoles", url: "/admin/schools", icon: Building2 },
+        { title: "Vérifs", url: "/admin/verifications", icon: ShieldCheck },
+        { title: "Comptes", url: "/admin/users", icon: Users },
+        { title: "Profil", url: "/profile", icon: User },
+      ];
+    case "organizer":
       return [
         { title: "Accueil", url: "/dashboard", icon: House },
         { title: "Événements", url: "/events", icon: Calendar },
@@ -46,6 +53,7 @@ function useIsActive() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (url: string) => {
     if (url === "/events") return pathname === "/events" || (pathname.startsWith("/events/") && pathname !== "/events/new");
+    if (url === "/admin") return pathname === "/admin" || pathname === "/admin/" || pathname.startsWith("/admin/domains");
     if (url === "/school-admin") return pathname === "/school-admin" || pathname === "/school-admin/" || pathname.startsWith("/school-admin/associations");
     if (url === "/profile") return pathname === "/profile" || pathname === "/settings" || pathname === "/verification";
     return pathname === url || pathname.startsWith(url + "/");
@@ -97,7 +105,7 @@ export function MobileTabBar() {
 }
 
 // Où mène la cloche : la première rubrique qui a du nouveau.
-const BELL_TARGETS = ["/messages", "/school-admin/messages", "/school-admin/reviews", "/school-admin/members", "/school-admin", "/admin/verifications", "/admin/schools", "/waitlist"];
+const BELL_TARGETS = ["/messages", "/school-admin/messages", "/school-admin/reviews", "/school-admin/members", "/school-admin", "/admin/verifications", "/admin", "/waitlist"];
 
 function NotificationBell() {
   const notifications = useNotifications();

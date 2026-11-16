@@ -16,7 +16,7 @@ const STATUS: Record<School["status"], { label: string; className: string }> = {
   rejected: { label: "Refusée",    className: "bg-red-100 text-red-800 hover:bg-red-100" },
 };
 
-export function SchoolAccountsReview() {
+export function SchoolAccountsReview({ onDecision }: { onDecision?: () => void } = {}) {
   const [schools, setSchools] = useState<School[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -40,6 +40,7 @@ export function SchoolAccountsReview() {
     if (error) { toast.error(schoolErrorMessage(error.message)); return; }
     toast.success(approve ? `${s.name} est validée. Les comptes existants de l'école y sont rattachés.` : `${s.name} refusée.`);
     load();
+    onDecision?.();
   }
 
   const pending = schools.filter((s) => s.status === "pending");
@@ -47,12 +48,7 @@ export function SchoolAccountsReview() {
 
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold">Comptes école</h2>
-        <p className="text-sm text-muted-foreground">
-          Vérifie que la demande vient bien de l'école (domaine email, nom) avant de lui ouvrir son espace.
-        </p>
-      </div>
+      <h2 className="text-xl font-semibold">Demandes en attente ({pending.length})</h2>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
@@ -94,6 +90,8 @@ export function SchoolAccountsReview() {
           ))}
 
           {others.length > 0 && (
+            <>
+            <h2 className="pt-4 text-xl font-semibold">Toutes les écoles ({others.length})</h2>
             <Card>
               <CardContent className="divide-y p-0">
                 {others.map((s) => (
@@ -107,6 +105,7 @@ export function SchoolAccountsReview() {
                 ))}
               </CardContent>
             </Card>
+            </>
           )}
         </>
       )}

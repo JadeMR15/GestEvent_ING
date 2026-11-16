@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { BadgeCheck, ChartNoAxesColumn, Building2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut, MessageSquare, Newspaper, Settings, ShieldAlert, ShieldCheck, Store, Ticket, Users, type LucideIcon } from "lucide-react";
+import { AtSign, BadgeCheck, ChartNoAxesColumn, Building2, ChevronRight, Clock, Download, Euro, Info, LayoutDashboard, LogOut, MessageSquare, Newspaper, Settings, ShieldAlert, ShieldCheck, Store, Ticket, Users, type LucideIcon } from "lucide-react";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profil — Plav'" }] }),
 });
 
-const ROLE_LABEL = { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole", school_admin: "Administration école" } as const;
+const ROLE_LABEL = { admin: "Admin Plav'", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole", school_admin: "Administration école" } as const;
 
 function Row({ to, icon: Icon, label, hint }: { to: string; icon: LucideIcon; label: string; hint?: ReactNode }) {
   return (
@@ -39,7 +39,7 @@ function ProfilePage() {
   const { user, role, fullName, avatarPath, isVerified, verificationStatus, isStudent, signOut, associationId, membershipStatus } = useAuth();
   const navigate = useNavigate();
   const photo = avatarUrl(avatarPath);
-  const isOrga = role === "organizer" || role === "admin";
+  const isOrga = role === "organizer";
   const needsVerification = ((role === "participant" && isStudent) || role === "organizer") && !isVerified;
   const inReview = verificationStatus === "pending" || verificationStatus === "review";
 
@@ -105,8 +105,16 @@ function ProfilePage() {
           <Row to="/finance" icon={Euro} label="Finances" />
           <Row to="/export" icon={Download} label="Exporter" />
           {role === "organizer" && <Row to="/messages" icon={MessageSquare} label="Messages de l'école" />}
-          {role === "admin" && <Row to="/admin/verifications" icon={ShieldCheck} label="Vérifications étudiantes" />}
-          {role === "admin" && <Row to="/admin/schools" icon={Building2} label="Écoles" />}
+        </Group>
+      )}
+
+      {role === "admin" && (
+        <Group title="Administration Plav'">
+          <Row to="/admin" icon={LayoutDashboard} label="Vue d'ensemble" />
+          <Row to="/admin/schools" icon={Building2} label="Écoles" />
+          <Row to="/admin/domains" icon={AtSign} label="Domaines email" />
+          <Row to="/admin/verifications" icon={ShieldCheck} label="Vérifications étudiantes" />
+          <Row to="/admin/users" icon={Users} label="Utilisateurs" />
         </Group>
       )}
 
