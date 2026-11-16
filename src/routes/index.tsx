@@ -189,7 +189,7 @@ function Landing() {
       <section id="evenements" className="lp-events relative py-20 md:py-28">
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
-          <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="t-accent plav-highlight">events</span></h2>
+          <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}><span id="lp-cocotte-slot" className="lp-slot" aria-hidden="true"><img src="/plav-cocotte.svg" alt="" /></span>Les prochains <span className="t-accent plav-highlight">events</span></h2>
           <p className="mt-4 t-corps-l text-encre">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 

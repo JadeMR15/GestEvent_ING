@@ -83,7 +83,8 @@
 .lp-hero {
   --hdr: 72px;
   position: relative;
-  isolation: isolate;
+  /* Pas de contexte d'empilement propre : la cocotte peut passer au-dessus de la section
+     suivante pendant son voyage (et reste sous l'en-tête, z-index 50). */
   background: transparent;
   /* La cocotte peut déborder visuellement sur la section suivante
      (le débordement horizontal est coupé par .lp-page) */
@@ -94,6 +95,8 @@
 /* Cocotte (mobile : en haut, ~85vw, coupée à gauche) */
 .lp-cocotte {
   position: relative;
+  z-index: 2;
+  transform-origin: center;
   width: 100vw;
   height: 100vw;
   max-width: 640px;
@@ -138,7 +141,7 @@
 /* Contenu (mobile : empilé) */
 .lp-hero-grid {
   position: relative;
-  z-index: 1;
+  z-index: 3; /* textes du hero au-dessus de la cocotte */
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -312,6 +315,53 @@
 }
 
 .lp-paused { animation-play-state: paused; }
+
+/* ── Voyage de la cocotte : hero → titre « Les prochains events » (ESSAI design-tests) ── */
+/* Emplacement à gauche du titre (~1em), où la cocotte se pose */
+.lp-slot {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.22em;
+  vertical-align: -0.12em;
+}
+.lp-slot img { display: block; width: 100%; height: 100%; max-width: none; }
+/* Ordinateur : l'emplacement reste vide, c'est la cocotte du hero qui vient s'y poser */
+.lp-slot.lp-slot-travel img { opacity: 0; }
+/* Mobile : l'icône apparaît pendant que la cocotte du hero rétrécit en fondu */
+.lp-slot:not(.lp-slot-travel) { opacity: 0; }
+
+@supports (animation-timeline: scroll()) {
+  .lp-cocotte.lp-travel-css {
+    animation: lpTravel linear both;
+    animation-timeline: scroll(root);
+    animation-range: var(--p0) var(--p1);
+  }
+  .lp-cocotte.lp-fade-css {
+    animation: lpShrink linear both;
+    animation-timeline: scroll(root);
+    animation-range: var(--p0) var(--p1);
+  }
+  .lp-slot.lp-slot-css {
+    animation: lpSlotIn linear both;
+    animation-timeline: scroll(root);
+    animation-range: var(--q0) var(--q1);
+  }
+}
+/* Trajet : glisse, rétrécit, un tour et demi, puis un léger rebond à l'arrivée */
+@keyframes lpTravel {
+  0%   { transform: none; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  85%  { transform: translate(var(--tx), var(--ty)) rotate(540deg) scale(var(--ts)); animation-timing-function: ease-out; }
+  92%  { transform: translate(var(--tx), var(--ty)) rotate(540deg) scale(calc(var(--ts) * 1.18)); animation-timing-function: ease-in; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(540deg) scale(var(--ts)); }
+}
+@keyframes lpShrink {
+  to { transform: scale(0.4); opacity: 0; }
+}
+@keyframes lpSlotIn {
+  from { opacity: 0; transform: scale(0.4) rotate(-90deg); }
+  to   { opacity: 1; transform: none; }
+}
 
 /* ── Titres de section ── */
 .lp-section-title {
@@ -684,6 +734,9 @@
 
 /* ── Animations réduites : tout s'affiche directement ── */
 @media (prefers-reduced-motion: reduce) {
+  /* Pas de voyage : la cocotte reste dans le hero, l'icône du titre est déjà là */
+  .lp-cocotte.lp-travel-css, .lp-cocotte.lp-fade-css, .lp-slot.lp-slot-css { animation: none !important; }
+  .lp-slot, .lp-slot img, .lp-slot.lp-slot-travel img { opacity: 1 !important; }
   .lp-line, .lp-fade-late, .lp-fade-later, .lp-tick, .lp-sky,
   .lp-cocotte-enter, .lp-cocotte-tilt,
   .lp-reveal, .lp-reveal.is-in,
