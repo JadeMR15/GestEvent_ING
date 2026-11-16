@@ -3,10 +3,11 @@ import { usePrefersReducedMotion } from "@/components/landing/hooks";
 import "./plongeoir.css";
 
 /**
- * Plongeoir (ESSAI design-tests), en bas à gauche de la section du téléphone : une planche
- * arrondie (bordeaux 600) sur un petit support avec deux barreaux (bordeaux 800).
- * - Il apparaît quand le bas de la section arrive à ~75 % de l'écran (le support monte, puis la
- *   planche sort vers la droite avec un petit rebond) et rentre quand on remonte au-dessus.
+ * Plongeoir (ESSAI design-tests), posé sur le bord haut du cadre « T'attends quoi ? » : une
+ * planche arrondie (bordeaux 600) sur un petit support avec deux barreaux (bordeaux 800).
+ * - Il apparaît quand le bas de la section du téléphone (= haut de la section du cadre) arrive à
+ *   ~75 % de l'écran (le support monte, puis la planche sort vers la droite avec un petit rebond)
+ *   et rentre quand on remonte au-dessus.
  * - CocotteCompanion le lit (#lp-board, .is-out, #lp-board-plank) et fait plier la planche (.pl-bend).
  * - Animations réduites : pas de plongeoir.
  */
@@ -22,7 +23,8 @@ export function Plongeoir() {
     let raf = 0;
     const check = () => {
       raf = 0;
-      const bottom = section.getBoundingClientRect().bottom;
+      // Haut de la section du cadre = bas de la section du téléphone
+      const bottom = section.getBoundingClientRect().top;
       const vh = window.innerHeight;
       // Hystérésis : sort à 75 %, ne rentre qu'au-dessus de 85 %
       setOut((o) => (o ? bottom < 0.85 * vh : bottom < 0.75 * vh));

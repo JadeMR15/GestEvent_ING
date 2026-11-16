@@ -1,12 +1,19 @@
-/* Plongeoir (ESSAI design-tests) — transform / opacity uniquement */
+/* Plongeoir (ESSAI design-tests) — transform / opacity uniquement.
+   Posé sur le bord haut du cadre « T'attends quoi ? » : le bas de l'échelle est exactement sur
+   le bord (top = marge du haut de .lp-frame-section, puis translateY(-100 %)), à ~8 % de la
+   largeur du cadre depuis la gauche. Il bouge donc avec le cadre. */
 .pl {
   position: absolute;
-  left: 0;
-  top: 24px;
+  z-index: 2;
+  top: 80px;
+  left: calc(12px + (100% - 24px) * 0.08);
   width: 140px;
+  transform: translateY(-100%);
   pointer-events: none;
 }
-@media (min-width: 768px) { .pl { width: 220px; top: 20px; } } /* reste dans la marge du bas de la section */
+@media (min-width: 768px) {
+  .pl { top: 112px; left: calc(28px + (100% - 56px) * 0.08); width: 220px; }
+}
 .pl-svg { display: block; width: 100%; height: auto; overflow: visible; }
 
 /* Support : monte du bas ; planche : sort vers la droite (rebond), puis l'inverse en rentrant */
@@ -28,17 +35,17 @@
 /* La planche plie sous Cocotte (rotation pilotée par CocotteCompanion), pivot au support */
 .pl-bend { transform-box: fill-box; transform-origin: 3% 50%; }
 
-/* ── Éclaboussures sur le bord haut du cadre « T'attends quoi ? » ── */
+/* ── Éclaboussures depuis le centre de la petite cocotte au-dessus de « T'attends quoi ? » ── */
 .lp-splash {
   position: absolute;
   left: 50%;
-  top: 80px; /* = marge du haut de .lp-frame-section : bord haut du cadre */
+  top: 48px; /* centre de la cocotte (96 px) */
   z-index: 3;
   width: 0;
   height: 0;
   pointer-events: none;
 }
-@media (min-width: 768px) { .lp-splash { top: 112px; } }
+@media (min-width: 768px) { .lp-splash { top: 64px; } } /* cocotte de 128 px */
 .lp-splash-ring {
   position: absolute;
   left: -60px;
@@ -72,7 +79,7 @@
 }
 
 /* La petite cocotte au-dessus de « T'attends quoi ? » rebondit quand Cocotte s'y pose */
-.lp-cta-landing { display: inline-block; }
+.lp-cta-landing { position: relative; display: inline-block; }
 .lp-cta-landing.is-landed { animation: lpLanded 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 @keyframes lpLanded {
   0%   { transform: none; }
