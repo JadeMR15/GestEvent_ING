@@ -173,7 +173,10 @@
   font-family: var(--font-titre);
   font-weight: 600;
   font-size: 44px;
-  line-height: 1;
+  /* Interligne serré : 0,92 est le plus serré où les jambages (q, g) ne touchent pas la ligne
+     suivante ; le padding rend la hauteur perdue pour garder les mêmes espaces autour. */
+  line-height: 0.92;
+  padding-block: 0.04em;
   letter-spacing: -0.03em;
   color: var(--neutre-encre);
 }
