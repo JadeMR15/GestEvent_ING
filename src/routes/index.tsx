@@ -5,17 +5,15 @@ import { useEffect, useState, useMemo, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { LikeButton } from "@/components/LikeButton";
-import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
-import { format, isThisWeek, isThisMonth } from "date-fns";
+import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, Search, Clock, TrendingUp, Shield, Zap, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
+import { isThisWeek, isThisMonth } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
-import { fr } from "date-fns/locale";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
 import { useInView } from "@/components/landing/hooks";
@@ -24,6 +22,7 @@ import { HeroCocotte } from "@/components/landing/HeroCocotte";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
 import { AppShowcase } from "@/components/landing/AppShowcase";
+import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { LandingSky } from "@/components/landing/LandingSky";
 import "@/components/landing/landing.css";
 
@@ -222,9 +221,7 @@ function Landing() {
         </div>
 
         {eventsLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-bordure/50 bg-white/60 h-64 animate-pulse" />)}
-          </div>
+          <EventMosaicSkeleton />
         ) : upcoming.length === 0 ? (
           <Card className="mx-auto max-w-md">
             <EmptyState title="Aucun événement trouvé." />
@@ -422,75 +419,27 @@ function StackedHowItWorks() {
   );
 }
 
-function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boolean; user: any }) {
+function EventGrid({ events }: { events: any[]; muted?: boolean; user: any }) {
   const likes = useLikes(useMemo(() => events.map((e) => e.id), [events]));
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {events.map((e, i) => {
+    <EventMosaic
+      events={events}
+      likes={likes}
+      showUnlimited
+      placeOf={(e) => e.location || "En ligne"}
+      renderBadges={(e) => {
         const taken = takenOf(e);
-        const pct = e.capacity > 0 ? Math.min(100, Math.round((taken / e.capacity) * 100)) : 0;
         const isFull = e.capacity > 0 && taken >= e.capacity;
         const remaining = e.capacity - taken;
-
         return (
-          <Reveal key={e.id} delay={(i % 3) * 80} className="h-full">
-          <Link to="/events/$eventId" params={{ eventId: e.id }} className="block h-full">
-            <Card className={`lp-event-card group h-full overflow-hidden border hover:shadow-glow ${muted ? "opacity-60" : ""}`}>
-              {e.cover_image_url ? (
-                <div className="relative h-40 w-full overflow-hidden bg-muted">
-                  <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  <div className="absolute right-2 top-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
-                    {isFull ? <Badge variant="destructive">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
-                      : null}
-                  </div>
-                </div>
-              ) : (
-                <div className="relative h-2 bg-gradient-vibrant">
-                  <div className="absolute -bottom-3 right-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600 text-xs"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
-                    {isFull ? <Badge variant="destructive" className="text-xs">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
-                      : null}
-                  </div>
-                </div>
-              )}
-              <CardContent className="p-5">
-                <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2 mt-1 transition-colors">{e.title}</h3>
-                <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{e.description || "Aucune description."}</p>
-                <div className="mt-4 space-y-1.5 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="h-4 w-4 flex-shrink-0" />
-                    <span>{format(new Date(e.starts_at), "PPP 'à' p", { locale: fr })}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-4 w-4 flex-shrink-0" />
-                    <span className="line-clamp-1">{e.location || "En ligne"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Users className="h-4 w-4 flex-shrink-0" />
-                    <span>{taken} / {e.capacity > 0 ? e.capacity : "∞"}</span>
-                    <LikeButton className="ml-auto" count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
-                  </div>
-                </div>
-                {e.capacity > 0 && (
-                  <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full transition-all duration-500 ${isFull ? "bg-destructive" : remaining < 10 ? "bg-orange-500" : "bg-gradient-primary"}`} style={{ width: `${pct}%` }} />
-                  </div>
-                )}
-                <div className="mt-4 flex items-center justify-between">
-                  {e.price > 0 ? <span className="text-sm font-semibold text-bordeaux-600">{e.price} €</span>
-                    : <Badge variant="secondary" className="text-xs">Gratuit</Badge>}
-                  <span className="text-xs font-semibold text-bordeaux-600 flex items-center gap-1 group-hover:gap-2 transition-all">Voir <ChevronRight className="h-3 w-3" /></span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-          </Reveal>
+          <>
+            {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+            {isFull ? <Badge variant="destructive">Complet</Badge>
+              : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
+              : null}
+          </>
         );
-      })}
-    </div>
+      }}
+    />
   );
 }

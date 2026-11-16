@@ -4,18 +4,17 @@ import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { LikeButton } from "@/components/LikeButton";
+import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { APPROVAL_BADGE, APPROVAL_LABEL, type ApprovalStatus } from "@/lib/schools";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Users, Search, CirclePlus, Clock, GraduationCap, Map as MapIcon, List, ArrowUpDown, SlidersHorizontal } from "lucide-react";
+import { MapPin, Search, CirclePlus, Clock, GraduationCap, Map as MapIcon, List, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { format, isThisWeek, isThisMonth } from "date-fns";
-import { fr } from "date-fns/locale";
+import { isThisWeek, isThisMonth } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { pastEventCutoff } from "@/lib/event-dates";
 
@@ -282,7 +281,10 @@ function EventList() {
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground">Chargement…</p>
+        <>
+          <p className="sr-only">Chargement…</p>
+          <EventMosaicSkeleton />
+        </>
       ) : sorted.length === 0 ? (
         <Card>
           <EmptyState title="Aucun événement trouvé." />
@@ -301,85 +303,36 @@ function EventList() {
           )}
         </div>
       ) : (
-        /* ── Vue liste ── */
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((e) => {
+        /* ── Vue liste : mosaïque ── */
+        <EventMosaic
+          events={sorted}
+          likes={likes}
+          placeOf={(e) => e.city ? `${e.city}${e.location ? ` — ${e.location}` : ""}` : e.location || "En ligne"}
+          renderBadges={(e) => {
             const taken = takenOf(e);
-            const pct = e.capacity > 0 ? Math.min(100, Math.round((taken / e.capacity) * 100)) : 0;
             const isFull = e.capacity > 0 && taken >= e.capacity;
             const remaining = e.capacity - taken;
-
             return (
-              <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }} className="tap block rounded-[var(--radius-carte)]">
-                {/* Carte d'événement — charte § 5 */}
-                <Card className="group flex h-full flex-col overflow-hidden transition-shadow md:hover:shadow-[var(--ombre-menu)]">
-                  {/* Visuel 4:3 ; sans image : dégradé bordeaux 600 → 400 */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-vibrant">
-                    {e.cover_image_url ? (
-                      <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                    ) : (
-                      <img src="/plav-cocotte.svg" alt="" className="absolute -bottom-8 -right-8 h-40 w-40 opacity-25" />
-                    )}
-                    {/* En haut à gauche : statut urgent (ou état de publication pour l'organisateur) */}
-                    <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
-                      {e.capacity > 0 && (isFull || remaining < 10) && (
-                        <Badge variant={isFull ? "destructive" : "warning"}>
-                          {isFull ? "Complet · liste d'attente" : `Plus que ${remaining} place${remaining > 1 ? "s" : ""}`}
-                        </Badge>
-                      )}
-                      {e.status === "draft" && <Badge variant="neutral">Brouillon</Badge>}
-                      {(e.approval_status === "pending" || e.approval_status === "rejected") && (
-                        <Badge className={APPROVAL_BADGE[e.approval_status as ApprovalStatus]}>{APPROVAL_LABEL[e.approval_status as ApprovalStatus]}</Badge>
-                      )}
-                    </div>
-                    {/* En haut à droite : prix */}
-                    <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-fond px-2.5 py-1 t-corps-fort text-bordeaux-600">
-                      {e.price > 0 ? `${Number(e.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
-                    </span>
-                    {/* Date façon billet */}
-                    <div className="absolute bottom-3 left-3 flex w-14 flex-col items-center overflow-hidden rounded-[var(--radius-moyen)] bg-blanc text-center shadow-[var(--ombre-carte)]">
-                      <span className="w-full bg-bordeaux-600 py-0.5 text-xs font-bold uppercase text-blanc">
-                        {format(new Date(e.starts_at), "MMM", { locale: fr }).replace(".", "")}
-                      </span>
-                      <span className="font-display text-2xl font-black leading-8 text-bordeaux-600">{format(new Date(e.starts_at), "d")}</span>
-                    </div>
-                  </div>
-                  <CardContent className="flex flex-1 flex-col gap-2.5 px-5 pb-5 pt-4">
-                    {(e.school || e.association) && (
-                      <div className="flex flex-wrap gap-1">
-                        {e.school && <Badge><GraduationCap className="h-4 w-4" strokeWidth={2} />{e.school}</Badge>}
-                        {e.association && <Badge>{e.association}</Badge>}
-                      </div>
-                    )}
-                    <h3 className="t-titre-3 line-clamp-2 text-encre group-hover:text-bordeaux-600">{e.title}</h3>
-                    <p className="hidden line-clamp-2 text-sm text-gris-chaud md:block">{e.description || "Aucune description."}</p>
-                    <div className="flex items-start gap-2">
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <p className="flex items-center gap-2 t-legende text-gris-chaud">
-                          <Clock className="h-4 w-4 shrink-0" strokeWidth={2} />{format(new Date(e.starts_at), "EEE d MMM · HH'h'mm", { locale: fr })}
-                        </p>
-                        <p className="flex min-w-0 items-center gap-2 t-legende text-gris-chaud">
-                          <MapPin className="h-4 w-4 shrink-0" strokeWidth={2} />
-                          <span className="line-clamp-1">{e.city ? `${e.city}${e.location ? ` — ${e.location}` : ""}` : e.location || "En ligne"}</span>
-                        </p>
-                      </div>
-                      <LikeButton count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
-                    </div>
-                    {e.capacity > 0 && (
-                      <div className="mt-auto space-y-1.5 pt-1">
-                        {/* Jauge : piste 6 px sable, remplissage selon le statut */}
-                        <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-bordure">
-                          <div className={`h-full rounded-[var(--radius-pilule)] transition-all ${isFull ? "bg-statut-rouge-500" : remaining < 10 ? "bg-statut-orange-500" : "bg-bordeaux-600"}`} style={{ width: `${isFull ? 100 : pct}%` }} />
-                        </div>
-                        <p className="flex items-center gap-2 t-legende text-gris-chaud"><Users className="h-4 w-4" strokeWidth={2} />{taken}/{e.capacity}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
+              <>
+                {e.capacity > 0 && (isFull || remaining < 10) && (
+                  <Badge variant={isFull ? "destructive" : "warning"}>
+                    {isFull ? "Complet · liste d'attente" : `Plus que ${remaining} place${remaining > 1 ? "s" : ""}`}
+                  </Badge>
+                )}
+                {e.status === "draft" && <Badge variant="neutral">Brouillon</Badge>}
+                {(e.approval_status === "pending" || e.approval_status === "rejected") && (
+                  <Badge className={APPROVAL_BADGE[e.approval_status as ApprovalStatus]}>{APPROVAL_LABEL[e.approval_status as ApprovalStatus]}</Badge>
+                )}
+              </>
             );
-          })}
-        </div>
+          }}
+          renderTags={(e) => (e.school || e.association) ? (
+            <>
+              {e.school && <Badge><GraduationCap className="h-4 w-4" strokeWidth={2} />{e.school}</Badge>}
+              {e.association && <Badge>{e.association}</Badge>}
+            </>
+          ) : null}
+        />
       )}
     </div>
   );
