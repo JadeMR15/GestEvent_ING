@@ -60,6 +60,7 @@ export async function postLoginTarget(userId: string): Promise<string> {
   }
   const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roleSet = new Set((roles ?? []).map((r) => r.role as string));
+  if (roleSet.has("admin")) return "/admin";
   if (roleSet.has("school_admin")) return "/school-admin";
-  return roleSet.has("admin") || roleSet.has("organizer") ? "/dashboard" : "/events";
+  return roleSet.has("organizer") ? "/dashboard" : "/events";
 }

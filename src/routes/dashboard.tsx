@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +30,13 @@ interface Stats {
 }
 
 function DashboardPage() {
+  const { role } = useAuth();
+  // L'admin Plav' n'organise pas de soirées : il a son propre espace.
+  if (role === "admin") return <Navigate to="/admin" replace />;
+  return <EventsDashboard />;
+}
+
+function EventsDashboard() {
   const { user, role } = useAuth();
   const [stats, setStats] = useState<Stats>({ total: 0, upcoming: 0, revenue: 0 });
   const [recent, setRecent] = useState<any[]>([]);

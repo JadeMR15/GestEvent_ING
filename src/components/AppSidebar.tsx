@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { BrandName } from "@/components/BrandName";
-import { LayoutDashboard, Calendar, CirclePlus, QrCode, Users, Ticket, LogOut, Download, ChartNoAxesColumn, Euro, ShieldCheck, Settings, Building2, MessageSquare, Hourglass, Heart, Bell, Newspaper, Store } from "lucide-react";
+import { LayoutDashboard, Calendar, CirclePlus, QrCode, Users, Ticket, LogOut, Download, ChartNoAxesColumn, Euro, ShieldCheck, Settings, Building2, MessageSquare, Hourglass, Heart, Bell, Newspaper, Store, AtSign } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -42,12 +42,21 @@ export function AppSidebar() {
   const notifications = useNotifications();
   const permission = useNotificationPermission();
 
-  const isActive = (p: string) =>
-    p === "/school-admin" && pathname.startsWith("/school-admin/messages") ? false : pathname === p || pathname.startsWith(p + "/");
+  const isActive = (p: string) => {
+    if (p === "/admin") return pathname === "/admin" || pathname === "/admin/";
+    if (p === "/school-admin" && pathname.startsWith("/school-admin/messages")) return false;
+    return pathname === p || pathname.startsWith(p + "/");
+  };
 
   const items = [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "organizer", "participant"] },
-    { title: role === "organizer" || role === "admin" ? "Vos événements" : "Événements", url: "/events", icon: Calendar, roles: ["admin", "organizer", "participant"] },
+    // Admin Plav' : uniquement la gestion de la plateforme, pas de soirées.
+    { title: "Vue d'ensemble", url: "/admin", icon: LayoutDashboard, roles: ["admin"] },
+    { title: "Écoles", url: "/admin/schools", icon: Building2, roles: ["admin"] },
+    { title: "Domaines", url: "/admin/domains", icon: AtSign, roles: ["admin"] },
+    { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
+    { title: "Utilisateurs", url: "/admin/users", icon: Users, roles: ["admin"] },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["organizer", "participant"] },
+    { title: role === "organizer" ? "Vos événements" : "Événements", url: "/events", icon: Calendar, roles: ["organizer", "participant"] },
     // Réseau (fil, abonnements) : participants uniquement.
     { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["participant"] },
     { title: "Associations", url: "/associations", icon: Store, roles: ["participant"] },
@@ -57,22 +66,20 @@ export function AppSidebar() {
       : []),
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"] },
     { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
-    { title: "Créer un événement", url: "/events/new", icon: CirclePlus, roles: ["admin", "organizer"] },
-    { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["admin", "organizer", "volunteer"] },
+    { title: "Créer un événement", url: "/events/new", icon: CirclePlus, roles: ["organizer"] },
+    { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["organizer", "volunteer"] },
     ...(!isVerified ? [{ title: "Vérifier mon compte", url: "/verification", icon: ShieldCheck, roles: ["organizer", "participant"] }] : []),
     { title: "Messages école", url: "/messages", icon: MessageSquare, roles: ["organizer"] },
     { title: "Espace école", url: "/school-admin", icon: Building2, roles: ["school_admin"] },
     { title: "Messages", url: "/school-admin/messages", icon: MessageSquare, roles: ["school_admin"] },
-    { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"] },
-    { title: "Écoles", url: "/admin/schools", icon: Building2, roles: ["admin"] },
-    { title: "Événements likés", url: "/likes", icon: Heart, roles: ["admin", "organizer", "participant", "volunteer"] },
+    { title: "Événements likés", url: "/likes", icon: Heart, roles: ["organizer", "participant", "volunteer"] },
     { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer", "school_admin"] },
   ].filter((i) => role && i.roles.includes(role));
 
   const toolItems = [
-    { title: "Analyses", url: "/analytics", icon: ChartNoAxesColumn, roles: ["admin", "organizer"] },
-    { title: "Finances", url: "/finance", icon: Euro, roles: ["admin", "organizer"] },
-    { title: "Exporter", url: "/export", icon: Download, roles: ["admin", "organizer"] },
+    { title: "Analyses", url: "/analytics", icon: ChartNoAxesColumn, roles: ["organizer"] },
+    { title: "Finances", url: "/finance", icon: Euro, roles: ["organizer"] },
+    { title: "Exporter", url: "/export", icon: Download, roles: ["organizer"] },
   ].filter((i) => role && i.roles.includes(role));
 
   return (
@@ -84,7 +91,7 @@ export function AppSidebar() {
             <div className="flex flex-col flex-1 items-start gap-1">
               <BrandName className="h-10" onDark />
               <span className="text-xs text-sidebar-foreground/60">
-                {role ? { admin: "Administrateur", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole", school_admin: "Administration école" }[role] : "Invité"}
+                {role ? { admin: "Administration Plav'", organizer: "Organisateur", participant: "Participant", volunteer: "Bénévole", school_admin: "Administration école" }[role] : "Invité"}
               </span>
             </div>
           )}

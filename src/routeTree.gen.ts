@@ -31,8 +31,12 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminDomainsRouteImport } from './routes/admin.domains'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
+import { Route as AlbumsAlbumIdRouteImport } from './routes/albums.$albumId'
 import { Route as AssociationsIndexRouteImport } from './routes/associations.index'
 import { Route as AssociationsAssociationIdRouteImport } from './routes/associations.$associationId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -159,14 +163,34 @@ const WaitlistRoute = WaitlistRouteImport.update({
   path: '/waitlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDomainsRoute = AdminDomainsRouteImport.update({
+  id: '/admin/domains',
+  path: '/admin/domains',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
   id: '/admin/schools',
   path: '/admin/schools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   id: '/admin/verifications',
   path: '/admin/verifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlbumsAlbumIdRoute = AlbumsAlbumIdRouteImport.update({
+  id: '/albums/$albumId',
+  path: '/albums/$albumId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssociationsIndexRoute = AssociationsIndexRouteImport.update({
@@ -270,8 +294,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/domains': typeof AdminDomainsRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/cocotte': typeof DevCocotteRoute
@@ -282,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/admin/': typeof AdminIndexRoute
   '/associations/': typeof AssociationsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
@@ -311,8 +339,11 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/domains': typeof AdminDomainsRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/cocotte': typeof DevCocotteRoute
@@ -323,6 +354,7 @@ export interface FileRoutesByTo {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/admin': typeof AdminIndexRoute
   '/associations': typeof AssociationsIndexRoute
   '/events': typeof EventsIndexRoute
   '/school-admin': typeof SchoolAdminIndexRoute
@@ -353,8 +385,11 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/domains': typeof AdminDomainsRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/cocotte': typeof DevCocotteRoute
@@ -365,6 +400,7 @@ export interface FileRoutesById {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/admin/': typeof AdminIndexRoute
   '/associations/': typeof AssociationsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
@@ -396,8 +432,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/domains'
     | '/admin/schools'
+    | '/admin/users'
     | '/admin/verifications'
+    | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
     | '/dev/cocotte'
@@ -408,6 +447,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/admin/'
     | '/associations/'
     | '/events/'
     | '/school-admin/'
@@ -437,8 +477,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/domains'
     | '/admin/schools'
+    | '/admin/users'
     | '/admin/verifications'
+    | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
     | '/dev/cocotte'
@@ -449,6 +492,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/admin'
     | '/associations'
     | '/events'
     | '/school-admin'
@@ -478,8 +522,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/domains'
     | '/admin/schools'
+    | '/admin/users'
     | '/admin/verifications'
+    | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
     | '/dev/cocotte'
@@ -490,6 +537,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/admin/'
     | '/associations/'
     | '/events/'
     | '/school-admin/'
@@ -520,8 +568,11 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
+  AdminDomainsRoute: typeof AdminDomainsRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AlbumsAlbumIdRoute: typeof AlbumsAlbumIdRoute
   AssociationsAssociationIdRoute: typeof AssociationsAssociationIdRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   DevCocotteRoute: typeof DevCocotteRoute
@@ -532,6 +583,7 @@ export interface RootRouteChildren {
   SchoolAdminReviewsRoute: typeof SchoolAdminReviewsRoute
   SchoolAdminSettingsRoute: typeof SchoolAdminSettingsRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AssociationsIndexRoute: typeof AssociationsIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   SchoolAdminIndexRoute: typeof SchoolAdminIndexRoute
@@ -695,6 +747,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/domains': {
+      id: '/admin/domains'
+      path: '/admin/domains'
+      fullPath: '/admin/domains'
+      preLoaderRoute: typeof AdminDomainsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/schools': {
       id: '/admin/schools'
       path: '/admin/schools'
@@ -702,11 +768,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/verifications': {
       id: '/admin/verifications'
       path: '/admin/verifications'
       fullPath: '/admin/verifications'
       preLoaderRoute: typeof AdminVerificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/albums/$albumId': {
+      id: '/albums/$albumId'
+      path: '/albums/$albumId'
+      fullPath: '/albums/$albumId'
+      preLoaderRoute: typeof AlbumsAlbumIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/associations/': {
@@ -840,8 +920,11 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
+  AdminDomainsRoute: AdminDomainsRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
+  AdminUsersRoute: AdminUsersRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
+  AlbumsAlbumIdRoute: AlbumsAlbumIdRoute,
   AssociationsAssociationIdRoute: AssociationsAssociationIdRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   DevCocotteRoute: DevCocotteRoute,
@@ -852,6 +935,7 @@ const rootRouteChildren: RootRouteChildren = {
   SchoolAdminReviewsRoute: SchoolAdminReviewsRoute,
   SchoolAdminSettingsRoute: SchoolAdminSettingsRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AssociationsIndexRoute: AssociationsIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   SchoolAdminIndexRoute: SchoolAdminIndexRoute,

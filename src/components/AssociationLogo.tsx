@@ -8,6 +8,7 @@ import { Monogram } from "@/components/SchoolAdminShell";
 import { db, schoolErrorMessage } from "@/lib/schools";
 import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { avatarUrl } from "@/lib/avatar";
+import { imageExt } from "@/lib/image-encode";
 
 export const LOGO_BUCKET = "association-logos";
 const LOGO_ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
@@ -16,6 +17,8 @@ const LOGO_MAX_SIDE = 512;
 
 export function associationLogoUrl(path: string | null | undefined): string | null {
   if (!path) return null;
+  // Image déjà hébergée ailleurs (données de démo) : adresse utilisée telle quelle.
+  if (/^https?:\/\//.test(path)) return path;
   return supabase.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
@@ -75,8 +78,8 @@ export function AssociationLogoEditor({ associationId, name, path, onChange, fal
     setCropFile(null);
     setBusy(true);
     try {
-      const newPath = `${associationId}/logo-${Date.now()}.webp`;
-      const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: "image/webp" });
+      const newPath = `${associationId}/logo-${Date.now()}.${imageExt(blob)}`;
+      const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: blob.type });
       if (upErr) throw new Error(upErr.message);
       const { error } = await db.rpc("set_association_logo", { _association_id: associationId, _path: newPath });
       if (error) throw new Error(schoolErrorMessage(error.message));
@@ -165,8 +168,8 @@ export function checkCoverFile(file: File): string | null {
 export async function saveAssociationCover(associationId: string, blob: Blob | null, oldPath: string | null | undefined): Promise<string | null> {
   let newPath: string | null = null;
   if (blob) {
-    newPath = `${associationId}/cover-${Date.now()}.webp`;
-    const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: "image/webp" });
+    newPath = `${associationId}/cover-${Date.now()}.${imageExt(blob)}`;
+    const { error: upErr } = await supabase.storage.from(LOGO_BUCKET).upload(newPath, blob, { contentType: blob.type });
     if (upErr) throw new Error("Envoi de la photo impossible.");
   }
   const { error } = await db.rpc("set_association_cover", { _association_id: associationId, _path: newPath });

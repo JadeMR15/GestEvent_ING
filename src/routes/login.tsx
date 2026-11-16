@@ -63,6 +63,8 @@ function LoginPage() {
         toast.error("Ton adresse email n'est pas encore confirmée.");
       } else if (/invalid login credentials/i.test(error.message)) {
         toast.error("Email ou mot de passe incorrect.");
+      } else if (/banned/i.test(error.message)) {
+        toast.error("Ce compte a été bloqué par l'équipe Plav'.");
       } else {
         toast.error(error.message);
       }

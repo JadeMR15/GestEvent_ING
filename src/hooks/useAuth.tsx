@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { removePushSubscription } from "@/lib/push";
+import { toast } from "sonner";
 
 export type AppRole = "admin" | "organizer" | "participant" | "volunteer" | "school_admin";
 export type MembershipStatus = "none" | "pending" | "approved" | "rejected";
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        setTimeout(() => { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); fetchSchool(sess.user.id); }, 0);
+        setTimeout(() => { fetchRole(sess.user.id); fetchVerification(sess.user.id); fetchProfile(sess.user.id); fetchSchool(sess.user.id); checkBlocked(sess.user.id); }, 0);
       } else {
         setRole(null);
         setVerificationStatus(null);
@@ -135,6 +136,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setFullName(data?.full_name ?? null);
     setAvatarPath(data?.avatar_path ?? null);
+  }
+
+  // Compte bloqué par un admin Plav' (admin_space.sql) : déconnexion immédiate.
+  async function checkBlocked(userId: string) {
+    const { data, error } = await (supabase as any)
+      .from("profiles").select("blocked_at, blocked_reason").eq("id", userId).maybeSingle();
+    if (error || !data?.blocked_at) return;
+    toast.error("Ce compte a été bloqué par l'équipe Plav'.", { description: data.blocked_reason ?? undefined, duration: 10000 });
+    await removePushSubscription();
+    await supabase.auth.signOut();
   }
 
   // Requête séparée : sans la migration school_admin, ces colonnes n'existent pas et on garde les valeurs par défaut.

@@ -21,6 +21,7 @@ import { NotificationSettingsCard } from "@/components/NotificationSettingsCard"
 import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { RoleAvatar } from "@/components/RoleAvatar";
 import { MySchoolBadge } from "@/components/SchoolBadge";
+import { imageExt } from "@/lib/image-encode";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -157,10 +158,10 @@ function SettingsPage() {
     if (!user) return;
     setUploading(true);
     try {
-      const path = `${user.id}/${Date.now()}.webp`;
+      const path = `${user.id}/${Date.now()}.${imageExt(blob)}`;
       const { error: upErr } = await supabase.storage
         .from(AVATAR_BUCKET)
-        .upload(path, blob, { contentType: "image/webp", upsert: false });
+        .upload(path, blob, { contentType: blob.type, upsert: false });
       if (upErr) throw new Error("Envoi de la photo impossible. Réessaie.");
       const { error: dbErr } = await supabase.from("profiles").update({ avatar_path: path }).eq("id", user.id);
       if (dbErr) {

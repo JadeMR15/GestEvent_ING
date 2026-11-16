@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ProtectedLayout } from "@/components/ProtectedLayout";
+import { AdminShell } from "@/components/AdminShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,10 @@ import { fr } from "date-fns/locale";
 
 export const Route = createFileRoute("/admin/verifications")({
   component: () => (
-    <ProtectedLayout allow={["admin"]}>
-      <AdminVerificationsPage />
-    </ProtectedLayout>
+    <AdminShell title="Vérifications étudiantes"
+      subtitle="Justificatifs que la vérification automatique n'a pas pu valider seule. Le document est supprimé après ta décision.">
+      {({ refresh }) => <AdminVerificationsPage refresh={refresh} />}
+    </AdminShell>
   ),
   head: () => ({ meta: [{ title: "Vérifications — Plav'" }] }),
 });
@@ -135,7 +136,7 @@ function RandomAudits() {
   );
 }
 
-function AdminVerificationsPage() {
+function AdminVerificationsPage({ refresh }: { refresh: () => Promise<void> }) {
   const [items, setItems]     = useState<Pending[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId]   = useState<string | null>(null);
@@ -186,16 +187,12 @@ function AdminVerificationsPage() {
     if (error) { toast.error("Mise à jour impossible."); return; }
     toast.success(approve ? `${p.full_name} est vérifié(e).` : `Dossier de ${p.full_name} refusé.`);
     setItems((prev) => prev.filter((x) => x.id !== p.id));
+    refresh();
   }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1>Vérifications étudiantes</h1>
-        <p className="text-muted-foreground">
-          Justificatifs que la vérification automatique n'a pas pu valider seule. Le document est supprimé après ta décision.
-        </p>
-      </div>
+      <h2 className="text-xl font-semibold">Dossiers à relire{!loading && ` (${items.length})`}</h2>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
