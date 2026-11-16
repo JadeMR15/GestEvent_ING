@@ -106,6 +106,12 @@
 }
 
 
+/* ── plonge : bras levés au-dessus de la tête, jambes serrées ── */
+.ck--plonge .ck-arm-l { transform: rotate(78deg); }
+.ck--plonge .ck-arm-r { transform: rotate(-30deg); }
+.ck--plonge .ck-leg-l { transform: rotate(-10deg); }
+.ck--plonge .ck-leg-r { transform: rotate(9deg); }
+
 /* ── Pas pilotés par la distance parcourue (révélation du titre) ── */
 .ck--scrub .ck-fig, .ck--scrub .ck-sway, .ck--scrub .ck-arm, .ck--scrub .ck-leg { animation: none !important; }
 

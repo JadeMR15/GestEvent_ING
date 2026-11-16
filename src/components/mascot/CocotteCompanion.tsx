@@ -24,13 +24,15 @@ type Phase =
   // Scène de danse
   | "toStage" | "stageWave" | "stage" | "stageAppear" | "fromStage" | "away"
   // Révélation du titre « Comment ça marche ? »
-  | "toTitle" | "scrub" | "qHop" | "qWave" | "toCorner";
+  | "toTitle" | "scrub" | "qHop" | "qWave" | "toCorner"
+  // Plongeon dans « T'attends quoi ? »
+  | "toBoard" | "board" | "dive" | "dived";
 
 type Pos = { x: number; y: number; s: number };
 
 const DUR = {
   emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750, vanish: 450,
-  toStage: 1300, stageWave: 1000, fromStage: 750, toTitle: 500, qHop: 450, qWave: 1200, toCorner: 750,
+  toStage: 1300, stageWave: 1000, fromStage: 750, toTitle: 500, qHop: 450, qWave: 1200, toCorner: 750, toBoard: 500, dive: 1200,
 };
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -60,6 +62,26 @@ export function CocotteCompanion() {
     const floor = spot?.parentElement ?? null;
     const features = document.getElementById("fonctionnalites");
     const howTitle = document.getElementById("lp-how-title");
+    // Plongeon : plongeoir (section du téléphone) et cadre « T'attends quoi ? ». Ces éléments
+    // n'existent que pour les visiteurs non connectés, une fois la session vérifiée : on les
+    // cherche donc à chaque image plutôt qu'une seule fois au démarrage.
+    let board: HTMLElement | null = null;
+    let plank: HTMLElement | null = null;
+    let bend: SVGGElement | null = null;
+    let appSection: HTMLElement | null = null;
+    let ctaFrame: HTMLElement | null = null;
+    let landing: HTMLElement | null = null;
+    let splash: HTMLElement | null = null;
+    const findDiveParts = () => {
+      if (board?.isConnected && ctaFrame?.isConnected) return;
+      board = document.getElementById("lp-board");
+      plank = document.getElementById("lp-board-plank");
+      bend = board?.querySelector<SVGGElement>(".pl-bend") ?? null;
+      appSection = board?.closest("section") ?? null;
+      ctaFrame = document.querySelector<HTMLElement>(".lp-frame-cta");
+      landing = document.getElementById("lp-cta-landing");
+      splash = document.getElementById("lp-splash");
+    };
     // Référence pour la marge de gauche : le conteneur de la section des événements
     const contentRef = document.querySelector<HTMLElement>("#evenements > .container");
     if (!wrap || !slot) return;
@@ -77,6 +99,8 @@ export function CocotteCompanion() {
     let scrubDist = 0; // distance parcourue le long du titre (px) → cycle de marche
     let scrubLastX: number | null = null;
     let scrubMovedAt = 0;
+    let splashed = false;
+    let landTimer = 0;
     let facingLeft = false;
     // Coucou régulier au repos
     let idleAction: { start: number } | null = null;
@@ -211,6 +235,26 @@ export function CocotteCompanion() {
         if (hl > prev) acc.style.setProperty("--hl", hl.toFixed(3));
       }
     };
+    /** Progression sur la planche : bas de la section à 72 % de l'écran → 0, à 50 % → 1. */
+    const boardProgress = (vh: number) => {
+      const b = appSection!.getBoundingClientRect().bottom;
+      return clamp((0.72 * vh - b) / (0.22 * vh), 0, 1);
+    };
+    /** Pose sur la planche (pieds sur le dessus), de son début jusqu'au bout. */
+    const boardPose = (base: { x: number; y: number }, H: number, p: number) => {
+      const r = plank!.getBoundingClientRect();
+      const Wb = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
+      const x = lerp(r.left + Wb / 2 + 4, r.right - Wb * 0.3, p);
+      return { pos: poseAt(base, H, 1, x, r.top + 1), x };
+    };
+    const spinEl = () => wrap.querySelector<HTMLElement>(".ck-spin");
+    const replay = (el: HTMLElement | null, cls: string) => {
+      if (!el) return;
+      el.classList.remove(cls);
+      void el.offsetWidth; // relance l'animation
+      el.classList.add(cls);
+    };
+
     /** Cycle de marche synchronisé avec la distance : un pas complet = 24 px. */
     const limbs = () => wrap.querySelectorAll<SVGGElement>(".ck-leg-l, .ck-leg-r, .ck-arm-l, .ck-arm-r, .ck-fig");
     const stepPose = (dist: number) => {
@@ -305,6 +349,14 @@ export function CocotteCompanion() {
       const titleIn = !!ht && ht.top < 0.85 * vh && ht.bottom > 0;
       const titleBelow = !ht || ht.top > 0.85 * vh;
 
+      // Plongeoir : sorti, et le cadre « T'attends quoi ? » pas encore dépassé
+      findDiveParts();
+      const boardReady = !!board && !!plank && !!appSection && !!ctaFrame && !reduced;
+      const secBottom = appSection?.getBoundingClientRect().bottom ?? Infinity;
+      const boardActive = boardReady && board!.classList.contains("is-out") && secBottom < 0.72 * vh &&
+        ctaFrame!.getBoundingClientRect().top > 0;
+      const aboveBoard = secBottom > 0.85 * vh; // remonté au-dessus de la section du téléphone
+
       const t = now - phaseStart;
       let pos: Pos = seat.pos;
       let opacity = 1;
@@ -366,6 +418,12 @@ export function CocotteCompanion() {
               // Elle saute de sa place jusqu'au titre (ou apparaît s'il n'y a pas de place)
               from = seat.ok ? seat.pos : { x: 0, y: 0, s: 1 };
               go("toTitle", now); setP(seat.ok ? "saut" : "apparition"); idleAction = null;
+              break;
+            }
+            // Plongeoir sorti : elle monte sur la planche
+            if (boardReady && boardActive) {
+              from = seat.ok ? seat.pos : { x: 0, y: 0, s: 1 };
+              go("toBoard", now); setP(seat.ok ? "saut" : "apparition"); idleAction = null;
               break;
             }
             if (stageVisible) {
@@ -521,6 +579,89 @@ export function CocotteCompanion() {
             }
             break;
           }
+          case "toBoard": {
+            // Elle saute de sa place jusqu'à la planche (ou y apparaît s'il n'y a pas de place)
+            const bp = boardPose(base, H, boardProgress(vh));
+            if (from.s === 1 && from.x === 0 && from.y === 0) pos = bp.pos;
+            else pos = lerpPos(from, bp.pos, ease(clamp(t / DUR.toBoard, 0, 1)), 60);
+            facingLeft = false;
+            if (aboveBoard) { from = pos; leaveTitle(now, seat); break; }
+            if (t > DUR.toBoard) { scrubLastX = bp.x; scrubMovedAt = 0; go("board", now); setP("repos"); }
+            break;
+          }
+          case "board": {
+            // Sur la planche, sa position suit le défilement : elle avance, s'arrête, ou recule
+            const p = boardProgress(vh);
+            const bp = boardPose(base, H, p);
+            pos = bp.pos;
+            const dx = scrubLastX === null ? 0 : bp.x - scrubLastX;
+            scrubLastX = bp.x;
+            if (Math.abs(dx) > 0.2) { scrubDist += Math.abs(dx); scrubMovedAt = now; facingLeft = dx < 0; }
+            const moving = now - scrubMovedAt < 140;
+            setScrub(moving);
+            setP("repos");
+            if (moving) stepPose(scrubDist); else clearStep();
+            if (aboveBoard || (p <= 0 && !board!.classList.contains("is-out"))) {
+              setScrub(false); clearStep(); from = pos; leaveTitle(now, seat); break;
+            }
+            if (p >= 1) {
+              // Bout de la planche : le plongeon se joue tout seul
+              setScrub(false); clearStep();
+              from = pos; facingLeft = false; splashed = false;
+              go("dive", now); setP("repos");
+            }
+            break;
+          }
+          case "dive": {
+            const tip = boardPose(base, H, 1);
+            const ft = ctaFrame!.getBoundingClientRect().top;
+            const lr = (landing ?? ctaFrame!).getBoundingClientRect();
+            const s1 = tip.pos.s;
+            if (t < 600) {
+              // Deux petits rebonds sur le bout de la planche, qui plie à chaque réception
+              const hop = Math.abs(Math.sin((2 * Math.PI * t) / 600));
+              pos = { ...tip.pos, y: tip.pos.y - hop * 16 };
+              if (bend) bend.style.transform = `rotate(${(1 - hop) * 5}deg)`;
+              setP("repos");
+            } else {
+              if (bend) bend.style.transform = "";
+              // Saut en arc vers le bord haut du cadre, pirouette complète, bras levés, jambes serrées
+              const k = clamp((t - 600) / 600, 0, 1);
+              const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
+              const end = poseAt(base, H, s1, lr.left + lr.width / 2, ft + H * s1 * 1.1);
+              const kx = 1 - Math.pow(1 - k, 1.6);
+              pos = {
+                x: lerp(tip.pos.x, end.x, kx),
+                y: lerp(tip.pos.y, end.y, k * k) - Math.sin(Math.PI * Math.min(1, k * 1.15)) * (isMobile() ? 36 : 110),
+                s: s1,
+              };
+              const sp = spinEl();
+              if (sp) sp.style.transform = `rotate(${360 * ease(k)}deg)`;
+              setP("plonge");
+              // Entrée dans l'eau : la partie sous le bord du cadre est masquée
+              const localY = (ft - (base.y + pos.y)) / pos.s;
+              wrap.style.clipPath = `polygon(-600px -600px, ${W + 600}px -600px, ${W + 600}px ${localY}px, -600px ${localY}px)`;
+              // Éclaboussures quand elle touche l'eau, puis rebond de la petite cocotte ~300 ms après
+              if (!splashed && base.y + pos.y + H * s1 * 0.5 > ft) {
+                splashed = true;
+                replay(splash, "is-on");
+                clearTimeout(landTimer);
+                landTimer = window.setTimeout(() => replay(landing, "is-landed"), 300);
+              }
+            }
+            if (t > DUR.dive) {
+              const sp = spinEl();
+              if (sp) sp.style.transform = "";
+              // Elle reste masquée (sous l'eau) pendant son fondu de sortie
+              wrap.style.clipPath = "polygon(0 0, 0 0, 0 0)";
+              go("dived", now); setP("repos");
+            }
+            break;
+          }
+          case "dived":
+            // Après le plongeon, elle reste cachée jusqu'en bas de la page… sauf si on remonte
+            if (aboveBoard) { wrap.style.clipPath = ""; go("seat", now); setP("apparition"); nextIdleAt = now + 4000; }
+            break;
           case "toCorner": {
             // Saut vers sa place
             const k = ease(clamp(t / DUR.toCorner, 0, 1));
@@ -533,8 +674,9 @@ export function CocotteCompanion() {
       }
 
       setF(facingLeft);
+      wrap.dataset.phase = phase; // étape courante (lecture / débogage)
       // Visible : en animation, ou à sa place si elle y a de la place
-      const visible = phase !== "off" && phase !== "away" && !(phase === "seat" && !seat.ok);
+      const visible = phase !== "off" && phase !== "away" && phase !== "dived" && !(phase === "seat" && !seat.ok);
       setS(visible);
 
       // Discrétion près du footer : seulement à sa place
@@ -544,7 +686,8 @@ export function CocotteCompanion() {
       wrap.classList.toggle("is-tucked", phase === "seat" && hide > 0.9);
 
       // La boucle continue tant que quelque chose bouge
-      const animating = !["off", "seat", "away", "stage", "scrub"].includes(phase) || (phase === "scrub" && now - scrubMovedAt < 160);
+      const animating = !["off", "seat", "away", "stage", "scrub", "board", "dived"].includes(phase) ||
+        ((phase === "scrub" || phase === "board") && now - scrubMovedAt < 160);
       const busy =
         animating || scrolling || now < hopUntil || !!idleAction ||
         Math.abs(hide - (footerIn ? 1 : 0)) > 0.01 ||
@@ -575,6 +718,8 @@ export function CocotteCompanion() {
       document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(raf);
       clearTimeout(idleTimer);
+      clearTimeout(landTimer);
+      wrap.style.clipPath = "";
       atSlot(false);
     };
   }, [reduced]);
@@ -593,7 +738,9 @@ export function CocotteCompanion() {
         tabIndex={shown ? 0 : -1}
         onClick={onHop}
       >
-        <Cocotte state={pose} flip={flip} scrub={scrub} className="ck-companion-figure" />
+        <span className="ck-spin">
+          <Cocotte state={pose} flip={flip} scrub={scrub} className="ck-companion-figure" />
+        </span>
         {sparks > 0 && (
           <span key={sparks} className="ck-sparks" aria-hidden="true">
             {[0, 1, 2, 3, 4, 5].map((i) => <span key={i} style={{ "--a": `${i * 60 - 90}deg` } as CSSProperties} />)}

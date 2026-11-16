@@ -24,6 +24,7 @@ import { Frame } from "@/components/landing/Frame";
 import { CocotteCompanion } from "@/components/mascot/CocotteCompanion";
 import { DanceScene } from "@/components/mascot/DanceScene";
 import { RevealTitle } from "@/components/mascot/RevealTitle";
+import { Plongeoir } from "@/components/mascot/Plongeoir";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
@@ -246,11 +247,18 @@ function Landing() {
       <StackedHowItWorks />
 
       {/* ── L'appli ── */}
-      <AppShowcase />
+      <AppShowcase>{!loading && !user && <Plongeoir />}</AppShowcase>
 
       {/* ── CTA (sombre) ── */}
       {!loading && !user && (
         <section ref={ctaAnim.ref} className="lp-frame-section relative">
+          {/* Éclaboussures quand Cocotte plonge dans le cadre (essai) */}
+          <div id="lp-splash" className="lp-splash" aria-hidden="true">
+            {[0, 1, 2].map((n) => <span key={`r${n}`} className="lp-splash-ring" style={{ "--n": n } as CSSProperties} />)}
+            {[-46, -30, -12, 10, 28, 44].map((dx, n) => (
+              <span key={`d${n}`} className="lp-splash-drop" style={{ "--n": n, "--dx": `${dx}px`, "--up": `${-30 - (n % 3) * 12}px` } as CSSProperties} />
+            ))}
+          </div>
           <Frame className="lp-frame-cta">
           <img
             src="/plav-cocotte.svg"
@@ -259,7 +267,7 @@ function Landing() {
             className={`lp-cta-cocotte pointer-events-none plav-drift ${ctaAnim.visible ? "" : "lp-paused"}`}
           />
           <div className="relative z-10 mx-auto text-center">
-            <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" />
+            <span id="lp-cta-landing" className="lp-cta-landing"><img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" /></span>
             <h2 className="lp-cta-title">T'attends <span className="t-accent text-jaune-300">quoi ?</span></h2>
             <p className="mt-6 t-corps-l text-blanc/80">Rejoins les assos qui font confiance à plav'.</p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
