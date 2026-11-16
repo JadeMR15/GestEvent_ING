@@ -2,11 +2,11 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BrandName } from "@/components/BrandName";
 
 /**
- * En-tête de la page d'accueil : transparent sur le hero sombre (logo doré, liens crème),
- * puis crème avec un léger flou dès qu'on défile (logo couleur, liens bordeaux).
- * Seules l'opacité du fond et des logos sont animées.
+ * En-tête de la page d'accueil, version claire « studio » : fond blanc, logo couleur,
+ * liens en petites capitales espacées. Un filet apparaît sous l'en-tête dès qu'on défile
+ * (seule l'opacité est animée).
  */
-export function LandingHeader({ actions }: { actions: (onDark: boolean) => ReactNode }) {
+export function LandingHeader({ actions }: { actions: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -24,27 +24,22 @@ export function LandingHeader({ actions }: { actions: (onDark: boolean) => React
     };
   }, []);
 
-  const onDark = !scrolled;
-  const link = onDark ? "text-blanc hover:text-jaune-300" : "text-bordeaux-600 hover:opacity-70";
+  const link = "lp-caps text-encre transition-colors hover:text-bordeaux-600";
 
   return (
     <header className="lp-header fixed inset-x-0 top-0 z-50 w-full">
-      <div aria-hidden="true" className={`lp-header-bg ${scrolled ? "is-on" : ""}`} />
+      <div aria-hidden="true" className="lp-header-bg is-on" />
+      <div aria-hidden="true" className={`lp-header-line ${scrolled ? "is-on" : ""}`} />
       <div className="relative container mx-auto flex items-center justify-between px-4 py-4 sm:px-6">
-        <div className="grid">
-          <span aria-hidden={!onDark} className={`[grid-area:1/1] transition-opacity duration-300 ${onDark ? "opacity-100" : "opacity-0"}`}>
-            <BrandName onDark className="h-10 md:h-14" />
-          </span>
-          <span aria-hidden={onDark} className={`[grid-area:1/1] transition-opacity duration-300 ${onDark ? "opacity-0" : "opacity-100"}`}>
-            <BrandName className="h-10 md:h-14" />
-          </span>
+        <div className="flex items-center">
+          <BrandName className="h-10 md:h-14" />
         </div>
-        <nav className="hidden md:flex items-center gap-16 text-sm font-medium">
-          <a href="#evenements" className={`transition-opacity ${link}`}>Événements</a>
-          <a href="#fonctionnalites" className={`transition-opacity ${link}`}>Fonctionnalités</a>
-          <a href="#contact" className={`transition-opacity ${link}`}>Contact</a>
+        <nav className="hidden md:flex items-center gap-12">
+          <a href="#evenements" className={link}>Événements</a>
+          <a href="#fonctionnalites" className={link}>Fonctionnalités</a>
+          <a href="#contact" className={link}>Contact</a>
         </nav>
-        <div className="flex gap-2">{actions(onDark)}</div>
+        <div className="flex items-center gap-4 sm:gap-6">{actions}</div>
       </div>
     </header>
   );

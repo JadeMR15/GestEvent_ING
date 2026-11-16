@@ -13,149 +13,194 @@
 .lp-header-bg {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--neutre-fond) 88%, transparent);
-  border-bottom: 1px solid var(--neutre-bordure);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--neutre-fond);
+}
+/* Filet sous l'en-tête, visible dès qu'on défile */
+.lp-header-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--neutre-bordure);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
-.lp-header-bg.is-on { opacity: 1; }
+.lp-header-line.is-on { opacity: 1; }
 
-/* ── Hero : plein écran, mot géant animé derrière une cocotte géante ── */
+/* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */
+
+/* Petites capitales espacées */
+.lp-caps {
+  font: 600 13px/1.2 var(--font-texte);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.lp-caps-sm {
+  font: 600 12px/1.6 var(--font-texte);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neutre-encre);
+}
+.lp-caps-xs {
+  font: 600 12px/1.3 var(--font-texte);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neutre-gris-chaud);
+}
+
 .lp-hero {
+  --hdr: 72px;
   position: relative;
   isolation: isolate;
-  min-height: 100vh;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  background: var(--bordeaux-900);
+  background: var(--neutre-fond);
   overflow: hidden;
-  /* Taille de la cocotte : ~75vw sur mobile */
-  --cocotte-size: min(75vw, 360px);
+  padding-top: var(--hdr);
 }
-@media (min-width: 768px) {
-  .lp-hero {
-    height: 100vh;
-    height: 100svh;
-    min-height: 640px;
-    /* ~60vh, max 520 px, et toujours la place pour le texte du bas */
-    --cocotte-size: clamp(200px, min(60svh, 100svh - 430px), 520px);
-  }
+
+/* Cocotte (mobile : en haut, ~85vw, coupée à gauche) */
+.lp-cocotte {
+  position: relative;
+  width: 85vw;
+  height: 85vw;
+  max-width: 460px;
+  max-height: 460px;
+  margin: 8px 0 0 -15vw;
 }
-.lp-hero-media {
+.lp-cocotte-ground {
   position: absolute;
-  inset: 0;
+  left: 14%;
+  right: 14%;
+  bottom: -5%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(43, 22, 27, 0.2), rgba(43, 22, 27, 0));
+  animation: fadeIn 1.2s ease 0.6s both;
+}
+.lp-cocotte-enter {
+  position: relative;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  animation: lpCocotteIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-/* Photo très assombrie : ~88 % de bordeaux 900, un peu plus en bas pour le texte */
-.lp-hero-shade {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to bottom, rgba(49, 13, 23, 0.86) 0%, rgba(49, 13, 23, 0.88) 55%, rgba(49, 13, 23, 0.95) 100%);
-}
-
-/* Scène : mot + cocotte, centrés */
-.lp-stage {
-  position: relative;
-  display: grid;
-  place-items: center;
-  padding: 24px 0 32px;
-}
-@media (min-width: 768px) {
-  .lp-stage { flex: 1; min-height: 0; padding: 8px 0 16px; }
-}
-
-/* Mot géant : chaque mot est dimensionné pour tenir dans la largeur (≈ 92 % de l'écran) */
-.lp-bigword {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  place-content: center;
-  pointer-events: none;
-  user-select: none;
-}
-.lp-bigword-item {
-  grid-area: 1 / 1;
-  font-family: var(--font-titre);
-  font-weight: 900;
-  text-transform: uppercase;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--jaune-300);
-  font-size: min(calc(92vw / (var(--len) * 0.72)), 280px);
-  opacity: 0;
-  transform: translateY(45%);
-  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
-}
-.lp-bigword-item.is-current { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
-.lp-bigword-item.is-prev    { opacity: 0; transform: translateY(-45%); transition-duration: 0.7s, 0.35s; }
-
-/* Cocotte au premier plan */
-.lp-cocotte-box {
-  position: relative;
-  width: var(--cocotte-size);
-  height: var(--cocotte-size);
-}
-/* Ombre douce fixe (dégradé, pas de flou animé) qui détache la cocotte du mot */
-.lp-cocotte-shadow {
-  position: absolute;
-  inset: -14%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(49, 13, 23, 0.8) 35%, rgba(49, 13, 23, 0) 100%);
+@keyframes lpCocotteIn {
+  from { opacity: 0; transform: translateX(-35%) rotate(-140deg); }
+  to   { opacity: 1; transform: none; }
 }
 .lp-cocotte-parallax {
-  position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.lp-cocotte-float {
+/* Inclinaison 3D qui oscille doucement (volume) */
+.lp-cocotte-tilt {
   width: 100%;
   height: 100%;
-  animation: lpBob 5s ease-in-out infinite alternate;
+  animation: lpTilt 9s ease-in-out infinite alternate;
+}
+@keyframes lpTilt {
+  from { transform: perspective(1400px) rotateX(10deg) rotateY(-12deg); }
+  to   { transform: perspective(1400px) rotateX(-6deg) rotateY(14deg); }
 }
 .lp-cocotte-spin {
   display: block;
   width: 100%;
   height: 100%;
   max-width: none;
-  animation: plavDrift 20s linear infinite;
+  animation: plavDrift 24s linear infinite;
 }
-.lp-cocotte-float.is-paused,
+.lp-cocotte-tilt.is-paused,
 .lp-cocotte-spin.is-paused { animation-play-state: paused; }
-@keyframes lpBob {
-  from { transform: translateY(-8px); }
-  to   { transform: translateY(8px); }
-}
 
-/* h1 en taille Titre 1 (36 → 48 px) */
+/* Contenu (mobile : empilé) */
+.lp-hero-grid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 16px;
+  padding-bottom: 48px;
+}
+.lp-hero-stats   { order: 1; }
+.lp-hero-title   { order: 2; }
+.lp-hero-badge   { order: 3; }
+.lp-hero-sub     { order: 4; }
+.lp-hero-actions { order: 5; }
+
+.lp-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.lp-hero-sub { max-width: 17rem; }
+
+/* Titre empilé, majuscules (le texte HTML reste identique) */
 .lp-hero-title {
   font-family: var(--font-titre);
   font-weight: 900;
-  font-size: 36px;
-  line-height: 1.12;
-  color: var(--neutre-blanc);
+  font-size: clamp(40px, 11vw, 48px);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--neutre-encre);
 }
-@media (min-width: 768px) {
-  .lp-hero-title { font-size: clamp(36px, 3.3vw, 48px); }
+.lp-line {
+  display: block;
+  animation: lpLine 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 110ms + 250ms);
+}
+@keyframes lpLine {
+  from { opacity: 0; transform: translateY(0.5em); }
+  to   { opacity: 1; transform: none; }
 }
 
-/* Apparition mot à mot */
-@keyframes lpWord {
-  from { opacity: 0; transform: translateY(0.35em); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Chiffres */
+.lp-hero-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
 }
-.lp-word {
-  display: inline-block;
-  animation: lpWord 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 75ms + 150ms);
+.lp-stat { text-align: right; }
+.lp-stat-value {
+  font-family: var(--font-titre);
+  font-weight: 900;
+  font-size: clamp(36px, 10vw, 56px);
+  line-height: 1;
+  color: var(--neutre-encre);
+  font-variant-numeric: tabular-nums;
 }
+.lp-stat-plus {
+  margin-right: 2px;
+  font-size: 0.45em;
+  vertical-align: 0.9em;
+  line-height: 0;
+  color: var(--bordeaux-600);
+}
+.lp-stat-label { margin-top: 6px; }
+
+/* Lien « Découvrir les soirées » + bouton Principal */
+.lp-hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+.lp-arrow-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  color: var(--bordeaux-600);
+}
+.lp-arrow-link svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lp-arrow-link:hover svg { transform: translate(3px, -3px); }
+.lp-hero-actions > a:last-child { width: 100%; }
+
 .lp-fade-late {
   animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: 0.75s;
@@ -165,13 +210,62 @@
   animation-delay: 0.95s;
 }
 
-.lp-stat-value {
-  font-family: var(--font-titre);
-  font-weight: 900;
-  font-size: clamp(36px, 4.2vw, 60px);
-  line-height: 1;
-  color: var(--jaune-300);
-  font-variant-numeric: tabular-nums;
+/* Ordinateur : composition « studio » */
+@media (min-width: 768px) {
+  .lp-hero {
+    --hdr: 88px;
+    /* Cocotte ~75–80vh, en gardant la place pour l'en-tête et les marges */
+    --cs: clamp(360px, min(80svh, 100svh - 240px), 760px);
+    height: 100vh;
+    height: 100svh;
+    min-height: 620px;
+    padding-top: 0;
+  }
+  .lp-cocotte {
+    position: absolute;
+    margin: 0;
+    width: var(--cs);
+    height: var(--cs);
+    max-width: none;
+    max-height: none;
+    /* ~18 % coupé à gauche */
+    left: calc(var(--cs) * -0.18);
+    top: calc(var(--hdr) + (100svh - var(--hdr) - var(--cs)) / 2 - 12px);
+  }
+  .lp-hero-grid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+      "badge stats"
+      ".     actions"
+      ".     ."
+      "sub   title";
+    gap: 0 32px;
+    padding-top: calc(var(--hdr) + 24px);
+    padding-bottom: 32px;
+  }
+  .lp-hero-badge   { grid-area: badge; align-self: start; }
+  .lp-hero-stats   { grid-area: stats; justify-self: end; gap: 48px; }
+  .lp-hero-actions {
+    grid-area: actions;
+    justify-self: end;
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+    margin-top: 28px;
+  }
+  .lp-hero-actions > a:last-child { width: auto; }
+  .lp-hero-sub     { grid-area: sub; align-self: end; text-align: right; }
+  .lp-hero-title {
+    grid-area: title;
+    align-self: end;
+    justify-self: end;
+    text-align: right;
+    font-size: clamp(48px, 6.4vw, 120px);
+  }
+  .lp-stat-value { font-size: clamp(44px, 3.8vw, 56px); }
 }
 
 .lp-paused { animation-play-state: paused; }
@@ -541,15 +635,17 @@
 
 /* ── Animations réduites : tout s'affiche directement ── */
 @media (prefers-reduced-motion: reduce) {
-  .lp-word, .lp-fade-late, .lp-fade-later, .lp-tick,
+  .lp-line, .lp-fade-late, .lp-fade-later, .lp-tick,
+  .lp-cocotte-enter, .lp-cocotte-tilt, .lp-cocotte-ground,
   .lp-reveal, .lp-reveal.is-in,
-  .lp-qr-scan, .lp-phone-float, .lp-cocotte-float, .lp-cocotte-spin, .lp-cta-cocotte {
+  .lp-qr-scan, .lp-phone-float, .lp-cocotte-spin, .lp-cta-cocotte {
     animation: none !important;
   }
   .lp-reveal { opacity: 1; }
   .lp-bars span { transform: none; transition: none; }
-  .lp-bigword-item, .lp-cocotte-parallax { transition: none; }
-  .lp-header-bg, .lp-bento-small, .lp-bento-small::after,
+  .lp-cocotte-parallax, .lp-arrow-link svg { transition: none; }
+  .lp-arrow-link:hover svg { transform: none; }
+  .lp-header-line, .lp-bento-small, .lp-bento-small::after,
   .lp-events .lp-event-card, .lp-events .lp-event-card img { transition: none; }
   .lp-events .lp-event-card:hover, .lp-events .lp-event-card:hover img,
   .lp-bento-small:hover { transform: none; }

@@ -25,39 +25,24 @@ export function Reveal({
   );
 }
 
-/** Titre qui apparaît mot à mot. Le texte reste identique (espaces conservés). */
-export function WordReveal({ text, startIndex = 0 }: { text: string; startIndex?: number }) {
-  const words = text.split(" ");
-  return (
-    <>
-      {words.map((w, i) => (
-        <span key={i}>
-          <span className="lp-word" style={{ "--i": startIndex + i } as CSSProperties}>{w}</span>
-          {i < words.length - 1 ? " " : ""}
-        </span>
-      ))}
-    </>
-  );
-}
-
 /** Chiffre qui compte de 0 jusqu'à `value` quand `active` passe à true. */
-export function CountUp({ value, active, duration = 1400 }: { value: number; active: boolean; duration?: number }) {
+export function CountUp({ value, active, duration = 1400, delay = 0 }: { value: number; active: boolean; duration?: number; delay?: number }) {
   const reduced = usePrefersReducedMotion();
   const [shown, setShown] = useState(0);
   useEffect(() => {
     if (!active) return;
     if (reduced || value === 0) { setShown(value); return; }
     let raf = 0;
-    const start = performance.now();
+    const start = performance.now() + delay;
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.min(1, Math.max(0, (now - start) / duration));
       const eased = 1 - Math.pow(1 - t, 3);
       setShown(Math.round(value * eased));
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [active, value, duration, reduced]);
+  }, [active, value, duration, delay, reduced]);
   return <>{shown}</>;
 }
 
