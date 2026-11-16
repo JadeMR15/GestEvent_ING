@@ -173,10 +173,10 @@
   font-family: var(--font-titre);
   font-weight: 600;
   font-size: 44px;
-  /* Interligne serré : 0,92 est le plus serré où les jambages (q, g) ne touchent pas la ligne
-     suivante ; le padding rend la hauteur perdue pour garder les mêmes espaces autour. */
-  line-height: 0.92;
-  padding-block: 0.04em;
+  /* Interligne serré : à 0,95, ni les jambages (q, g) ni la virgule d'« organisent, » ne touchent
+     la ligne suivante ; le padding rend la hauteur perdue pour garder les mêmes espaces autour. */
+  line-height: 0.95;
+  padding-block: 0.025em;
   letter-spacing: -0.03em;
   color: var(--neutre-encre);
 }
