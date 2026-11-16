@@ -23,16 +23,15 @@
 }
 .lp-header-bg.is-on { opacity: 1; }
 
-/* ── Dégradé « coucher de soleil » (ESSAI design-tests) ── */
-/* Sections claires : pêche → rose → lilas, angle et ordre variés, raccords doux */
+/* ── Dégradé aux couleurs de la charte (ESSAI design-tests) : jaune 200 → bordeaux 100 → bordeaux 300 ── */
 .lp-sky-events {
-  background: linear-gradient(165deg, var(--degrade-lilas) 0%, var(--degrade-rose) 45%, var(--degrade-peche) 100%);
+  background: linear-gradient(165deg, var(--degrade-3) 0%, var(--degrade-2) 45%, var(--degrade-1) 100%);
 }
 .lp-sky-app {
-  background: linear-gradient(120deg, var(--degrade-peche) 0%, var(--degrade-rose) 55%, var(--degrade-lilas) 100%);
+  background: linear-gradient(120deg, var(--degrade-1) 0%, var(--degrade-2) 55%, var(--degrade-3) 100%);
 }
 .lp-sky-footer {
-  background: linear-gradient(150deg, var(--degrade-rose) 0%, var(--degrade-peche) 55%, var(--degrade-lilas) 100%);
+  background: linear-gradient(150deg, var(--degrade-2) 0%, var(--degrade-1) 55%, var(--degrade-3) 100%);
 }
 
 /* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */
@@ -60,7 +59,7 @@
   --hdr: 72px;
   position: relative;
   isolation: isolate;
-  background: linear-gradient(135deg, var(--degrade-peche) 0%, var(--degrade-rose) 50%, var(--degrade-lilas) 100%);
+  background: linear-gradient(135deg, var(--degrade-1) 0%, var(--degrade-2) 50%, var(--degrade-3) 100%);
   overflow: hidden;
   padding-top: var(--hdr);
 }
@@ -69,7 +68,7 @@
   position: absolute;
   inset: -50%;
   z-index: -1;
-  background: linear-gradient(135deg, var(--degrade-peche) 20%, var(--degrade-rose) 50%, var(--degrade-lilas) 80%);
+  background: linear-gradient(135deg, var(--degrade-1) 20%, var(--degrade-2) 50%, var(--degrade-3) 80%);
   animation: lpSky 36s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -195,7 +194,7 @@
   font-size: 0.45em;
   vertical-align: 0.9em;
   line-height: 0;
-  color: var(--bordeaux-600);
+  color: var(--bordeaux-800);
 }
 .lp-stat-label { margin-top: 6px; }
 
@@ -212,7 +211,7 @@
   justify-content: center;
   gap: 6px;
   min-height: 48px;
-  color: var(--bordeaux-600);
+  color: var(--bordeaux-800); /* 5,4:1 sur bordeaux 300 (bordeaux 600 : 3,8:1) */
 }
 .lp-arrow-link svg {
   width: 18px;

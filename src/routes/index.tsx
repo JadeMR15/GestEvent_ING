@@ -147,7 +147,7 @@ function Landing() {
 
           {/* Petit texte : sous-titre */}
           <p className="lp-hero-sub lp-caps-sm lp-fade-later">
-            Organise ou participe — <span className="text-bordeaux-600">plav' s'occupe du reste.</span>
+            Organise ou participe — <span className="text-bordeaux-800">plav' s'occupe du reste.</span>
           </p>
 
           {/* Chiffres en haut à droite */}
@@ -288,38 +288,38 @@ function Landing() {
               <p className="text-sm text-encre">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
             <div>
-              <h4 className="t-surtitre mb-3 text-bordeaux-600">Navigation</h4>
+              <h4 className="t-surtitre mb-3 text-bordeaux-800">Navigation</h4>
               <ul className="space-y-2 text-sm text-encre">
-                <li><a href="#evenements" className="hover:text-bordeaux-600 transition-colors">Événements</a></li>
-                <li><a href="#fonctionnalites" className="hover:text-bordeaux-600 transition-colors">Fonctionnalités</a></li>
-                <li><Link to="/login" className="hover:text-bordeaux-600 transition-colors">Connexion</Link></li>
-                <li><Link to="/register" className="hover:text-bordeaux-600 transition-colors">Inscription</Link></li>
+                <li><a href="#evenements" className="hover:text-bordeaux-800 transition-colors">Événements</a></li>
+                <li><a href="#fonctionnalites" className="hover:text-bordeaux-800 transition-colors">Fonctionnalités</a></li>
+                <li><Link to="/login" className="hover:text-bordeaux-800 transition-colors">Connexion</Link></li>
+                <li><Link to="/register" className="hover:text-bordeaux-800 transition-colors">Inscription</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="t-surtitre mb-3 text-bordeaux-600">À propos</h4>
+              <h4 className="t-surtitre mb-3 text-bordeaux-800">À propos</h4>
               <ul className="space-y-2 text-sm text-encre">
-                <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-600 transition-colors">Organisateur</Link></li>
-                <li><Link to="/about" hash="participant" className="hover:text-bordeaux-600 transition-colors">Participant</Link></li>
-                <li><Link to="/about" hash="benevole" className="hover:text-bordeaux-600 transition-colors">Bénévole</Link></li>
+                <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-800 transition-colors">Organisateur</Link></li>
+                <li><Link to="/about" hash="participant" className="hover:text-bordeaux-800 transition-colors">Participant</Link></li>
+                <li><Link to="/about" hash="benevole" className="hover:text-bordeaux-800 transition-colors">Bénévole</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="t-surtitre mb-3 text-bordeaux-600">Contact</h4>
+              <h4 className="t-surtitre mb-3 text-bordeaux-800">Contact</h4>
               <div className="flex items-center gap-2 text-sm text-encre mb-4">
                 <Mail className="h-4 w-4" /><span>support@plav.app</span>
               </div>
               <div className="flex items-center gap-3">
-                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="Instagram">
+                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="Facebook">
+                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="Facebook">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="YouTube">
+                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="YouTube">
                   <Youtube className="h-5 w-5" />
                 </a>
-                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="TikTok">
+                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="TikTok">
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
                   </svg>

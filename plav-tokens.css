@@ -35,10 +35,10 @@
   --neutre-fond: #FCF6F5;       /* ESSAI design-tests : fond des pages de travail (version très pâle du dégradé) */
   --neutre-bordure: #E9E0E3;    /* ESSAI design-tests : bordures, séparateurs, états désactivés (remplace le sable) */
 
-  /* ---- Dégradé « coucher de soleil » (ESSAI design-tests : page d'accueil) ---- */
-  --degrade-peche: #FBE3C8; /* ESSAI design-tests */
-  --degrade-rose: #F4C9CF;  /* ESSAI design-tests */
-  --degrade-lilas: #E3D2EE; /* ESSAI design-tests */
+  /* ---- Dégradé de la page d'accueil, couleurs de la charte (ESSAI design-tests) ---- */
+  --degrade-1: var(--jaune-200);    /* ESSAI design-tests : #F0D28C */
+  --degrade-2: var(--bordeaux-100); /* ESSAI design-tests : #E9DDE0 */
+  --degrade-3: var(--bordeaux-300); /* ESSAI design-tests : #B58C98 */
 
   /* ---- Statuts : réservés aux états, jamais à la décoration ---- */
   --statut-vert-100: #E2F0E5;   --statut-vert-500: #3F8A5C;   --statut-vert-700: #235739;
