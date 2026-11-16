@@ -1,6 +1,6 @@
 /**
- * Fond du hero : photo de soirée assombrie par un dégradé bordeaux 900,
- * cocotte géante qui tourne lentement (en pause hors de l'écran).
+ * Fond du hero : photo de soirée très assombrie (~88 % de bordeaux 900),
+ * pour que la cocotte et le mot géant ressortent.
  *
  * Vidéo de fond : renseigner HERO_VIDEO_SRC (ex. "/soiree.mp4", fichier dans public/)
  * pour l'activer. Elle est muette, en boucle, avec la photo comme image de remplacement.
@@ -9,7 +9,7 @@
 const HERO_VIDEO_SRC: string | null = null;
 const HERO_POSTER = "/cracki.webp";
 
-export function HeroBackdrop({ playing }: { playing: boolean }) {
+export function HeroBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
       {HERO_VIDEO_SRC ? (
@@ -27,11 +27,6 @@ export function HeroBackdrop({ playing }: { playing: boolean }) {
         <img className="lp-hero-media" src={HERO_POSTER} alt="" fetchPriority="high" />
       )}
       <div className="lp-hero-shade" />
-      <img
-        src="/plav-cocotte.svg"
-        alt=""
-        className={`lp-hero-cocotte plav-drift ${playing ? "" : "lp-paused"}`}
-      />
     </div>
   );
 }

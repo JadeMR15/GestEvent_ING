@@ -22,16 +22,27 @@
 }
 .lp-header-bg.is-on { opacity: 1; }
 
-/* ── Hero ── */
+/* ── Hero : plein écran, mot géant animé derrière une cocotte géante ── */
 .lp-hero {
   position: relative;
   isolation: isolate;
-  min-height: 90vh;
-  min-height: 90svh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   background: var(--bordeaux-900);
   overflow: hidden;
+  /* Taille de la cocotte : ~75vw sur mobile */
+  --cocotte-size: min(75vw, 360px);
+}
+@media (min-width: 768px) {
+  .lp-hero {
+    height: 100vh;
+    height: 100svh;
+    min-height: 640px;
+    /* ~60vh, max 520 px, et toujours la place pour le texte du bas */
+    --cocotte-size: clamp(200px, min(60svh, 100svh - 430px), 520px);
+  }
 }
 .lp-hero-media {
   position: absolute;
@@ -40,34 +51,99 @@
   height: 100%;
   object-fit: cover;
 }
-/* Dégradé bordeaux 900 (~80 %) pour garder le texte lisible */
+/* Photo très assombrie : ~88 % de bordeaux 900, un peu plus en bas pour le texte */
 .lp-hero-shade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to right, rgba(49, 13, 23, 0.92) 0%, rgba(49, 13, 23, 0.8) 55%, rgba(49, 13, 23, 0.7) 100%),
-    linear-gradient(to bottom, rgba(49, 13, 23, 0.4) 0%, rgba(49, 13, 23, 0) 30%, rgba(49, 13, 23, 0.6) 100%);
-}
-.lp-hero-cocotte {
-  position: absolute;
-  right: -180px;
-  top: 6%;
-  width: 640px;
-  height: 640px;
-  max-width: none;
-  opacity: 0.07;
-}
-@media (min-width: 768px) {
-  .lp-hero-cocotte { right: -120px; top: -8%; width: 900px; height: 900px; }
+    linear-gradient(to bottom, rgba(49, 13, 23, 0.86) 0%, rgba(49, 13, 23, 0.88) 55%, rgba(49, 13, 23, 0.95) 100%);
 }
 
+/* Scène : mot + cocotte, centrés */
+.lp-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 24px 0 32px;
+}
+@media (min-width: 768px) {
+  .lp-stage { flex: 1; min-height: 0; padding: 8px 0 16px; }
+}
+
+/* Mot géant : chaque mot est dimensionné pour tenir dans la largeur (≈ 92 % de l'écran) */
+.lp-bigword {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  place-content: center;
+  pointer-events: none;
+  user-select: none;
+}
+.lp-bigword-item {
+  grid-area: 1 / 1;
+  font-family: var(--font-titre);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--jaune-300);
+  font-size: min(calc(92vw / (var(--len) * 0.72)), 280px);
+  opacity: 0;
+  transform: translateY(45%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
+}
+.lp-bigword-item.is-current { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+.lp-bigword-item.is-prev    { opacity: 0; transform: translateY(-45%); transition-duration: 0.7s, 0.35s; }
+
+/* Cocotte au premier plan */
+.lp-cocotte-box {
+  position: relative;
+  width: var(--cocotte-size);
+  height: var(--cocotte-size);
+}
+/* Ombre douce fixe (dégradé, pas de flou animé) qui détache la cocotte du mot */
+.lp-cocotte-shadow {
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(49, 13, 23, 0.8) 35%, rgba(49, 13, 23, 0) 100%);
+}
+.lp-cocotte-parallax {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lp-cocotte-float {
+  width: 100%;
+  height: 100%;
+  animation: lpBob 5s ease-in-out infinite alternate;
+}
+.lp-cocotte-spin {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  animation: plavDrift 20s linear infinite;
+}
+.lp-cocotte-float.is-paused,
+.lp-cocotte-spin.is-paused { animation-play-state: paused; }
+@keyframes lpBob {
+  from { transform: translateY(-8px); }
+  to   { transform: translateY(8px); }
+}
+
+/* h1 en taille Titre 1 (36 → 48 px) */
 .lp-hero-title {
   font-family: var(--font-titre);
   font-weight: 900;
-  font-size: clamp(48px, 8.2vw, 96px);
-  line-height: 1.02;
+  font-size: 36px;
+  line-height: 1.12;
   color: var(--neutre-blanc);
-  max-width: 12.5em;
+}
+@media (min-width: 768px) {
+  .lp-hero-title { font-size: clamp(36px, 3.3vw, 48px); }
 }
 
 /* Apparition mot à mot */
@@ -92,40 +168,12 @@
 .lp-stat-value {
   font-family: var(--font-titre);
   font-weight: 900;
-  font-size: clamp(40px, 7vw, 76px);
+  font-size: clamp(36px, 4.2vw, 60px);
   line-height: 1;
   color: var(--jaune-300);
   font-variant-numeric: tabular-nums;
 }
 
-/* Bandeau qui défile */
-.lp-marquee {
-  position: relative;
-  overflow: hidden;
-  background: var(--jaune-300);
-  color: var(--bordeaux-900);
-  padding: 14px 0;
-}
-.lp-marquee-track {
-  display: flex;
-  width: max-content;
-  animation: lpMarquee 28s linear infinite;
-}
-.lp-marquee-item {
-  flex-shrink: 0;
-  padding-right: 0.6em;
-  font-family: var(--font-titre);
-  font-weight: 900;
-  font-size: clamp(20px, 3vw, 30px);
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-@keyframes lpMarquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.lp-marquee.is-paused .lp-marquee-track,
 .lp-paused { animation-play-state: paused; }
 
 /* ── Titres de section ── */
@@ -495,11 +543,12 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-word, .lp-fade-late, .lp-fade-later, .lp-tick,
   .lp-reveal, .lp-reveal.is-in,
-  .lp-marquee-track, .lp-qr-scan, .lp-phone-float, .lp-hero-cocotte, .lp-cta-cocotte {
+  .lp-qr-scan, .lp-phone-float, .lp-cocotte-float, .lp-cocotte-spin, .lp-cta-cocotte {
     animation: none !important;
   }
   .lp-reveal { opacity: 1; }
   .lp-bars span { transform: none; transition: none; }
+  .lp-bigword-item, .lp-cocotte-parallax { transition: none; }
   .lp-header-bg, .lp-bento-small, .lp-bento-small::after,
   .lp-events .lp-event-card, .lp-events .lp-event-card img { transition: none; }
   .lp-events .lp-event-card:hover, .lp-events .lp-event-card:hover img,

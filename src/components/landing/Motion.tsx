@@ -61,19 +61,6 @@ export function CountUp({ value, active, duration = 1400 }: { value: number; act
   return <>{shown}</>;
 }
 
-/** Bandeau jaune qui défile en continu ; en pause hors de l'écran. */
-export function Marquee({ text }: { text: string }) {
-  const { ref, visible } = useInView(0, false);
-  return (
-    <div ref={ref} className={`lp-marquee ${visible ? "" : "is-paused"}`}>
-      <div className="lp-marquee-track">
-        <span className="lp-marquee-item">{text}</span>
-        <span className="lp-marquee-item" aria-hidden="true">{text}</span>
-      </div>
-    </div>
-  );
-}
-
 /** QR code stylisé (décoratif, ne contient aucune donnée). */
 export function FakeQr({ className = "" }: { className?: string }) {
   const n = 21;

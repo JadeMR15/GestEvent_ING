@@ -19,7 +19,8 @@ import { fr } from "date-fns/locale";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
 import { useInView } from "@/components/landing/hooks";
-import { CountUp, Marquee, Reveal, WordReveal } from "@/components/landing/Motion";
+import { CountUp, Reveal, WordReveal } from "@/components/landing/Motion";
+import { HeroCocotte } from "@/components/landing/HeroCocotte";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { HeroBackdrop } from "@/components/landing/HeroBackdrop";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
@@ -125,61 +126,61 @@ function Landing() {
         }
       />
 
-      {/* ── Hero — bordeaux 900, photo de soirée assombrie, cocotte géante ── */}
+      {/* ── Hero — plein écran : mot géant animé, cocotte au premier plan, texte en bas ── */}
       <section ref={heroAnim.ref} className="lp-hero">
-        <HeroBackdrop playing={heroAnim.visible} />
+        <HeroBackdrop />
 
-        <div className="relative z-10 container mx-auto flex flex-1 flex-col justify-center px-4 pt-32 pb-14 sm:px-6 md:pt-40 md:pb-20">
-          <div className="max-w-6xl">
-            <div className="lp-fade-late mb-8 inline-flex items-center gap-2 rounded-full border border-jaune-300/50 bg-bordeaux-800/60 px-4 py-1.5 text-xs font-medium text-jaune-100" style={{ animationDelay: "0s" }}>
-              <img src="/plav-cocotte.svg" alt="" className="h-5 w-5 object-contain" />
-              plav' · la billetterie étudiante
-            </div>
-            <h1 className="lp-hero-title">
-              <WordReveal text="Pour ceux qui organisent," />{" "}
-              <span className="text-jaune-300"><WordReveal text="et ceux qui viennent." startIndex={4} /></span>
-            </h1>
-            <p className="lp-fade-late mt-8 max-w-xl text-lg md:text-xl text-blanc/75">
-              Organise ou participe — <span className="font-semibold text-jaune-100">plav' s'occupe du reste.</span>
-            </p>
-            <div className="lp-fade-later mt-10 flex flex-wrap items-center gap-3">
-              {!loading && user ? (
-                <>
-                  <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
-                  <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Voir les soirées</a></Button>
-                </>
-              ) : (
-                <>
-                  <Button asChild size="lg" variant="secondary"><Link to="/register">Créer un compte <ArrowRight /></Link></Button>
-                  <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Découvrir les soirées</a></Button>
-                </>
-              )}
-            </div>
+        <div className="relative z-10 container mx-auto flex flex-1 flex-col px-4 pt-[88px] pb-8 sm:px-6 md:pt-[104px] md:pb-10">
+          <div className="lp-fade-late self-start inline-flex items-center gap-2 rounded-full border border-jaune-300/50 bg-bordeaux-800/60 px-3 py-1 text-xs font-medium text-jaune-100" style={{ animationDelay: "0s" }}>
+            <img src="/plav-cocotte.svg" alt="" className="h-4 w-4 object-contain" />
+            plav' · la billetterie étudiante
           </div>
 
-          {/* Stats : gros chiffres jaunes qui comptent */}
-          <div ref={statsAnim.ref} className="lp-fade-later mt-14 grid max-w-3xl grid-cols-3 md:mt-20">
-            {[
-              { value: stats.events, label: "events publiés", icon: Calendar },
-              { value: stats.participants, label: "participants", icon: Users },
-              { value: stats.organizers, label: "organisateurs", icon: Star },
-            ].map((s, i) => (
-              <div key={s.label} className={`min-w-0 ${i > 0 ? "border-l border-bordeaux-700 pl-4 sm:pl-8" : "pr-4 sm:pr-8"} ${i === 1 ? "pr-4 sm:pr-8" : ""}`}>
-                <p className="lp-stat-value">
-                  {eventsLoading ? "—" : <CountUp value={s.value} active={statsAnim.visible} />}
-                </p>
-                <p className="mt-2 flex items-center gap-1.5 text-xs sm:text-sm leading-tight text-blanc/70">
-                  <s.icon className="hidden h-4 w-4 shrink-0 text-jaune-300 sm:block" />
-                  {s.label}
-                </p>
+          <HeroCocotte playing={heroAnim.visible} />
+
+          <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
+            <div className="max-w-2xl">
+              <h1 className="lp-hero-title">
+                <WordReveal text="Pour ceux qui organisent," />{" "}
+                <span className="text-jaune-300"><WordReveal text="et ceux qui viennent." startIndex={4} /></span>
+              </h1>
+              <p className="lp-fade-late mt-4 max-w-xl text-lg text-blanc/75">
+                Organise ou participe — <span className="font-semibold text-jaune-100">plav' s'occupe du reste.</span>
+              </p>
+              <div className="lp-fade-later mt-6 flex flex-wrap items-center gap-3">
+                {!loading && user ? (
+                  <>
+                    <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
+                    <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Voir les soirées</a></Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild size="lg" variant="secondary"><Link to="/register">Créer un compte <ArrowRight /></Link></Button>
+                    <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Découvrir les soirées</a></Button>
+                  </>
+                )}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Bandeau qui défile */}
-        <div className="relative z-10">
-          <Marquee text="SOIRÉES ✦ GALAS ✦ AFTERWORKS ✦ WEI ✦ CONCERTS ✦ AFTERS ✦ " />
+            {/* Stats : gros chiffres jaunes qui comptent */}
+            <div ref={statsAnim.ref} className="lp-fade-later grid grid-cols-3">
+              {[
+                { value: stats.events, label: "events publiés", icon: Calendar },
+                { value: stats.participants, label: "participants", icon: Users },
+                { value: stats.organizers, label: "organisateurs", icon: Star },
+              ].map((s, i) => (
+                <div key={s.label} className={`min-w-0 ${i > 0 ? "border-l border-bordeaux-700 pl-4 sm:pl-6" : "pr-4 sm:pr-6"} ${i === 1 ? "pr-4 sm:pr-6" : ""}`}>
+                  <p className="lp-stat-value">
+                    {eventsLoading ? "—" : <CountUp value={s.value} active={statsAnim.visible} />}
+                  </p>
+                  <p className="mt-2 flex items-center gap-1.5 text-xs sm:text-sm leading-tight text-blanc/70">
+                    <s.icon className="hidden h-4 w-4 shrink-0 text-jaune-300 sm:block" />
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
