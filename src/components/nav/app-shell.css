@@ -178,6 +178,18 @@
 /* ── Scanner : bulle à droite (queue vers Cocotte, à droite), secousse si billet refusé ── */
 .db-bubble--right { transform-origin: 100% 50%; }
 .db-bubble--right::after { left: auto; right: -8px; }
+/* Bulle aux couleurs de Cocotte : bordeaux, contour jaune (comme son corps) */
+.db-bubble--cocotte {
+  background: var(--bordeaux-600);
+  border: 3px solid var(--jaune-300);
+  box-shadow: 0 14px 34px rgba(66, 17, 30, 0.28);
+}
+.db-bubble--cocotte::after {
+  border-top: 3px solid var(--jaune-300);
+  border-right: 3px solid var(--jaune-300);
+  border-radius: 0 4px 0 0;
+  right: -11px;
+}
 .db-stage--light::before { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.45), 0 18px 50px rgba(109, 29, 48, 0.18); }
 /* Cocotte géante du scanner : déborde à droite, passe derrière les cartes, légèrement transparente */
 .sc-giant { top: -1.5rem; right: -5rem; width: 17rem; opacity: 0.88; }

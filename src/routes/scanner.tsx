@@ -463,9 +463,9 @@ function Bouncer({ flash }: { flash: "success" | "error" | null }) {
       <div
         key={reaction ? `b${reaction.n}` : "b"}
         aria-live="polite"
-        className={`sc-bubble db-bubble db-bubble--right absolute z-20 max-w-[10rem] px-3.5 py-2.5 md:max-w-[14rem] md:px-5 md:py-3.5 ${reaction ? "sc-now" : ""} ${shake}`}
+        className={`sc-bubble db-bubble db-bubble--right db-bubble--cocotte absolute z-20 max-w-[10rem] px-3.5 py-2.5 md:max-w-[14rem] md:px-5 md:py-3.5 ${reaction ? "sc-now" : ""} ${shake}`}
       >
-        <p className={`text-sm font-semibold leading-snug md:text-lg ${ok ? "text-statut-vert-700" : "text-bordeaux-600"}`}>
+        <p className={`text-sm font-semibold leading-snug md:text-lg ${ok ? "text-jaune-300" : "text-blanc"}`}>
           {ok ? "C'est bon, bonne soirée !" : "Pas de ticket, pas d'entrée !"}
         </p>
       </div>
