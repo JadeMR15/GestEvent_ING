@@ -3,15 +3,13 @@ import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useMemo, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, Search, Clock, TrendingUp, Shield, Zap, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
+import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
 import { isThisWeek, isThisMonth } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { Capacitor } from "@capacitor/core";
@@ -23,6 +21,7 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
 import { AppShowcase } from "@/components/landing/AppShowcase";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
+import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
 import "@/components/landing/landing.css";
 
@@ -92,6 +91,7 @@ function Landing() {
   const heroAnim   = useInView<HTMLElement>(0, false);
   const statsAnim  = useInView(0.3);
   const eventsAnim = useInView(0.1);
+  const capsule = useStuck<HTMLDivElement>();
   const featuresAnim = useInView(0.1);
   const ctaAnim    = useInView<HTMLElement>(0, false);
 
@@ -193,31 +193,21 @@ function Landing() {
           <p className="mt-4 t-corps-l text-encre">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
-        <div className={`mb-10 flex flex-col gap-3 md:flex-row ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white w-full" />
-          </div>
-          <div className="flex flex-wrap gap-3 md:flex-nowrap">
-            <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-              <SelectTrigger className="flex-1 min-w-fit md:w-auto md:min-w-52 bg-white [&>span]:flex-1 [&>span]:text-left">
-                <Clock className="mr-2 h-4 w-4 text-muted-foreground" /><SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes dates</SelectItem>
-                <SelectItem value="week">Cette semaine</SelectItem>
-                <SelectItem value="month">Ce mois</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="flex-1 min-w-fit md:w-auto md:min-w-52 bg-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous statuts</SelectItem>
-                <SelectItem value="open">Places disponibles</SelectItem>
-                <SelectItem value="full">Complet</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Recherche et filtres : capsule flottante, accrochée sous l'en-tête pendant la section */}
+        <div ref={capsule.sentinel} aria-hidden="true" />
+        {/* Pas d'animation d'apparition sur ce conteneur : elle empêcherait le flou d'arrière-plan
+            de la capsule (backdrop-filter) une fois accrochée. */}
+        <div className="cap-sticky mb-10">
+          <FilterCapsule
+            q={q}
+            setQ={setQ}
+            dateFilter={dateFilter}
+            setDateFilter={setDateFilter}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            count={eventsLoading ? null : upcoming.length}
+            stuck={capsule.stuck}
+          />
         </div>
 
         {eventsLoading ? (
