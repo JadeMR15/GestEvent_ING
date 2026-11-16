@@ -20,6 +20,7 @@ import { HeroCocotte } from "@/components/landing/HeroCocotte";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
 import { AppShowcase } from "@/components/landing/AppShowcase";
+import { Frame } from "@/components/landing/Frame";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
@@ -224,14 +225,16 @@ function Landing() {
       </section>
 
       {/* ── Features (sombre) : grille bento ── */}
-      <section id="fonctionnalites" className="lp-dark-fade relative overflow-hidden">
-        <div ref={featuresAnim.ref} className="container mx-auto px-4 sm:px-6">
+      <section id="fonctionnalites" className="lp-frame-section relative">
+        <Frame>
+        <div ref={featuresAnim.ref} className="mx-auto max-w-[1216px]">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
             <h2 className="lp-section-title text-blanc">Simple. <span className="t-accent text-jaune-300">Complet.</span></h2>
             <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
           </div>
           <FeaturesBento features={features} />
         </div>
+        </Frame>
       </section>
 
       {/* ── How it works — scroll-driven stacked cards ── */}

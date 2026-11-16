@@ -59,6 +59,26 @@
   .lp-dark-fade { padding-top: calc(var(--fade) + 80px); padding-bottom: calc(var(--fade) + 80px); }
 }
 
+/* Grands cadres bordeaux 900 posés sur le dégradé (fonctionnalités, appel final) */
+.lp-frame-section { padding: 80px 12px; }
+@media (min-width: 768px) { .lp-frame-section { padding: 112px 28px; } }
+.lp-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--bordeaux-900);
+  box-shadow: 0 30px 80px rgba(109, 29, 48, 0.18), 0 8px 24px rgba(109, 29, 48, 0.08);
+  padding: 56px 24px;
+  opacity: 0;
+  transform-origin: center;
+}
+@media (min-width: 768px) { .lp-frame { border-radius: 40px; padding: 80px 72px; } }
+.lp-frame.is-in { animation: lpFrameIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes lpFrameIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
 /* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */
 
 /* Petites capitales espacées */
@@ -729,6 +749,7 @@
 
 /* ── Animations réduites : tout s'affiche directement ── */
 @media (prefers-reduced-motion: reduce) {
+  .lp-frame, .lp-frame.is-in { opacity: 1; animation: none; }
   /* Pas de voyage : la cocotte reste dans le hero, l'icône du titre est déjà là */
   .lp-cocotte.lp-travel-css, .lp-cocotte.lp-fade-css, .lp-slot.lp-slot-css { animation: none !important; }
   .lp-slot, .lp-slot img, .lp-slot.lp-slot-travel img { opacity: 1 !important; }
