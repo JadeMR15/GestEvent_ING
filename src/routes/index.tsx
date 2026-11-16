@@ -127,6 +127,7 @@ function Landing() {
 
       {/* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */}
       <section ref={heroAnim.ref} className="lp-hero">
+        <div aria-hidden="true" className={`lp-hero-sky ${heroAnim.visible ? "" : "is-paused"}`} />
         <HeroCocotte playing={heroAnim.visible} />
 
         <div className="lp-hero-grid container mx-auto px-4 sm:px-6">
@@ -185,11 +186,11 @@ function Landing() {
 
 
       {/* ── Events section (clair) ── */}
-      <section id="evenements" className="lp-events relative bg-fond py-20 md:py-28">
+      <section id="evenements" className="lp-events lp-sky-events relative py-20 md:py-28">
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
-          <p className="mt-4 t-corps-l text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
+          <p className="mt-4 t-corps-l text-encre">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
         <div className={`mb-10 flex flex-col gap-3 md:flex-row ${eventsAnim.visible ? "animate-fade-up delay-200" : "opacity-0"}`}>
@@ -277,18 +278,18 @@ function Landing() {
       )}
 
       {/* ── Footer ── */}
-      <footer id="contact" className="relative border-t border-bordure/30 bg-fond py-12">
+      <footer id="contact" className="lp-sky-footer relative py-12">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <BrandName className="h-12" />
               </div>
-              <p className="text-sm text-encre/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
+              <p className="text-sm text-encre">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
             <div>
               <h4 className="t-surtitre mb-3 text-bordeaux-600">Navigation</h4>
-              <ul className="space-y-2 text-sm text-encre/70">
+              <ul className="space-y-2 text-sm text-encre">
                 <li><a href="#evenements" className="hover:text-bordeaux-600 transition-colors">Événements</a></li>
                 <li><a href="#fonctionnalites" className="hover:text-bordeaux-600 transition-colors">Fonctionnalités</a></li>
                 <li><Link to="/login" className="hover:text-bordeaux-600 transition-colors">Connexion</Link></li>
@@ -297,7 +298,7 @@ function Landing() {
             </div>
             <div>
               <h4 className="t-surtitre mb-3 text-bordeaux-600">À propos</h4>
-              <ul className="space-y-2 text-sm text-encre/70">
+              <ul className="space-y-2 text-sm text-encre">
                 <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-600 transition-colors">Organisateur</Link></li>
                 <li><Link to="/about" hash="participant" className="hover:text-bordeaux-600 transition-colors">Participant</Link></li>
                 <li><Link to="/about" hash="benevole" className="hover:text-bordeaux-600 transition-colors">Bénévole</Link></li>
@@ -305,20 +306,20 @@ function Landing() {
             </div>
             <div>
               <h4 className="t-surtitre mb-3 text-bordeaux-600">Contact</h4>
-              <div className="flex items-center gap-2 text-sm text-encre/70 mb-4">
+              <div className="flex items-center gap-2 text-sm text-encre mb-4">
                 <Mail className="h-4 w-4" /><span>support@plav.app</span>
               </div>
               <div className="flex items-center gap-3">
-                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="Instagram">
+                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="Facebook">
+                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="Facebook">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="YouTube">
+                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="YouTube">
                   <Youtube className="h-5 w-5" />
                 </a>
-                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="TikTok">
+                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-600 transition-colors" aria-label="TikTok">
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
                   </svg>
@@ -326,7 +327,7 @@ function Landing() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-bordure/30 pt-6 text-center text-xs text-encre/40">
+          <div className="mt-8 border-t border-bordure pt-6 text-center text-xs text-encre">
             © {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.
           </div>
         </div>

@@ -2,9 +2,9 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BrandName } from "@/components/BrandName";
 
 /**
- * En-tête de la page d'accueil, version claire « studio » : fond blanc, logo couleur,
- * liens en petites capitales espacées. Un filet apparaît sous l'en-tête dès qu'on défile
- * (seule l'opacité est animée).
+ * En-tête de la page d'accueil, version claire « studio » : transparent sur le hero
+ * (le dégradé passe dessous), puis blanc à 85 % avec un léger flou dès qu'on défile
+ * (seule l'opacité du calque de fond est animée). Logo couleur, liens en petites capitales.
  */
 export function LandingHeader({ actions }: { actions: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
@@ -28,8 +28,7 @@ export function LandingHeader({ actions }: { actions: ReactNode }) {
 
   return (
     <header className="lp-header fixed inset-x-0 top-0 z-50 w-full">
-      <div aria-hidden="true" className="lp-header-bg is-on" />
-      <div aria-hidden="true" className={`lp-header-line ${scrolled ? "is-on" : ""}`} />
+      <div aria-hidden="true" className={`lp-header-bg ${scrolled ? "is-on" : ""}`} />
       <div className="relative container mx-auto flex items-center justify-between px-4 py-4 sm:px-6">
         <div className="flex items-center">
           <BrandName className="h-10 md:h-14" />

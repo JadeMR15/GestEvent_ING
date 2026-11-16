@@ -10,23 +10,30 @@
 .lp-page footer[id] { scroll-margin-top: 80px; }
 
 /* ── En-tête ── */
+/* Transparent sur le hero ; blanc à 85 % + léger flou dès qu'on défile */
 .lp-header-bg {
   position: absolute;
   inset: 0;
-  background: var(--neutre-fond);
-}
-/* Filet sous l'en-tête, visible dès qu'on défile */
-.lp-header-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: var(--neutre-bordure);
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid var(--neutre-bordure);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
-.lp-header-line.is-on { opacity: 1; }
+.lp-header-bg.is-on { opacity: 1; }
+
+/* ── Dégradé « coucher de soleil » (ESSAI design-tests) ── */
+/* Sections claires : pêche → rose → lilas, angle et ordre variés, raccords doux */
+.lp-sky-events {
+  background: linear-gradient(165deg, var(--degrade-lilas) 0%, var(--degrade-rose) 45%, var(--degrade-peche) 100%);
+}
+.lp-sky-app {
+  background: linear-gradient(120deg, var(--degrade-peche) 0%, var(--degrade-rose) 55%, var(--degrade-lilas) 100%);
+}
+.lp-sky-footer {
+  background: linear-gradient(150deg, var(--degrade-rose) 0%, var(--degrade-peche) 55%, var(--degrade-lilas) 100%);
+}
 
 /* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */
 
@@ -46,16 +53,30 @@
   font: 600 12px/1.3 var(--font-texte);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--neutre-gris-chaud);
+  color: var(--neutre-encre); /* encre : le gris chaud n'est pas assez lisible sur le dégradé */
 }
 
 .lp-hero {
   --hdr: 72px;
   position: relative;
   isolation: isolate;
-  background: var(--neutre-fond);
+  background: linear-gradient(135deg, var(--degrade-peche) 0%, var(--degrade-rose) 50%, var(--degrade-lilas) 100%);
   overflow: hidden;
   padding-top: var(--hdr);
+}
+/* Calque de dégradé plus grand que le hero, qui dérive très lentement (transform uniquement) */
+.lp-hero-sky {
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  background: linear-gradient(135deg, var(--degrade-peche) 20%, var(--degrade-rose) 50%, var(--degrade-lilas) 80%);
+  animation: lpSky 36s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.lp-hero-sky.is-paused { animation-play-state: paused; }
+@keyframes lpSky {
+  from { transform: translate3d(-6%, -4%, 0) rotate(-8deg); }
+  to   { transform: translate3d(6%, 4%, 0) rotate(14deg); }
 }
 
 /* Cocotte (mobile : en haut, ~85vw, coupée à gauche) */
@@ -654,7 +675,7 @@
 
 /* ── Animations réduites : tout s'affiche directement ── */
 @media (prefers-reduced-motion: reduce) {
-  .lp-line, .lp-fade-late, .lp-fade-later, .lp-tick,
+  .lp-line, .lp-fade-late, .lp-fade-later, .lp-tick, .lp-hero-sky,
   .lp-cocotte-enter, .lp-cocotte-tilt, .lp-cocotte-ground,
   .lp-reveal, .lp-reveal.is-in,
   .lp-qr-scan, .lp-phone-float, .lp-cocotte-spin, .lp-cta-cocotte {
@@ -664,7 +685,7 @@
   .lp-bars span { transform: none; transition: none; }
   .lp-cocotte-parallax, .lp-arrow-link svg { transition: none; }
   .lp-arrow-link:hover svg { transform: none; }
-  .lp-header-line, .lp-bento-small, .lp-bento-small::after,
+  .lp-header-bg, .lp-bento-small, .lp-bento-small::after,
   .lp-events .lp-event-card, .lp-events .lp-event-card img { transition: none; }
   .lp-events .lp-event-card:hover, .lp-events .lp-event-card:hover img,
   .lp-bento-small:hover { transform: none; }
