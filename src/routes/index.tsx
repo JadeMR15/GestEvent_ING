@@ -21,6 +21,7 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
 import { AppShowcase } from "@/components/landing/AppShowcase";
 import { Frame } from "@/components/landing/Frame";
+import { CocotteCompanion } from "@/components/mascot/CocotteCompanion";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
@@ -325,6 +326,9 @@ function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Cocotte, la mascotte : prend le relais de la cocotte posée dans le titre (essai) */}
+      <CocotteCompanion />
     </div>
   );
 }

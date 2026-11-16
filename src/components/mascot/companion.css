@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Cocotte compagnon (ESSAI design-tests) — fixée en bas à gauche, sous l'en-tête (z 50)
+   et la capsule de recherche (z 40). Ne bloque aucun clic en dehors d'elle-même.
+   ========================================================================== */
+
+.ck-companion {
+  position: fixed;
+  left: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 30;
+  height: 72px;
+  width: calc(72px * 1300 / 1430);
+  transform-origin: 0 0;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+@media (max-width: 767px) {
+  .ck-companion {
+    left: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    height: 52px;
+    width: calc(52px * 1300 / 1430);
+  }
+}
+.ck-companion.is-shown { opacity: 1; visibility: visible; transition: opacity 0.2s ease; }
+
+.ck-companion-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.ck-companion:not(.is-shown) .ck-companion-btn,
+.ck-companion.is-tucked .ck-companion-btn { pointer-events: none; }
+.ck-companion-btn:focus-visible { outline: none; box-shadow: var(--focus-halo); }
+.ck-companion-figure { width: 100%; height: 100%; }
+
+/* Petites étincelles jaunes au clic */
+.ck-sparks { position: absolute; left: 50%; top: 35%; width: 0; height: 0; pointer-events: none; }
+.ck-sparks span {
+  position: absolute;
+  left: -3.5px;
+  top: -3.5px;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pilule);
+  background: var(--jaune-300);
+  animation: ckSpark 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ckSpark {
+  from { opacity: 1; transform: rotate(var(--a)) translateX(10px) scale(1); }
+  to   { opacity: 0; transform: rotate(var(--a)) translateX(46px) scale(0.3); }
+}
+
+/* Pendant que la mascotte est posée dans le titre, elle remplace la petite cocotte */
+.lp-cocotte,
+#lp-cocotte-slot img { transition: opacity 0.15s ease; }
+.lp-page.ck-at-slot .lp-cocotte,
+.lp-page.ck-at-slot #lp-cocotte-slot img { opacity: 0 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ck-sparks span { animation: none; opacity: 0; }
+  .ck-companion, .ck-companion.is-shown { transition: none; }
+}
