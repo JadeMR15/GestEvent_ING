@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +12,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
 import { LikeButton } from "@/components/LikeButton";
-import { Calendar, QrCode, Users, ArrowRight, Timer, MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight, Star, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
-import { format, isThisWeek, isThisMonth } from "date-fns";
+import { Calendar, QrCode, Users, ArrowRight, Timer, MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight, Star, Globe, Mail, Lock, Instagram, Facebook, Youtube, ArrowUpDown, Moon, Gift, Euro, Ticket, Flame, GraduationCap, X, SlidersHorizontal } from "lucide-react";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { format, isThisWeek, isThisMonth, isToday, addDays, startOfDay, endOfDay } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { fr } from "date-fns/locale";
 import { Capacitor } from "@capacitor/core";
@@ -24,8 +26,57 @@ export const Route = createFileRoute("/")({
   component: () => (Capacitor.isNativePlatform() ? <AppWelcome /> : <Landing />),
 });
 
-type DateFilter = "all" | "week" | "month";
-type StatusFilter = "all" | "open" | "full";
+type DateFilter = "all" | "today" | "weekend" | "week" | "month";
+type PriceFilter = "all" | "free" | "under10";
+type SortOption = "date" | "popular" | "price";
+
+/** Prochain week-end (ou celui en cours) : du vendredi 18 h au dimanche soir. */
+function weekendWindow(now = new Date()): [Date, Date] {
+  const day = now.getDay(); // 0 = dimanche … 6 = samedi
+  const toFriday = day === 0 ? -2 : day === 6 ? -1 : 5 - day;
+  const start = startOfDay(addDays(now, toFriday));
+  start.setHours(18);
+  return [start, endOfDay(addDays(start, 2))];
+}
+
+const DATE_CHIPS: { value: DateFilter; label: string }[] = [
+  { value: "today", label: "Ce soir" },
+  { value: "weekend", label: "Ce week-end" },
+  { value: "week", label: "Cette semaine" },
+  { value: "month", label: "Ce mois" },
+];
+
+/** Liste triée et dédoublonnée (sans tenir compte des majuscules). */
+function uniqueSorted(values: (string | null | undefined)[]): string[] {
+  return Array.from(new Map(values.filter((v): v is string => !!v?.trim()).map((v) => [v.trim().toLowerCase(), v.trim()])).values())
+    .sort((a, b) => a.localeCompare(b, "fr"));
+}
+
+function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="t-surtitre mb-3 text-encre/70">{title}</p>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}
+
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors ${
+        active
+          ? "border-bordeaux-600 bg-bordeaux-600 text-creme"
+          : "border-sable bg-white/80 text-encre/80 backdrop-blur hover:bg-jaune-100"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
 
 /* Hook scroll animation */
 function useInView(threshold = 0.15) {
@@ -51,7 +102,15 @@ function Landing() {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [q, setQ] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [lastSpots, setLastSpots] = useState(false);
+  const [cityFilter, setCityFilter] = useState("all");
+  const [schoolFilter, setSchoolFilter] = useState("all");
+  const [assoFilter, setAssoFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<SortOption>("date");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const isMobile = useIsMobile();
   const [stats, setStats] = useState({ events: 0, participants: 0, organizers: 0 });
 
   useEffect(() => {
@@ -86,18 +145,59 @@ function Landing() {
     })();
   }, []);
 
-  const filtered = useMemo(() => events.filter((e) => {
-    const isFull = e.capacity > 0 && takenOf(e) >= e.capacity;
-    if (q && !e.title.toLowerCase().includes(q.toLowerCase()) && !e.location?.toLowerCase().includes(q.toLowerCase())) return false;
-    if (dateFilter === "week" && !isThisWeek(new Date(e.starts_at))) return false;
-    if (dateFilter === "month" && !isThisMonth(new Date(e.starts_at))) return false;
-    if (statusFilter === "open" && isFull) return false;
-    if (statusFilter === "full" && !isFull) return false;
-    return true;
-  }), [events, q, dateFilter, statusFilter]);
-
   // Les événements passés ne sont plus affichés (ils restent dans « Mes billets »).
-  const upcoming = filtered.filter((e) => !isPastEvent(e.starts_at));
+  const future = useMemo(() => events.filter((e) => !isPastEvent(e.starts_at)), [events]);
+  const likes = useLikes(useMemo(() => future.map((e) => e.id), [future]));
+
+  // Options proposées : uniquement celles qui ont des événements à venir.
+  const cities = useMemo(() => uniqueSorted(future.map((e) => e.city)), [future]);
+  const schools = useMemo(() => uniqueSorted(future.map((e) => e.school)), [future]);
+  const assos = useMemo(() => uniqueSorted(future.map((e) => e.association)), [future]);
+
+  const upcoming = useMemo(() => {
+    const lq = q.trim().toLowerCase();
+    const [weStart, weEnd] = weekendWindow();
+    const same = (a?: string, b?: string) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
+    const list = future.filter((e) => {
+      const start = new Date(e.starts_at);
+      const remaining = e.capacity > 0 ? e.capacity - takenOf(e) : Infinity;
+      if (lq && ![e.title, e.location, e.city, e.association, e.school].some((v) => v?.toLowerCase().includes(lq))) return false;
+      if (dateFilter === "today" && !isToday(start)) return false;
+      if (dateFilter === "weekend" && (start < weStart || start > weEnd)) return false;
+      if (dateFilter === "week" && !isThisWeek(start, { weekStartsOn: 1 })) return false;
+      if (dateFilter === "month" && !isThisMonth(start)) return false;
+      if (priceFilter === "free" && e.price > 0) return false;
+      if (priceFilter === "under10" && e.price >= 10) return false;
+      if (onlyAvailable && remaining <= 0) return false;
+      // Même seuil que le badge « X places » des cartes.
+      if (lastSpots && !(remaining > 0 && remaining < 10)) return false;
+      if (cityFilter !== "all" && !same(e.city, cityFilter)) return false;
+      if (schoolFilter !== "all" && !same(e.school, schoolFilter)) return false;
+      if (assoFilter !== "all" && !same(e.association, assoFilter)) return false;
+      return true;
+    });
+    const byDate = (a: any, b: any) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+    if (sortBy === "popular") return list.sort((a, b) => (likes.counts[b.id] ?? 0) - (likes.counts[a.id] ?? 0) || byDate(a, b));
+    if (sortBy === "price") return list.sort((a, b) => (a.price ?? 0) - (b.price ?? 0) || byDate(a, b));
+    return list.sort(byDate);
+  }, [future, q, dateFilter, priceFilter, onlyAvailable, lastSpots, cityFilter, schoolFilter, assoFilter, sortBy, likes.counts]);
+
+  // Filtres du panneau (hors recherche), avec de quoi les retirer un par un.
+  const activeChips: { label: string; clear: () => void }[] = [
+    ...(dateFilter !== "all" ? [{ label: DATE_CHIPS.find((c) => c.value === dateFilter)!.label, clear: () => setDateFilter("all") }] : []),
+    ...(priceFilter !== "all" ? [{ label: priceFilter === "free" ? "Gratuit" : "Moins de 10 €", clear: () => setPriceFilter("all") }] : []),
+    ...(onlyAvailable ? [{ label: "Places dispo", clear: () => setOnlyAvailable(false) }] : []),
+    ...(lastSpots ? [{ label: "Dernières places", clear: () => setLastSpots(false) }] : []),
+    ...(cityFilter !== "all" ? [{ label: cityFilter, clear: () => setCityFilter("all") }] : []),
+    ...(schoolFilter !== "all" ? [{ label: schoolFilter, clear: () => setSchoolFilter("all") }] : []),
+    ...(assoFilter !== "all" ? [{ label: assoFilter, clear: () => setAssoFilter("all") }] : []),
+  ];
+  const panelFilters = activeChips.length;
+  const resetPanelFilters = () => {
+    setDateFilter("all"); setPriceFilter("all"); setOnlyAvailable(false); setLastSpots(false);
+    setCityFilter("all"); setSchoolFilter("all"); setAssoFilter("all");
+  };
+  const resetFilters = () => { setQ(""); resetPanelFilters(); };
 
   const eventsAnim = useInView(0.1);
   const featuresAnim = useInView(0.1);
@@ -206,31 +306,139 @@ function Landing() {
           <p className="mt-2 text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
         </div>
 
-        <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white/80 backdrop-blur w-full" />
+        <div className={`mx-auto mb-8 max-w-4xl space-y-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
+          {/* Recherche · Filtres · Tri */}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="relative min-w-0 flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Soirée, asso, école, ville…" className="pl-9 bg-white/80 backdrop-blur w-full" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:flex">
+              <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="h-12 gap-2 bg-white/80 backdrop-blur">
+                    <SlidersHorizontal className="h-4 w-4" />Filtres
+                    {panelFilters > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-bordeaux-600 px-1.5 text-xs font-bold text-creme">{panelFilters}</span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side={isMobile ? "bottom" : "right"}
+                  className={`flex flex-col gap-0 bg-creme p-0 ${isMobile ? "max-h-[85vh] rounded-t-[20px]" : "w-full sm:max-w-md"}`}
+                >
+                  <SheetHeader className="border-b border-sable px-6 py-5 text-left">
+                    <SheetTitle>Filtres</SheetTitle>
+                    <SheetDescription>Affine la liste des prochains events.</SheetDescription>
+                  </SheetHeader>
+
+                  <div className="flex-1 space-y-7 overflow-y-auto px-6 py-6">
+                    <FilterGroup title="Quand">
+                      {DATE_CHIPS.map((c) => (
+                        <Chip key={c.value} active={dateFilter === c.value} onClick={() => setDateFilter(dateFilter === c.value ? "all" : c.value)}>
+                          {c.value === "today" ? <Moon className="h-3.5 w-3.5" /> : <Calendar className="h-3.5 w-3.5" />}{c.label}
+                        </Chip>
+                      ))}
+                    </FilterGroup>
+
+                    <FilterGroup title="Budget">
+                      <Chip active={priceFilter === "free"} onClick={() => setPriceFilter(priceFilter === "free" ? "all" : "free")}>
+                        <Gift className="h-3.5 w-3.5" />Gratuit
+                      </Chip>
+                      <Chip active={priceFilter === "under10"} onClick={() => setPriceFilter(priceFilter === "under10" ? "all" : "under10")}>
+                        <Euro className="h-3.5 w-3.5" />Moins de 10 €
+                      </Chip>
+                    </FilterGroup>
+
+                    <FilterGroup title="Places">
+                      <Chip active={onlyAvailable} onClick={() => setOnlyAvailable(!onlyAvailable)}>
+                        <Ticket className="h-3.5 w-3.5" />Places dispo
+                      </Chip>
+                      <Chip active={lastSpots} onClick={() => setLastSpots(!lastSpots)}>
+                        <Flame className="h-3.5 w-3.5" />Dernières places
+                      </Chip>
+                    </FilterGroup>
+
+                    {(cities.length > 1 || schools.length > 1 || assos.length > 1) && (
+                      <div>
+                        <p className="t-surtitre mb-3 text-encre/70">Où et avec qui</p>
+                        <div className="space-y-3">
+                          {cities.length > 1 && (
+                            <Select value={cityFilter} onValueChange={setCityFilter}>
+                              <SelectTrigger className="bg-white"><MapPin className="h-4 w-4" /><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">Toutes les villes</SelectItem>
+                                {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          )}
+                          {schools.length > 1 && (
+                            <Select value={schoolFilter} onValueChange={setSchoolFilter}>
+                              <SelectTrigger className="bg-white"><GraduationCap className="h-4 w-4" /><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">Toutes les écoles</SelectItem>
+                                {schools.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          )}
+                          {assos.length > 1 && (
+                            <Select value={assoFilter} onValueChange={setAssoFilter}>
+                              <SelectTrigger className="bg-white"><Users className="h-4 w-4" /><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">Toutes les assos</SelectItem>
+                                {assos.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 border-t border-sable bg-white/70 px-6 py-4">
+                    <Button variant="ghost" className="flex-1" onClick={resetPanelFilters} disabled={panelFilters === 0}>Tout effacer</Button>
+                    <SheetClose asChild>
+                      <Button className="flex-[2]">
+                        Voir {upcoming.length} event{upcoming.length > 1 ? "s" : ""}
+                      </Button>
+                    </SheetClose>
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                <SelectTrigger className="w-full sm:w-auto sm:min-w-[11rem] bg-white/80 backdrop-blur" aria-label="Trier par">
+                  <ArrowUpDown className="h-4 w-4 text-muted-foreground" /><SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="popular">Popularité</SelectItem>
+                  <SelectItem value="price">Prix</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur">
-                <Clock className="mr-2 h-4 w-4 text-muted-foreground" /><SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes dates</SelectItem>
-                <SelectItem value="week">Cette semaine</SelectItem>
-                <SelectItem value="month">Ce mois</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous statuts</SelectItem>
-                <SelectItem value="open">Places disponibles</SelectItem>
-                <SelectItem value="full">Complet</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
+          {/* Filtres actifs, retirables un par un */}
+          {activeChips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {activeChips.map((c) => (
+                <button
+                  key={c.label}
+                  type="button"
+                  onClick={c.clear}
+                  className="inline-flex min-h-[32px] items-center gap-1.5 rounded-full bg-bordeaux-600 px-3 text-sm font-medium text-creme transition-opacity hover:opacity-85"
+                  aria-label={`Retirer le filtre ${c.label}`}
+                >
+                  {c.label}<X className="h-3.5 w-3.5" />
+                </button>
+              ))}
+              <button type="button" onClick={resetFilters} className="min-h-[32px] px-1 text-sm font-semibold text-bordeaux-600 hover:underline">
+                Tout effacer
+              </button>
+              <span className="ml-auto text-sm text-encre/60">{upcoming.length} event{upcoming.length > 1 ? "s" : ""}</span>
+            </div>
+          )}
         </div>
 
         {eventsLoading ? (
@@ -242,7 +450,7 @@ function Landing() {
             <EmptyState title="Aucun événement trouvé." />
           </Card>
         ) : (
-          <EventGrid events={upcoming} user={user} />
+          <EventGrid events={upcoming} user={user} likes={likes} />
         )}
 
         </div>
@@ -448,8 +656,7 @@ function StackedHowItWorks() {
   );
 }
 
-function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boolean; user: any }) {
-  const likes = useLikes(useMemo(() => events.map((e) => e.id), [events]));
+function EventGrid({ events, muted = false, user, likes }: { events: any[]; muted?: boolean; user: any; likes: ReturnType<typeof useLikes> }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {events.map((e) => {
