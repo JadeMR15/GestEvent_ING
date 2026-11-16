@@ -23,6 +23,7 @@ import { AppShowcase } from "@/components/landing/AppShowcase";
 import { Frame } from "@/components/landing/Frame";
 import { CocotteCompanion } from "@/components/mascot/CocotteCompanion";
 import { DanceScene } from "@/components/mascot/DanceScene";
+import { RevealTitle } from "@/components/mascot/RevealTitle";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
 import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
@@ -356,9 +357,7 @@ function StackedHowItWorks() {
         padding:    "1rem 0 1.5rem",
         background: "transparent",
       }}>
-        <h2 style={{ color: "var(--text-title)" }}>
-          Comment ça marche ?
-        </h2>
+        <RevealTitle id="lp-how-title" text="Comment ça marche ?" style={{ color: "var(--text-title)" }} />
       </div>
 
       <div>

@@ -16,9 +16,11 @@ import "./companion.css";
 type Phase =
   | "off" | "emerge" | "wave" | "jumpOut" | "companion" | "jumpIn" | "retract"
   // Scène de danse
-  | "toStage" | "stageWave" | "stage" | "stageAppear" | "fromStage" | "away";
+  | "toStage" | "stageWave" | "stage" | "stageAppear" | "fromStage" | "away"
+  // Révélation du titre « Comment ça marche ? »
+  | "runIn" | "reveal" | "titleWave" | "toCorner";
 
-const DUR = { emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750, toStage: 1300, stageWave: 1000, fromStage: 750 };
+const DUR = { emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750, toStage: 1300, stageWave: 1000, fromStage: 750, runIn: 650, titleWave: 1000, toCorner: 750 };
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -39,6 +41,7 @@ export function CocotteCompanion() {
     const spot = document.getElementById("lp-dance-spot");
     const floor = spot?.parentElement ?? null;
     const features = document.getElementById("fonctionnalites");
+    const howTitle = document.getElementById("lp-how-title");
     const page = wrap?.closest(".lp-page") as HTMLElement | null;
     if (!wrap || !slot) return;
 
@@ -58,6 +61,7 @@ export function CocotteCompanion() {
     let hopUntil = 0;
     let from = { x: 0, y: 0, s: 1 }; // point de départ d'un trajet (coin → scène)
     let stageGreeted = false;
+    let revealDur = 1200;
     let curPose: CocotteState = "repos";
     let curShown = false;
     let curFlip = false;
@@ -93,6 +97,32 @@ export function CocotteCompanion() {
       const s = r.height / H;
       return { x: r.left + r.width / 2 - base.x - (W * s) / 2, y: r.bottom - base.y - H * s, s };
     };
+
+    /** Pose « sur la ligne du titre » : pieds au bas du titre, centre horizontal en `cx`. */
+    const titlePose = (base: { x: number; y: number }, H: number, cx: number) => {
+      const r = howTitle!.getBoundingClientRect();
+      const font = parseFloat(getComputedStyle(howTitle!).fontSize) || 28;
+      const s = (font * 2.3) / H;
+      const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
+      return { x: cx - base.x - (W * s) / 2, y: r.bottom + font * 0.15 - base.y - H * s, s };
+    };
+    const titleSpan = () => {
+      const r = howTitle!.getBoundingClientRect();
+      return { start: r.left - 6, end: r.right + 6 };
+    };
+    const letters = () => Array.from(howTitle?.querySelectorAll<HTMLElement>(".rv-ch") ?? []);
+    const revealUpTo = (x: number) => {
+      for (const l of letters()) {
+        if (l.classList.contains("is-in")) continue;
+        const r = l.getBoundingClientRect();
+        if (x >= r.left + r.width / 2) l.classList.add("is-in");
+      }
+    };
+    const revealAll = () => {
+      letters().forEach((l) => l.classList.add("is-in"));
+      if (howTitle) howTitle.dataset.armed = "done";
+    };
+    const titleArmed = () => howTitle?.dataset.armed === "true";
 
     const go = (p: Phase, now: number) => {
       phase = p;
@@ -131,6 +161,10 @@ export function CocotteCompanion() {
       const stagePassed = !!fr && fr.bottom < 0.1 * vh;
       const stageBelow = !fr || fr.top > 0.85 * vh;
       const featuresDone = !!features && features.getBoundingClientRect().bottom < 0.5 * vh;
+      // Titre suivant : entre à l'écran (~70 % de la hauteur) / repassé en dessous
+      const ht = howTitle?.getBoundingClientRect();
+      const titleIn = !!ht && ht.top < 0.7 * vh && ht.bottom > 0;
+      const titleBelow = !ht || ht.top > 0.9 * vh;
 
       const t = now - phaseStart;
       let pos = { x: walkX, y: 0, s: 1 };
@@ -139,6 +173,7 @@ export function CocotteCompanion() {
         // Pas de transformation ni de marche : directement en place, pose de repos
         phase = !active ? "off" : stageVisible ? "stage" : stagePassed && !featuresDone ? "away" : "companion";
         if (phase === "stage") pos = stagePose(base, H);
+        if (titleArmed()) revealAll();
         setP("repos");
       } else {
         switch (phase) {
@@ -169,6 +204,12 @@ export function CocotteCompanion() {
           }
           case "companion": {
             if (!active) { go("jumpIn", now); setP("saut"); idleAction = null; break; }
+            if (titleArmed() && titleIn && howTitle) {
+              const sp = titleSpan();
+              revealDur = clamp((sp.end - sp.start) * 4.5, 1300, 2600);
+              go("runIn", now); setP("marche"); idleAction = null;
+              break;
+            }
             if (stageVisible) {
               // Elle quitte son coin et marche jusqu'au centre de la scène
               from = { x: walkX, y: 0, s: 1 };
@@ -263,8 +304,50 @@ export function CocotteCompanion() {
           case "away":
             // Pendant le cadre des fonctionnalités, Cocotte n'est pas visible
             if (stageVisible) { go("stageAppear", now); setP("apparition"); }
-            else if (featuresDone) { go("companion", now); setP("apparition"); walkDir = 1; nextIdleAt = now + 4000; }
+            else if (titleArmed() && titleIn && howTitle) {
+              // Elle arrive en courant par la gauche pour révéler le titre
+              const sp = titleSpan();
+              revealDur = clamp((sp.end - sp.start) * 4.5, 1300, 2600);
+              go("runIn", now); setP("marche"); facingLeft = false;
+            } else if (!titleArmed() && featuresDone) { go("companion", now); setP("apparition"); walkDir = 1; nextIdleAt = now + 4000; }
             break;
+          case "runIn": {
+            const sp = titleSpan();
+            const k = clamp(t / DUR.runIn, 0, 1);
+            const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
+            const startCx = -W; // hors de l'écran, à gauche
+            pos = titlePose(base, H, lerp(startCx, sp.start, 1 - Math.pow(1 - k, 2)));
+            setP("marche"); facingLeft = false;
+            if (titleBelow) { revealAll(); go("away", now); break; }
+            if (t > DUR.runIn) go("reveal", now);
+            break;
+          }
+          case "reveal": {
+            // Elle marche le long du titre : chaque lettre apparaît quand elle passe
+            const sp = titleSpan();
+            const k = clamp(t / revealDur, 0, 1);
+            const cx = lerp(sp.start, sp.end, k);
+            pos = titlePose(base, H, cx);
+            revealUpTo(cx);
+            setP("marche"); facingLeft = false;
+            if (titleBelow) { revealAll(); go("away", now); break; }
+            if (k >= 1) { revealAll(); go("titleWave", now); setP("coucou"); }
+            break;
+          }
+          case "titleWave":
+            pos = titlePose(base, H, titleSpan().end);
+            if (titleBelow) { go("away", now); break; }
+            if (t > DUR.titleWave) { go("toCorner", now); setP("saut"); from = pos; walkDir = 1; }
+            break;
+          case "toCorner": {
+            // Saut vers son coin en bas à gauche, puis elle reprend son rôle de compagnon
+            const k = ease(clamp(t / DUR.toCorner, 0, 1));
+            const arc = isMobile() ? 90 : 150;
+            pos = { x: lerp(from.x, 0, k), y: lerp(from.y, 0, k) - Math.sin(Math.PI * k) * arc, s: lerp(from.s, 1, k) };
+            facingLeft = from.x > 0;
+            if (t > DUR.toCorner) { walkX = 0; go("companion", now); setP("repos"); nextIdleAt = now + 4000; }
+            break;
+          }
           case "retract":
             pos = slotPose(base, H);
             if (t > DUR.retract) {
@@ -277,7 +360,7 @@ export function CocotteCompanion() {
       }
 
       // Regarde dans son sens de marche (le saut d'arrivée part toujours vers la droite)
-      setF(["companion", "jumpIn", "toStage", "fromStage"].includes(phase) ? facingLeft : false);
+      setF(["companion", "jumpIn", "toStage", "fromStage", "toCorner"].includes(phase) ? facingLeft : false);
       setS(phase !== "off" && phase !== "away");
 
       // Discrétion près du footer : seulement en mode compagnon
@@ -289,6 +372,7 @@ export function CocotteCompanion() {
       const busy =
         phase === "emerge" || phase === "wave" || phase === "jumpOut" || phase === "jumpIn" || phase === "retract" ||
         phase === "toStage" || phase === "stageWave" || phase === "stageAppear" || phase === "fromStage" ||
+        phase === "runIn" || phase === "reveal" || phase === "titleWave" || phase === "toCorner" ||
         scrolling || now < hopUntil || !!idleAction || Math.abs(hide - (footerIn ? 1 : 0)) > 0.01 ||
         // Titre proche du seuil (il peut encore bouger sans défilement, ex. son animation d'apparition)
         Math.abs(slotTop - 0.3 * vh) < 160;
