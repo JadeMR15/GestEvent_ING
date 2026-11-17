@@ -1,0 +1,111 @@
+/* ==========================================================================
+   Page de connexion : Cocotte invite à se connecter puis à s'inscrire (ESSAI design-tests)
+   transform et opacity uniquement ; jamais de clic ni de focus (pointer-events: none).
+   ========================================================================== */
+
+.lc-spot {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+.lc-ck { width: 100%; height: auto; }
+
+/* ── Ordinateur : à gauche / à droite de la carte, centrée verticalement, 48 px d'écart ── */
+.lc-l, .lc-r {
+  /* ~220 px de haut ; plus petite si la place manque sur les côtés (jamais sur la carte) */
+  --lc-w: min(200px, calc((100vw - 448px) / 2 - 64px));
+  width: var(--lc-w);
+  top: 50%;
+  margin-top: calc(var(--lc-w) * -0.55);
+}
+.lc-l { right: calc(100% + 48px); }
+.lc-r { left: calc(100% + 48px); }
+
+/* ── Écrans étroits : place réservée au-dessus de la carte, Cocotte ~100 px + bulle à côté ── */
+.lc-top-space { display: none; }
+@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+  .lc-top-space { display: block; position: relative; height: 116px; }
+}
+.lc-t {
+  width: 91px; /* ~100 px de haut */
+  left: 50%;
+  bottom: 8px;
+  margin-left: -110px;
+}
+
+/* ── Saut depuis le bas avec rebond, puis départ (petit saut vers le bas + fondu) ── */
+.lc-jump { transform-origin: 50% 100%; }
+.lc-spot.is-in .lc-jump { animation: lcIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.lc-spot.is-out .lc-jump { animation: lcOut 0.5s cubic-bezier(0.4, 0, 0.6, 1) both; }
+/* Au-dessus de la carte : elle surgit sur place (sans descendre sur la carte) */
+.lc-t.is-in .lc-jump { animation-name: lcPop; }
+.lc-t.is-out .lc-jump { animation-name: lcDrop; }
+@keyframes lcPop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  60%  { opacity: 1; transform: translateY(-10%) scale(1.04); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes lcDrop {
+  0%   { opacity: 1; transform: none; }
+  30%  { opacity: 1; transform: translateY(-8%); }
+  100% { opacity: 0; transform: translateY(5%) scale(0.8); }
+}
+@keyframes lcIn {
+  0%   { opacity: 0; transform: translateY(60%) scale(0.85); }
+  60%  { opacity: 1; transform: translateY(-8%) scale(1.02); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes lcOut {
+  0%   { opacity: 1; transform: none; }
+  30%  { opacity: 1; transform: translateY(-6%); }
+  100% { opacity: 0; transform: translateY(40%) scale(0.9); }
+}
+
+/* ── Bulle : blanche, arrondi 16 px, pointe vers Cocotte, Fredoka ~22 px bordeaux 600 ── */
+.lc-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  white-space: nowrap;
+  padding: 10px 18px;
+  border-radius: 16px;
+  background: var(--neutre-blanc);
+  box-shadow: var(--ombre-carte);
+  font: 600 22px/1.2 var(--font-accent);
+  color: var(--bordeaux-600);
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px) scale(0.85);
+  transform-origin: 50% 100%;
+  transition: opacity 0.2s ease-out, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.lc-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -8px;
+  border: 8px solid transparent;
+  border-top-color: var(--neutre-blanc);
+}
+.lc-bubble.is-on { opacity: 1; transform: translateX(-50%); }
+
+/* Écrans étroits : la bulle est à droite de Cocotte, pointe vers la gauche */
+.lc-t .lc-bubble {
+  left: calc(100% + 14px);
+  bottom: 50%;
+  transform: translateY(50%) translateX(-6px) scale(0.85);
+  transform-origin: 0% 50%;
+}
+.lc-t .lc-bubble.is-on { transform: translateY(50%); }
+.lc-t .lc-bubble::after {
+  left: auto;
+  right: 100%;
+  top: 50%;
+  margin: -8px 0 0;
+  border-top-color: transparent;
+  border-right-color: var(--neutre-blanc);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-spot { display: none; }
+}

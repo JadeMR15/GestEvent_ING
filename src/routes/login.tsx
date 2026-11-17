@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { OAuthButtons } from "@/components/OAuthButtons";
 import { postLoginTarget } from "@/lib/oauth";
 import "@/components/nav/app-shell.css";
+import { LoginCocotte } from "@/components/mascot/LoginCocotte";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -85,6 +86,9 @@ function LoginPage() {
       <Link to="/" aria-label="Retour" className="tap absolute left-4 top-[calc(env(safe-area-inset-top)+0.75rem)] flex h-10 w-10 items-center justify-center rounded-full border bg-card/80 text-primary backdrop-blur md:hidden">
         <ChevronLeft className="h-5 w-5" />
       </Link>
+      {/* Carte + Cocotte qui invite à se connecter puis à s'inscrire (essai design-tests) */}
+      <div className="relative w-full max-w-md">
+      <LoginCocotte />
       <Card className="w-full max-w-md rounded-3xl shadow-elegant border-[0.5px] max-md:border-0 max-md:bg-transparent max-md:shadow-none">
         <CardHeader className="text-center">
           <img src="/plav-cocotte.svg" alt="Plav'" className="mx-auto mb-3 h-28 w-28 object-contain plav-spin-in" />
@@ -130,6 +134,7 @@ function LoginPage() {
           <div className="mt-4"><OAuthButtons /></div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
