@@ -672,7 +672,7 @@
 .lp-how-label {
   font-family: var(--font-titre);
   font-weight: 600;
-  font-size: clamp(24px, 2.4vw, 36px);
+  font-size: clamp(20px, 1.8vw, 28px);
   line-height: 1;
   margin: 0;
   letter-spacing: -0.02em;
@@ -718,7 +718,7 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 32px;
-    /* Interligne passé de 1,15 à 1 : on rend l'espace perdu au-dessus pour garder l'écart avec le titre */
+    /* Écart fixe avec le titre (inchangé quand la taille des étiquettes a changé) */
     margin-top: calc(16px + 0.075 * clamp(24px, 2.4vw, 36px));
   }
   .lp-how-tabs { display: none; }
