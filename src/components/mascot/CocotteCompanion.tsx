@@ -25,7 +25,7 @@ type Phase =
   | "toStage" | "stageWave" | "stage" | "stageAppear" | "fromStage" | "away"
   // Révélation du titre « Comment ça marche ? »
   | "toTitle" | "scrub" | "qHop" | "qWave" | "toCorner"
-  // Plongeon dans « T'attends quoi ? »
+  // Plongeon dans « À ton tour ! »
   | "toBoard" | "board" | "dive" | "dived";
 
 type Pos = { x: number; y: number; s: number };
@@ -62,7 +62,7 @@ export function CocotteCompanion() {
     const floor = spot?.parentElement ?? null;
     const features = document.getElementById("fonctionnalites");
     const howTitle = document.getElementById("lp-how-title");
-    // Plongeon : plongeoir (section du téléphone) et cadre « T'attends quoi ? ». Ces éléments
+    // Plongeon : plongeoir (section du téléphone) et cadre « À ton tour ! ». Ces éléments
     // n'existent que pour les visiteurs non connectés, une fois la session vérifiée : on les
     // cherche donc à chaque image plutôt qu'une seule fois au démarrage.
     let board: HTMLElement | null = null;
@@ -352,7 +352,7 @@ export function CocotteCompanion() {
       const titleIn = !!ht && ht.top < 0.85 * vh && ht.bottom > 0;
       const titleBelow = !ht || ht.top > 0.85 * vh;
 
-      // Plongeoir : sorti, et le cadre « T'attends quoi ? » pas encore dépassé
+      // Plongeoir : sorti, et le cadre « À ton tour ! » pas encore dépassé
       findDiveParts();
       const boardReady = !!board && !!plank && !!ctaSection && !!ctaFrame && !reduced;
       const secBottom = ctaSection?.getBoundingClientRect().top ?? Infinity; // bas de la section du téléphone

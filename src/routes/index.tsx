@@ -272,8 +272,8 @@ function Landing() {
                 ))}
               </span>
             </span>
-            <h2 className="lp-cta-title">T'attends <span className="t-accent text-jaune-300">quoi ?</span></h2>
-            <p className="mt-6 t-corps-l text-blanc/80">Cocotte a déjà plongé. À ton tour.</p>
+            <p className="t-corps-l text-blanc/80">Cocotte a déjà plongé.</p>
+            <h2 className="lp-cta-title mt-4">À ton <span className="t-accent text-jaune-300">tour !</span></h2>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary">
                 <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>

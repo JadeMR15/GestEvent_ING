@@ -3,7 +3,7 @@ import { usePrefersReducedMotion } from "@/components/landing/hooks";
 import "./plongeoir.css";
 
 /**
- * Plongeoir (ESSAI design-tests), posé sur le bord haut du cadre « T'attends quoi ? » : une
+ * Plongeoir (ESSAI design-tests), posé sur le bord haut du cadre « À ton tour ! » : une
  * planche arrondie (bordeaux 600) sur un petit support avec deux barreaux (bordeaux 800).
  * - Il apparaît quand le bas de la section du téléphone (= haut de la section du cadre) arrive à
  *   ~75 % de l'écran (le support monte, puis la planche sort vers la droite avec un petit rebond)
