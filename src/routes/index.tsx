@@ -419,10 +419,12 @@ function useHowStack() {
       const vh = window.innerHeight;
       const titleBottom = HOW_TITLE_TOP + el.offsetHeight;
       const n = HOW_CARDS.length;
-      // Ordinateur : la première rangée se colle ~24 px sous les étiquettes « Tu organises / Tu participes »
+      // Ordinateur : la première rangée se colle ~10 px sous la ligne de base des étiquettes
+      // « Tu organises / Tu participes » (interligne 1 : la ligne de base est ~0,155 em au-dessus du bas de la boîte)
       const labels = el.querySelector<HTMLElement>(".lp-how-labels");
+      const labelFs = labels ? parseFloat(getComputedStyle(labels.querySelector(".lp-how-label") ?? labels).fontSize) : 0;
       const top0 = labels?.offsetParent
-        ? HOW_TITLE_TOP + labels.offsetTop + labels.offsetHeight + 24
+        ? HOW_TITLE_TOP + labels.offsetTop + labels.offsetHeight - 0.155 * labelFs + 10
         : Math.max(vh * 0.5 - 180, titleBottom + 16);
       const h = Math.max(240, Math.min(420, vh * 0.58, vh - top0 - (n - 1) * HOW_STEP - 16));
       const lastBottom = top0 + (n - 1) * HOW_STEP + h; // bas de la dernière carte une fois posée
