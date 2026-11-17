@@ -419,7 +419,11 @@ function useHowStack() {
       const vh = window.innerHeight;
       const titleBottom = HOW_TITLE_TOP + el.offsetHeight;
       const n = HOW_CARDS.length;
-      const top0 = Math.max(vh * 0.5 - 180, titleBottom + 16);
+      // Ordinateur : la première rangée se colle ~24 px sous les étiquettes « Tu organises / Tu participes »
+      const labels = el.querySelector<HTMLElement>(".lp-how-labels");
+      const top0 = labels?.offsetParent
+        ? HOW_TITLE_TOP + labels.offsetTop + labels.offsetHeight + 24
+        : Math.max(vh * 0.5 - 180, titleBottom + 16);
       const h = Math.max(240, Math.min(420, vh * 0.58, vh - top0 - (n - 1) * HOW_STEP - 16));
       const lastBottom = top0 + (n - 1) * HOW_STEP + h; // bas de la dernière carte une fois posée
       setG({ top0, h, titleMb: lastBottom - titleBottom });
@@ -537,7 +541,7 @@ function StackedHowItWorks() {
           <RevealTitle id="lp-how-title" text="Comment ça marche ?" accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
           {/* Ordinateur : une étiquette au-dessus de chaque colonne */}
           <div className="lp-how-labels" aria-hidden="true">
-            {HOW_SIDES.map((s) => <p key={s.id} className="lp-caps-sm">{s.label}</p>)}
+            {HOW_SIDES.map((s) => <p key={s.id} className="lp-how-label">{s.label}</p>)}
           </div>
           {/* Écrans étroits : une seule pile, au choix */}
           <HowTabs side={side} onChange={setSide} />

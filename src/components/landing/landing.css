@@ -667,8 +667,17 @@
 }
 .lp-how-title { margin-top: 0.5rem; padding-right: 64px; }
 
-/* Étiquettes « Tu organises / Tu participes » (ordinateur) */
+/* Étiquettes « Tu organises / Tu participes » (ordinateur) : sous-titres centrés sur leur colonne */
 .lp-how-labels { display: none; }
+.lp-how-label {
+  font-family: var(--font-titre);
+  font-weight: 600;
+  font-size: clamp(24px, 2.4vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-title);
+  text-align: center;
+}
 
 /* Interrupteur « J'organise / Je participe » (écrans étroits) */
 .lp-how-tabs {
