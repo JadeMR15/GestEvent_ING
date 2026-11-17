@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
+import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
 import { isThisWeek, isThisMonth } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { Capacitor } from "@capacitor/core";
@@ -108,7 +108,6 @@ function Landing() {
     { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", area: "dash" },
     { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", area: "roles" },
     { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", area: "sync" },
-    { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", area: "web" },
   ];
 
   return (

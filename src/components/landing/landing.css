@@ -424,8 +424,7 @@
       "timer timer"
       "crea insc"
       "dash dash"
-      "roles sync"
-      "web web";
+      "roles sync";
   }
 }
 @media (min-width: 1024px) {
@@ -434,11 +433,9 @@
     grid-template-areas:
       "qr qr timer timer"
       "qr qr crea insc"
-      "dash dash roles sync"
-      "web web web web";
+      "dash dash roles sync";
   }
   .lp-bento-cell { min-height: 230px; }
-  .lp-bento-cell.lp-area-web { min-height: 0; }
 }
 @media (min-width: 768px) {
   .lp-area-qr    { grid-area: qr; }
@@ -448,7 +445,6 @@
   .lp-area-insc  { grid-area: insc; }
   .lp-area-roles { grid-area: roles; }
   .lp-area-sync  { grid-area: sync; }
-  .lp-area-web   { grid-area: web; }
 }
 .lp-bento-cell { display: flex; }
 
@@ -507,11 +503,6 @@
 @media (hover: hover) {
   .lp-bento-small:hover { transform: translateY(-4px); }
   .lp-bento-small:hover::after { opacity: 1; }
-}
-
-/* Bande « Sans compte requis » : texte sur une ligne sur ordinateur */
-@media (min-width: 768px) {
-  .lp-card-web .lp-bento-text { flex-direction: row; align-items: center; gap: 20px; }
 }
 
 /* Grande carte QR */
