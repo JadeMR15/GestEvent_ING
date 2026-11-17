@@ -1,9 +1,10 @@
+import type { ReactNode } from "react";
 import { Calendar, MousePointerClick, QrCode, ScanLine } from "lucide-react";
 import { FakeQr, Reveal } from "./Motion";
 import { useInView } from "./hooks";
 
 /** Section « l'appli » : téléphone en HTML/CSS qui flotte + trois points clés. */
-export function AppShowcase() {
+export function AppShowcase({ children }: { children?: ReactNode }) {
   const { ref, visible } = useInView(0, false);
   const listAnim = useInView<HTMLUListElement>(0.2);
   const points = [
@@ -65,6 +66,8 @@ export function AppShowcase() {
           </ul>
         </div>
       </div>
+      {/* Emplacement en bas à gauche, dans la marge du bas (plongeoir de Cocotte) */}
+      {children && <div className="container relative mx-auto h-0 px-4 sm:px-6"><div className="relative">{children}</div></div>}
     </section>
   );
 }

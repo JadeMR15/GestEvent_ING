@@ -8,7 +8,7 @@ import "./cocotte.css";
  * animé en CSS (transform uniquement), avec ses origines aux épaules et aux hanches.
  */
 
-export type CocotteState = "apparition" | "repos" | "marche" | "coucou" | "saut" | "retrait" | "danse";
+export type CocotteState = "apparition" | "repos" | "marche" | "coucou" | "saut" | "retrait" | "danse" | "plonge";
 
 /** Repère du dessin : celui du fichier plav-cocotte.svg, élargi pour les membres. */
 export const COCOTTE_BOX = { x: 260, y: -110, w: 1300, h: 1430 };
@@ -44,25 +44,22 @@ const SHOULDER_R = { x: 1395, y: 352 };
 export function Cocotte({
   state = "repos",
   flip = false,
-  seated = false,
-  swing = false,
+  scrub = false,
   className = "",
   style,
 }: {
   state?: CocotteState;
   /** true : regarde vers la gauche (retournée horizontalement). */
   flip?: boolean;
-  /** Assise : jambes tendues vers l'avant, corps posé (pour repos / coucou). */
-  seated?: boolean;
-  /** Assise et on défile : elle balance les jambes (vitesse via la variable CSS --swing). */
-  swing?: boolean;
+  /** Pas pilotés de l'extérieur (révélation du titre) : les animations CSS des membres sont coupées. */
+  scrub?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
   return (
     <svg
       viewBox={`${COCOTTE_BOX.x} ${COCOTTE_BOX.y} ${COCOTTE_BOX.w} ${COCOTTE_BOX.h}`}
-      className={`ck ck--${state} ${flip ? "ck--flip" : ""} ${seated ? "ck--seated" : ""} ${seated && swing ? "ck--swing" : ""} ${className}`}
+      className={`ck ck--${state} ${flip ? "ck--flip" : ""} ${scrub ? "ck--scrub" : ""} ${className}`}
       style={style}
       aria-hidden="true"
       focusable="false"

@@ -173,7 +173,10 @@
   font-family: var(--font-titre);
   font-weight: 600;
   font-size: 44px;
-  line-height: 1;
+  /* Interligne serré : à 0,95, ni les jambages (q, g) ni la virgule d'« organisent, » ne touchent
+     la ligne suivante ; le padding rend la hauteur perdue pour garder les mêmes espaces autour. */
+  line-height: 0.95;
+  padding-block: 0.025em;
   letter-spacing: -0.03em;
   color: var(--neutre-encre);
 }
@@ -258,7 +261,7 @@
        maximum (au-delà, elle part à gauche au lieu d'être réduite). Le texte commence après. */
     --cs: clamp(560px, 92svh, 980px);
     --right: min(calc(var(--cs) * 0.88), 50vw);
-    min-height: max(640px, 100svh);
+    min-height: 100svh;
     padding-top: 0;
   }
   .lp-cocotte {
@@ -273,7 +276,12 @@
   }
   /* Le texte occupe la droite de l'écran, à côté de la cocotte */
   .lp-hero-grid {
-    min-height: max(640px, 100svh);
+    /* Colonne de texte : de la cocotte (+48 px) jusqu'à la marge droite de l'en-tête
+       (conteneur de 1024 / 1280 / 1536 px selon la largeur de l'écran) */
+    --content-right: calc((100vw - 1024px) / 2 + 24px);
+    /* Le bloc est centré verticalement sur la grande cocotte (centre = en-tête - 4 px + cocotte / 2),
+       sans jamais passer sous l'en-tête (« safe ») */
+    min-height: calc(var(--hdr) + 16px + var(--cs) - 40px);
     max-width: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -284,32 +292,27 @@
       "sub"
       "actions"
       "stats";
-    align-content: center;
+    align-content: safe center;
+    justify-items: start;
     gap: 0;
-    padding-top: calc(var(--hdr) + 24px);
-    padding-bottom: 32px;
-    padding-left: calc(var(--right) + 32px);
-    padding-right: max(24px, calc((100vw - 1280px) / 2 + 24px));
+    padding-top: calc(var(--hdr) + 16px);
+    padding-bottom: 0;
+    padding-left: calc(var(--right) + 48px);
+    padding-right: var(--content-right);
+    /* La taille du titre dépend de la largeur de cette colonne */
+    container-type: inline-size;
   }
-  /* Tout est aligné à droite, à côté de la cocotte */
-  .lp-hero-badge   { grid-area: badge; justify-self: end; }
+  .lp-hero-badge   { grid-area: badge; }
   .lp-hero-title {
     grid-area: title;
-    justify-self: end;
-    text-align: right;
+    text-align: left;
     margin-top: 16px;
-    /* 44 → 88 px, et jamais plus large que la place à droite de la cocotte
-       (la ligne la plus longue, « Pour ceux qui », fait ~5,7 fois la taille). */
-    font-size: clamp(
-      44px,
-      min(6vw, calc((100vw - var(--right) - 32px - max(24px, (100vw - 1280px) / 2 + 24px)) / 5.9)),
-      88px
-    );
+    /* La ligne la plus longue (« Pour ceux qui ») fait ~5,7 fois la taille : elle remplit la colonne */
+    font-size: clamp(44px, calc(100cqi / 5.75), 128px);
   }
-  .lp-hero-sub     { grid-area: sub; justify-self: end; text-align: right; margin-top: 24px; }
+  .lp-hero-sub     { grid-area: sub; text-align: left; margin-top: 24px; }
   .lp-hero-actions {
     grid-area: actions;
-    justify-self: end;
     flex-direction: row;
     align-items: center;
     align-self: auto;
@@ -317,10 +320,19 @@
     margin-top: 32px;
   }
   .lp-hero-actions > a { width: auto; }
-  .lp-hero-stats   { grid-area: stats; justify-self: stretch; justify-content: flex-end; gap: 32px; }
-  .lp-stat         { text-align: right; }
+  .lp-hero-stats {
+    grid-area: stats;
+    justify-self: stretch;
+    justify-content: flex-start;
+    gap: 48px;
+    margin-top: 24px;
+    padding-top: 24px;
+  }
+  .lp-stat         { text-align: left; }
   .lp-stat-value   { font-size: 40px; }
 }
+@media (min-width: 1280px) { .lp-hero-grid { --content-right: calc((100vw - 1280px) / 2 + 24px); } }
+@media (min-width: 1536px) { .lp-hero-grid { --content-right: calc((100vw - 1536px) / 2 + 24px); } }
 
 .lp-paused { animation-play-state: paused; }
 

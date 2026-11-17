@@ -106,15 +106,14 @@
 }
 
 
-/* ── assise : jambes tendues vers l'avant, corps posé (repos / coucou) ── */
-.ck--seated.ck--repos .ck-fig,
-.ck--seated.ck--coucou .ck-fig { transform: translateY(16%); }
-.ck--seated.ck--repos .ck-leg,
-.ck--seated.ck--coucou .ck-leg { transform: rotate(-78deg); }
-/* On défile : elle balance les jambes, plus ou moins vite (--swing) */
-.ck--seated.ck--swing .ck-leg-l { animation: ckSit var(--swing, 0.6s) ease-in-out infinite alternate; }
-.ck--seated.ck--swing .ck-leg-r { animation: ckSit var(--swing, 0.6s) ease-in-out infinite alternate-reverse; }
-@keyframes ckSit { from { transform: rotate(-62deg); } to { transform: rotate(-96deg); } }
+/* ── plonge : bras levés au-dessus de la tête, jambes serrées ── */
+.ck--plonge .ck-arm-l { transform: rotate(78deg); }
+.ck--plonge .ck-arm-r { transform: rotate(-30deg); }
+.ck--plonge .ck-leg-l { transform: rotate(-10deg); }
+.ck--plonge .ck-leg-r { transform: rotate(9deg); }
+
+/* ── Pas pilotés par la distance parcourue (révélation du titre) ── */
+.ck--scrub .ck-fig, .ck--scrub .ck-sway, .ck--scrub .ck-arm, .ck--scrub .ck-leg { animation: none !important; }
 
 /* ── Animations réduites : pose de repos fixe ── */
 @media (prefers-reduced-motion: reduce) {
