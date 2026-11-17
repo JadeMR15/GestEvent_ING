@@ -32,7 +32,7 @@ type Pos = { x: number; y: number; s: number };
 
 const DUR = {
   emerge: 420, wave: 1000, jumpOut: 750, jumpIn: 650, retract: 300, hop: 750, vanish: 450,
-  toStage: 1300, stageWave: 1000, fromStage: 750, toTitle: 500, qHop: 450, qWave: 1200, toCorner: 750, toBoard: 500, dive: 2050,
+  toStage: 1300, stageWave: 1000, fromStage: 750, toTitle: 500, qHop: 450, qWave: 1200, toCorner: 750, toBoard: 500, dive: 1900,
 };
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -100,6 +100,9 @@ export function CocotteCompanion() {
     let scrubLastX: number | null = null;
     let scrubMovedAt = 0;
     let splashed = false;
+    // Plongeon « armé » : seulement si on est passé au-dessus de la section du téléphone. La cocotte
+    // du titre est alors masquée (encore loin sous l'écran) et c'est Cocotte qui viendra prendre sa place.
+    let diveArmed = false;
     let landTimer = 0;
     let facingLeft = false;
     // Coucou régulier au repos
@@ -353,9 +356,24 @@ export function CocotteCompanion() {
       findDiveParts();
       const boardReady = !!board && !!plank && !!ctaSection && !!ctaFrame && !reduced;
       const secBottom = ctaSection?.getBoundingClientRect().top ?? Infinity; // bas de la section du téléphone
-      const boardActive = boardReady && board!.classList.contains("is-out") && secBottom < 0.72 * vh &&
+      const boardActive = boardReady && diveArmed && board!.classList.contains("is-out") && secBottom < 0.72 * vh &&
         ctaFrame!.getBoundingClientRect().top > 0;
       const aboveBoard = secBottom > 0.85 * vh; // remonté au-dessus de la section du téléphone
+      // Armé seulement quand la section du téléphone arrive réellement à l'écran par le dessus (pas sur
+      // une page chargée ou restaurée directement plus bas : la cocotte du titre y reste visible)
+      if (boardReady && aboveBoard && secBottom < 1.6 * vh) diveArmed = true;
+
+      // Cocotte du titre masquée seulement si le plongeon va avoir lieu. Si elle arrive à l'écran sans
+      // plongeon en cours (défilement très rapide, Cocotte occupée ailleurs…), on la réaffiche aussitôt.
+      if (landing && boardReady && diveArmed) {
+        const lr = landing.getBoundingClientRect();
+        const onScreen = lr.top < vh && lr.bottom > 0;
+        // Cocotte en route vers le plongeoir (ou qui termine une animation avant d'y aller) : place vide
+        const headingToBoard = ["seat", "toBoard", "board", "dive", "toCorner", "vanish", "toTitle", "scrub", "qHop", "qWave"].includes(phase);
+        const framePassed = ctaFrame ? ctaFrame.getBoundingClientRect().top < 0 : true;
+        if ((onScreen && !headingToBoard) || (framePassed && phase !== "dive")) diveArmed = false;
+      }
+      landing?.classList.toggle("is-awaiting", boardReady && diveArmed && phase !== "dived");
 
       const t = now - phaseStart;
       let pos: Pos = seat.pos;
@@ -621,9 +639,9 @@ export function CocotteCompanion() {
               pos = { ...tip.pos, y: tip.pos.y - hop * 16 };
               if (bend) bend.style.transform = `rotate(${(1 - hop) * 5}deg)`;
               setP("repos");
-            } else if (t < 1900) {
+            } else if (t < DUR.dive) {
               if (bend) bend.style.transform = "";
-              // Vol en arc vers la cocotte du titre : lent au départ, plus rapide à la chute
+              // Vol en arc vers la place de la cocotte du titre : lent au départ, plus rapide à la chute
               const k = clamp((t - 600) / 1300, 0, 1);
               const tk = Math.pow(k, 1.35);
               const r = img.getBoundingClientRect();
@@ -639,11 +657,13 @@ export function CocotteCompanion() {
                 y: lerp(tip.pos.y, end.y, tk) - 4 * arc * tk * (1 - tk),
                 s: lerp(tip.pos.s, end.s, Math.pow(tk, 1.2)), // elle grossit progressivement
               };
-              // Pirouette complète, + 10° pour compenser l'inclinaison de son corps : elle arrive droite
+              // Pirouette complète (+ 10° pour compenser l'inclinaison de son corps), terminée
+              // ~150 ms avant l'arrivée : la fin du vol se fait sans tourner, déjà droite
+              const kSpin = clamp(k / (1150 / 1300), 0, 1);
               const sp = spinEl();
-              if (sp) sp.style.transform = `rotate(${370 * ease(k)}deg)`;
-              // Bras levés, jambes serrées ; sur le dernier tiers, ses membres rentrent
-              const sc = k < 2 / 3 ? 1 : Math.max(0, 1 - (k - 2 / 3) * 3);
+              if (sp) sp.style.transform = `rotate(${370 * ease(kSpin)}deg)`;
+              // Bras levés, jambes serrées ; ensuite ses membres rentrent (terminé avec la pirouette)
+              const sc = kSpin < 0.6 ? 1 : Math.max(0, 1 - (kSpin - 0.6) / 0.4);
               setScrub(true);
               setP("repos");
               const [legL, legR, armL, armR] = [".ck-leg-l", ".ck-leg-r", ".ck-arm-l", ".ck-arm-r"].map((q) => wrap.querySelector<SVGGElement>(q));
@@ -652,22 +672,17 @@ export function CocotteCompanion() {
               if (legL) legL.style.transform = `rotate(-10deg) scale(${sc})`;
               if (legR) legR.style.transform = `rotate(9deg) scale(${sc})`;
             } else {
-              // Arrivée : superposée à la cocotte du titre, puis fondu (~150 ms) — il n'en reste qu'une
-              const r = img.getBoundingClientRect();
-              const W = (H * COCOTTE_BOX.w) / COCOTTE_BOX.h;
-              const s1 = r.height / ((COCOTTE_BODY.size / COCOTTE_BOX.h) * H);
-              const cx = ((COCOTTE_BODY.cx - COCOTTE_BOX.x) / COCOTTE_BOX.w) * W;
-              const cy = ((COCOTTE_BODY.cy - COCOTTE_BOX.y) / COCOTTE_BOX.h) * H;
-              pos = { x: r.left + r.width / 2 - base.x - cx * s1, y: r.top + r.height / 2 - base.y - cy * s1, s: s1 };
-              opacity = 1 - clamp((t - 1900) / 150, 0, 1);
+              // Elle se pose : en une seule image, le compagnon disparaît et la cocotte du titre réapparaît
+              // (même pose : on ne voit qu'une cocotte), puis elle rebondit et éclabousse.
+              wrap.style.transition = "none";
+              opacity = 0;
+              diveArmed = false;
+              landing?.classList.remove("is-awaiting");
               if (!splashed) {
-                // La cocotte du titre rebondit et les éclaboussures partent de son centre
                 splashed = true;
                 replay(landing, "is-landed");
                 replay(splash, "is-on");
               }
-            }
-            if (t > DUR.dive) {
               const sp = spinEl();
               if (sp) sp.style.transform = "";
               setScrub(false); clearStep();
@@ -699,7 +714,8 @@ export function CocotteCompanion() {
       // Discrétion près du footer : seulement à sa place
       const drop = phase === "seat" ? hide * (H + 60) : 0;
       wrap.style.transform = `translate(${pos.x}px, ${pos.y + drop}px) scale(${pos.s})`;
-      wrap.style.opacity = phase === "vanish" || (phase === "dive" && t >= 1900) ? String(opacity) : "";
+      wrap.style.opacity = phase === "vanish" ? String(opacity) : phase === "dived" ? "0" : "";
+      if (phase !== "dived" && wrap.style.transition) wrap.style.transition = "";
       wrap.classList.toggle("is-tucked", phase === "seat" && hide > 0.9);
 
       // La boucle continue tant que quelque chose bouge
@@ -736,6 +752,7 @@ export function CocotteCompanion() {
       cancelAnimationFrame(raf);
       clearTimeout(idleTimer);
       clearTimeout(landTimer);
+      landing?.classList.remove("is-awaiting");
       atSlot(false);
     };
   }, [reduced]);
