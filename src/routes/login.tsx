@@ -11,6 +11,7 @@ import { Loader2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { OAuthButtons } from "@/components/OAuthButtons";
 import { postLoginTarget } from "@/lib/oauth";
+import "@/components/nav/app-shell.css";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -78,7 +79,9 @@ function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-mesh p-4 pt-safe pb-safe">
+    <div className="relative isolate flex min-h-screen items-center justify-center p-4 pt-safe pb-safe">
+      {/* Fond : le dégradé fixe de l'app (même couleurs que l'accueil) — essai design-tests */}
+      <div aria-hidden="true" className="app-sky" />
       <Link to="/" aria-label="Retour" className="tap absolute left-4 top-[calc(env(safe-area-inset-top)+0.75rem)] flex h-10 w-10 items-center justify-center rounded-full border bg-card/80 text-primary backdrop-blur md:hidden">
         <ChevronLeft className="h-5 w-5" />
       </Link>
