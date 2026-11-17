@@ -104,10 +104,10 @@ function Landing() {
   const features: BentoFeature[] = [
     { icon: Calendar,     title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", area: "crea" },
     { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", area: "timer" },
-    { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", area: "qr" },
-    { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", area: "insc" },
-    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", area: "dash" },
-    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", area: "roles" },
+    { icon: QrCode,       title: "QR code à l'entrée", desc: "Un QR code par inscrit. Un scan à l'entrée, et c'est validé.", area: "qr" },
+    { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, la confirmation arrive par email.", area: "insc" },
+    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscrits, remplissage, présences : tes chiffres bougent en direct.", area: "dash" },
+    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin : chacun voit ce dont il a besoin.", area: "roles" },
     { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", area: "sync" },
   ];
 
