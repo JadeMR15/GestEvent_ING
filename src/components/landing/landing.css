@@ -287,7 +287,10 @@
     min-height: calc(var(--hdr) + 16px + var(--cs) - 40px);
     max-width: none;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    /* Le bloc de texte prend la largeur de son élément le plus large (sans dépasser la colonne)
+       et se cale contre la marge droite du contenu ; le texte reste aligné à gauche dedans */
+    grid-template-columns: fit-content(100%);
+    justify-content: end;
     grid-template-rows: auto auto auto auto auto;
     grid-template-areas:
       "badge"
