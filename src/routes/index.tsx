@@ -144,15 +144,15 @@ function Landing() {
 
           {/* Titre empilé */}
           <h1 className="lp-hero-title">
-            <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Pour ceux qui</span>{" "}
-            <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>organisent,</span>{" "}
-            <span className="lp-line text-bordeaux-600" style={{ "--i": 2 } as CSSProperties}>et ceux qui</span>{" "}
-            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">viennent.</span></span>
+            <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Des soirées</span>{" "}
+            <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>pleines,</span>{" "}
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 2 } as CSSProperties}>des assos</span>{" "}
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">sereines.</span></span>
           </h1>
 
           {/* Phrase d'accroche */}
           <p className="lp-hero-sub lp-fade-later">
-            Organise ou participe — <span className="text-bordeaux-800">plav' s'occupe du reste.</span>
+            Organise ou participe :{" "}<span className="lp-hero-sub-end text-bordeaux-800">Cocotte se plie en quatre pour le reste.</span>
           </p>
 
           {/* Chiffres, sous les boutons (séparés par un fin trait) */}
@@ -195,7 +195,7 @@ function Landing() {
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}><span id="lp-cocotte-slot" className="lp-slot" aria-hidden="true"><img src="/plav-cocotte.svg" alt="" /></span>Les prochains <span className="t-accent plav-highlight">events</span></h2>
-          <p className="mt-4 t-corps-l text-encre">Accessibles sans compte. Un lien, c'est tout.</p>
+          <p className="mt-4 t-corps-l text-encre">Cocotte a mis les plus attendues en grand. À toi de choisir.</p>
         </div>
 
         {/* Recherche et filtres : capsule flottante, accrochée sous l'en-tête pendant la section */}
@@ -236,7 +236,7 @@ function Landing() {
         <div ref={featuresAnim.ref} className="mx-auto max-w-[1216px]">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
             <h2 className="lp-section-title text-blanc">Simple. <span className="t-accent text-jaune-300">Complet.</span></h2>
-            <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
+            <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la billetterie à l'entrée, Cocotte a tout plié.</p>
           </div>
           <FeaturesBento features={features} />
         </div>
@@ -273,7 +273,7 @@ function Landing() {
               </span>
             </span>
             <h2 className="lp-cta-title">T'attends <span className="t-accent text-jaune-300">quoi ?</span></h2>
-            <p className="mt-6 t-corps-l text-blanc/80">Rejoins les assos qui font confiance à plav'.</p>
+            <p className="mt-6 t-corps-l text-blanc/80">Cocotte a déjà plongé. À ton tour.</p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary">
                 <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>

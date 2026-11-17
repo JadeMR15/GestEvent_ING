@@ -151,6 +151,7 @@
 .lp-hero-badge   { order: 1; }
 .lp-hero-title   { order: 2; margin-top: 16px; }
 .lp-hero-sub     { order: 3; margin-top: 24px; }
+.lp-hero-sub-end { display: block; } /* seconde partie de la phrase à la ligne, après les deux-points */
 .lp-hero-actions { order: 4; margin-top: 32px; align-self: stretch; }
 .lp-hero-stats   { order: 5; }
 
@@ -161,7 +162,7 @@
 }
 /* Phrase d'accroche : casse normale, 18 px, encre à ~75 % */
 .lp-hero-sub {
-  max-width: 36ch;
+  max-width: 44ch; /* « Cocotte se plie en quatre pour le reste. » tient sur une ligne */
   font: 400 18px/1.5 var(--font-texte);
   letter-spacing: normal;
   text-transform: none;
@@ -307,8 +308,8 @@
     grid-area: title;
     text-align: left;
     margin-top: 16px;
-    /* La ligne la plus longue (« Pour ceux qui ») fait ~5,7 fois la taille : elle remplit la colonne */
-    font-size: clamp(44px, calc(100cqi / 5.75), 128px);
+    /* La ligne la plus longue (« Des soirées ») fait ~4,9 fois la taille : elle remplit la colonne */
+    font-size: clamp(44px, calc(100cqi / 4.95), 128px);
   }
   .lp-hero-sub     { grid-area: sub; text-align: left; margin-top: 24px; }
   .lp-hero-actions {
