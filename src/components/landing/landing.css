@@ -152,7 +152,8 @@
 .lp-hero-badge   { order: 1; }
 .lp-hero-title   { order: 2; margin-top: 16px; }
 .lp-hero-sub     { order: 3; margin-top: 24px; }
-.lp-hero-sub-end { display: block; } /* seconde partie de la phrase à la ligne, après les deux-points */
+/* Seconde partie de la phrase : passe à la ligne d'un bloc (après les deux-points) si elle ne tient pas */
+.lp-hero-sub-end { display: inline-block; }
 .lp-hero-actions { order: 4; margin-top: 32px; align-self: stretch; }
 .lp-hero-stats   { order: 5; }
 
@@ -163,7 +164,6 @@
 }
 /* Phrase d'accroche : casse normale, 18 px, encre à ~75 % */
 .lp-hero-sub {
-  max-width: 44ch; /* « Cocotte se plie en quatre pour le reste. » tient sur une ligne */
   font: 400 18px/1.5 var(--font-texte);
   letter-spacing: normal;
   text-transform: none;
@@ -312,10 +312,11 @@
     margin-top: 16px;
     /* La plus petite de deux tailles :
        - largeur : la ligne la plus longue (« Des soirées », ~4,9 fois la taille) remplit la colonne ;
-       - hauteur : tout le bloc tient sous l'en-tête avec ~24 px de marge en bas. Hors titre, le bloc
-         fait 304 px (étiquette, espaces, sous-titre, boutons, trait, chiffres) ; le titre fait ~3,87 fois
-         sa taille (4 lignes à 0,95 + padding). Haut du bloc : en-tête + 16 px. */
-    font-size: clamp(44px, min(100cqi / 4.95, (100vh - var(--hdr) - 16px - 304px - 48px) / 3.87), 128px);
+       - hauteur : tout le bloc tient sous l'en-tête avec ~24 px de marge en bas. La hauteur du bloc
+         hors titre (étiquette, espaces, sous-titre, boutons, trait, chiffres) est mesurée en JS
+         (--hero-rest, voir useHeroRest) ; le titre fait ~3,87 fois sa taille (4 lignes à 0,95 + padding).
+         Haut du bloc : en-tête + 16 px. */
+    font-size: clamp(44px, min(100cqi / 4.95, (100vh - var(--hdr) - 16px - var(--hero-rest, 304px) - 48px) / 3.87), 128px);
   }
   .lp-hero-sub     { grid-area: sub; text-align: left; margin-top: 24px; }
   .lp-hero-actions {

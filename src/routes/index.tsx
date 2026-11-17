@@ -40,6 +40,7 @@ type StatusFilter = "all" | "open" | "full";
 
 function Landing() {
   const { user, loading } = useAuth();
+  const heroGridRef = useHeroRest();
 
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -134,7 +135,7 @@ function Landing() {
       <section ref={heroAnim.ref} className="lp-hero">
         <HeroCocotte playing={heroAnim.visible} />
 
-        <div className="lp-hero-grid container mx-auto px-4 sm:px-6">
+        <div ref={heroGridRef} className="lp-hero-grid container mx-auto px-4 sm:px-6">
           {/* Petit texte : badge (sans cadre) */}
           <p className="lp-hero-badge lp-caps-sm lp-fade-late">
             <img src="/plav-cocotte.svg" alt="" className="h-4 w-4 object-contain" />
@@ -358,6 +359,39 @@ const HOW_CARDS = [
 /** Hauteur de la zone où le titre « Comment ça marche ? » reste collé (sous l'en-tête). */
 const HOW_TITLE_TOP = 110;
 const HOW_STEP = 16; // décalage entre deux cartes empilées
+
+/**
+ * Haut de page (ESSAI design-tests) : mesure la hauteur réelle du bloc hors titre (étiquette,
+ * sous-titre, boutons, trait, chiffres, avec leurs espaces) et la donne au CSS (--hero-rest),
+ * qui en déduit la taille du titre pour que tout tienne dans l'écran. Recalculée au redimensionnement.
+ */
+function useHeroRest() {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const grid = ref.current;
+    if (!grid) return;
+    const q = (c: string) => grid.querySelector<HTMLElement>(c);
+    const calc = () => {
+      const badge = q(".lp-hero-badge");
+      const title = q(".lp-hero-title");
+      const stats = q(".lp-hero-stats");
+      if (!badge || !title || !stats) return;
+      // offset* : positions sans les transform des animations d'apparition
+      const rest = stats.offsetTop + stats.offsetHeight - badge.offsetTop - title.offsetHeight;
+      grid.style.setProperty("--hero-rest", `${rest}px`);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    for (const c of [".lp-hero-badge", ".lp-hero-sub", ".lp-hero-actions", ".lp-hero-stats"]) {
+      const el = q(c);
+      if (el) ro.observe(el);
+    }
+    ro.observe(grid);
+    window.addEventListener("resize", calc);
+    return () => { ro.disconnect(); window.removeEventListener("resize", calc); };
+  }, []);
+  return ref;
+}
 
 /**
  * Géométrie de l'empilement (ESSAI design-tests), recalculée selon l'écran :
