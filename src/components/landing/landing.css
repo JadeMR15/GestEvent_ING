@@ -140,6 +140,7 @@
 /* Contenu (mobile : empilé) */
 .lp-hero-grid {
   position: relative;
+  container-type: inline-size; /* la taille du titre dépend de la largeur de la colonne */
   z-index: 3; /* textes du hero au-dessus de la cocotte */
   display: flex;
   flex-direction: column;
@@ -173,7 +174,8 @@
 .lp-hero-title {
   font-family: var(--font-titre);
   font-weight: 600;
-  font-size: 44px;
+  /* Mobile : « Des soirées » (~4,9 fois la taille) remplit la largeur de la colonne */
+  font-size: clamp(44px, calc(100cqi / 4.95), 128px);
   /* Interligne serré : à 0,95, ni les jambages (q, g) ni la virgule d'« organisent, » ne touchent
      la ligne suivante ; le padding rend la hauteur perdue pour garder les mêmes espaces autour. */
   line-height: 0.95;
@@ -308,8 +310,12 @@
     grid-area: title;
     text-align: left;
     margin-top: 16px;
-    /* La ligne la plus longue (« Des soirées ») fait ~4,9 fois la taille : elle remplit la colonne */
-    font-size: clamp(44px, calc(100cqi / 4.95), 128px);
+    /* La plus petite de deux tailles :
+       - largeur : la ligne la plus longue (« Des soirées », ~4,9 fois la taille) remplit la colonne ;
+       - hauteur : tout le bloc tient sous l'en-tête avec ~24 px de marge en bas. Hors titre, le bloc
+         fait 304 px (étiquette, espaces, sous-titre, boutons, trait, chiffres) ; le titre fait ~3,87 fois
+         sa taille (4 lignes à 0,95 + padding). Haut du bloc : en-tête + 16 px. */
+    font-size: clamp(44px, min(100cqi / 4.95, (100vh - var(--hdr) - 16px - 304px - 48px) / 3.87), 128px);
   }
   .lp-hero-sub     { grid-area: sub; text-align: left; margin-top: 24px; }
   .lp-hero-actions {
