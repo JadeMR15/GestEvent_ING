@@ -140,6 +140,7 @@
 /* Contenu (mobile : empilé) */
 .lp-hero-grid {
   position: relative;
+  container-type: inline-size; /* la taille du titre dépend de la largeur de la colonne */
   z-index: 3; /* textes du hero au-dessus de la cocotte */
   display: flex;
   flex-direction: column;
@@ -151,6 +152,8 @@
 .lp-hero-badge   { order: 1; }
 .lp-hero-title   { order: 2; margin-top: 16px; }
 .lp-hero-sub     { order: 3; margin-top: 24px; }
+/* Seconde partie de la phrase : passe à la ligne d'un bloc (après les deux-points) si elle ne tient pas */
+.lp-hero-sub-end { display: inline-block; }
 .lp-hero-actions { order: 4; margin-top: 32px; align-self: stretch; }
 .lp-hero-stats   { order: 5; }
 
@@ -161,7 +164,6 @@
 }
 /* Phrase d'accroche : casse normale, 18 px, encre à ~75 % */
 .lp-hero-sub {
-  max-width: 36ch;
   font: 400 18px/1.5 var(--font-texte);
   letter-spacing: normal;
   text-transform: none;
@@ -172,7 +174,8 @@
 .lp-hero-title {
   font-family: var(--font-titre);
   font-weight: 600;
-  font-size: 44px;
+  /* Mobile : « Des soirées » (~4,9 fois la taille) remplit la largeur de la colonne */
+  font-size: clamp(44px, calc(100cqi / 4.95), 128px);
   /* Interligne serré : à 0,95, ni les jambages (q, g) ni la virgule d'« organisent, » ne touchent
      la ligne suivante ; le padding rend la hauteur perdue pour garder les mêmes espaces autour. */
   line-height: 0.95;
@@ -284,7 +287,10 @@
     min-height: calc(var(--hdr) + 16px + var(--cs) - 40px);
     max-width: none;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    /* Le bloc de texte prend la largeur de son élément le plus large (sans dépasser la colonne)
+       et se cale contre la marge droite du contenu ; le texte reste aligné à gauche dedans */
+    grid-template-columns: fit-content(100%);
+    justify-content: end;
     grid-template-rows: auto auto auto auto auto;
     grid-template-areas:
       "badge"
@@ -307,8 +313,13 @@
     grid-area: title;
     text-align: left;
     margin-top: 16px;
-    /* La ligne la plus longue (« Pour ceux qui ») fait ~5,7 fois la taille : elle remplit la colonne */
-    font-size: clamp(44px, calc(100cqi / 5.75), 128px);
+    /* La plus petite de deux tailles :
+       - largeur : la ligne la plus longue (« Des soirées », ~4,9 fois la taille) remplit la colonne ;
+       - hauteur : tout le bloc tient sous l'en-tête avec ~24 px de marge en bas. La hauteur du bloc
+         hors titre (étiquette, espaces, sous-titre, boutons, trait, chiffres) est mesurée en JS
+         (--hero-rest, voir useHeroRest) ; le titre fait ~3,87 fois sa taille (4 lignes à 0,95 + padding).
+         Haut du bloc : en-tête + 16 px. */
+    font-size: clamp(44px, min(100cqi / 4.95, (100vh - var(--hdr) - 16px - var(--hero-rest, 304px) - 48px) / 3.87), 128px);
   }
   .lp-hero-sub     { grid-area: sub; text-align: left; margin-top: 24px; }
   .lp-hero-actions {
@@ -417,8 +428,7 @@
       "timer timer"
       "crea insc"
       "dash dash"
-      "roles sync"
-      "web web";
+      "roles sync";
   }
 }
 @media (min-width: 1024px) {
@@ -427,11 +437,9 @@
     grid-template-areas:
       "qr qr timer timer"
       "qr qr crea insc"
-      "dash dash roles sync"
-      "web web web web";
+      "dash dash roles sync";
   }
   .lp-bento-cell { min-height: 230px; }
-  .lp-bento-cell.lp-area-web { min-height: 0; }
 }
 @media (min-width: 768px) {
   .lp-area-qr    { grid-area: qr; }
@@ -441,7 +449,6 @@
   .lp-area-insc  { grid-area: insc; }
   .lp-area-roles { grid-area: roles; }
   .lp-area-sync  { grid-area: sync; }
-  .lp-area-web   { grid-area: web; }
 }
 .lp-bento-cell { display: flex; }
 
@@ -500,11 +507,6 @@
 @media (hover: hover) {
   .lp-bento-small:hover { transform: translateY(-4px); }
   .lp-bento-small:hover::after { opacity: 1; }
-}
-
-/* Bande « Sans compte requis » : texte sur une ligne sur ordinateur */
-@media (min-width: 768px) {
-  .lp-card-web .lp-bento-text { flex-direction: row; align-items: center; gap: 20px; }
 }
 
 /* Grande carte QR */
@@ -629,6 +631,105 @@
   pointer-events: none;
 }
 @media (min-width: 640px) { .lp-how-number { opacity: 0.55; } }
+
+/* ── Comment ça marche : deux parcours en miroir (ESSAI design-tests) ── */
+/* Rangée collée = étape N organisateur + étape N participant : elles avancent ensemble */
+.lp-how-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+.lp-how-card {
+  position: relative;
+  height: 100%;
+  border-radius: var(--radius-carte);
+  overflow: hidden;
+  box-shadow: var(--ombre-menu);
+}
+/* Colonnes plus étroites qu'avant : numéro plus petit */
+.lp-how-card .lp-how-number { font-size: clamp(110px, 30vw, 200px); }
+/* Petite icône en haut à droite */
+.lp-how-icon {
+  position: absolute;
+  top: clamp(1.5rem, 3vw, 2rem);
+  right: clamp(1.5rem, 3vw, 2rem);
+  width: 56px;
+  height: 56px;
+  opacity: 0.22;
+}
+.lp-how-body {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.5rem, 3vw, 2rem);
+}
+.lp-how-title { margin-top: 0.5rem; padding-right: 64px; }
+
+/* Étiquettes « Tu organises / Tu participes » (ordinateur) : sous-titres centrés sur leur colonne */
+.lp-how-labels { display: none; }
+.lp-how-label {
+  font-family: var(--font-titre);
+  font-weight: 600;
+  font-size: clamp(20px, 1.8vw, 28px);
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: var(--text-title);
+  text-align: center;
+}
+
+/* Interrupteur « J'organise / Je participe » (écrans étroits) */
+.lp-how-tabs {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 999px;
+  background: var(--neutre-blanc);
+  border: 1px solid var(--neutre-bordure);
+}
+.lp-how-tab {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font: 600 14px/1 var(--font-texte);
+  color: var(--neutre-encre);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.lp-how-tab[aria-selected="true"] { background: var(--bordeaux-600); color: var(--neutre-blanc); }
+.lp-how-tab:focus-visible { outline: 2px solid var(--bordeaux-600); outline-offset: 2px; }
+
+/* Écrans étroits : une seule pile, celle de l'onglet choisi, qui apparaît en fondu */
+@media (max-width: 899px) {
+  .lp-how-row[data-side="orga"] .lp-how-card-part,
+  .lp-how-row[data-side="part"] .lp-how-card-orga { display: none; }
+  .lp-how-card { animation: lpHowFade 0.2s ease-out both; }
+}
+@keyframes lpHowFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Ordinateur : deux colonnes de même largeur */
+@media (min-width: 900px) {
+  .lp-how-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lp-how-labels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    /* Écart fixe avec le titre (inchangé quand la taille des étiquettes a changé) */
+    margin-top: calc(16px + 0.075 * clamp(24px, 2.4vw, 36px));
+  }
+  .lp-how-tabs { display: none; }
+}
+
+/* Animations réduites : pas d'empilement ni de fondu, les cartes l'une sous l'autre */
+.lp-how.is-static .lp-how-card { min-height: 300px; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-how-card { animation: none; }
+  .lp-how-tab { transition: none; }
+}
 
 /* ── Section appli : téléphone en HTML/CSS ── */
 .lp-app-halo {

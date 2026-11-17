@@ -7,7 +7,7 @@ export type BentoFeature = {
   title: string;
   desc: string;
   /** Emplacement dans la grille bento (voir .lp-bento dans landing.css). */
-  area: "qr" | "timer" | "dash" | "crea" | "insc" | "roles" | "sync" | "web";
+  area: "qr" | "timer" | "dash" | "crea" | "insc" | "roles" | "sync";
 };
 
 /** Grille « bento » des fonctionnalités : mêmes titres et descriptions, tailles variées. */

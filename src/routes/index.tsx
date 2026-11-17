@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,12 +9,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
+import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Mail, Lock, Instagram, Facebook, Youtube, Search, MousePointerClick, Ticket, ScanLine } from "lucide-react";
 import { isThisWeek, isThisMonth } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
-import { useInView } from "@/components/landing/hooks";
+import { useInView, usePrefersReducedMotion } from "@/components/landing/hooks";
 import { CountUp } from "@/components/landing/Motion";
 import { HeroCocotte } from "@/components/landing/HeroCocotte";
 import { LandingHeader } from "@/components/landing/LandingHeader";
@@ -40,6 +40,7 @@ type StatusFilter = "all" | "open" | "full";
 
 function Landing() {
   const { user, loading } = useAuth();
+  const heroGridRef = useHeroRest();
 
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -103,12 +104,11 @@ function Landing() {
   const features: BentoFeature[] = [
     { icon: Calendar,     title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", area: "crea" },
     { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", area: "timer" },
-    { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", area: "qr" },
-    { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", area: "insc" },
-    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", area: "dash" },
-    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", area: "roles" },
+    { icon: QrCode,       title: "QR code à l'entrée", desc: "Un QR code par inscrit. Un scan à l'entrée, et c'est validé.", area: "qr" },
+    { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, la confirmation arrive par email.", area: "insc" },
+    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscrits, remplissage, présences\u202F: tes chiffres bougent en direct.", area: "dash" },
+    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin\u202F: chacun voit ce dont il a besoin.", area: "roles" },
     { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", area: "sync" },
-    { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", area: "web" },
   ];
 
   return (
@@ -135,7 +135,7 @@ function Landing() {
       <section ref={heroAnim.ref} className="lp-hero">
         <HeroCocotte playing={heroAnim.visible} />
 
-        <div className="lp-hero-grid container mx-auto px-4 sm:px-6">
+        <div ref={heroGridRef} className="lp-hero-grid container mx-auto px-4 sm:px-6">
           {/* Petit texte : badge (sans cadre) */}
           <p className="lp-hero-badge lp-caps-sm lp-fade-late">
             <img src="/plav-cocotte.svg" alt="" className="h-4 w-4 object-contain" />
@@ -144,15 +144,15 @@ function Landing() {
 
           {/* Titre empilé */}
           <h1 className="lp-hero-title">
-            <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Pour ceux qui</span>{" "}
-            <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>organisent,</span>{" "}
-            <span className="lp-line text-bordeaux-600" style={{ "--i": 2 } as CSSProperties}>et ceux qui</span>{" "}
-            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">viennent.</span></span>
+            <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Des soirées</span>{" "}
+            <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>pleines,</span>{" "}
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 2 } as CSSProperties}>des assos</span>{" "}
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">sereines.</span></span>
           </h1>
 
           {/* Phrase d'accroche */}
           <p className="lp-hero-sub lp-fade-later">
-            Organise ou participe — <span className="text-bordeaux-800">plav' s'occupe du reste.</span>
+            Organise ou participe{"\u202F:"}{" "}<span className="lp-hero-sub-end text-bordeaux-800">Cocotte se plie en quatre pour le reste.</span>
           </p>
 
           {/* Chiffres, sous les boutons (séparés par un fin trait) */}
@@ -195,7 +195,7 @@ function Landing() {
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
         <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
           <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}><span id="lp-cocotte-slot" className="lp-slot" aria-hidden="true"><img src="/plav-cocotte.svg" alt="" /></span>Les prochains <span className="t-accent plav-highlight">events</span></h2>
-          <p className="mt-4 t-corps-l text-encre">Accessibles sans compte. Un lien, c'est tout.</p>
+          <p className="mt-4 t-corps-l text-encre">Cocotte a mis les plus attendues en grand. À toi de choisir.</p>
         </div>
 
         {/* Recherche et filtres : capsule flottante, accrochée sous l'en-tête pendant la section */}
@@ -236,7 +236,7 @@ function Landing() {
         <div ref={featuresAnim.ref} className="mx-auto max-w-[1216px]">
           <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
             <h2 className="lp-section-title text-blanc">Simple. <span className="t-accent text-jaune-300">Complet.</span></h2>
-            <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
+            <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la billetterie à l'entrée, Cocotte a tout plié.</p>
           </div>
           <FeaturesBento features={features} />
         </div>
@@ -272,8 +272,8 @@ function Landing() {
                 ))}
               </span>
             </span>
-            <h2 className="lp-cta-title">T'attends <span className="t-accent text-jaune-300">quoi ?</span></h2>
-            <p className="mt-6 t-corps-l text-blanc/80">Rejoins les assos qui font confiance à plav'.</p>
+            <p className="t-corps-l text-blanc/80">Cocotte a déjà plongé.</p>
+            <h2 className="lp-cta-title mt-4">À ton <span className="t-accent text-jaune-300">tour{"\u202F!"}</span></h2>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary">
                 <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
@@ -351,14 +351,57 @@ function Landing() {
 
 const HOW_CARDS = [
   { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: Calendar },
-  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
+  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min\u202F: premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
   { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-blanc)", accent: "var(--jaune-100)", icon: TrendingUp  },
   { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: QrCode      },
+];
+
+type HowCard = { step: string; title: string; desc: string; cta?: string; to?: string; bg: string; fg: string; accent: string; icon: typeof Calendar };
+
+/** Parcours participant (ESSAI design-tests) : en miroir des cartes organisateur, fonds un cran différents. */
+const HOW_CARDS_PART: HowCard[] = [
+  { step: "01", title: "Tu trouves ta soirée",       desc: "Cocotte a mis les plus attendues en grand. Filtre par date ou par places dispo.", bg: "var(--bordeaux-500)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: Search },
+  { step: "02", title: "Tu réserves en un clic",     desc: "Ta place est gardée 15 min, le temps de confirmer.",                              bg: "var(--jaune-200)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: MousePointerClick },
+  { step: "03", title: "Tu reçois ton billet",       desc: "Confirmation par email, et ton QR code t'attend dans ton espace.",                bg: "var(--bordeaux-600)", fg: "var(--neutre-blanc)", accent: "var(--jaune-100)", icon: Ticket },
+  { step: "04", title: "Tu entres en deux secondes", desc: "Tu montres ton QR, on le scanne, c'est parti.",                                  cta: "Voir les soirées", to: "/events/", bg: "var(--bordeaux-700)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: ScanLine },
 ];
 
 /** Hauteur de la zone où le titre « Comment ça marche ? » reste collé (sous l'en-tête). */
 const HOW_TITLE_TOP = 110;
 const HOW_STEP = 16; // décalage entre deux cartes empilées
+
+/**
+ * Haut de page (ESSAI design-tests) : mesure la hauteur réelle du bloc hors titre (étiquette,
+ * sous-titre, boutons, trait, chiffres, avec leurs espaces) et la donne au CSS (--hero-rest),
+ * qui en déduit la taille du titre pour que tout tienne dans l'écran. Recalculée au redimensionnement.
+ */
+function useHeroRest() {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const grid = ref.current;
+    if (!grid) return;
+    const q = (c: string) => grid.querySelector<HTMLElement>(c);
+    const calc = () => {
+      const badge = q(".lp-hero-badge");
+      const title = q(".lp-hero-title");
+      const stats = q(".lp-hero-stats");
+      if (!badge || !title || !stats) return;
+      // offset* : positions sans les transform des animations d'apparition
+      const rest = stats.offsetTop + stats.offsetHeight - badge.offsetTop - title.offsetHeight;
+      grid.style.setProperty("--hero-rest", `${rest}px`);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    for (const c of [".lp-hero-badge", ".lp-hero-sub", ".lp-hero-actions", ".lp-hero-stats"]) {
+      const el = q(c);
+      if (el) ro.observe(el);
+    }
+    ro.observe(grid);
+    window.addEventListener("resize", calc);
+    return () => { ro.disconnect(); window.removeEventListener("resize", calc); };
+  }, []);
+  return ref;
+}
 
 /**
  * Géométrie de l'empilement (ESSAI design-tests), recalculée selon l'écran :
@@ -376,7 +419,13 @@ function useHowStack() {
       const vh = window.innerHeight;
       const titleBottom = HOW_TITLE_TOP + el.offsetHeight;
       const n = HOW_CARDS.length;
-      const top0 = Math.max(vh * 0.5 - 180, titleBottom + 16);
+      // Ordinateur : la première rangée se colle ~10 px sous la ligne de base des étiquettes
+      // « Tu organises / Tu participes » (interligne 1 : la ligne de base est ~0,155 em au-dessus du bas de la boîte)
+      const labels = el.querySelector<HTMLElement>(".lp-how-labels");
+      const labelFs = labels ? parseFloat(getComputedStyle(labels.querySelector(".lp-how-label") ?? labels).fontSize) : 0;
+      const top0 = labels?.offsetParent
+        ? HOW_TITLE_TOP + labels.offsetTop + labels.offsetHeight - 0.155 * labelFs + 10
+        : Math.max(vh * 0.5 - 180, titleBottom + 16);
       const h = Math.max(240, Math.min(420, vh * 0.58, vh - top0 - (n - 1) * HOW_STEP - 16));
       const lastBottom = top0 + (n - 1) * HOW_STEP + h; // bas de la dernière carte une fois posée
       setG({ top0, h, titleMb: lastBottom - titleBottom });
@@ -390,93 +439,148 @@ function useHowStack() {
   return { titleRef, g };
 }
 
+type HowSide = "orga" | "part";
+const HOW_SIDES: { id: HowSide; label: string; tab: string }[] = [
+  { id: "orga", label: "Tu organises", tab: "J'organise" },
+  { id: "part", label: "Tu participes", tab: "Je participe" },
+];
+
+/** Une carte de la pile (même forme pour les deux parcours). */
+function HowCardView({ card, side }: { card: HowCard; side: HowSide }) {
+  return (
+    <div
+      className={`lp-how-card lp-how-card-${side}`}
+      style={{ backgroundColor: card.bg, ["--how-accent" as string]: card.accent } as CSSProperties}
+    >
+      <span className="lp-how-number">{card.step}</span>
+      <card.icon className="lp-how-icon" style={{ color: card.accent }} strokeWidth={2} aria-hidden="true" />
+      <div className="lp-how-body">
+        <div>
+          <h3 className="t-titre-2 lp-how-title" style={{ color: card.fg }}>{card.title}</h3>
+          <p className="t-corps" style={{ marginTop: "1rem", color: card.fg }}>{card.desc}</p>
+        </div>
+        {card.cta && card.to && (
+          <div style={{ marginTop: "1.5rem" }}>
+            <Link to={card.to}>
+              <button
+                className="t-bouton"
+                style={{ height: "var(--hauteur-controle)", borderRadius: "var(--radius-moyen)", border: `2px solid ${card.accent}`, color: card.accent, padding: "0 24px", background: "transparent", cursor: "pointer" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                {card.cta}
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Interrupteur « J'organise / Je participe » (écrans étroits) : onglets accessibles au clavier. */
+function HowTabs({ side, onChange }: { side: HowSide; onChange: (s: HowSide) => void }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onKey = (e: ReactKeyboardEvent, i: number) => {
+    let j = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % HOW_SIDES.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + HOW_SIDES.length) % HOW_SIDES.length;
+    else if (e.key === "Home") j = 0;
+    else if (e.key === "End") j = HOW_SIDES.length - 1;
+    if (j < 0) return;
+    e.preventDefault();
+    onChange(HOW_SIDES[j].id);
+    refs.current[j]?.focus();
+  };
+  return (
+    <div role="tablist" aria-label="Parcours" className="lp-how-tabs">
+      {HOW_SIDES.map((s, i) => (
+        <button
+          key={s.id}
+          ref={(el) => { refs.current[i] = el; }}
+          type="button"
+          role="tab"
+          id={`lp-how-tab-${s.id}`}
+          aria-selected={side === s.id}
+          aria-controls="lp-how-panel"
+          tabIndex={side === s.id ? 0 : -1}
+          className="lp-how-tab"
+          onClick={() => onChange(s.id)}
+          onKeyDown={(e) => onKey(e, i)}
+        >
+          {s.tab}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function StackedHowItWorks() {
   const { titleRef, g } = useHowStack();
+  const reduced = usePrefersReducedMotion();
+  const [side, setSide] = useState<HowSide>("orga");
   const n = HOW_CARDS.length;
   // Avant la mesure (rendu serveur) : valeurs d'origine
   const cardTop = (i: number) => (g ? `${g.top0 + i * HOW_STEP}px` : `calc(50vh - 180px + ${i * HOW_STEP}px)`);
   const cardH = g ? `${g.h}px` : "min(420px, 58vh)";
   return (
-    <section style={{ background: "transparent", paddingTop: "4rem" }}>
-      {/* Titre et cartes dans le même conteneur : le titre se décolle avec la dernière carte */}
+    <section style={{ background: "transparent", paddingTop: "4rem" }} className={reduced ? "lp-how is-static" : "lp-how"}>
+      {/* Titre et cartes dans le même conteneur : le titre se décolle avec les dernières cartes */}
       <div>
       <div ref={titleRef} style={{
-        position:   "sticky",
-        top:        HOW_TITLE_TOP,
+        position:   reduced ? "relative" : "sticky",
+        top:        reduced ? undefined : HOW_TITLE_TOP,
         zIndex:     0,
         width:      "100%",
         textAlign:  "left",
         padding:    "1rem 0 1.5rem",
         background: "transparent",
-        // Marge basse = écart jusqu'au bas de la dernière carte posée : il se décolle en même temps qu'elle
-        marginBottom: g ? g.titleMb : 0,
+        // Marge basse = écart jusqu'au bas des dernières cartes posées : il se décolle en même temps qu'elles
+        marginBottom: g && !reduced ? g.titleMb : 0,
       }}>
         {/* Même style et même alignement que les autres grands titres (« Simple. Complet. ») */}
         <div className="container mx-auto px-4 sm:px-6">
-          <RevealTitle id="lp-how-title" text="Comment ça marche ?" accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
+          <RevealTitle id="lp-how-title" text={"Comment ça marche\u202F?"} accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
+          {/* Ordinateur : une étiquette au-dessus de chaque colonne */}
+          <div className="lp-how-labels" aria-hidden="true">
+            {HOW_SIDES.map((s) => <p key={s.id} className="lp-how-label">{s.label}</p>)}
+          </div>
+          {/* Écrans étroits : une seule pile, au choix */}
+          <HowTabs side={side} onChange={setSide} />
         </div>
       </div>
 
         {/* La marge négative annule celle du titre dans la mise en page (les marges fusionnent) */}
-        <div style={{ height: "4vh", marginTop: g ? -g.titleMb : 0 }} />
+        <div style={{ height: reduced ? 0 : "4vh", marginTop: g && !reduced ? -g.titleMb : 0 }} />
 
+        {/* Les deux parcours avancent ensemble : chaque rangée (étape 01 orga + étape 01 participant…) est collée d'un bloc */}
+        <div id="lp-how-panel" role="tabpanel" aria-labelledby={`lp-how-tab-${side}`} style={{ display: "contents" }}>
         {HOW_CARDS.flatMap((card, i) => [
           <div
             key={`card-${card.step}`}
+            className="lp-how-row container mx-auto px-4 sm:px-6"
+            data-side={side}
             style={{
-              position:        "sticky",
-              top:             cardTop(i),
-              zIndex:          i + 1,
-              // Toutes les cartes se décollent au même instant que la dernière (marge = écart restant)
-              marginBottom:    (n - 1 - i) * HOW_STEP,
-              marginLeft:      "auto",
-              marginRight:     "auto",
-              width:           "min(860px, 92vw)",
-              height:          cardH,
-              borderRadius:    "var(--radius-carte)",
-              overflow:        "hidden",
-              backgroundColor: card.bg,
-              boxShadow:       "var(--ombre-menu)",
-              ["--how-accent" as string]: card.accent,
+              position:     reduced ? "relative" : "sticky",
+              top:          reduced ? undefined : cardTop(i),
+              zIndex:       i + 1,
+              // Toutes les rangées se décollent au même instant que la dernière (marge = écart restant)
+              marginBottom: reduced ? 16 : (n - 1 - i) * HOW_STEP,
+              height:       reduced ? "auto" : cardH,
             } as CSSProperties}
           >
-            <span className="lp-how-number">{card.step}</span>
-            <div className="relative grid grid-cols-1 sm:grid-cols-2 h-full">
-              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(1.5rem, 5vw, 2.5rem)" }}>
-                <div>
-                  <h3 className="t-titre-2" style={{ marginTop: "0.5rem", color: card.fg }}>
-                    {card.title}
-                  </h3>
-                  <p className="t-corps" style={{ marginTop: "1rem", color: card.fg }}>
-                    {card.desc}
-                  </p>
-                </div>
-                <div style={{ marginTop: "1.5rem" }}>
-                  <Link to={card.to}>
-                    <button
-                      className="t-bouton"
-                      style={{ height: "var(--hauteur-controle)", borderRadius: "var(--radius-moyen)", border: `2px solid ${card.accent}`, color: card.accent, padding: "0 24px", background: "transparent", cursor: "pointer" }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-                    >
-                      {card.cta}
-                    </button>
-                  </Link>
-                </div>
-              </div>
-              <div className="hidden sm:flex" style={{ alignItems: "flex-start", justifyContent: "flex-end", padding: "clamp(1.5rem, 5vw, 2.5rem)", opacity: 0.16 }}>
-                <card.icon style={{ width: 110, height: 110, color: card.accent }} strokeWidth={2} />
-              </div>
-            </div>
+            <HowCardView card={card} side="orga" />
+            <HowCardView card={HOW_CARDS_PART[i]} side="part" />
           </div>,
 
-          // Espace de défilement entre deux cartes (la marge ajoutée est déduite) ; rien après la
+          // Espace de défilement entre deux rangées (la marge ajoutée est déduite) ; rien après la
           // dernière : la pile se termine quand elle se pose.
           <div
             key={`spacer-${i}`}
-            style={{ height: i < n - 1 ? `calc(50vh - ${(n - 1 - i) * HOW_STEP}px)` : 0 }}
+            style={{ height: i < n - 1 && !reduced ? `calc(50vh - ${(n - 1 - i) * HOW_STEP}px)` : 0 }}
           />,
         ])}
+        </div>
       </div>
     </section>
   );

@@ -36,16 +36,23 @@ export function RevealTitle({
     el.dataset.armed = top > 0.85 * window.innerHeight ? "true" : "done";
   }, [reduced]);
 
+  // Mots séparés par des espaces normales ; une espace fine insécable (avant « ? », « ! »…) lie deux
+  // morceaux qui restent sur la même ligne, chacun découpé en lettres.
   const words = text.split(" ");
   return (
     <h2 ref={ref} id={id} aria-label={text} className={`rv-title ${className}`} style={style}>
       {words.map((w, wi) => {
-        const letters = [...w].map((c, ci) => <span key={ci} className="rv-ch">{c}</span>);
+        const parts = w.split("\u202F");
         return (
           <span key={wi}>
-            <span className={`rv-word ${w === accent ? "rv-accent t-accent" : ""}`} aria-hidden="true">
-              {letters}
-            </span>
+            {parts.map((part, pi) => (
+              <span key={pi}>
+                <span className={`rv-word ${part === accent ? "rv-accent t-accent" : ""}`} aria-hidden="true">
+                  {[...part].map((c, ci) => <span key={ci} className="rv-ch">{c}</span>)}
+                </span>
+                {pi < parts.length - 1 ? "\u202F" : ""}
+              </span>
+            ))}
             {wi < words.length - 1 ? " " : ""}
           </span>
         );

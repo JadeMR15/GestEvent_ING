@@ -1,5 +1,5 @@
 /* Plongeoir (ESSAI design-tests) — transform / opacity uniquement.
-   Posé sur le bord haut du cadre « T'attends quoi ? » : le bas de l'échelle est exactement sur
+   Posé sur le bord haut du cadre « À ton tour ! » : le bas de l'échelle est exactement sur
    le bord (top = marge du haut de .lp-frame-section, puis translateY(-100 %)), à ~8 % de la
    largeur du cadre depuis la gauche. Il bouge donc avec le cadre. */
 .pl {
@@ -35,7 +35,7 @@
 /* La planche plie sous Cocotte (rotation pilotée par CocotteCompanion), pivot au support */
 .pl-bend { transform-box: fill-box; transform-origin: 3% 50%; }
 
-/* ── Éclaboussures depuis le centre de la petite cocotte au-dessus de « T'attends quoi ? » ── */
+/* ── Éclaboussures depuis le centre de la petite cocotte au-dessus de « À ton tour ! » ── */
 .lp-splash {
   position: absolute;
   left: 50%;
@@ -78,7 +78,7 @@
   100% { opacity: 0; transform: translate(var(--dx), 6px); }
 }
 
-/* La petite cocotte au-dessus de « T'attends quoi ? » : place vide tant que Cocotte va venir s'y poser
+/* La petite cocotte au-dessus de « À ton tour ! » : place vide tant que Cocotte va venir s'y poser
    (masquée sans animation ; !important l'emporte sur l'animation d'entrée de l'image) */
 .lp-cta-landing.is-awaiting img { opacity: 0 !important; transition: none !important; }
 
