@@ -632,6 +632,94 @@
 }
 @media (min-width: 640px) { .lp-how-number { opacity: 0.55; } }
 
+/* ── Comment ça marche : deux parcours en miroir (ESSAI design-tests) ── */
+/* Rangée collée = étape N organisateur + étape N participant : elles avancent ensemble */
+.lp-how-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+.lp-how-card {
+  position: relative;
+  height: 100%;
+  border-radius: var(--radius-carte);
+  overflow: hidden;
+  box-shadow: var(--ombre-menu);
+}
+/* Colonnes plus étroites qu'avant : numéro plus petit */
+.lp-how-card .lp-how-number { font-size: clamp(110px, 30vw, 200px); }
+/* Petite icône en haut à droite */
+.lp-how-icon {
+  position: absolute;
+  top: clamp(1.5rem, 3vw, 2rem);
+  right: clamp(1.5rem, 3vw, 2rem);
+  width: 56px;
+  height: 56px;
+  opacity: 0.22;
+}
+.lp-how-body {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.5rem, 3vw, 2rem);
+}
+.lp-how-title { margin-top: 0.5rem; padding-right: 64px; }
+
+/* Étiquettes « Tu organises / Tu participes » (ordinateur) */
+.lp-how-labels { display: none; }
+
+/* Interrupteur « J'organise / Je participe » (écrans étroits) */
+.lp-how-tabs {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 999px;
+  background: var(--neutre-blanc);
+  border: 1px solid var(--neutre-bordure);
+}
+.lp-how-tab {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font: 600 14px/1 var(--font-texte);
+  color: var(--neutre-encre);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.lp-how-tab[aria-selected="true"] { background: var(--bordeaux-600); color: var(--neutre-blanc); }
+.lp-how-tab:focus-visible { outline: 2px solid var(--bordeaux-600); outline-offset: 2px; }
+
+/* Écrans étroits : une seule pile, celle de l'onglet choisi, qui apparaît en fondu */
+@media (max-width: 899px) {
+  .lp-how-row[data-side="orga"] .lp-how-card-part,
+  .lp-how-row[data-side="part"] .lp-how-card-orga { display: none; }
+  .lp-how-card { animation: lpHowFade 0.2s ease-out both; }
+}
+@keyframes lpHowFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Ordinateur : deux colonnes de même largeur */
+@media (min-width: 900px) {
+  .lp-how-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lp-how-labels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    margin-top: 16px;
+  }
+  .lp-how-tabs { display: none; }
+}
+
+/* Animations réduites : pas d'empilement ni de fondu, les cartes l'une sous l'autre */
+.lp-how.is-static .lp-how-card { min-height: 300px; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-how-card { animation: none; }
+  .lp-how-tab { transition: none; }
+}
+
 /* ── Section appli : téléphone en HTML/CSS ── */
 .lp-app-halo {
   position: absolute;
