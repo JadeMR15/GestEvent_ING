@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useState, useMemo, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -356,17 +356,60 @@ const HOW_CARDS = [
   { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: QrCode      },
 ];
 
+/** Hauteur de la zone où le titre « Comment ça marche ? » reste collé (sous l'en-tête). */
+const HOW_TITLE_TOP = 110;
+const HOW_STEP = 16; // décalage entre deux cartes empilées
+
+/**
+ * Géométrie de l'empilement (ESSAI design-tests), recalculée selon l'écran :
+ * - les cartes se collent toujours sous le titre (jamais par-dessus ni dessous) ;
+ * - le titre et chaque carte reçoivent une marge basse calculée pour qu'ils se décollent tous
+ *   au même instant, quand la dernière carte se pose : ils remontent alors ensemble.
+ */
+function useHowStack() {
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [g, setG] = useState<{ top0: number; h: number; titleMb: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    const calc = () => {
+      const vh = window.innerHeight;
+      const titleBottom = HOW_TITLE_TOP + el.offsetHeight;
+      const n = HOW_CARDS.length;
+      const top0 = Math.max(vh * 0.5 - 180, titleBottom + 16);
+      const h = Math.max(240, Math.min(420, vh * 0.58, vh - top0 - (n - 1) * HOW_STEP - 16));
+      const lastBottom = top0 + (n - 1) * HOW_STEP + h; // bas de la dernière carte une fois posée
+      setG({ top0, h, titleMb: lastBottom - titleBottom });
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    window.addEventListener("resize", calc);
+    return () => { ro.disconnect(); window.removeEventListener("resize", calc); };
+  }, []);
+  return { titleRef, g };
+}
+
 function StackedHowItWorks() {
+  const { titleRef, g } = useHowStack();
+  const n = HOW_CARDS.length;
+  // Avant la mesure (rendu serveur) : valeurs d'origine
+  const cardTop = (i: number) => (g ? `${g.top0 + i * HOW_STEP}px` : `calc(50vh - 180px + ${i * HOW_STEP}px)`);
+  const cardH = g ? `${g.h}px` : "min(420px, 58vh)";
   return (
     <section style={{ background: "transparent", paddingTop: "4rem" }}>
-      <div style={{
+      {/* Titre et cartes dans le même conteneur : le titre se décolle avec la dernière carte */}
+      <div>
+      <div ref={titleRef} style={{
         position:   "sticky",
-        top:        110,
-        zIndex:     0, /* sous les cartes : elles le recouvrent en remontant (pas de bande de fond) */
+        top:        HOW_TITLE_TOP,
+        zIndex:     0,
         width:      "100%",
         textAlign:  "left",
         padding:    "1rem 0 1.5rem",
         background: "transparent",
+        // Marge basse = écart jusqu'au bas de la dernière carte posée : il se décolle en même temps qu'elle
+        marginBottom: g ? g.titleMb : 0,
       }}>
         {/* Même style et même alignement que les autres grands titres (« Simple. Complet. ») */}
         <div className="container mx-auto px-4 sm:px-6">
@@ -374,20 +417,22 @@ function StackedHowItWorks() {
         </div>
       </div>
 
-      <div>
-        <div style={{ height: "4vh" }} />
+        {/* La marge négative annule celle du titre dans la mise en page (les marges fusionnent) */}
+        <div style={{ height: "4vh", marginTop: g ? -g.titleMb : 0 }} />
 
         {HOW_CARDS.flatMap((card, i) => [
           <div
             key={`card-${card.step}`}
             style={{
               position:        "sticky",
-              top:             `calc(50vh - 180px + ${i * 16}px)`,
+              top:             cardTop(i),
               zIndex:          i + 1,
+              // Toutes les cartes se décollent au même instant que la dernière (marge = écart restant)
+              marginBottom:    (n - 1 - i) * HOW_STEP,
               marginLeft:      "auto",
               marginRight:     "auto",
               width:           "min(860px, 92vw)",
-              height:          "min(420px, 58vh)",
+              height:          cardH,
               borderRadius:    "var(--radius-carte)",
               overflow:        "hidden",
               backgroundColor: card.bg,
@@ -425,9 +470,11 @@ function StackedHowItWorks() {
             </div>
           </div>,
 
+          // Espace de défilement entre deux cartes (la marge ajoutée est déduite) ; rien après la
+          // dernière : la pile se termine quand elle se pose.
           <div
             key={`spacer-${i}`}
-            style={{ height: i < HOW_CARDS.length - 1 ? "50vh" : "20vh" }}
+            style={{ height: i < n - 1 ? `calc(50vh - ${(n - 1 - i) * HOW_STEP}px)` : 0 }}
           />,
         ])}
       </div>
