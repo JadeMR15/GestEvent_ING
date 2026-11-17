@@ -106,8 +106,8 @@ function Landing() {
     { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", area: "timer" },
     { icon: QrCode,       title: "QR code à l'entrée", desc: "Un QR code par inscrit. Un scan à l'entrée, et c'est validé.", area: "qr" },
     { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, la confirmation arrive par email.", area: "insc" },
-    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscrits, remplissage, présences : tes chiffres bougent en direct.", area: "dash" },
-    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin : chacun voit ce dont il a besoin.", area: "roles" },
+    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscrits, remplissage, présences\u202F: tes chiffres bougent en direct.", area: "dash" },
+    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin\u202F: chacun voit ce dont il a besoin.", area: "roles" },
     { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", area: "sync" },
   ];
 
@@ -152,7 +152,7 @@ function Landing() {
 
           {/* Phrase d'accroche */}
           <p className="lp-hero-sub lp-fade-later">
-            Organise ou participe :{" "}<span className="lp-hero-sub-end text-bordeaux-800">Cocotte se plie en quatre pour le reste.</span>
+            Organise ou participe{"\u202F:"}{" "}<span className="lp-hero-sub-end text-bordeaux-800">Cocotte se plie en quatre pour le reste.</span>
           </p>
 
           {/* Chiffres, sous les boutons (séparés par un fin trait) */}
@@ -273,7 +273,7 @@ function Landing() {
               </span>
             </span>
             <p className="t-corps-l text-blanc/80">Cocotte a déjà plongé.</p>
-            <h2 className="lp-cta-title mt-4">À ton <span className="t-accent text-jaune-300">tour !</span></h2>
+            <h2 className="lp-cta-title mt-4">À ton <span className="t-accent text-jaune-300">tour{"\u202F!"}</span></h2>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary">
                 <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
@@ -351,7 +351,7 @@ function Landing() {
 
 const HOW_CARDS = [
   { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: Calendar },
-  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min : premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
+  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min\u202F: premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
   { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-blanc)", accent: "var(--jaune-100)", icon: TrendingUp  },
   { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: QrCode      },
 ];
@@ -540,7 +540,7 @@ function StackedHowItWorks() {
       }}>
         {/* Même style et même alignement que les autres grands titres (« Simple. Complet. ») */}
         <div className="container mx-auto px-4 sm:px-6">
-          <RevealTitle id="lp-how-title" text="Comment ça marche ?" accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
+          <RevealTitle id="lp-how-title" text={"Comment ça marche\u202F?"} accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
           {/* Ordinateur : une étiquette au-dessus de chaque colonne */}
           <div className="lp-how-labels" aria-hidden="true">
             {HOW_SIDES.map((s) => <p key={s.id} className="lp-how-label">{s.label}</p>)}
