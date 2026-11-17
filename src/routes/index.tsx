@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
 import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Mail, Lock, Instagram, Facebook, Youtube, Search, MousePointerClick, Ticket, ScanLine } from "lucide-react";
-import { isThisWeek, isThisMonth } from "date-fns";
+import { isThisWeek, isThisMonth, isToday, addDays, startOfDay, endOfDay } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
@@ -26,7 +26,7 @@ import { DanceScene } from "@/components/mascot/DanceScene";
 import { RevealTitle } from "@/components/mascot/RevealTitle";
 import { Plongeoir } from "@/components/mascot/Plongeoir";
 import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
-import { FilterCapsule, useStuck } from "@/components/events/FilterCapsule";
+import { FilterCapsule, useStuck, type DateFilter, type PriceFilter, type StatusFilter } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
 import "@/components/landing/landing.css";
 
@@ -35,8 +35,20 @@ export const Route = createFileRoute("/")({
   component: () => (Capacitor.isNativePlatform() ? <AppWelcome /> : <Landing />),
 });
 
-type DateFilter = "all" | "week" | "month";
-type StatusFilter = "all" | "open" | "full";
+/** Prochain week-end (ou celui en cours) : du vendredi 18 h au dimanche soir. */
+function weekendWindow(now = new Date()): [Date, Date] {
+  const day = now.getDay(); // 0 = dimanche … 6 = samedi
+  const toFriday = day === 0 ? -2 : day === 6 ? -1 : 5 - day;
+  const start = startOfDay(addDays(now, toFriday));
+  start.setHours(18);
+  return [start, endOfDay(addDays(start, 2))];
+}
+
+/** Liste triée et dédoublonnée (sans tenir compte des majuscules). */
+function uniqueSorted(values: (string | null | undefined)[]): string[] {
+  return Array.from(new Map(values.filter((v): v is string => !!v?.trim()).map((v) => [v.trim().toLowerCase(), v.trim()])).values())
+    .sort((a, b) => a.localeCompare(b, "fr"));
+}
 
 function Landing() {
   const { user, loading } = useAuth();
@@ -47,6 +59,10 @@ function Landing() {
   const [q, setQ] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [schoolFilter, setSchoolFilter] = useState("all");
+  const [assoFilter, setAssoFilter] = useState("all");
   const [stats, setStats] = useState({ events: 0, participants: 0, organizers: 0 });
 
   useEffect(() => {
@@ -81,18 +97,38 @@ function Landing() {
     })();
   }, []);
 
-  const filtered = useMemo(() => events.filter((e) => {
-    const isFull = e.capacity > 0 && takenOf(e) >= e.capacity;
-    if (q && !e.title.toLowerCase().includes(q.toLowerCase()) && !e.location?.toLowerCase().includes(q.toLowerCase())) return false;
-    if (dateFilter === "week" && !isThisWeek(new Date(e.starts_at))) return false;
-    if (dateFilter === "month" && !isThisMonth(new Date(e.starts_at))) return false;
-    if (statusFilter === "open" && isFull) return false;
-    if (statusFilter === "full" && !isFull) return false;
-    return true;
-  }), [events, q, dateFilter, statusFilter]);
-
   // Les événements passés ne sont plus affichés (ils restent dans « Mes billets »).
-  const upcoming = filtered.filter((e) => !isPastEvent(e.starts_at));
+  const future = useMemo(() => events.filter((e) => !isPastEvent(e.starts_at)), [events]);
+  // Choix proposés dans « Plus » : uniquement ceux qui ont des événements à venir.
+  const cities = useMemo(() => uniqueSorted(future.map((e) => e.city)), [future]);
+  const schools = useMemo(() => uniqueSorted(future.map((e) => e.school)), [future]);
+  const assos = useMemo(() => uniqueSorted(future.map((e) => e.association)), [future]);
+
+  const upcoming = useMemo(() => {
+    const lq = q.trim().toLowerCase();
+    const [weStart, weEnd] = weekendWindow();
+    const same = (a?: string, b?: string) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
+    return future.filter((e) => {
+      const start = new Date(e.starts_at);
+      const remaining = e.capacity > 0 ? e.capacity - takenOf(e) : Infinity;
+      // Recherche : titre, lieu, ville, association, école
+      if (lq && ![e.title, e.location, e.city, e.association, e.school].some((v) => v?.toLowerCase().includes(lq))) return false;
+      if (dateFilter === "today" && !isToday(start)) return false;
+      if (dateFilter === "weekend" && (start < weStart || start > weEnd)) return false;
+      if (dateFilter === "week" && !isThisWeek(start, { weekStartsOn: 1 })) return false;
+      if (dateFilter === "month" && !isThisMonth(start)) return false;
+      if (statusFilter === "open" && remaining <= 0) return false;
+      // Même seuil que le badge « X places » des cartes
+      if (statusFilter === "last" && !(remaining > 0 && remaining < 10)) return false;
+      if (statusFilter === "full" && remaining > 0) return false;
+      if (priceFilter === "free" && e.price > 0) return false;
+      if (priceFilter === "under10" && e.price >= 10) return false;
+      if (cityFilter !== "all" && !same(e.city, cityFilter)) return false;
+      if (schoolFilter !== "all" && !same(e.school, schoolFilter)) return false;
+      if (assoFilter !== "all" && !same(e.association, assoFilter)) return false;
+      return true;
+    });
+  }, [future, q, dateFilter, statusFilter, priceFilter, cityFilter, schoolFilter, assoFilter]);
 
   const heroAnim   = useInView<HTMLElement>(0, false);
   const statsAnim  = useInView(0.3);
@@ -212,6 +248,13 @@ function Landing() {
             setStatusFilter={setStatusFilter}
             count={eventsLoading ? null : upcoming.length}
             stuck={capsule.stuck}
+            more={{
+              price: priceFilter, setPrice: setPriceFilter,
+              city: cityFilter, setCity: setCityFilter,
+              school: schoolFilter, setSchool: setSchoolFilter,
+              asso: assoFilter, setAsso: setAssoFilter,
+              cities, schools, assos,
+            }}
           />
         </div>
 

@@ -1,12 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Euro, Flame, Gift, GraduationCap, MapPin, Search, SlidersHorizontal, Ticket, Users, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import "./capsule.css";
 
 /**
@@ -14,14 +9,33 @@ import "./capsule.css";
  * Elle pilote exactement les mêmes états que l'ancienne barre (recherche, dates, statut).
  */
 
-type DateFilter = "all" | "week" | "month";
-type StatusFilter = "all" | "open" | "full";
+export type DateFilter = "all" | "today" | "weekend" | "week" | "month";
+/** open = places disponibles · last = dernières places (moins de 10) · full = complet */
+export type StatusFilter = "all" | "open" | "last" | "full";
+export type PriceFilter = "all" | "free" | "under10";
 
 const DATES: { value: DateFilter; label: string }[] = [
   { value: "all", label: "Toutes dates" },
+  { value: "today", label: "Ce soir" },
+  { value: "weekend", label: "Ce week-end" },
   { value: "week", label: "Cette semaine" },
   { value: "month", label: "Ce mois" },
 ];
+
+/** Filtres du panneau « Plus » (budget, ville, école, association). */
+export interface MoreFilters {
+  price: PriceFilter;
+  setPrice: (v: PriceFilter) => void;
+  city: string;
+  setCity: (v: string) => void;
+  school: string;
+  setSchool: (v: string) => void;
+  asso: string;
+  setAsso: (v: string) => void;
+  cities: string[];
+  schools: string[];
+  assos: string[];
+}
 
 /** Accroche : `stuck` passe à true quand la capsule est collée sous l'en-tête
  *  (même hauteur que `top` dans capsule.css : 80 px sur mobile, 96 px sur ordinateur). */
@@ -48,7 +62,7 @@ export function Capsule({ children, stuck, className = "" }: { children: ReactNo
 }
 
 export function FilterCapsule({
-  q, setQ, dateFilter, setDateFilter, statusFilter, setStatusFilter, count, stuck,
+  q, setQ, dateFilter, setDateFilter, statusFilter, setStatusFilter, count, stuck, more,
 }: {
   q: string;
   setQ: (v: string) => void;
@@ -58,7 +72,18 @@ export function FilterCapsule({
   setStatusFilter: (v: StatusFilter) => void;
   count: number | null;
   stuck: boolean;
+  more: MoreFilters;
 }) {
+  // Nombre de filtres actifs dans le panneau « Plus » (Places disponibles a sa propre pastille)
+  const moreCount = [
+    more.price !== "all", statusFilter === "last" || statusFilter === "full",
+    more.city !== "all", more.school !== "all", more.asso !== "all",
+  ].filter(Boolean).length;
+  const resetMore = () => {
+    more.setPrice("all"); more.setCity("all"); more.setSchool("all"); more.setAsso("all");
+    if (statusFilter !== "open") setStatusFilter("all");
+  };
+
   // Curseur jaune qui glisse sous l'onglet de date actif (transform uniquement)
   const tabsRef = useRef<HTMLDivElement>(null);
   const [cursor, setCursor] = useState<{ x: number; w: number } | null>(null);
@@ -84,7 +109,7 @@ export function FilterCapsule({
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Rechercher par titre ou lieu…"
+            placeholder="Soirée, asso, école, ville…"
             className="cap-input"
           />
         </label>
@@ -124,24 +149,64 @@ export function FilterCapsule({
             Places disponibles
           </button>
 
-          {/* Plus : Tous statuts / Complet */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button type="button" className={`cap-pill cap-more ${statusFilter === "full" ? "is-on" : ""}`}>
+          {/* Plus : budget, places, ville, école, association */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className={`cap-pill cap-more ${moreCount > 0 ? "is-on" : ""}`}>
                 <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
                 Plus
+                {moreCount > 0 && <span className="cap-badge">{moreCount}</span>}
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuRadioGroup
-                value={statusFilter === "open" ? "" : statusFilter}
-                onValueChange={(v) => setStatusFilter(v as StatusFilter)}
-              >
-                <DropdownMenuRadioItem value="all">Tous statuts</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="full">Complet</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverTrigger>
+            <PopoverContent align="end" sideOffset={10} className="cap-panel w-[min(92vw,360px)] p-0">
+              <div className="space-y-5 p-5">
+                <PanelGroup title="Budget">
+                  <PanelChip on={more.price === "free"} onClick={() => more.setPrice(more.price === "free" ? "all" : "free")}>
+                    <Gift className="h-3.5 w-3.5" />Gratuit
+                  </PanelChip>
+                  <PanelChip on={more.price === "under10"} onClick={() => more.setPrice(more.price === "under10" ? "all" : "under10")}>
+                    <Euro className="h-3.5 w-3.5" />Moins de 10 €
+                  </PanelChip>
+                </PanelGroup>
+
+                <PanelGroup title="Places">
+                  <PanelChip on={statusFilter === "open"} onClick={() => setStatusFilter(statusFilter === "open" ? "all" : "open")}>
+                    <Ticket className="h-3.5 w-3.5" />Places disponibles
+                  </PanelChip>
+                  <PanelChip on={statusFilter === "last"} onClick={() => setStatusFilter(statusFilter === "last" ? "all" : "last")}>
+                    <Flame className="h-3.5 w-3.5" />Dernières places
+                  </PanelChip>
+                  <PanelChip on={statusFilter === "full"} onClick={() => setStatusFilter(statusFilter === "full" ? "all" : "full")}>
+                    Complet
+                  </PanelChip>
+                </PanelGroup>
+
+                {(more.cities.length > 1 || more.schools.length > 1 || more.assos.length > 1) && (
+                  <div>
+                    <p className="cap-panel-title">Où et avec qui</p>
+                    <div className="space-y-2">
+                      {more.cities.length > 1 && (
+                        <PanelSelect icon={<MapPin className="h-4 w-4" />} value={more.city} onChange={more.setCity} all="Toutes les villes" options={more.cities} />
+                      )}
+                      {more.schools.length > 1 && (
+                        <PanelSelect icon={<GraduationCap className="h-4 w-4" />} value={more.school} onChange={more.setSchool} all="Toutes les écoles" options={more.schools} />
+                      )}
+                      {more.assos.length > 1 && (
+                        <PanelSelect icon={<Users className="h-4 w-4" />} value={more.asso} onChange={more.setAsso} all="Toutes les assos" options={more.assos} />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {moreCount > 0 && (
+                <div className="border-t border-bordure px-5 py-3">
+                  <button type="button" onClick={resetMore} className="inline-flex min-h-[36px] items-center gap-1.5 text-sm font-semibold text-bordeaux-600 hover:underline">
+                    <X className="h-3.5 w-3.5" />Effacer ces filtres
+                  </button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
       </Capsule>
 
@@ -155,3 +220,33 @@ export function FilterCapsule({
   );
 }
 
+function PanelGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="cap-panel-title">{title}</p>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}
+
+function PanelChip({ on, onClick, children }: { on: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button type="button" aria-pressed={on} onClick={onClick} className={`cap-pill cap-pill-sm ${on ? "is-on" : ""}`}>
+      {children}
+    </button>
+  );
+}
+
+function PanelSelect({ icon, value, onChange, all, options }: {
+  icon: ReactNode; value: string; onChange: (v: string) => void; all: string; options: string[];
+}) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="h-11 rounded-full bg-blanc text-sm">{icon}<SelectValue /></SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{all}</SelectItem>
+        {options.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+      </SelectContent>
+    </Select>
+  );
+}
