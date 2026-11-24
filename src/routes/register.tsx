@@ -3,6 +3,7 @@ import { SITE_URL } from "@/lib/site";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,6 +72,7 @@ function RegisterPage() {
   const [email, setEmail]             = useState("");
   const [birthDate, setBirthDate]     = useState("");
   const [gender, setGender]           = useState("");
+  const [acceptCgu, setAcceptCgu]     = useState(false);
   const [school, setSchool]           = useState("");
   const [association, setAssociation] = useState("");
   const [isStudent, setIsStudent]     = useState(true);
@@ -116,8 +118,10 @@ function RegisterPage() {
       ? associations.find((a) => a.id === associationId) ?? null
       : null;
     if (role === "organizer" && listedSchool && !associationId) { toast.error("Choisis ton association."); return; }
+    if (!acceptCgu) { toast.error("Accepte les conditions d'utilisation pour créer ton compte."); return; }
     const parsed = schema.safeParse({
-      nom, prenom, email, birthDate, gender,
+      // Genre facultatif (RGPD : minimisation) : « non renseigné » s'il n'est pas choisi.
+      nom, prenom, email, birthDate, gender: gender || "non_renseigne",
       isStudent: role === "organizer" ? true : isStudent,
       school: !needsSchool ? "" : listedSchool ? listedSchool.name : school,
       association: role !== "organizer" ? undefined : listedAssociation ? listedAssociation.name : association || undefined,
@@ -239,8 +243,8 @@ function RegisterPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Genre *</Label>
-                <Select value={gender} onValueChange={setGender} required>
+                <Label>Genre <span className="font-normal text-muted-foreground">(facultatif)</span></Label>
+                <Select value={gender} onValueChange={setGender}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner" />
                   </SelectTrigger>
@@ -331,10 +335,33 @@ function RegisterPage() {
               <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
             </div>
 
+            <label htmlFor="acceptCgu" className="flex items-start gap-2 text-sm">
+              <input
+                id="acceptCgu"
+                type="checkbox"
+                checked={acceptCgu}
+                onChange={(e) => setAcceptCgu(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-bordeaux-600"
+                required
+              />
+              <span>
+                J'accepte les{" "}
+                <Link to="/cgu" target="_blank" className="font-medium text-primary hover:underline">conditions générales d'utilisation</Link>{" "}
+                et j'ai lu la{" "}
+                <Link to="/confidentialite" target="_blank" className="font-medium text-primary hover:underline">politique de confidentialité</Link>. *
+              </span>
+            </label>
+
             <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Créer mon compte
             </Button>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Tes données sont traitées par Plav' pour créer ton compte, vérifier ton statut étudiant et gérer tes billets.
+              Elles sont conservées tant que ton compte est actif. Tu peux y accéder, les corriger ou les supprimer depuis
+              tes paramètres ou en écrivant à <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.{" "}
+              <Link to="/confidentialite" className="underline">En savoir plus</Link>.
+            </p>
             <p className="text-center text-sm text-muted-foreground">
               Déjà un compte ?{" "}
               <Link to="/login" className="font-medium text-primary hover:underline">Se connecter</Link>

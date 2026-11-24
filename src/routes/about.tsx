@@ -1,3 +1,4 @@
+import { AppFooter } from "@/components/AppFooter";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Users, ClipboardList, Heart, ArrowLeft, ChevronRight } from "lucide-react";
@@ -148,11 +149,7 @@ function AboutPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-bordure/30 bg-white/60 py-8">
-        <div className="container mx-auto px-6 text-center text-xs text-encre/40">
-          © {new Date().getFullYear()} Plav'. Tous droits réservés.
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 }

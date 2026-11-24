@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,7 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Mail, Lock, Instagram, Facebook, Youtube, Search, MousePointerClick, Ticket, ScanLine } from "lucide-react";
+import { APP_DOWNLOAD_URL, CONTACT_EMAIL, LEGAL_LINKS } from "@/lib/contact";
+import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Mail, Lock, Instagram, Facebook, Youtube, Search, MousePointerClick, Ticket, ScanLine, List as ListIcon, Map as MapIcon } from "lucide-react";
 import { isThisWeek, isThisMonth, isToday, addDays, startOfDay, endOfDay } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
 import { Capacitor } from "@capacitor/core";
@@ -29,6 +30,9 @@ import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosai
 import { FilterCapsule, useStuck, type DateFilter, type PriceFilter, type StatusFilter } from "@/components/events/FilterCapsule";
 import { LandingSky } from "@/components/landing/LandingSky";
 import "@/components/landing/landing.css";
+
+// Carte chargée à la demande (Leaflet est lourd) : jamais au premier affichage de l'accueil.
+const EventMap = lazy(() => import("@/components/EventMap"));
 
 export const Route = createFileRoute("/")({
   // Dans l'app native : écran d'accueil dédié au lieu de la page vitrine.
@@ -64,6 +68,10 @@ function Landing() {
   const [schoolFilter, setSchoolFilter] = useState("all");
   const [assoFilter, setAssoFilter] = useState("all");
   const [stats, setStats] = useState({ events: 0, participants: 0, organizers: 0 });
+  const [view, setView] = useState<"list" | "map">("list");
+  // La carte (Leaflet) ne se charge que dans le navigateur, et seulement quand on la demande.
+  const [mapReady, setMapReady] = useState(false);
+  useEffect(() => { if (view === "map") setMapReady(true); }, [view]);
 
   useEffect(() => {
     (async () => {
@@ -71,26 +79,12 @@ function Landing() {
       if (evErr) console.error("Events error:", evErr.message);
       const all = evData ?? [];
 
-      // Récupérer les counts de registrations séparément
-      let regsMap: Record<string, any[]> = {};
-      if (all.length > 0) {
-        const ids = all.map((e: any) => e.id);
-        const { data: regsData, error: regsErr } = await supabase
-          .from("registrations")
-          .select("id, event_id, status, expires_at")
-          .in("event_id", ids);
-        if (regsErr) console.error("Registrations fetch error:", regsErr.message, regsErr.code);
-        (regsData ?? []).forEach((r: any) => {
-          if (!regsMap[r.event_id]) regsMap[r.event_id] = [];
-          regsMap[r.event_id].push(r);
-        });
-      }
-
+      // Places prises calculées par la base (nombres seulement) : un visiteur ne lit jamais
+      // les inscriptions elles-mêmes (QR codes, emails des invités).
       const taken = await fetchTakenCounts(all.map((e: any) => e.id));
-      const enriched = all.map((e: any) => ({ ...e, registrations: regsMap[e.id] ?? [], taken: taken[e.id] }));
+      const enriched = all.map((e: any) => ({ ...e, taken: taken[e.id] ?? 0 }));
       setEvents(enriched);
-      const totalParticipants = enriched.reduce((acc: number, e: any) =>
-        acc + (e.registrations ?? []).filter((r: any) => r.status === "registered" || r.status === "attended").length, 0);
+      const totalParticipants = enriched.reduce((acc: number, e: any) => acc + (e.taken ?? 0), 0);
       const organizerIds = new Set(enriched.map((e: any) => e.organizer_id));
       setStats({ events: enriched.length, participants: totalParticipants, organizers: organizerIds.size });
       setEventsLoading(false);
@@ -258,12 +252,40 @@ function Landing() {
           />
         </div>
 
+        {/* Liste / carte : la carte est aussi visible sans compte. */}
+        <div className="mb-6 flex justify-end">
+          <div role="group" aria-label="Affichage des événements" className="inline-flex overflow-hidden rounded-full border border-bordure bg-blanc">
+            {([["list", "Liste", ListIcon], ["map", "Carte", MapIcon]] as const).map(([mode, label, Icon]) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={view === mode}
+                onClick={() => setView(mode)}
+                className={`tap flex items-center gap-1.5 px-4 py-2 text-sm font-semibold transition-colors ${view === mode ? "bg-bordeaux-600 text-blanc" : "text-bordeaux-600 hover:bg-creme"}`}
+              >
+                <Icon className="h-4 w-4" />{label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {eventsLoading ? (
           <EventMosaicSkeleton />
         ) : upcoming.length === 0 ? (
           <Card className="mx-auto max-w-md">
             <EmptyState title="Aucun événement trouvé." />
           </Card>
+        ) : view === "map" ? (
+          <div className="space-y-2">
+            {upcoming.some((e) => !e.latitude) && (
+              <p className="text-sm text-encre">Certains événements n'ont pas d'adresse précise et n'apparaissent pas sur la carte.</p>
+            )}
+            {mapReady && (
+              <Suspense fallback={<div className="h-[500px] animate-pulse rounded-xl border border-bordure bg-creme" />}>
+                <EventMap events={upcoming} />
+              </Suspense>
+            )}
+          </div>
         ) : (
           <EventGrid events={upcoming} user={user} />
         )}
@@ -332,7 +354,9 @@ function Landing() {
 
       {/* ── Footer ── */}
       <footer id="contact" className="relative py-12">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
+          {/* Encadré : le pied de page se distingue nettement du reste de la page. */}
+          <div className="rounded-[var(--radius-carte)] border border-bordure bg-blanc/90 p-6 shadow-[var(--ombre-carte)] backdrop-blur md:p-10">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -345,6 +369,8 @@ function Landing() {
               <ul className="space-y-2 text-sm text-encre">
                 <li><a href="#evenements" className="hover:text-bordeaux-800 transition-colors">Événements</a></li>
                 <li><a href="#fonctionnalites" className="hover:text-bordeaux-800 transition-colors">Fonctionnalités</a></li>
+                <li><a href="#lp-how-title" className="hover:text-bordeaux-800 transition-colors">Comment ça marche</a></li>
+                <li><a href={APP_DOWNLOAD_URL} className="hover:text-bordeaux-800 transition-colors">Télécharger l'application</a></li>
                 <li><Link to="/login" className="hover:text-bordeaux-800 transition-colors">Connexion</Link></li>
                 <li><Link to="/register" className="hover:text-bordeaux-800 transition-colors">Inscription</Link></li>
               </ul>
@@ -359,9 +385,9 @@ function Landing() {
             </div>
             <div>
               <h4 className="t-surtitre mb-3 text-bordeaux-800">Contact</h4>
-              <div className="flex items-center gap-2 text-sm text-encre mb-4">
-                <Mail className="h-4 w-4" /><span>support@plav.app</span>
-              </div>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-2 text-sm text-encre mb-4 hover:text-bordeaux-800 transition-colors">
+                <Mail className="h-4 w-4" /><span>{CONTACT_EMAIL}</span>
+              </a>
               <div className="flex items-center gap-3">
                 <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
@@ -380,8 +406,14 @@ function Landing() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-bordure pt-6 text-center text-xs text-encre">
-            © {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.
+          <div className="mt-8 flex flex-col items-center gap-3 border-t border-bordure pt-6 text-xs text-encre md:flex-row md:justify-between">
+            <span>© {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.</span>
+            <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+              {LEGAL_LINKS.map((l) => (
+                <Link key={l.to} to={l.to} className="hover:text-bordeaux-800 transition-colors">{l.label}</Link>
+              ))}
+            </nav>
+          </div>
           </div>
         </div>
       </footer>
