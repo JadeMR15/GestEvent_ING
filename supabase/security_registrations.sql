@@ -23,6 +23,22 @@ DROP POLICY IF EXISTS "Volunteers readable by anyone" ON public.volunteers;
 -- get_event_checkin_stats() et volunteer_checkin(), qui vérifient le jeton.
 DROP POLICY IF EXISTS "Lecture publique par token bénévole" ON public.volunteers;
 
+-- En production, la règle des inscriptions a survécu au DROP par son nom (caractère
+-- invisible dans le nom). On supprime donc toute règle réservée aux visiteurs (anon)
+-- sur registrations, quel que soit son nom exact. Les règles des comptes connectés
+-- (authenticated) ne sont pas touchées.
+DO $$
+DECLARE p record;
+BEGIN
+  FOR p IN
+    SELECT policyname FROM pg_policies
+     WHERE schemaname = 'public' AND tablename = 'registrations' AND 'anon' = ANY (roles)
+  LOOP
+    EXECUTE format('DROP POLICY %I ON public.registrations', p.policyname);
+    RAISE NOTICE 'Règle supprimée : %', p.policyname;
+  END LOOP;
+END $$;
+
 -- Contrôle : plus aucune règle de lecture réservée aux visiteurs ou ouverte à tous
 -- (« true ») sur ces deux tables. Doit renvoyer 0 ligne.
 SELECT tablename, policyname, roles, qual
