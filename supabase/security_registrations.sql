@@ -17,6 +17,11 @@
 
 DROP POLICY IF EXISTS "Registrations publicly readable" ON public.registrations;
 DROP POLICY IF EXISTS "Volunteers readable by anyone" ON public.volunteers;
+-- Trouvée en production le 24/11 (créée hors des scripts du dépôt) : USING (true) pour tous,
+-- donc toute la liste des bénévoles (noms, emails, jetons) lisible sans compte. La page
+-- bénévole n'en a pas besoin : elle passe par get_volunteer_by_token(), get_volunteer_event(),
+-- get_event_checkin_stats() et volunteer_checkin(), qui vérifient le jeton.
+DROP POLICY IF EXISTS "Lecture publique par token bénévole" ON public.volunteers;
 
 -- Contrôle : plus aucune règle de lecture réservée aux visiteurs ou ouverte à tous
 -- (« true ») sur ces deux tables. Doit renvoyer 0 ligne.
