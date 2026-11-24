@@ -310,7 +310,7 @@ function AssociationPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <Tabs defaultValue={upcoming.length || !posts.length ? "upcoming" : "news"} className="min-w-0">
-          <TabsList className="no-scrollbar h-auto w-full justify-start gap-6 overflow-x-auto rounded-none border-b border-bordure bg-transparent p-0">
+          <TabsList className="no-scrollbar h-auto w-full justify-start gap-6 overflow-x-auto rounded-[var(--radius-carte)] border border-bordure bg-blanc px-5 py-0 shadow-[var(--ombre-carte)]">
             <TabsTrigger value="upcoming" className={TAB}><Calendar />À venir<Count n={upcoming.length} /></TabsTrigger>
             <TabsTrigger value="news" className={TAB}><Newspaper />Actualités<Count n={posts.length} /></TabsTrigger>
             <TabsTrigger value="photos" className={TAB}><Images />Photos</TabsTrigger>

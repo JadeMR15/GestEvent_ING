@@ -58,9 +58,9 @@ function LikesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1>Événements likés</h1>
+        <h1 className="md:sr-only">Événements likés</h1>
         <p className="text-muted-foreground">
           Les événements que tu as likés, du plus récent au plus ancien. Clique sur le cœur pour retirer un like.
         </p>
@@ -77,14 +77,14 @@ function LikesPage() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-4 lg:grid-cols-2">
           {events.map((e) => {
             const past = new Date(e.starts_at) < new Date();
             return (
-              <Card key={e.id} className={`overflow-hidden border-2 ${past ? "opacity-60" : ""}`}>
-                <CardContent className="flex items-center gap-4 p-4">
+              <Card key={e.id} className={`overflow-hidden rounded-3xl border shadow-elegant ${past ? "opacity-60" : ""}`}>
+                <CardContent className="flex items-center gap-4 p-5">
                   {e.cover_image_url
-                    ? <img src={e.cover_image_url} alt="" className="h-16 w-16 flex-shrink-0 rounded-lg object-cover" />
+                    ? <img src={e.cover_image_url} alt="" loading="lazy" decoding="async" className="h-16 w-16 flex-shrink-0 rounded-lg object-cover" />
                     : <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-gradient-vibrant" />}
                   <Link to="/events/$eventId" params={{ eventId: e.id }} className="min-w-0 flex-1 hover:text-primary">
                     <p className="truncate text-lg font-semibold">{e.title}</p>

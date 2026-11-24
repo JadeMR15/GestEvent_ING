@@ -14,7 +14,7 @@ export function AppShowcase({ children }: { children?: ReactNode }) {
   ];
 
   return (
-    <section className="lp-app relative overflow-hidden py-24 md:py-32">
+    <section id="application" className="lp-app relative overflow-hidden scroll-mt-24 py-24 md:py-32">
       <div className="container mx-auto grid items-center gap-16 px-4 sm:px-6 md:grid-cols-2">
         {/* Téléphone (décoratif) */}
         <div ref={ref} className="relative flex justify-center" aria-hidden="true">

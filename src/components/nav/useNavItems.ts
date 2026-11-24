@@ -39,26 +39,26 @@ export function useNavItems() {
     { title: "Domaines", url: "/admin/domains", icon: AtSign, roles: ["admin"], mainFor: ["admin"] },
     { title: "Vérifications", url: "/admin/verifications", icon: ShieldCheck, roles: ["admin"], mainFor: ["admin"] },
     { title: "Utilisateurs", url: "/admin/users", icon: Users, roles: ["admin"], mainFor: ["admin"] },
+    // Participant : le fil d'actu en premier (réseau réservé aux participants).
+    { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["participant"], mainFor: ["participant"] },
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["organizer", "participant"], mainFor: ["organizer", "participant"] },
     { title: role === "organizer" ? "Vos événements" : "Événements", url: "/events", icon: Calendar, roles: ["organizer", "participant"], mainFor: ["organizer", "participant"] },
-    // Réseau (fil, abonnements) : participants uniquement.
-    { title: "Fil d'actu", url: "/feed", icon: Newspaper, roles: ["participant"], mainFor: ["participant"] },
     { title: "Associations", url: "/associations", icon: Store, roles: ["participant"], mainFor: ["participant"] },
+    { title: "Créer un événement", url: "/events/new", icon: CirclePlus, roles: ["organizer"], mainFor: ["organizer"] },
+    { title: "Scanner", url: "/scanner", icon: QrCode, roles: ["organizer", "volunteer"], mainFor: ["organizer", "volunteer"] },
     // Organisateur : la page publique de son association, à animer (pas de fil ni d'abonnements).
     ...(associationId && membershipStatus === "approved"
-      ? [{ title: "Page de l'association", url: `/associations/${associationId}`, icon: Store, roles: ["organizer"] as AppRole[] }]
+      ? [{ title: "Mon association", url: `/associations/${associationId}`, icon: Store, roles: ["organizer"] as AppRole[], mainFor: ["organizer"] as AppRole[] }]
       : []),
     { title: "Mes billets", url: "/my-tickets", icon: Ticket, roles: ["participant"], mainFor: ["participant"] },
-    { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"] },
-    { title: "Créer un événement", url: "/events/new", icon: CirclePlus, roles: ["organizer"], mainFor: ["organizer"] },
-    { title: "Scanner QR", url: "/scanner", icon: QrCode, roles: ["organizer", "volunteer"], mainFor: ["organizer", "volunteer"] },
+    { title: "Listes d'attente", url: "/waitlist", icon: Hourglass, roles: ["participant"], mainFor: ["participant"] },
     ...(!isVerified
       ? [{ title: "Vérifier mon compte", url: "/verification", icon: ShieldCheck, roles: ["organizer", "participant"] as AppRole[], mainFor: ["organizer", "participant"] as AppRole[] }]
       : []),
     { title: "Messages école", url: "/messages", icon: MessageSquare, roles: ["organizer"], mainFor: ["organizer"] },
     { title: "Espace école", url: "/school-admin", icon: Building2, roles: ["school_admin"], mainFor: ["school_admin"] },
     { title: "Messages", url: "/school-admin/messages", icon: MessageSquare, roles: ["school_admin"], mainFor: ["school_admin"] },
-    { title: "Événements likés", url: "/likes", icon: Heart, roles: ["organizer", "participant", "volunteer"], mainFor: ["volunteer"] },
+    { title: "Likes", url: "/likes", icon: Heart, roles: ["organizer", "participant", "volunteer"], mainFor: ["organizer", "participant", "volunteer"] },
     { title: "Paramètres", url: "/settings", icon: Settings, roles: ["admin", "organizer", "participant", "volunteer", "school_admin"] },
     { title: "Analyses", url: "/analytics", icon: ChartNoAxesColumn, roles: ["organizer"], tool: true },
     { title: "Finances", url: "/finance", icon: Euro, roles: ["organizer"], tool: true },
@@ -79,3 +79,11 @@ export const ROLE_LABEL: Record<AppRole, string> = {
   volunteer: "Bénévole",
   school_admin: "Administration école",
 };
+
+/** Page d'accueil de l'espace connecté selon le rôle (clic sur le logo Plav'). */
+export function homeFor(role: AppRole | null | undefined): string {
+  if (role === "admin") return "/admin";
+  if (role === "school_admin") return "/school-admin";
+  if (role === "volunteer") return "/scanner";
+  return "/dashboard";
+}

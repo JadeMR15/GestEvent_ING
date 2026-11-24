@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Bell, Building2, MessageSquare, Newspaper, Calendar, CheckSquare, Compass, House, LayoutDashboard, Plus, QrCode, ShieldCheck, Ticket, User, Users, type LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
+import { homeFor } from "@/components/nav/useNavItems";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarUrl, initials } from "@/lib/avatar";
 import { badgeFor, enableSystemNotifications, totalNotifications, useNotificationPermission, useNotifications } from "@/lib/notifications";
@@ -132,16 +133,16 @@ function NotificationBell() {
 }
 
 export function MobileHeader() {
-  const { fullName, avatarPath } = useAuth();
+  const { fullName, avatarPath, role } = useAuth();
   const photo = avatarUrl(avatarPath);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl pt-safe md:hidden">
       <div className="flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
+        <Link to={homeFor(role)} aria-label="Plav' — accueil de mon espace" className="tap flex items-center gap-2">
           <img src="/plav-cocotte.svg" alt="" className="h-8 w-8 object-contain" />
           <img src="/plav-logotype.svg" alt="Plav'" className="h-6 w-auto object-contain" />
-        </div>
+        </Link>
         <div className="flex items-center gap-2">
         <NotificationBell />
         <Link to="/profile" aria-label="Mon profil" className="tap">
