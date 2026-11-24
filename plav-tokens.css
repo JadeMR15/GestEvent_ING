@@ -4,7 +4,8 @@
    À importer une seule fois, en tête de la feuille de style globale.
    ========================================================================== */
 
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap");
+/* ESSAI design-tests : Inter Tight (tout le texte) + Fredoka (mots mis en avant) — remplacent Nunito / Nunito Sans */
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Fredoka:wght@600;700&display=swap");
 
 :root {
   /* ---- Bordeaux : couleur de marque (600 = couleur du logo) ---- */
@@ -31,6 +32,14 @@
   --neutre-sable: #EBE4D7;      /* bordures, séparateurs, états désactivés */
   --neutre-gris-chaud: #7A6960; /* texte secondaire, icônes secondaires */
   --neutre-encre: #2B161B;      /* texte principal */
+  /* ESSAI design-tests : neutres moins beiges (non reportés dans CHARTE-PLAV.md) */
+  --neutre-fond: #FBF5F7;       /* ESSAI design-tests : fond des pages de travail (blanc très légèrement rosé) */
+  --neutre-bordure: #E9E0E3;    /* ESSAI design-tests : bordures, séparateurs, états désactivés (remplace le sable) */
+
+  /* ---- Dégradé de la page d'accueil, couleurs de la charte (ESSAI design-tests) ---- */
+  --degrade-1: var(--jaune-200);    /* ESSAI design-tests : #F0D28C */
+  --degrade-2: var(--bordeaux-100); /* ESSAI design-tests : #E9DDE0 */
+  --degrade-3: var(--bordeaux-300); /* ESSAI design-tests : #B58C98 */
 
   /* ---- Statuts : réservés aux états, jamais à la décoration ---- */
   --statut-vert-100: #E2F0E5;   --statut-vert-500: #3F8A5C;   --statut-vert-700: #235739;
@@ -39,8 +48,9 @@
   --statut-bleu-100: #E1EBF5;   --statut-bleu-500: #3C6E9E;   --statut-bleu-700: #234A70;
 
   /* ---- Typographie ---- */
-  --font-titre: "Nunito", system-ui, sans-serif;       /* titres et accroches uniquement */
-  --font-texte: "Nunito Sans", system-ui, sans-serif;  /* tout le reste */
+  --font-titre: "Inter Tight", system-ui, sans-serif;  /* ESSAI design-tests : titres (600, -0.02em) */
+  --font-texte: "Inter Tight", system-ui, sans-serif;  /* ESSAI design-tests : tout le reste */
+  --font-accent: "Fredoka", system-ui, sans-serif;     /* ESSAI design-tests : 1 à 3 mots mis en avant dans un titre */
 
   /* ---- Arrondis ---- */
   --radius-petit: 8px;    /* bouton petit, pastille de prix */
@@ -59,14 +69,17 @@
 }
 
 /* ---- Échelle typographique (classes utilitaires) ---- */
-.t-display    { font: 900 48px/1.10 var(--font-titre); }
-.t-titre-1    { font: 900 36px/1.15 var(--font-titre); }
-.t-titre-2    { font: 800 28px/1.20 var(--font-titre); }
-.t-titre-3    { font: 800 22px/1.25 var(--font-titre); }
-.t-sous-titre { font: 700 18px/1.30 var(--font-titre); }
+/* ESSAI design-tests : titres en Inter Tight 600, interlettrage -0.02em, interligne serré */
+.t-display    { font: 600 48px/1.05 var(--font-titre); letter-spacing: -0.02em; }
+.t-titre-1    { font: 600 36px/1.05 var(--font-titre); letter-spacing: -0.02em; }
+.t-titre-2    { font: 600 28px/1.10 var(--font-titre); letter-spacing: -0.02em; }
+.t-titre-3    { font: 600 22px/1.15 var(--font-titre); letter-spacing: -0.02em; }
+.t-sous-titre { font: 600 18px/1.25 var(--font-titre); letter-spacing: -0.01em; }
 .t-corps-l    { font: 400 18px/1.55 var(--font-texte); }
 .t-corps      { font: 400 16px/1.55 var(--font-texte); }
 .t-corps-fort { font: 600 16px/1.55 var(--font-texte); }
 .t-bouton     { font: 600 16px/1.00 var(--font-texte); }
 .t-legende    { font: 500 13px/1.40 var(--font-texte); }
-.t-surtitre   { font: 700 12px/1.30 var(--font-texte); letter-spacing: 0.06em; text-transform: uppercase; }
+.t-surtitre   { font: 500 12px/1.30 var(--font-texte); letter-spacing: 0.08em; text-transform: uppercase; } /* ESSAI : 500 */
+/* ESSAI design-tests : police d'accent, uniquement pour 1 à 3 mots mis en avant dans un titre */
+.t-accent     { font-family: var(--font-accent); font-weight: 700; letter-spacing: 0; }

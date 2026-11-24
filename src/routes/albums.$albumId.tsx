@@ -193,7 +193,7 @@ function AlbumPage() {
       )}
 
       {/* En-tête de l'album */}
-      <section className="rounded-[var(--radius-carte)] border border-sable bg-blanc p-5 shadow-[var(--ombre-carte)] md:p-8">
+      <section className="rounded-[var(--radius-carte)] border border-bordure bg-blanc p-5 shadow-[var(--ombre-carte)] md:p-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0 space-y-2">
             <p className="t-surtitre text-gris-chaud">Album photo · {associationName}</p>
@@ -237,7 +237,7 @@ function AlbumPage() {
 
         {/* Progression : envoi des photos / préparation du ZIP */}
         {upload && (uploading || upload.failed > 0) && (
-          <div className="mt-5 space-y-2 rounded-[var(--radius-moyen)] bg-creme p-4">
+          <div className="mt-5 space-y-2 rounded-[var(--radius-moyen)] bg-fond p-4">
             <div className="flex items-center justify-between gap-3 t-corps-fort text-encre">
               <span className="flex items-center gap-2">{uploading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {uploading ? `Envoi : ${upload.done} / ${upload.total} photos` : `${upload.done} envoyées, ${upload.failed} en échec`}</span>
@@ -245,7 +245,7 @@ function AlbumPage() {
                 ? <Button size="sm" variant="ghost" onClick={() => { stopUpload.current = true; }}><X />Arrêter</Button>
                 : <Button size="sm" variant="ghost" onClick={() => setUpload(null)}>Fermer</Button>}
             </div>
-            <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-sable">
+            <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-bordure">
               <div className="h-full bg-bordeaux-600 transition-all" style={{ width: `${((upload.done + upload.failed) / upload.total) * 100}%` }} />
             </div>
             <p className="t-legende text-gris-chaud">
@@ -254,12 +254,12 @@ function AlbumPage() {
           </div>
         )}
         {zip && (
-          <div className="mt-5 space-y-2 rounded-[var(--radius-moyen)] bg-creme p-4">
+          <div className="mt-5 space-y-2 rounded-[var(--radius-moyen)] bg-fond p-4">
             <div className="flex items-center justify-between gap-3 t-corps-fort text-encre">
               <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Préparation du téléchargement : {zip.done} / {zip.total}</span>
               <Button size="sm" variant="ghost" onClick={() => { stopZip.current = true; }}><X />Arrêter</Button>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-sable">
+            <div className="h-1.5 overflow-hidden rounded-[var(--radius-pilule)] bg-bordure">
               <div className="h-full bg-bordeaux-600 transition-all" style={{ width: `${zip.total ? (zip.done / zip.total) * 100 : 0}%` }} />
             </div>
             {zip.total > 150 && <p className="t-legende text-gris-chaud">Les photos arrivent en plusieurs fichiers ZIP de 150 photos.</p>}
@@ -277,7 +277,7 @@ function AlbumPage() {
         <Card>
           {canEdit ? (
             <button type="button" onClick={() => fileInput.current?.click()}
-              className={`flex w-full flex-col items-center gap-3 rounded-[var(--radius-carte)] border-2 border-dashed px-6 py-14 text-center transition-colors ${dragOver ? "border-bordeaux-600 bg-bordeaux-100" : "border-sable hover:border-bordeaux-300"}`}>
+              className={`flex w-full flex-col items-center gap-3 rounded-[var(--radius-carte)] border-2 border-dashed px-6 py-14 text-center transition-colors ${dragOver ? "border-bordeaux-600 bg-bordeaux-100" : "border-bordure hover:border-bordeaux-300"}`}>
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-bordeaux-100 text-bordeaux-600"><Upload className="h-7 w-7" /></span>
               <span className="t-titre-3 text-encre">Glisse les photos ici</span>
               <span className="t-corps text-gris-chaud">ou clique pour les choisir — tu peux en sélectionner des centaines d'un coup.</span>
@@ -294,7 +294,7 @@ function AlbumPage() {
           <div className="grid grid-cols-3 gap-1 sm:grid-cols-4 md:gap-2 lg:grid-cols-6">
             {photos.map((p, i) => (
               <button key={p.id} type="button" onClick={() => setOpen(i)}
-                className="group relative aspect-square overflow-hidden rounded-[var(--radius-petit)] bg-sable">
+                className="group relative aspect-square overflow-hidden rounded-[var(--radius-petit)] bg-bordure">
                 {thumbs[p.thumb_path] && (
                   <img src={thumbs[p.thumb_path]} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                 )}
@@ -364,11 +364,11 @@ function PhotoViewer({ album, photos, index, onIndex, total, canDelete, onDelete
 
   return (
     <Dialog open={index != null} onOpenChange={(o) => !o && onIndex(null)}>
-      <DialogContent className="max-w-[min(96vw,1400px)] gap-3 border-0 bg-bordeaux-900 p-3 text-creme sm:p-4 [&>button]:text-creme">
+      <DialogContent className="max-w-[min(96vw,1400px)] gap-3 border-0 bg-bordeaux-900 p-3 text-blanc sm:p-4 [&>button]:text-blanc">
         <DialogTitle className="sr-only">Photo {index != null ? index + 1 : ""}</DialogTitle>
         <div className="relative flex h-[75vh] items-center justify-center">
           {url ? <img src={url} alt="" className="max-h-full max-w-full rounded-[var(--radius-petit)] object-contain" />
-            : <Loader2 className="h-8 w-8 animate-spin text-creme" />}
+            : <Loader2 className="h-8 w-8 animate-spin text-blanc" />}
           {index != null && index > 0 && (
             <button type="button" onClick={() => go(-1)} aria-label="Photo précédente"
               className="absolute left-1 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-bordeaux-900/60 hover:bg-bordeaux-700">

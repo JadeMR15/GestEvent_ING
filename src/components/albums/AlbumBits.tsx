@@ -109,9 +109,9 @@ export function AlbumFormDialog({ open, onOpenChange, associationId, events, alb
               return (
                 <button key={o.v} type="button" disabled={disabled} onClick={() => setVisibility(o.v)}
                   className={cn("flex w-full items-start gap-3 rounded-[var(--radius-moyen)] border-[1.5px] p-3 text-left transition-colors",
-                    active ? "border-bordeaux-600 bg-bordeaux-100" : "border-sable bg-blanc hover:border-bordeaux-300",
+                    active ? "border-bordeaux-600 bg-bordeaux-100" : "border-bordure bg-blanc hover:border-bordeaux-300",
                     disabled && "cursor-not-allowed opacity-50")}>
-                  <span className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2", active ? "border-bordeaux-600" : "border-sable")}>
+                  <span className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2", active ? "border-bordeaux-600" : "border-bordure")}>
                     {active && <span className="h-2.5 w-2.5 rounded-full bg-bordeaux-600" />}
                   </span>
                   <span>
@@ -176,16 +176,16 @@ export function AlbumsSection({ associationId, canPost, events }: { associationI
         <div className="grid gap-4 sm:grid-cols-2">
           {albums.map((a) => (
             <Link key={a.id} to="/albums/$albumId" params={{ albumId: a.id }} className="group block rounded-[var(--radius-carte)]">
-              <article className="overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)] transition-shadow group-hover:shadow-[var(--ombre-menu)]">
+              <article className="overflow-hidden rounded-[var(--radius-carte)] border border-bordure bg-blanc shadow-[var(--ombre-carte)] transition-shadow group-hover:shadow-[var(--ombre-menu)]">
                 <div className="relative aspect-[4/3] overflow-hidden bg-gradient-vibrant">
                   {covers[a.id]
                     ? <img src={covers[a.id]} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     : (
-                      <div className="absolute inset-0 flex items-center justify-center text-creme/80">
+                      <div className="absolute inset-0 flex items-center justify-center text-blanc/80">
                         {a.visibility === "attendees" && a.photo_count > 0 ? <Lock className="h-10 w-10" /> : <Images className="h-10 w-10" />}
                       </div>
                     )}
-                  <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
+                  <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-petit)] bg-fond px-2.5 py-1 t-corps-fort text-bordeaux-600">
                     <Images className="h-4 w-4" />{a.photo_count}
                   </span>
                   {a.visibility === "attendees" && (

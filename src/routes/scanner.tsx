@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { Cocotte, type CocotteState } from "@/components/mascot/Cocotte";
+import "@/components/nav/app-shell.css";
 import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
@@ -268,21 +270,23 @@ function ScannerPage() {
   const pct = stats.total > 0 ? Math.round((stats.attended / stats.total) * 100) : 0;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="relative isolate mx-auto max-w-3xl space-y-6">
+      {/* En-tête : Cocotte fait la videuse à l'entrée */}
+      <div className="min-h-[12.5rem] pr-36 md:min-h-[11.5rem] md:pr-72">
+        <div className="min-w-0">
           <h1>Scanner QR</h1>
           <p className="text-muted-foreground">Validez les entrées par QR code.</p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Badge variant={isOnline ? "default" : "destructive"} className="gap-1">
+              {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {isOnline ? "En ligne" : "Hors-ligne"}
+            </Badge>
+            {pendingSync > 0 && (
+              <Badge variant="secondary" className="bg-orange-100 text-orange-700">{pendingSync} en attente</Badge>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={isOnline ? "default" : "destructive"} className="gap-1">
-            {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-            {isOnline ? "En ligne" : "Hors-ligne"}
-          </Badge>
-          {pendingSync > 0 && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700">{pendingSync} en attente</Badge>
-          )}
-        </div>
+        <Bouncer flash={scanFlash} />
       </div>
 
       {!isOnline && (
@@ -421,5 +425,50 @@ function ScannerPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+/**
+ * Cocotte en videuse : « Pas de ticket, pas d'entrée ! ». Elle réagit aux scans :
+ * saut de joie quand le billet est bon, petite secousse quand il ne l'est pas.
+ */
+function Bouncer({ flash }: { flash: "success" | "error" | null }) {
+  const [pose, setPose] = useState<CocotteState>("apparition");
+  const [reaction, setReaction] = useState<{ type: "success" | "error"; n: number } | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setPose("repos"), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (!flash) return;
+    setReaction((r) => ({ type: flash, n: (r?.n ?? 0) + 1 }));
+    setPose(flash === "success" ? "saut" : "repos");
+    const t = setTimeout(() => { setPose("repos"); setReaction(null); }, 1600);
+    return () => clearTimeout(t);
+  }, [flash]);
+
+  const ok = reaction?.type === "success";
+  const shake = reaction?.type === "error" ? "sc-shake" : "";
+  return (
+    <>
+      {/* Cocotte géante, un peu transparente, derrière les cartes de scan */}
+      <div aria-hidden="true" className={`sc-giant pointer-events-none absolute -z-10 ${shake}`}>
+        <div className="db-cocotte">
+          <Cocotte key={pose === "saut" ? `j${reaction?.n}` : pose} state={pose} flip className="h-auto w-full" />
+        </div>
+      </div>
+      {/* Sa bulle, au premier plan */}
+      <div
+        key={reaction ? `b${reaction.n}` : "b"}
+        aria-live="polite"
+        className={`sc-bubble db-bubble db-bubble--right db-bubble--cocotte absolute z-20 max-w-[10rem] px-3.5 py-2.5 md:max-w-[14rem] md:px-5 md:py-3.5 ${reaction ? "sc-now" : ""} ${shake}`}
+      >
+        <p className={`text-sm font-semibold leading-snug md:text-lg ${ok ? "text-jaune-300" : "text-blanc"}`}>
+          {ok ? "C'est bon, bonne soirée !" : "Pas de ticket, pas d'entrée !"}
+        </p>
+      </div>
+    </>
   );
 }

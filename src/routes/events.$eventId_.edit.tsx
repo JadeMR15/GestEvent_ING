@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { compressPhoto } from "@/lib/image-encode";
 import { db, type ApprovalStatus } from "@/lib/schools";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
@@ -216,9 +217,10 @@ function EditEventPage() {
       if (item.type === "video" && item.videoUrl) {
         uploadedMedia.push({ url: item.videoUrl, type: "video", sort_order: i, caption: item.caption });
       } else if (item.file) {
-        const ext = item.file.name.split(".").pop() ?? "jpg";
+        // Photo compressée avant l'envoi (taille et qualité adaptées à l'affichage).
+        const { blob: photo, ext } = await compressPhoto(item.file);
         const path = `${user!.id}/media_${Date.now()}_${i}.${ext}`;
-        const { error } = await supabase.storage.from("event-covers").upload(path, item.file, { upsert: true });
+        const { error } = await supabase.storage.from("event-covers").upload(path, photo, { upsert: true, contentType: photo.type || undefined });
         if (error) { toast.error(`Erreur upload : ${error.message}`); continue; }
         const { data: pd } = supabase.storage.from("event-covers").getPublicUrl(path);
         uploadedMedia.push({ url: pd.publicUrl, type: item.type, sort_order: i, caption: item.caption });
@@ -307,7 +309,7 @@ function EditEventPage() {
               {gallery.length > 0 && (
                 <div className="flex flex-wrap gap-2 rounded-xl border bg-muted/20 p-2">
                   {gallery.map((item, i) => (
-                    <div key={item.uid} className="relative h-20 w-28 overflow-hidden rounded-lg border border-sable">
+                    <div key={item.uid} className="relative h-20 w-28 overflow-hidden rounded-lg border border-bordure">
                       {item.type === "image" ? (
                         <img src={item.preview} alt="" className="h-full w-full object-cover" />
                       ) : item.file ? (
@@ -341,7 +343,7 @@ function EditEventPage() {
                 onDragLeave={() => setMediaDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setMediaDragOver(false); if (e.dataTransfer.files.length) handleMediaFiles(e.dataTransfer.files); }}
                 className="flex h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors"
-                style={{ borderColor: mediaDragOver ? "var(--bordeaux-600)" : "var(--neutre-sable)", background: mediaDragOver ? "var(--bordeaux-100)" : "var(--neutre-creme)" }}
+                style={{ borderColor: mediaDragOver ? "var(--bordeaux-600)" : "var(--neutre-bordure)", background: mediaDragOver ? "var(--bordeaux-100)" : "var(--neutre-fond)" }}
               >
                 <ImagePlus className="h-5 w-5 text-bordeaux-600" />
                 <p className="text-center text-xs text-bordeaux-600">Photos (JPG, PNG, WebP) ou vidéos (MP4, WebM) — cliquez ou glissez</p>
@@ -460,7 +462,7 @@ function EditEventPage() {
               </div>
               <div className="space-y-3">
                 {tickets.map((ticket, i) => (
-                  <div key={ticket.uid} className="rounded-lg border border-sable bg-creme p-4 space-y-3">
+                  <div key={ticket.uid} className="rounded-lg border border-bordure bg-fond p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-semibold text-bordeaux-600">Tarif {i + 1}</p>
                       {tickets.length > 1 && (

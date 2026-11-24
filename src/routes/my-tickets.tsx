@@ -9,6 +9,7 @@ import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AddToCalendarButton } from "@/components/AddToCalendarButton";
 import { Ticket, CheckCircle2, Clock, XCircle, Loader2, Download, ExternalLink, QrCode } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -80,24 +81,24 @@ function MyTicketsPage() {
   <link rel="stylesheet" href="${CHARTE.fontsUrl}">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:${CHARTE.fontTexte};background:${CHARTE.creme};color:${CHARTE.encre};display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px}
-    .ticket{width:100%;max-width:480px;background:${CHARTE.blanc};border:1px solid ${CHARTE.sable};border-radius:16px;overflow:hidden;box-shadow:${CHARTE.ombreMenu}}
+    body{font-family:${CHARTE.fontTexte};background:${CHARTE.fond};color:${CHARTE.encre};display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px}
+    .ticket{width:100%;max-width:480px;background:${CHARTE.blanc};border:1px solid ${CHARTE.bordure};border-radius:16px;overflow:hidden;box-shadow:${CHARTE.ombreMenu}}
     .header{background:${CHARTE.bordeaux600};padding:36px 32px 28px;text-align:center;border-bottom:6px solid ${CHARTE.jaune300}}
     .brand{margin-bottom:14px}
-    .event-title{font-family:${CHARTE.fontTitre};font-size:28px;font-weight:800;color:${CHARTE.creme};line-height:1.2}
+    .event-title{font-family:${CHARTE.fontTitre};font-size:28px;font-weight:600;letter-spacing:-0.02em;color:${CHARTE.blanc};line-height:1.2}
     .body{padding:24px 32px 0}
     .details{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
     .detail-label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:${CHARTE.grisChaud};margin-bottom:5px;font-weight:700}
     .detail-value{font-size:16px;font-weight:600;color:${CHARTE.encre};line-height:1.35}
-    .tear{position:relative;margin:0 -32px;height:0;border-top:2px dashed ${CHARTE.sable}}
-    .tear::before,.tear::after{content:'';position:absolute;top:-14px;width:28px;height:28px;background:${CHARTE.creme};border-radius:50%}
+    .tear{position:relative;margin:0 -32px;height:0;border-top:2px dashed ${CHARTE.bordure}}
+    .tear::before,.tear::after{content:'';position:absolute;top:-14px;width:28px;height:28px;background:${CHARTE.fond};border-radius:50%}
     .tear::before{left:-14px}.tear::after{right:-14px}
     .qr-section{padding:28px 32px 24px;display:flex;flex-direction:column;align-items:center;gap:14px}
     .qr-wrap{background:${CHARTE.blanc};border:2px solid ${CHARTE.jaune300};border-radius:16px;padding:14px;box-shadow:${CHARTE.ombreCarte}}
     .qr-label{font-size:13px;color:${CHARTE.grisChaud};text-align:center;font-weight:600}
     .qr-code{font-family:monospace;font-size:12px;color:${CHARTE.grisChaud};text-align:center;max-width:260px;word-break:break-all;line-height:1.5}
     .instructions{font-size:13px;color:${CHARTE.grisChaud};text-align:center;line-height:1.5}
-    .footer{background:${CHARTE.creme};border-top:1px solid ${CHARTE.sable};padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+    .footer{background:${CHARTE.fond};border-top:1px solid ${CHARTE.bordure};padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
     .footer-brand{display:flex;align-items:center}
     .footer-note{font-size:12px;color:${CHARTE.grisChaud};text-align:right;line-height:1.4}
     .btn{display:block;margin:24px auto 0;height:48px;padding:0 24px;background:${CHARTE.jaune300};color:${CHARTE.bordeaux600};border:none;border-radius:10px;font-family:${CHARTE.fontTexte};font-size:16px;font-weight:600;cursor:pointer}
@@ -154,9 +155,9 @@ function MyTicketsPage() {
   const past = withEvent.filter((t) => t.status === "cancelled" && !isPastEvent(t.events.starts_at));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1>Mes billets</h1>
+        <h1 className="md:sr-only">Mes billets</h1>
         <p className="text-sm text-muted-foreground md:text-base">Tes places et tes QR codes d'entrée.</p>
       </div>
 
@@ -171,7 +172,7 @@ function MyTicketsPage() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="space-y-5">
+        <div className="grid gap-4 lg:grid-cols-2">
           {active.map((reg) => {
             const ev = reg.events;
             if (!ev) return null;
@@ -184,7 +185,7 @@ function MyTicketsPage() {
               <div key={reg.id} className="overflow-hidden rounded-3xl border bg-card shadow-elegant">
                 {/* Haut du billet : l'événement */}
                 <Link to="/events/$eventId" params={{ eventId: ev.id }} className="tap relative block bg-gradient-primary p-5 text-primary-foreground">
-                  {ev.cover_image_url && <img src={ev.cover_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
+                  {ev.cover_image_url && <img src={ev.cover_image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
                   <img src="/plav-cocotte.svg" alt="" className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 opacity-15" />
                   <div className="relative">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.color}`}>
@@ -231,6 +232,7 @@ function MyTicketsPage() {
                           </div>
                           <p className="text-sm text-muted-foreground">Présente ce code à l'entrée.</p>
                           <code className="max-w-full break-all rounded bg-muted px-2 py-1 text-xs">{reg.qr_code}</code>
+                          <AddToCalendarButton event={ev} />
                           {canCancel && (
                             <button
                               className="mt-2 text-sm font-medium text-destructive"

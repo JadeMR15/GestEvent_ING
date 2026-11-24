@@ -54,7 +54,7 @@ function MessagesPage() {
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[480px] max-w-4xl flex-col md:h-[calc(100dvh-4rem)]">
+    <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[480px] max-w-4xl flex-col md:h-[calc(100dvh-9rem)]">
       <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <header className="flex items-center gap-3 border-b px-4 py-3 md:px-6">
           <Monogram name={names.school} className="!h-11 !w-11 text-sm" />

@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Cocotte, la mascotte (ESSAI design-tests)
+   transform uniquement ; origines aux épaules et aux hanches (transform-box: fill-box).
+   ========================================================================== */
+
+.ck { display: block; overflow: visible; }
+.ck--flip { transform: scaleX(-1); }
+
+.ck-fig, .ck-sway, .ck-arm, .ck-leg { transform-box: fill-box; }
+.ck-fig  { transform-origin: 50% 100%; }   /* les pieds */
+.ck-sway { transform-origin: 50% 60%; }    /* le corps */
+.ck-arm-l { transform-origin: 100% 50%; }  /* épaule gauche */
+.ck-arm-r { transform-origin: 0% 100%; }   /* épaule droite */
+.ck-leg  { transform-origin: 0% 0%; }      /* hanches */
+
+/* ── apparition : les membres sortent du corps, effet élastique (~400 ms) ── */
+.ck--apparition .ck-arm,
+.ck--apparition .ck-leg { animation: ckGrow 0.42s cubic-bezier(0.34, 1.7, 0.64, 1) both; }
+.ck--apparition .ck-leg-r, .ck--apparition .ck-arm-r { animation-delay: 0.06s; }
+@keyframes ckGrow { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* ── retrait : l'inverse ── */
+.ck--retrait .ck-arm,
+.ck--retrait .ck-leg { animation: ckShrink 0.3s cubic-bezier(0.36, 0, 0.66, -0.56) both; }
+@keyframes ckShrink { from { transform: scale(1); } to { transform: scale(0); } }
+
+/* ── repos : léger balancement et respiration ── */
+.ck--repos .ck-sway { animation: ckBreathe 3.2s ease-in-out infinite alternate; }
+.ck--repos .ck-arm-r { animation: ckArmRest 3.2s ease-in-out infinite alternate; }
+@keyframes ckBreathe {
+  from { transform: rotate(-2deg) scale(1); }
+  to   { transform: rotate(2deg) scale(1.035); }
+}
+@keyframes ckArmRest { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
+
+/* ── marche : jambes alternées, bras qui balancent, petit rebond ── */
+.ck--marche .ck-fig   { animation: ckBounce 0.25s ease-in-out infinite alternate; }
+.ck--marche .ck-leg-l { animation: ckStep 0.5s ease-in-out infinite alternate; }
+.ck--marche .ck-leg-r { animation: ckStep 0.5s ease-in-out infinite alternate-reverse; }
+.ck--marche .ck-arm-l { animation: ckSwingL 0.5s ease-in-out infinite alternate; }
+.ck--marche .ck-arm-r { animation: ckSwingR 0.5s ease-in-out infinite alternate; }
+@keyframes ckBounce { from { transform: translateY(0); } to { transform: translateY(-3.5%); } }
+@keyframes ckStep   { from { transform: rotate(-22deg); } to { transform: rotate(18deg); } }
+@keyframes ckSwingL { from { transform: rotate(-16deg); } to { transform: rotate(14deg); } }
+@keyframes ckSwingR { from { transform: rotate(12deg); } to { transform: rotate(-14deg); } }
+
+/* ── coucou : le bras droit salue (~1 s) ── */
+.ck--coucou .ck-arm-r { animation: ckWave 1s ease-in-out both; }
+.ck--coucou .ck-sway  { animation: ckBreathe 1s ease-in-out both; }
+@keyframes ckWave {
+  0%   { transform: rotate(0); }
+  20%  { transform: rotate(-32deg); }
+  40%  { transform: rotate(12deg); }
+  60%  { transform: rotate(-32deg); }
+  80%  { transform: rotate(12deg); }
+  100% { transform: rotate(0); }
+}
+
+/* ── saut : flexion, saut (jambes repliées, bras levés), réception ── */
+.ck--saut .ck-fig   { animation: ckJump 0.75s cubic-bezier(0.33, 0, 0.3, 1) both; }
+.ck--saut .ck-leg   { animation: ckTuck 0.75s ease-in-out both; }
+.ck--saut .ck-arm-l { animation: ckArmUpL 0.75s ease-in-out both; }
+.ck--saut .ck-arm-r { animation: ckArmUpR 0.75s ease-in-out both; }
+@keyframes ckJump {
+  0%   { transform: none; }
+  18%  { transform: translateY(3%) scale(1.06, 0.88); }
+  50%  { transform: translateY(-34%) scale(0.97, 1.05); }
+  82%  { transform: translateY(2%) scale(1.05, 0.92); }
+  100% { transform: none; }
+}
+@keyframes ckTuck {
+  0%, 22%  { transform: none; }
+  45%, 60% { transform: scaleY(0.55); }
+  82%, 100% { transform: none; }
+}
+@keyframes ckArmUpL {
+  0%, 15% { transform: none; }
+  40%, 70% { transform: rotate(62deg); }
+  100% { transform: none; }
+}
+@keyframes ckArmUpR {
+  0%, 15% { transform: none; }
+  40%, 70% { transform: rotate(-18deg); }
+  100% { transform: none; }
+}
+
+/* ── danse : balancement, bras levés en alternance, petits pas (scène des créatrices) ── */
+.ck--danse .ck-fig   { animation: dzSway 1.6s ease-in-out infinite; }
+.ck--danse .ck-arm-l { animation: dzArmL 1.6s ease-in-out infinite; }
+.ck--danse .ck-arm-r { animation: dzArmR 1.6s ease-in-out infinite; }
+.ck--danse .ck-leg-l { animation: ckStep 0.8s ease-in-out infinite alternate; }
+.ck--danse .ck-leg-r { animation: ckStep 0.8s ease-in-out infinite alternate-reverse; }
+@keyframes dzSway {
+  0%, 100% { transform: rotate(-6deg) translateY(0); }
+  25%      { transform: rotate(0deg) translateY(-6%); }
+  50%      { transform: rotate(6deg) translateY(0); }
+  75%      { transform: rotate(0deg) translateY(-6%); }
+}
+@keyframes dzArmL {
+  0%, 45%, 100% { transform: none; }
+  20%, 30%      { transform: rotate(62deg); }
+}
+@keyframes dzArmR {
+  0%, 45%, 100% { transform: none; }
+  65%, 80%      { transform: rotate(-24deg); }
+}
+
+
+/* ── plonge : bras levés au-dessus de la tête, jambes serrées ── */
+.ck--plonge .ck-arm-l { transform: rotate(78deg); }
+.ck--plonge .ck-arm-r { transform: rotate(-30deg); }
+.ck--plonge .ck-leg-l { transform: rotate(-10deg); }
+.ck--plonge .ck-leg-r { transform: rotate(9deg); }
+
+/* ── Pas pilotés par la distance parcourue (révélation du titre) ── */
+.ck--scrub .ck-fig, .ck--scrub .ck-sway, .ck--scrub .ck-arm, .ck--scrub .ck-leg { animation: none !important; }
+
+/* ── Animations réduites : pose de repos fixe ── */
+@media (prefers-reduced-motion: reduce) {
+  .ck *, .ck { animation: none !important; }
+}

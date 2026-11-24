@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { encodeCanvas } from "@/lib/image-encode";
+import { toast } from "sonner";
 
 interface Props {
   /** Image choisie ; la fenêtre s'ouvre quand elle est renseignée. */
@@ -31,7 +32,9 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
   const [zoom, setZoom] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [busy, setBusy] = useState(false);
-  const frameRef = useRef<HTMLDivElement>(null);
+  // Élément du cadre (ref « callback ») : mesuré dès qu'il existe, même si la fenêtre
+  // s'affiche après le chargement de la photo.
+  const [frameEl, setFrameEl] = useState<HTMLDivElement | null>(null);
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinch = useRef<{ dist: number; zoom: number } | null>(null);
@@ -50,12 +53,13 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
 
   // Taille du cadre (s'adapte à l'écran).
   useLayoutEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setFrame({ w: el.clientWidth, h: el.clientHeight }));
-    ro.observe(el);
+    if (!frameEl) return;
+    const update = () => setFrame({ w: frameEl.clientWidth, h: frameEl.clientHeight });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(frameEl);
     return () => ro.disconnect();
-  }, [url]);
+  }, [frameEl]);
 
   // Échelle qui couvre tout le cadre, puis zoom.
   const base = nat && frame.w ? Math.max(frame.w / nat.w, frame.h / nat.h) : 1;
@@ -119,9 +123,14 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
     if (!file || !nat) return;
     setBusy(true);
     try {
+      // Taille réelle du cadre au moment d'enregistrer (au cas où la mesure n'aurait pas suivi).
+      const fw = frame.w || frameEl?.clientWidth || 0;
+      const fh = frame.h || frameEl?.clientHeight || 0;
+      if (!fw || !fh) throw new Error("Le cadre n'est pas prêt : réessaie dans un instant.");
+      const sc = (frame.w ? base : Math.max(fw / nat.w, fh / nat.h)) * zoom;
       // Zone de la photo d'origine visible dans le cadre.
-      const sx = -pos.x / scale, sy = -pos.y / scale;
-      const sw = frame.w / scale, sh = frame.h / scale;
+      const sx = -pos.x / sc, sy = -pos.y / sc;
+      const sw = fw / sc, sh = fh / sc;
       const outW = Math.round(Math.min(outputWidth, sw));
       const outH = Math.round(outW / aspect);
       const bitmap = await createImageBitmap(file);
@@ -135,6 +144,9 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
       bitmap.close();
       const blob = await encodeCanvas(canvas, 0.88);
       await onConfirm(blob);
+    } catch (e) {
+      // Jamais d'échec silencieux : on affiche la raison.
+      toast.error(e instanceof Error ? e.message : "Traitement de l'image impossible.");
     } finally {
       setBusy(false);
     }
@@ -151,7 +163,7 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
         </DialogHeader>
 
         <div
-          ref={frameRef}
+          ref={setFrameEl}
           className="relative w-full touch-none select-none overflow-hidden rounded-[var(--radius-moyen)] bg-encre cursor-grab active:cursor-grabbing"
           style={{ aspectRatio: String(aspect), maxHeight: "60vh" }}
           onPointerDown={onPointerDown}
@@ -164,15 +176,15 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
             <img src={url} alt="" draggable={false} className="pointer-events-none absolute max-w-none"
               style={{ width: dispW, height: dispH, left: pos.x, top: pos.y }} />
           )}
-          {!nat && <div className="absolute inset-0 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-creme" /></div>}
+          {!nat && <div className="absolute inset-0 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-blanc" /></div>}
           {/* Zone gardée : rond pour la photo de profil, grille des tiers pour aider à cadrer */}
           {round ? (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="aspect-square h-full rounded-full shadow-[0_0_0_9999px_rgba(49,13,23,0.55)] ring-2 ring-creme/80" />
+              <div className="aspect-square h-full rounded-full shadow-[0_0_0_9999px_rgba(49,13,23,0.55)] ring-2 ring-blanc/80" />
             </div>
           ) : (
-            <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3 ring-2 ring-inset ring-creme/80">
-              {Array.from({ length: 9 }).map((_, i) => <span key={i} className="border border-creme/20" />)}
+            <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3 ring-2 ring-inset ring-blanc/80">
+              {Array.from({ length: 9 }).map((_, i) => <span key={i} className="border border-blanc/20" />)}
             </div>
           )}
         </div>
@@ -183,7 +195,7 @@ export function ImageCropDialog({ file, aspect, round = false, outputWidth, titl
           </button>
           <input type="range" min={1} max={MAX_ZOOM} step={0.01} value={zoom} aria-label="Zoom"
             onChange={(e) => applyZoom(Number(e.target.value))}
-            className={cn("h-2 flex-1 cursor-pointer appearance-none rounded-[var(--radius-pilule)] bg-sable accent-bordeaux-600")} />
+            className={cn("h-2 flex-1 cursor-pointer appearance-none rounded-[var(--radius-pilule)] bg-bordure accent-bordeaux-600")} />
           <button type="button" aria-label="Zoomer" onClick={() => applyZoom(zoom * 1.2)} className="rounded-[var(--radius-petit)] p-2 text-gris-chaud hover:bg-bordeaux-100 hover:text-bordeaux-600">
             <ZoomIn className="h-5 w-5" />
           </button>

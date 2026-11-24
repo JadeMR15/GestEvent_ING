@@ -1,4 +1,4 @@
-/* Charte graphique Plav' v1 : tokens (couleurs, polices Nunito / Nunito Sans, arrondis, ombres).
+/* Charte graphique Plav' v1 : tokens (couleurs, polices — ESSAI : Inter Tight + Fredoka —, arrondis, ombres).
    Source de vérité : plav-tokens.css à la racine du projet. */
 @import "../plav-tokens.css";
 
@@ -9,7 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Polices de la charte : Nunito (titres uniquement), Nunito Sans (tout le reste) */
+  /* Polices (ESSAI design-tests) : Inter Tight partout, Fredoka pour les mots mis en avant */
+  /* Jamais plus gras que 600 : titres 600, texte fort et boutons 500–600 (ESSAI design-tests) */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 600;
   --font-display: var(--font-titre);
   --font-body:    var(--font-texte);
   --font-sans:    var(--font-texte);
@@ -39,7 +43,9 @@
   --color-jaune-500: var(--jaune-500);
   --color-blanc:      var(--neutre-blanc);
   --color-creme:      var(--neutre-creme);
-  --color-sable:      var(--neutre-sable);
+  --color-fond:       var(--neutre-fond);     /* ESSAI design-tests */
+  --color-bordure:    var(--neutre-bordure);  /* ESSAI design-tests */
+  --color-sable:      var(--neutre-bordure);  /* ESSAI design-tests : plus de sable en fond */
   --color-gris-chaud: var(--neutre-gris-chaud);
   --color-encre:      var(--neutre-encre);
   --color-white:      var(--neutre-blanc);
@@ -143,7 +149,7 @@
   --radius: var(--radius-moyen);
 
   /* ── Anciens noms de la DA, gardés pour le code existant, rebranchés sur la charte ── */
-  --bg-page:      var(--neutre-creme);
+  --bg-page:      var(--neutre-fond);
   --bg-primary:   var(--jaune-100);
   --bg-secondary: var(--jaune-200);
 
@@ -158,10 +164,10 @@
 
   --text-body:    var(--neutre-encre);
   --text-title:   var(--bordeaux-600);
-  --text-hint:    var(--neutre-creme);
+  --text-hint:    var(--neutre-blanc);
 
   /* ── shadcn/Tailwind → tokens de la charte ── */
-  --background:         var(--neutre-creme);
+  --background:         var(--neutre-fond);
   --foreground:         var(--neutre-encre);
 
   --card:               var(--neutre-blanc);
@@ -172,14 +178,14 @@
 
   /* Primary = bordeaux (couleur de marque) */
   --primary:            var(--bordeaux-600);
-  --primary-foreground: var(--neutre-creme);
+  --primary-foreground: var(--neutre-blanc);
 
   /* Secondary = jaune 100 (fond des badges « Marque »), texte bordeaux */
   --secondary:          var(--jaune-100);
   --secondary-foreground: var(--bordeaux-600);
 
   /* Muted = sable (zones neutres), texte secondaire gris chaud */
-  --muted:              var(--neutre-sable);
+  --muted:              var(--neutre-bordure); /* ESSAI design-tests : plus de sable */
   --muted-foreground:   var(--neutre-gris-chaud);
 
   /* Accent = jaune 300 ; texte dessus toujours bordeaux (jamais blanc) */
@@ -195,13 +201,13 @@
   --warning-foreground: var(--statut-orange-700);
 
   /* Bordures et champs : sable ; focus : bordeaux + halo jaune */
-  --border:  var(--neutre-sable);
-  --input:   var(--neutre-sable);
+  --border:  var(--neutre-bordure);
+  --input:   var(--neutre-bordure);
   --ring:    var(--bordeaux-600);
 
   /* ── Menu latéral : bordeaux 600, actif bordeaux 700 + jaune 300 ── */
   --sidebar:                    var(--bordeaux-600);
-  --sidebar-foreground:         var(--neutre-creme);
+  --sidebar-foreground:         var(--neutre-blanc);
   --sidebar-primary:            var(--jaune-300);
   --sidebar-primary-foreground: var(--bordeaux-600);
   --sidebar-accent:             var(--bordeaux-700);
@@ -214,8 +220,8 @@
   --gradient-primary: linear-gradient(var(--bordeaux-600), var(--bordeaux-600));
   /* Visuel sans image : bordeaux 600 → bordeaux 400 */
   --gradient-vibrant: linear-gradient(135deg, var(--bordeaux-600), var(--bordeaux-400));
-  /* Fond de page : crème uni */
-  --gradient-mesh: linear-gradient(var(--neutre-creme), var(--neutre-creme));
+  /* Fond de page : blanc rosé uni (ESSAI design-tests) */
+  --gradient-mesh: linear-gradient(var(--neutre-fond), var(--neutre-fond));
 
   /* Ombres */
   --shadow-glow:    var(--ombre-menu);
@@ -225,11 +231,11 @@
 /* Mode sombre (non couvert par la charte) : rebranché sur les nuances de la charte */
 .dark {
   --background:         var(--bordeaux-900);
-  --foreground:         var(--neutre-creme);
+  --foreground:         var(--neutre-blanc);
   --card:               var(--bordeaux-800);
-  --card-foreground:    var(--neutre-creme);
+  --card-foreground:    var(--neutre-blanc);
   --popover:            var(--bordeaux-800);
-  --popover-foreground: var(--neutre-creme);
+  --popover-foreground: var(--neutre-blanc);
   --primary:            var(--jaune-300);
   --primary-foreground: var(--bordeaux-900);
   --secondary:          var(--bordeaux-700);
@@ -250,7 +256,7 @@
     border-color: var(--color-border);
   }
 
-  /* Texte courant : Nunito Sans 400, 16 px / 155 % (.t-corps) */
+  /* Texte courant : Inter Tight 400, 16 px / 155 % (.t-corps) */
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -258,17 +264,17 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Titres : Nunito, interlettrage par défaut (échelle .t-titre-1 / 2 / 3 / sous-titre) */
+  /* Titres (ESSAI design-tests) : Inter Tight 600, -0.02em, interligne serré */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-titre);
     color: var(--text-title);
-    letter-spacing: normal;
+    letter-spacing: -0.02em;
   }
 
-  h1 { font-size: 36px; line-height: 1.15; font-weight: 900; }
-  h2 { font-size: 28px; line-height: 1.20; font-weight: 800; }
-  h3 { font-size: 22px; line-height: 1.25; font-weight: 800; }
-  h4, h5, h6 { font-size: 18px; line-height: 1.30; font-weight: 700; }
+  h1 { font-size: 36px; line-height: 1.05; font-weight: 600; }
+  h2 { font-size: 28px; line-height: 1.10; font-weight: 600; }
+  h3 { font-size: 22px; line-height: 1.15; font-weight: 600; }
+  h4, h5, h6 { font-size: 18px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
 
   ::selection {
     background: var(--jaune-300);
@@ -328,7 +334,7 @@ html {
 
 /* ── DA Component overrides ── */
 
-/* Boutons : Nunito Sans 600 (.t-bouton) */
+/* Boutons : Inter Tight 600 (.t-bouton) */
 button, [role="button"] {
   font-family: var(--font-texte);
   font-weight: 600;
@@ -337,7 +343,7 @@ button, [role="button"] {
 /* Carte : fond blanc, bordure sable, arrondi carte */
 .card-da {
   background: var(--neutre-blanc);
-  border: 1px solid var(--neutre-sable);
+  border: 1px solid var(--neutre-bordure);
   border-radius: var(--radius-carte);
 }
 
@@ -380,7 +386,7 @@ button, [role="button"] {
   /* Évite le zoom automatique d'iOS sur les champs */
   input, select, textarea { font-size: 16px !important; }
   /* Mobile : titre de page en taille Titre 2 (deux niveaux de titre maximum à l'écran) */
-  h1 { font-size: 28px; line-height: 1.20; }
+  h1 { font-size: 28px; line-height: 1.10; }
 }
 /* Encoche et barre d'accueil de l'iPhone */
 .pt-safe { padding-top: env(safe-area-inset-top); }

@@ -56,7 +56,7 @@ function ForgotPasswordPage() {
         <CardContent className="space-y-4">
           {sent ? (
             <>
-              <div className="flex items-start gap-3 rounded-xl border border-sable bg-creme p-4 text-sm">
+              <div className="flex items-start gap-3 rounded-xl border border-bordure bg-fond p-4 text-sm">
                 <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-bordeaux-600" />
                 <p>
                   Si un compte existe avec <strong>{email.trim()}</strong>, tu vas recevoir un email avec un lien

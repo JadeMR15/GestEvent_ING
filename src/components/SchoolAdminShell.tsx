@@ -47,12 +47,12 @@ export function initials(name: string): string {
 // Couleurs des pastilles d'association : stables pour un même nom.
 const MONOGRAM_COLORS = [
   // Uniquement des couleurs de la charte (texte jaune seulement sur bordeaux).
-  "bg-bordeaux-600 text-creme",
+  "bg-bordeaux-600 text-blanc",
   "bg-jaune-300 text-bordeaux-600",
   "bg-bordeaux-800 text-jaune-300",
   "bg-bordeaux-100 text-bordeaux-600",
   "bg-jaune-100 text-bordeaux-600",
-  "bg-bordeaux-400 text-creme",
+  "bg-bordeaux-400 text-blanc",
 ];
 
 /** fill : l'image remplit toute la pastille (logos recadrés, pastilles rondes) ; sinon logo entier sur fond blanc. */
@@ -60,7 +60,7 @@ export function Monogram({ name, src, size = "md", className = "", fill = false 
   const dims = size === "lg" ? "h-20 w-20 rounded-2xl text-3xl md:h-24 md:w-24" : "h-12 w-12 rounded-xl text-base";
   if (src) {
     return (
-      <div className={`flex shrink-0 items-center justify-center overflow-hidden bg-blanc ${fill ? "" : "border border-sable p-1.5"} ${dims} ${className}`}>
+      <div className={`flex shrink-0 items-center justify-center overflow-hidden bg-blanc ${fill ? "" : "border border-bordure p-1.5"} ${dims} ${className}`}>
         <img src={src} alt={`Logo ${name}`} className={`h-full w-full ${fill ? "object-cover" : "object-contain"}`} loading="lazy" />
       </div>
     );

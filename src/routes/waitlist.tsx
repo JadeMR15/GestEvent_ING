@@ -78,9 +78,9 @@ function WaitlistPage() {
   const history = entries.filter((e) => !current.includes(e)).reverse();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1>Mes listes d'attente</h1>
+        <h1 className="md:sr-only">Mes listes d'attente</h1>
         <p className="text-muted-foreground">
           Quand une place se libère, elle est proposée dans l'ordre d'arrivée. Tu es prévenu(e) par email.
         </p>
@@ -97,11 +97,11 @@ function WaitlistPage() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4 lg:grid-cols-2">
           {current.map((e) => {
             const offer = e.status === "offered";
             return (
-              <Card key={e.id} className={`overflow-hidden border-2 shadow-elegant ${offer ? "border-jaune-300" : ""}`}>
+              <Card key={e.id} className={`overflow-hidden rounded-3xl shadow-elegant ${offer ? "border-2 border-jaune-300" : "border"}`}>
                 <div className="h-2 bg-gradient-vibrant" />
                 <CardContent className="space-y-4 p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -117,7 +117,7 @@ function WaitlistPage() {
                       </div>
                     </div>
                     {!offer && (
-                      <div className="rounded-xl bg-creme px-4 py-2 text-center">
+                      <div className="rounded-xl bg-fond px-4 py-2 text-center">
                         <p className="text-2xl font-bold text-bordeaux-600">{e.rank ? ordinal(e.rank) : "—"}</p>
                         <p className="text-xs text-muted-foreground">dans la file</p>
                       </div>

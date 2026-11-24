@@ -26,7 +26,7 @@ const WATCHED: { key: keyof NotificationCounts; title: string; body: string; url
   { key: "school_reviews", title: "Événement à valider", body: "Une association attend votre validation.", url: "/school-admin/reviews" },
   { key: "school_members", title: "Nouveau membre", body: "Un compte demande à rejoindre votre école.", url: "/school-admin/members" },
   { key: "admin_verifications", title: "Justificatif à vérifier", body: "Un étudiant a envoyé son justificatif.", url: "/admin/verifications" },
-  { key: "admin_schools", title: "École à valider", body: "Une demande d'école est arrivée.", url: "/admin/schools" },
+  { key: "admin_schools", title: "École à valider", body: "Une demande d'école est arrivée.", url: "/admin" },
   { key: "waitlist_offers", title: "Une place s'est libérée !", body: "Elle t'est réservée pour un temps limité.", url: "/waitlist" },
 ];
 
@@ -55,8 +55,9 @@ export function badgeFor(url: string, c: NotificationCounts): number {
     case "/school-admin": return (c.school_reviews ?? 0) + (c.school_members ?? 0);
     case "/school-admin/reviews": return c.school_reviews ?? 0;
     case "/school-admin/members": return c.school_members ?? 0;
+    // Vue d'ensemble admin : tout ce qui attend une décision (écoles + domaines + justificatifs).
+    case "/admin": return (c.admin_verifications ?? 0) + (c.admin_schools ?? 0);
     case "/admin/verifications": return c.admin_verifications ?? 0;
-    case "/admin/schools": return c.admin_schools ?? 0;
     case "/waitlist": return c.waitlist_offers ?? 0;
     default: return 0;
   }

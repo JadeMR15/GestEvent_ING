@@ -1,0 +1,265 @@
+/* ==========================================================================
+   Mosaïque d'événements « magazine » (ESSAI design-tests)
+   Couleurs : tokens de la charte uniquement. Mouvement : transform et opacity.
+   ========================================================================== */
+
+/* ── Ordinateur / tablette : grille dense ── */
+.mz-grid { display: none; }
+@media (min-width: 768px) {
+  .mz-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 210px;
+    grid-auto-flow: dense;
+    gap: 16px;
+  }
+}
+@media (min-width: 1024px) {
+  .mz-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 220px; }
+}
+
+/* Tailles (tablette 2 colonnes, ordinateur 4 colonnes) */
+.mz-cell { position: relative; min-width: 0; }
+@media (min-width: 768px) {
+  .mz-feature { grid-column: span 2; grid-row: span 2; }
+  .mz-tall    { grid-row: span 2; }
+  .mz-wide    { grid-column: span 2; }
+  .mz-solo    { grid-column: 1 / -1; grid-row: span 2; }
+  .mz-pair    { grid-column: span 2; grid-row: span 2; }
+}
+@media (min-width: 1024px) {
+  .mz-solo { grid-column: 2 / span 2; }
+}
+
+/* ── Mobile : À la une, carrousel « Cette semaine », puis cartes pleine largeur ── */
+.mz-mobile { display: flex; flex-direction: column; gap: 16px; }
+@media (min-width: 768px) { .mz-mobile { display: none; } }
+.mz-full { aspect-ratio: 4 / 5; }
+.mz-week { margin: 8px 0; }
+.mz-week-title {
+  margin-bottom: 12px;
+  font: 600 22px/1.15 var(--font-titre);
+  letter-spacing: -0.02em;
+  color: var(--neutre-encre);
+}
+.mz-rail {
+  display: flex;
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 0 16px 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 16px;
+  overscroll-behavior-x: contain;
+}
+.mz-carousel {
+  flex: 0 0 72%;
+  aspect-ratio: 3 / 4;
+  scroll-snap-align: start;
+}
+
+/* ── Apparition en cascade ── */
+.mz-cell { opacity: 0; }
+.mz-cell.is-in { animation: mzIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0ms); }
+@keyframes mzIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Carte affiche ── */
+.mz-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-carte);
+  background: var(--bordeaux-900);
+  color: var(--neutre-blanc);
+  box-shadow: var(--ombre-carte);
+  isolation: isolate;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mz-media { position: absolute; inset: 0; z-index: -2; }
+.mz-media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Sans photo : dégradé bordeaux 600 → 900, cocotte en filigrane */
+.mz-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(150deg, var(--bordeaux-600), var(--bordeaux-900));
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mz-fallback img {
+  position: absolute;
+  right: -18%;
+  bottom: -18%;
+  width: 70%;
+  max-width: none;
+  opacity: 0.18;
+}
+/* Dégradé de lisibilité en bas (bordeaux 900, transparent → ~90 %) */
+.mz-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(49, 13, 23, 0) 30%, rgba(49, 13, 23, 0.55) 60%, rgba(49, 13, 23, 0.9) 100%);
+}
+
+.mz-top-left {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.mz-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+  padding: 6px 8px 7px;
+  border-radius: var(--radius-moyen);
+  background: var(--neutre-blanc);
+  color: var(--neutre-encre);
+  box-shadow: var(--ombre-carte);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mz-date-day { font: 600 24px/1 var(--font-titre); letter-spacing: -0.03em; }
+.mz-date-month { margin-top: 3px; font: 500 12px/1 var(--font-texte); letter-spacing: 0.1em; text-transform: uppercase; }
+.mz-une {
+  padding: 5px 12px;
+  border-radius: var(--radius-pilule);
+  background: var(--jaune-300);
+  color: var(--bordeaux-600);
+  font: 600 13px/1.2 var(--font-texte);
+}
+
+.mz-top-right {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  max-width: 60%;
+}
+.mz-price {
+  padding: 4px 10px;
+  border-radius: var(--radius-petit);
+  background: var(--neutre-blanc);
+  color: var(--bordeaux-600);
+  font: 600 14px/1.4 var(--font-texte);
+}
+
+.mz-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+}
+.mz-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.mz-title {
+  font: 600 19px/1.12 var(--font-titre);
+  letter-spacing: -0.02em;
+  color: var(--neutre-blanc);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mz-card.is-large .mz-body { padding: 24px; gap: 8px; }
+.mz-card.is-large .mz-title { font-size: clamp(26px, 2.6vw, 38px); line-height: 1.05; }
+.mz-tall .mz-title, .mz-wide .mz-title { font-size: 22px; }
+.mz-desc {
+  max-width: 36rem;
+  font: 400 15px/1.45 var(--font-texte);
+  color: var(--neutre-blanc);
+  opacity: 0.85;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mz-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font: 500 13px/1.4 var(--font-texte);
+  color: var(--neutre-blanc);
+}
+.mz-meta > span:first-of-type { white-space: nowrap; }
+.mz-foot { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+.mz-fill { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.mz-gauge {
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-pilule);
+  background: rgba(255, 255, 255, 0.25);
+}
+.mz-gauge span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--jaune-300);
+  transform-origin: left;
+}
+.mz-gauge span.is-low  { background: var(--statut-orange-500); }
+.mz-gauge span.is-full { background: var(--statut-rouge-500); }
+.mz-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 12px/1.2 var(--font-texte);
+  color: var(--neutre-blanc);
+  font-variant-numeric: tabular-nums;
+}
+.mz-like { flex-shrink: 0; }
+
+/* Petites cartes : on garde l'essentiel lisible */
+@media (min-width: 768px) {
+  .mz-small .mz-meta span:first-of-type,
+  .mz-small .mz-meta svg:first-of-type { display: none; }
+  .mz-small .mz-meta svg:nth-of-type(2) { margin-left: 0; }
+}
+
+/* ── Survol : soulèvement + légère inclinaison, zoom photo, date qui pivote ── */
+@media (hover: hover) {
+  .mz-card:hover { transform: translateY(-6px) rotate(-0.6deg); }
+  .mz-card:hover .mz-media > img,
+  .mz-card:hover .mz-fallback { transform: scale(1.06); }
+  .mz-card:hover .mz-date { transform: rotate(-6deg); }
+}
+
+/* ── Squelettes ── */
+.mz-skel {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-carte);
+  background: var(--neutre-bordure);
+  animation: mzPulse 1.4s ease-in-out infinite alternate;
+}
+.mz-mobile .mz-cell:has(.mz-skel),
+.mz-grid .mz-cell:has(.mz-skel) { opacity: 1; }
+@keyframes mzPulse { from { opacity: 1; } to { opacity: 0.5; } }
+
+/* ── Animations réduites : tout est fixe ── */
+@media (prefers-reduced-motion: reduce) {
+  .mz-cell, .mz-cell.is-in { opacity: 1; animation: none; }
+  .mz-skel { animation: none; }
+  .mz-card, .mz-media > img, .mz-fallback, .mz-date { transition: none; }
+  .mz-card:hover, .mz-card:hover .mz-media > img, .mz-card:hover .mz-fallback, .mz-card:hover .mz-date { transform: none; }
+}

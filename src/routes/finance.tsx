@@ -277,7 +277,7 @@ function FinancePage() {
             <DialogTitle>Demander un virement</DialogTitle>
           </DialogHeader>
 
-          <div className="rounded-lg bg-jaune-100/40 border border-sable px-4 py-3 text-sm">
+          <div className="rounded-lg bg-jaune-100/40 border border-bordure px-4 py-3 text-sm">
             <p className="text-muted-foreground">Solde disponible</p>
             <p className="text-2xl font-bold text-bordeaux-600">{fmt(available)}</p>
           </div>

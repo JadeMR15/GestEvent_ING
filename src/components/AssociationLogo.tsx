@@ -17,6 +17,8 @@ const LOGO_MAX_SIDE = 512;
 
 export function associationLogoUrl(path: string | null | undefined): string | null {
   if (!path) return null;
+  // Image déjà hébergée ailleurs (données de démo) : adresse utilisée telle quelle.
+  if (/^https?:\/\//.test(path)) return path;
   return supabase.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 

@@ -19,11 +19,13 @@ export const CHARTE = {
   blanc: "#FFFFFF",
   creme: "#F9F4E8",
   sable: "#EBE4D7",
+  fond: "#FBF5F7",    // ESSAI design-tests (--neutre-fond)
+  bordure: "#E9E0E3", // ESSAI design-tests (--neutre-bordure)
   grisChaud: "#7A6960",
   encre: "#2B161B",
   ombreCarte: "0 4px 16px rgba(109, 29, 48, 0.08)",
   ombreMenu: "0 8px 24px rgba(109, 29, 48, 0.12)",
-  fontTitre: '"Nunito", system-ui, sans-serif',
-  fontTexte: '"Nunito Sans", system-ui, sans-serif',
-  fontsUrl: "https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap",
+  fontTitre: '"Inter Tight", system-ui, sans-serif', // ESSAI design-tests
+  fontTexte: '"Inter Tight", system-ui, sans-serif', // ESSAI design-tests
+  fontsUrl: "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap", // ESSAI design-tests
 } as const;

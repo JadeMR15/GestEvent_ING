@@ -108,10 +108,10 @@ function Feed() {
   );
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr_300px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <div className="min-w-0 space-y-4">
         <div>
-          <h1>Fil d'actu</h1>
+          <h1 className="md:sr-only">Fil d'actu</h1>
           <p className="text-muted-foreground">Les nouveautés des associations que tu suis.</p>
         </div>
 

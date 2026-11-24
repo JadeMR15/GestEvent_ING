@@ -82,7 +82,7 @@ export function SchoolEmailForm() {
   return (
     <div className="space-y-4">
       {sentTo ? (
-        <div className="space-y-3 rounded-xl border border-sable bg-creme p-4">
+        <div className="space-y-3 rounded-xl border border-bordure bg-fond p-4">
           <p className="flex items-center gap-2 font-semibold text-bordeaux-600"><Send className="h-4 w-4" />Regarde ta boîte mail d'école</p>
           <p className="text-sm text-muted-foreground">
             Un lien de confirmation a été envoyé à <strong>{sentTo}</strong>. Il est valable 24 h et ne marche qu'une fois.

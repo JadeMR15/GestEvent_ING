@@ -74,7 +74,7 @@ export function EventMiniCard({ event, past = false, className = "" }: { event: 
         </p>
       </div>
       {event.price != null && !past && (
-        <span className="self-start rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
+        <span className="self-start rounded-[var(--radius-petit)] bg-fond px-2.5 py-1 t-corps-fort text-bordeaux-600">
           {event.price > 0 ? `${Number(event.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
         </span>
       )}
@@ -268,19 +268,19 @@ export function EventTile({ event, past = false }: { event: Pick<FeedEvent, "id"
   const place = event.city ? `${event.city}${event.location ? ` — ${event.location}` : ""}` : event.location || "En ligne";
   return (
     <Link to="/events/$eventId" params={{ eventId: event.id }} className="group block rounded-[var(--radius-carte)]">
-      <article className="flex h-full flex-col overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)] transition-shadow group-hover:shadow-[var(--ombre-menu)]">
+      <article className="flex h-full flex-col overflow-hidden rounded-[var(--radius-carte)] border border-bordure bg-blanc shadow-[var(--ombre-carte)] transition-shadow group-hover:shadow-[var(--ombre-menu)]">
         <div className="relative aspect-[4/3] overflow-hidden bg-gradient-vibrant">
           {event.cover_image_url
             ? <img src={event.cover_image_url} alt="" loading="lazy" className={cn("h-full w-full object-cover transition-transform duration-300 group-hover:scale-105", past && "opacity-55")} />
             : <img src="/plav-cocotte.svg" alt="" className={cn("absolute -bottom-6 -right-6 h-32 w-32 opacity-25", past && "opacity-15")} />}
           <span className="absolute left-3 top-3 flex flex-col items-center overflow-hidden rounded-[var(--radius-moyen)] bg-blanc text-center shadow-[var(--ombre-carte)]">
-            <span className="w-full bg-bordeaux-600 px-2.5 py-0.5 text-xs font-bold uppercase text-creme">{format(d, "MMM", { locale: fr }).replace(".", "")}</span>
+            <span className="w-full bg-bordeaux-600 px-2.5 py-0.5 text-xs font-bold uppercase text-blanc">{format(d, "MMM", { locale: fr }).replace(".", "")}</span>
             <span className="font-display text-xl font-black leading-7 text-bordeaux-600">{format(d, "d")}</span>
           </span>
           {past
-            ? <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-pilule)] bg-sable py-1 pl-2.5 pr-3 text-[13px] font-semibold text-encre before:size-[7px] before:rounded-full before:bg-gris-chaud before:content-['']">Terminé</span>
+            ? <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-[var(--radius-pilule)] bg-bordure py-1 pl-2.5 pr-3 text-[13px] font-semibold text-encre before:size-[7px] before:rounded-full before:bg-gris-chaud before:content-['']">Terminé</span>
             : event.price != null && (
-              <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-creme px-2.5 py-1 t-corps-fort text-bordeaux-600">
+              <span className="absolute right-3 top-3 rounded-[var(--radius-petit)] bg-fond px-2.5 py-1 t-corps-fort text-bordeaux-600">
                 {event.price > 0 ? `${Number(event.price).toFixed(2).replace(".", ",").replace(",00", "")} €` : "Gratuit"}
               </span>
             )}

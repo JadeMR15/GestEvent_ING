@@ -4,6 +4,7 @@ import { SITE_URL } from "@/lib/site";
 import { useLikes } from "@/lib/likes";
 import { LikeButton } from "@/components/LikeButton";
 import { ShareButton } from "@/components/ShareButton";
+import { AddToCalendarButton } from "@/components/AddToCalendarButton";
 import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
@@ -74,7 +75,7 @@ function PublicEventView() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
-      <header className="sticky top-0 z-50 w-full border-b border-sable/30 bg-white/60 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b border-bordure/30 bg-white/60 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
             <BrandName className="h-10" />
@@ -111,7 +112,7 @@ function PublicEventView() {
           <p className="mb-8 leading-relaxed text-encre/80 whitespace-pre-line">{event.description}</p>
         )}
 
-        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-sable/50 bg-white/80 p-4">
+        <div className="mb-6 flex items-center justify-between rounded-[12px] border border-bordure/50 bg-white/80 p-4">
           <span className="text-lg font-semibold" style={{ color: "var(--text-title)" }}>
             {event.price > 0 ? `${event.price} €` : "Gratuit"}
           </span>
@@ -837,7 +838,7 @@ function EventDetail() {
 
           {/* Informations amis / places supplémentaires */}
           {friends.map((f, i) => (
-            <div key={i} className="space-y-3 rounded-xl border border-sable/60 bg-creme p-4">
+            <div key={i} className="space-y-3 rounded-xl border border-bordure/60 bg-fond p-4">
               <p className="text-sm font-semibold text-bordeaux-600 flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />Ami(e) {i + 1}
               </p>
@@ -887,7 +888,7 @@ function EventDetail() {
                   </button>
                 </div>
               ) : (
-                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-sable bg-creme px-4 py-5 transition-colors hover:border-bordeaux-600">
+                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-bordure bg-fond px-4 py-5 transition-colors hover:border-bordeaux-600">
                   <Upload className="h-5 w-5 text-bordeaux-600" />
                   <span className="text-center text-xs text-bordeaux-600">
                     Cliquer pour uploader votre <strong>{event.required_document}</strong>
@@ -1101,9 +1102,10 @@ function EventDetail() {
         <CardContent className="p-5 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h1 className="not-italic">{event.title}</h1>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <LikeButton size="page" count={likes.counts[eventId] ?? 0} liked={likes.mine.has(eventId)} onToggle={() => likes.toggle(eventId)} />
               <ShareButton event={event} />
+              <AddToCalendarButton event={event} label="Agenda" />
               {isOwner && (
                 <>
                   <Button variant="outline" size="sm" asChild>
@@ -1157,12 +1159,12 @@ function EventDetail() {
                 )
             )}
             {event.required_document && (
-              <Badge variant="outline" className="border-sable text-bordeaux-600">
+              <Badge variant="outline" className="border-bordure text-bordeaux-600">
                 <FileText className="mr-1 h-3 w-3" />Document requis : {event.required_document}
               </Badge>
             )}
             {maxPerPerson > 0 && (
-              <Badge variant="outline" className="border-sable text-bordeaux-600">
+              <Badge variant="outline" className="border-bordure text-bordeaux-600">
                 <Users className="mr-1 h-3 w-3" />{maxPerPerson} place{maxPerPerson > 1 ? "s" : ""} max / personne
               </Badge>
             )}
@@ -1263,7 +1265,7 @@ function EventDetail() {
           {/* Actions */}
           <div className="mt-6 space-y-3">
             {isPrivateBlocked ? (
-              <div className="flex items-center gap-2 rounded-lg border border-sable bg-jaune-100/50 px-4 py-3 text-sm text-bordeaux-600">
+              <div className="flex items-center gap-2 rounded-lg border border-bordure bg-jaune-100/50 px-4 py-3 text-sm text-bordeaux-600">
                 <Lock className="h-4 w-4 shrink-0" />
                 Cet événement est réservé aux membres de <strong className="ml-1">{event.school}</strong>.
               </div>
@@ -1315,7 +1317,7 @@ function EventDetail() {
                 {!myReg && isFull && !hasOffer && (isOwner ? (
                   <p className="text-sm text-muted-foreground">Cet événement est complet.</p>
                 ) : myWait?.status === "waiting" ? (
-                  <div className="rounded-xl border border-sable bg-creme p-4 space-y-3">
+                  <div className="rounded-xl border border-bordure bg-fond p-4 space-y-3">
                     <div className="flex items-start gap-2">
                       <Hourglass className="mt-0.5 h-5 w-5 shrink-0 text-bordeaux-600" />
                       <div>
@@ -1336,7 +1338,7 @@ function EventDetail() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-sable bg-creme p-4 space-y-3">
+                  <div className="rounded-xl border border-bordure bg-fond p-4 space-y-3">
                     <div>
                       <p className="font-semibold text-bordeaux-600">Cet événement est complet.</p>
                       <p className="text-sm text-muted-foreground">
@@ -1593,7 +1595,7 @@ function EventDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border bg-creme p-3">
+                <div className="rounded-xl border bg-fond p-3">
                   <p className="text-2xl font-bold text-bordeaux-600">{waiting.length}</p>
                   <p className="text-xs text-muted-foreground">personne{waiting.length > 1 ? "s" : ""} en attente</p>
                 </div>

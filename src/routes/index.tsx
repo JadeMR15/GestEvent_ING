@@ -1,58 +1,77 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandName } from "@/components/BrandName";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTakenCounts, takenOf } from "@/lib/event-taken";
 import { useLikes } from "@/lib/likes";
-import { LikeButton } from "@/components/LikeButton";
-import { Calendar, QrCode, Users, ArrowRight, Timer, MapPin, Search, Clock, TrendingUp, Shield, Zap, ChevronRight, Star, Globe, Mail, Lock, Instagram, Facebook, Youtube } from "lucide-react";
-import { format, isThisWeek, isThisMonth } from "date-fns";
+import { APP_DOWNLOAD_URL, CONTACT_EMAIL, LEGAL_LINKS } from "@/lib/contact";
+import { Calendar, QrCode, Users, ArrowRight, ArrowUpRight, Timer, TrendingUp, Shield, Zap, Mail, Lock, Instagram, Facebook, Youtube, Search, MousePointerClick, Ticket, ScanLine, List as ListIcon, Map as MapIcon } from "lucide-react";
+import { isThisWeek, isThisMonth, isToday, addDays, startOfDay, endOfDay } from "date-fns";
 import { isPastEvent } from "@/lib/event-dates";
-import { fr } from "date-fns/locale";
 import { Capacitor } from "@capacitor/core";
 import { AppWelcome } from "@/components/AppWelcome";
+import { useInView, usePrefersReducedMotion } from "@/components/landing/hooks";
+import { CountUp } from "@/components/landing/Motion";
+import { HeroCocotte } from "@/components/landing/HeroCocotte";
+import { LandingHeader } from "@/components/landing/LandingHeader";
+import { FeaturesBento, type BentoFeature } from "@/components/landing/FeaturesBento";
+import { AppShowcase } from "@/components/landing/AppShowcase";
+import { Frame } from "@/components/landing/Frame";
+import { CocotteCompanion } from "@/components/mascot/CocotteCompanion";
+import { DanceScene } from "@/components/mascot/DanceScene";
+import { RevealTitle } from "@/components/mascot/RevealTitle";
+import { Plongeoir } from "@/components/mascot/Plongeoir";
+import { EventMosaic, EventMosaicSkeleton } from "@/components/events/EventMosaic";
+import { FilterCapsule, useStuck, type DateFilter, type PriceFilter, type StatusFilter } from "@/components/events/FilterCapsule";
+import { LandingSky } from "@/components/landing/LandingSky";
+import "@/components/landing/landing.css";
+
+// Carte chargée à la demande (Leaflet est lourd) : jamais au premier affichage de l'accueil.
+const EventMap = lazy(() => import("@/components/EventMap"));
 
 export const Route = createFileRoute("/")({
   // Dans l'app native : écran d'accueil dédié au lieu de la page vitrine.
   component: () => (Capacitor.isNativePlatform() ? <AppWelcome /> : <Landing />),
 });
 
-type DateFilter = "all" | "week" | "month";
-type StatusFilter = "all" | "open" | "full";
-
-/* Hook scroll animation */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) { setVisible(true); return; }
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, visible };
+/** Prochain week-end (ou celui en cours) : du vendredi 18 h au dimanche soir. */
+function weekendWindow(now = new Date()): [Date, Date] {
+  const day = now.getDay(); // 0 = dimanche … 6 = samedi
+  const toFriday = day === 0 ? -2 : day === 6 ? -1 : 5 - day;
+  const start = startOfDay(addDays(now, toFriday));
+  start.setHours(18);
+  return [start, endOfDay(addDays(start, 2))];
 }
 
+/** Liste triée et dédoublonnée (sans tenir compte des majuscules). */
+function uniqueSorted(values: (string | null | undefined)[]): string[] {
+  return Array.from(new Map(values.filter((v): v is string => !!v?.trim()).map((v) => [v.trim().toLowerCase(), v.trim()])).values())
+    .sort((a, b) => a.localeCompare(b, "fr"));
+}
 
 function Landing() {
   const { user, loading } = useAuth();
+  const heroGridRef = useHeroRest();
 
   const [events, setEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [q, setQ] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [schoolFilter, setSchoolFilter] = useState("all");
+  const [assoFilter, setAssoFilter] = useState("all");
   const [stats, setStats] = useState({ events: 0, participants: 0, organizers: 0 });
+  const [view, setView] = useState<"list" | "map">("list");
+  // La carte (Leaflet) ne se charge que dans le navigateur, et seulement quand on la demande.
+  const [mapReady, setMapReady] = useState(false);
+  useEffect(() => { if (view === "map") setMapReady(true); }, [view]);
 
   useEffect(() => {
     (async () => {
@@ -60,187 +79,213 @@ function Landing() {
       if (evErr) console.error("Events error:", evErr.message);
       const all = evData ?? [];
 
-      // Récupérer les counts de registrations séparément
-      let regsMap: Record<string, any[]> = {};
-      if (all.length > 0) {
-        const ids = all.map((e: any) => e.id);
-        const { data: regsData, error: regsErr } = await supabase
-          .from("registrations")
-          .select("id, event_id, status, expires_at")
-          .in("event_id", ids);
-        if (regsErr) console.error("Registrations fetch error:", regsErr.message, regsErr.code);
-        (regsData ?? []).forEach((r: any) => {
-          if (!regsMap[r.event_id]) regsMap[r.event_id] = [];
-          regsMap[r.event_id].push(r);
-        });
-      }
-
+      // Places prises calculées par la base (nombres seulement) : un visiteur ne lit jamais
+      // les inscriptions elles-mêmes (QR codes, emails des invités).
       const taken = await fetchTakenCounts(all.map((e: any) => e.id));
-      const enriched = all.map((e: any) => ({ ...e, registrations: regsMap[e.id] ?? [], taken: taken[e.id] }));
+      const enriched = all.map((e: any) => ({ ...e, taken: taken[e.id] ?? 0 }));
       setEvents(enriched);
-      const totalParticipants = enriched.reduce((acc: number, e: any) =>
-        acc + (e.registrations ?? []).filter((r: any) => r.status === "registered" || r.status === "attended").length, 0);
+      const totalParticipants = enriched.reduce((acc: number, e: any) => acc + (e.taken ?? 0), 0);
       const organizerIds = new Set(enriched.map((e: any) => e.organizer_id));
       setStats({ events: enriched.length, participants: totalParticipants, organizers: organizerIds.size });
       setEventsLoading(false);
     })();
   }, []);
 
-  const filtered = useMemo(() => events.filter((e) => {
-    const isFull = e.capacity > 0 && takenOf(e) >= e.capacity;
-    if (q && !e.title.toLowerCase().includes(q.toLowerCase()) && !e.location?.toLowerCase().includes(q.toLowerCase())) return false;
-    if (dateFilter === "week" && !isThisWeek(new Date(e.starts_at))) return false;
-    if (dateFilter === "month" && !isThisMonth(new Date(e.starts_at))) return false;
-    if (statusFilter === "open" && isFull) return false;
-    if (statusFilter === "full" && !isFull) return false;
-    return true;
-  }), [events, q, dateFilter, statusFilter]);
-
   // Les événements passés ne sont plus affichés (ils restent dans « Mes billets »).
-  const upcoming = filtered.filter((e) => !isPastEvent(e.starts_at));
+  const future = useMemo(() => events.filter((e) => !isPastEvent(e.starts_at)), [events]);
+  // Choix proposés dans « Plus » : uniquement ceux qui ont des événements à venir.
+  const cities = useMemo(() => uniqueSorted(future.map((e) => e.city)), [future]);
+  const schools = useMemo(() => uniqueSorted(future.map((e) => e.school)), [future]);
+  const assos = useMemo(() => uniqueSorted(future.map((e) => e.association)), [future]);
 
+  const upcoming = useMemo(() => {
+    const lq = q.trim().toLowerCase();
+    const [weStart, weEnd] = weekendWindow();
+    const same = (a?: string, b?: string) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
+    return future.filter((e) => {
+      const start = new Date(e.starts_at);
+      const remaining = e.capacity > 0 ? e.capacity - takenOf(e) : Infinity;
+      // Recherche : titre, lieu, ville, association, école
+      if (lq && ![e.title, e.location, e.city, e.association, e.school].some((v) => v?.toLowerCase().includes(lq))) return false;
+      if (dateFilter === "today" && !isToday(start)) return false;
+      if (dateFilter === "weekend" && (start < weStart || start > weEnd)) return false;
+      if (dateFilter === "week" && !isThisWeek(start, { weekStartsOn: 1 })) return false;
+      if (dateFilter === "month" && !isThisMonth(start)) return false;
+      if (statusFilter === "open" && remaining <= 0) return false;
+      // Même seuil que le badge « X places » des cartes
+      if (statusFilter === "last" && !(remaining > 0 && remaining < 10)) return false;
+      if (statusFilter === "full" && remaining > 0) return false;
+      if (priceFilter === "free" && e.price > 0) return false;
+      if (priceFilter === "under10" && e.price >= 10) return false;
+      if (cityFilter !== "all" && !same(e.city, cityFilter)) return false;
+      if (schoolFilter !== "all" && !same(e.school, schoolFilter)) return false;
+      if (assoFilter !== "all" && !same(e.association, assoFilter)) return false;
+      return true;
+    });
+  }, [future, q, dateFilter, statusFilter, priceFilter, cityFilter, schoolFilter, assoFilter]);
+
+  const heroAnim   = useInView<HTMLElement>(0, false);
+  const statsAnim  = useInView(0.3);
   const eventsAnim = useInView(0.1);
+  const capsule = useStuck<HTMLDivElement>();
   const featuresAnim = useInView(0.1);
-  const ctaAnim    = useInView(0.1);
+  const ctaAnim    = useInView<HTMLElement>(0, false);
+
+  const features: BentoFeature[] = [
+    { icon: Calendar,     title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", area: "crea" },
+    { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", area: "timer" },
+    { icon: QrCode,       title: "QR code à l'entrée", desc: "Un QR code par inscrit. Un scan à l'entrée, et c'est validé.", area: "qr" },
+    { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, la confirmation arrive par email.", area: "insc" },
+    { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscrits, remplissage, présences\u202F: tes chiffres bougent en direct.", area: "dash" },
+    { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin\u202F: chacun voit ce dont il a besoin.", area: "roles" },
+    { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", area: "sync" },
+  ];
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-page)", overflowX: "clip" }}>
-      <div className="pointer-events-none fixed inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/cracki.webp')", opacity: 0.12 }} />
-      <div className="pointer-events-none fixed inset-0 bg-gradient-mesh opacity-60" />
+    <div className="lp-page min-h-screen" style={{ overflowX: "clip" }}>
+      <LandingSky />
 
-      {/* ── Header ── */}
-      <header className="relative z-50 w-full border-b border-sable/30 bg-white/60 backdrop-blur sticky top-0 overflow-hidden">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <BrandName className="h-10 md:h-14" />
-          </div>
-          <nav className="hidden md:flex items-center gap-16 text-sm font-medium text-bordeaux-600">
-            <a href="#evenements" className="hover:opacity-70 transition-opacity">Événements</a>
-            <a href="#fonctionnalites" className="hover:opacity-70 transition-opacity">Fonctionnalités</a>
-            <a href="#contact" className="hover:opacity-70 transition-opacity">Contact</a>
-          </nav>
-          <div className="flex gap-2">
-            {!loading && user ? (
-              <Button asChild className="bg-gradient-primary shadow-glow">
-                <Link to="/dashboard">Mon espace <ArrowRight /></Link>
-              </Button>
-            ) : (
-              <>
-                <Button asChild variant="ghost" size="sm"><Link to="/login">Connexion</Link></Button>
-                <Button asChild size="sm" className="bg-gradient-primary shadow-glow"><Link to="/register">Commencer</Link></Button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* ── Header : blanc, logo couleur, liens en petites capitales ── */}
+      <LandingHeader
+        actions={
+          !loading && user ? (
+            <Button asChild>
+              <Link to="/dashboard">Mon espace <ArrowRight /></Link>
+            </Button>
+          ) : (
+            <>
+              <Link to="/login" className="lp-caps text-encre transition-colors hover:text-bordeaux-600">Connexion</Link>
+              <Button asChild size="sm"><Link to="/register">Commencer</Link></Button>
+            </>
+          )
+        }
+      />
 
-      {/* ── Hero — bordeaux plein, cocotte géante en filigrane ── */}
-      <section className="relative overflow-hidden bg-bordeaux-600 px-6 pt-20 pb-24 lg:pt-28 lg:pb-32 rounded-b-[40px] shadow-elegant">
-        <img
-          src="/plav-cocotte.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -top-16 h-[520px] w-[520px] opacity-[0.12] md:-right-10 md:h-[720px] md:w-[720px] plav-drift"
-        />
-        <img
-          src="/plav-cocotte.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-20 bottom-[-90px] h-[260px] w-[260px] opacity-[0.08] rotate-12"
-        />
+      {/* ── Hero « studio » : fond blanc, cocotte 3D à gauche, titre empilé à droite ── */}
+      <section ref={heroAnim.ref} className="lp-hero">
+        <HeroCocotte playing={heroAnim.visible} />
 
-        <div className="relative z-10 container mx-auto">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-jaune-300/50 bg-bordeaux-800/40 px-4 py-1.5 text-xs font-medium backdrop-blur text-jaune-100">
-              <img src="/plav-cocotte.svg" alt="" className="h-5 w-5 object-contain" />
-              plav' · la billetterie étudiante
-            </div>
-            <h1 className="t-display text-creme">
-              Pour ceux qui organisent,{" "}
-              <span className="text-jaune-300">et ceux qui viennent.</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-creme/75">
-              Organise ou participe — <span className="font-semibold text-jaune-100">plav' s'occupe du reste.</span>
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              {!loading && user ? (
-                <>
-                  <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
-                  <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Voir les soirées</a></Button>
-                </>
-              ) : (
-                <>
-                  <Button asChild size="lg" variant="secondary"><Link to="/register">Créer un compte <ArrowRight /></Link></Button>
-                  <Button asChild size="lg" variant="outlineLight"><a href="#evenements">Découvrir les soirées</a></Button>
-                </>
-              )}
-            </div>
-          </div>
+        <div ref={heroGridRef} className="lp-hero-grid container mx-auto px-4 sm:px-6">
+          {/* Petit texte : badge (sans cadre) */}
+          <p className="lp-hero-badge lp-caps-sm lp-fade-late">
+            <img src="/plav-cocotte.svg" alt="" className="h-4 w-4 object-contain" />
+            <span>plav' · la billetterie étudiante</span>
+          </p>
 
-          {/* Stats */}
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-3">
+          {/* Titre empilé */}
+          <h1 className="lp-hero-title">
+            <span className="lp-line" style={{ "--i": 0 } as CSSProperties}>Des soirées</span>{" "}
+            <span className="lp-line" style={{ "--i": 1 } as CSSProperties}>pleines,</span>{" "}
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 2 } as CSSProperties}>des assos</span>{" "}
+            <span className="lp-line text-bordeaux-600" style={{ "--i": 3 } as CSSProperties}><span className="t-accent plav-highlight">sereines.</span></span>
+          </h1>
+
+          {/* Phrase d'accroche */}
+          <p className="lp-hero-sub lp-fade-later">
+            Organise ou participe{"\u202F:"}{" "}<span className="lp-hero-sub-end text-bordeaux-800">Cocotte se plie en quatre pour le reste.</span>
+          </p>
+
+          {/* Chiffres, sous les boutons (séparés par un fin trait) */}
+          <div ref={statsAnim.ref} className="lp-hero-stats lp-fade-late">
             {[
-              { value: stats.events, label: "events publiés", icon: Calendar },
-              { value: stats.participants, label: "participants", icon: Users },
-              { value: stats.organizers, label: "organisateurs", icon: Star },
+              { value: stats.events, label: "events publiés" },
+              { value: stats.participants, label: "participants" },
+              { value: stats.organizers, label: "organisateurs" },
             ].map((s) => (
-              <div key={s.label} className="rounded-[16px] border border-jaune-300/30 bg-creme p-3 sm:p-5 text-center shadow-elegant">
-                <s.icon className="mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5 text-jaune-300" />
-                <p className="font-display text-xl sm:text-3xl font-bold" style={{ color: "var(--text-title)" }}>
-                  {eventsLoading ? "—" : s.value}
+              <div key={s.label} className="lp-stat">
+                <p className="lp-stat-value">
+                  <sup className="lp-stat-plus">+</sup>
+                  {eventsLoading ? "—" : <CountUp value={s.value} active={statsAnim.visible} delay={900} />}
                 </p>
-                <p className="mt-1 text-xs sm:text-xs text-encre/60 leading-tight">{s.label}</p>
+                <p className="lp-stat-label lp-caps-xs">{s.label}</p>
               </div>
             ))}
+          </div>
+
+          {/* Actions : bouton Principal + lien vers les soirées */}
+          <div className="lp-hero-actions lp-fade-later">
+            {!loading && user ? (
+              <>
+                <Button asChild size="lg" variant="secondary"><Link to="/dashboard">Accéder à mon espace <ArrowRight /></Link></Button>
+                <a href="#evenements" className="lp-arrow-link lp-caps">Voir les soirées <ArrowUpRight /></a>
+              </>
+            ) : (
+              <>
+                <Button asChild size="lg" variant="secondary"><Link to="/register">Créer un compte <ArrowRight /></Link></Button>
+                <a href="#evenements" className="lp-arrow-link lp-caps">Découvrir les soirées <ArrowUpRight /></a>
+              </>
+            )}
           </div>
         </div>
       </section>
 
 
-      {/* ── Events section ── */}
-      <section id="evenements" className="relative py-20">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-0" style={{ height: "55%", background: "var(--neutre-creme)" }} />
-        <div className="relative z-10 container mx-auto px-6">
-        <div ref={eventsAnim.ref} className={`mb-10 text-center ${eventsAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 style={{ color: "var(--text-title)" }}>Les prochains <span className="plav-highlight">events</span></h2>
-          <p className="mt-2 text-encre/60">Accessibles sans compte. Un lien, c'est tout.</p>
+      {/* ── Events section (clair) ── */}
+      <section id="evenements" className="lp-events relative py-20 md:py-28">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6">
+        <div ref={eventsAnim.ref} className={`mb-10 md:mb-12 ${eventsAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+          <h2 className="lp-section-title" style={{ color: "var(--text-title)" }}><span id="lp-cocotte-slot" className="lp-slot" aria-hidden="true"><img src="/plav-cocotte.svg" alt="" /></span>Les prochains <span className="t-accent plav-highlight">events</span></h2>
+          <p className="mt-4 t-corps-l text-encre">Cocotte a mis les plus attendues en grand. À toi de choisir.</p>
         </div>
 
-        <div className={`mx-auto mb-8 flex max-w-3xl flex-col sm:flex-row gap-3 ${eventsAnim.visible ? "animate-fade-up delay-200" : ""}`}>
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher par titre ou lieu…" className="pl-9 bg-white/80 backdrop-blur w-full" />
-          </div>
-          <div className="flex gap-3">
-            <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur">
-                <Clock className="mr-2 h-4 w-4 text-muted-foreground" /><SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes dates</SelectItem>
-                <SelectItem value="week">Cette semaine</SelectItem>
-                <SelectItem value="month">Ce mois</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="flex-1 sm:w-40 bg-white/80 backdrop-blur"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous statuts</SelectItem>
-                <SelectItem value="open">Places disponibles</SelectItem>
-                <SelectItem value="full">Complet</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Recherche et filtres : capsule flottante, accrochée sous l'en-tête pendant la section */}
+        <div ref={capsule.sentinel} aria-hidden="true" />
+        {/* Pas d'animation d'apparition sur ce conteneur : elle empêcherait le flou d'arrière-plan
+            de la capsule (backdrop-filter) une fois accrochée. */}
+        <div className="cap-sticky mb-10">
+          <FilterCapsule
+            q={q}
+            setQ={setQ}
+            dateFilter={dateFilter}
+            setDateFilter={setDateFilter}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            count={eventsLoading ? null : upcoming.length}
+            stuck={capsule.stuck}
+            more={{
+              price: priceFilter, setPrice: setPriceFilter,
+              city: cityFilter, setCity: setCityFilter,
+              school: schoolFilter, setSchool: setSchoolFilter,
+              asso: assoFilter, setAsso: setAssoFilter,
+              cities, schools, assos,
+            }}
+          />
+        </div>
+
+        {/* Liste / carte : la carte est aussi visible sans compte. */}
+        <div className="mb-6 flex justify-end">
+          <div role="group" aria-label="Affichage des événements" className="inline-flex overflow-hidden rounded-full border border-bordure bg-blanc">
+            {([["list", "Liste", ListIcon], ["map", "Carte", MapIcon]] as const).map(([mode, label, Icon]) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={view === mode}
+                onClick={() => setView(mode)}
+                className={`tap flex items-center gap-1.5 px-4 py-2 text-sm font-semibold transition-colors ${view === mode ? "bg-bordeaux-600 text-blanc" : "text-bordeaux-600 hover:bg-creme"}`}
+              >
+                <Icon className="h-4 w-4" />{label}
+              </button>
+            ))}
           </div>
         </div>
 
         {eventsLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => <div key={i} className="rounded-[12px] border border-sable/50 bg-white/60 h-64 animate-pulse" />)}
-          </div>
+          <EventMosaicSkeleton />
         ) : upcoming.length === 0 ? (
           <Card className="mx-auto max-w-md">
             <EmptyState title="Aucun événement trouvé." />
           </Card>
+        ) : view === "map" ? (
+          <div className="space-y-2">
+            {upcoming.some((e) => !e.latitude) && (
+              <p className="text-sm text-encre">Certains événements n'ont pas d'adresse précise et n'apparaissent pas sur la carte.</p>
+            )}
+            {mapReady && (
+              <Suspense fallback={<div className="h-[500px] animate-pulse rounded-xl border border-bordure bg-creme" />}>
+                <EventMap events={upcoming} />
+              </Suspense>
+            )}
+          </div>
         ) : (
           <EventGrid events={upcoming} user={user} />
         )}
@@ -248,104 +293,112 @@ function Landing() {
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section id="fonctionnalites" className="relative py-24">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 10%, rgba(255,255,255,0.5) 90%, transparent 100%)" }} />
-        <div ref={featuresAnim.ref} className="container mx-auto px-6">
-          <div className={`mb-12 text-center ${featuresAnim.visible ? "animate-fade-up" : ""}`}>
-          <h2 style={{ color: "var(--text-title)" }}>Simple. <span className="plav-highlight">Complet.</span></h2>
-            <p className="mt-3 text-encre/60 max-w-xl mx-auto">De la création de l'event à l'accueil à l'entrée, tout est là.</p>
+      {/* ── Features (sombre) : grille bento ── */}
+      <section id="fonctionnalites" className="lp-frame-section relative">
+        {/* Scène de danse posée sur le bord haut du cadre : Cocotte et les créatrices (essai) */}
+        <DanceScene />
+        <Frame>
+        <div ref={featuresAnim.ref} className="mx-auto max-w-[1216px]">
+          <div className={`mb-12 md:mb-16 ${featuresAnim.visible ? "animate-fade-up" : "opacity-0"}`}>
+            <h2 className="lp-section-title text-blanc">Simple. <span className="t-accent text-jaune-300">Complet.</span></h2>
+            <p className="mt-4 max-w-xl t-corps-l text-bordeaux-200">De la billetterie à l'entrée, Cocotte a tout plié.</p>
           </div>
-          <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 ${featuresAnim.visible ? "animate-fade-up delay-200" : ""}`}>
-            {[
-              { icon: Calendar, title: "Création rapide",    desc: "Titre, date, lieu, capacité. Ton event est en ligne en moins d'une minute.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
-              { icon: Timer,        title: "Timer 15 min",      desc: "La place est bloquée 15 min à la réservation. Le premier à confirmer l'obtient.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
-              { icon: QrCode,       title: "QR code à l'entrée", desc: "Chaque inscrit reçoit son QR. Tu scannes, tu valides. Rapide et sans papier.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Users,        title: "Inscription en un clic", desc: "Un clic pour réserver, confirmation par email. Pas besoin de faire compliqué.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
-              { icon: TrendingUp,   title: "Dashboard en direct", desc: "Inscriptions, taux de remplissage, présences — tout se met à jour en temps réel.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
-              { icon: Shield,       title: "Rôles clairs",      desc: "Orga, participant, bénévole, admin — chacun voit ce dont il a besoin.", color: "bg-gradient-primary", iconColor: "text-white" },
-              { icon: Zap,          title: "Synchro instantanée", desc: "Tout le monde voit les mêmes données, au même moment.", color: "bg-jaune-100", iconColor: "text-bordeaux-600" },
-              { icon: Globe,        title: "Sans compte requis", desc: "Les events publics sont visibles par tout le monde. Partage le lien, c'est réglé.", color: "bg-jaune-200", iconColor: "text-bordeaux-800" },
-            ].map((f) => (
-              <div key={f.title} className="rounded-[12px] border-[0.5px] border-sable bg-white/80 p-6 backdrop-blur shadow-elegant hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
-                <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-[8px] ${f.color}`}>
-                  <f.icon className={`h-5 w-5 ${f.iconColor}`} />
-                </div>
-                <h3 style={{ color: "var(--text-title)", fontSize: "1.1rem", fontWeight: 600 }}>{f.title}</h3>
-                <p className="mt-2 text-sm text-encre/70">{f.desc}</p>
-              </div>
-            ))}
-          </div>
+          <FeaturesBento features={features} />
         </div>
+        </Frame>
       </section>
 
       {/* ── How it works — scroll-driven stacked cards ── */}
       <StackedHowItWorks />
 
-      {/* ── CTA ── */}
+      {/* ── L'appli ── */}
+      <AppShowcase />
+
+      {/* ── CTA (sombre) ── */}
       {!loading && !user && (
-        <section ref={ctaAnim.ref} className={`relative py-20 ${ctaAnim.visible ? "animate-fade-up" : ""}`}>
-          <div className="container mx-auto px-6">
-            <div className="relative mx-auto max-w-2xl overflow-hidden rounded-[28px] bg-gradient-primary p-12 text-center shadow-elegant ring-4 ring-jaune-300/40">
-              <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-6 h-32 w-32 object-contain drop-shadow-lg plav-spin-in" />
-              <h2 className="t-titre-2 text-creme">T'attends <span className="text-jaune-300">quoi ?</span></h2>
-              <p className="mt-4 text-creme/80">Rejoins les assos qui font confiance à plav'.</p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg" variant="secondary">
-                  <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
-                </Button>
-                <Button asChild size="lg" variant="outlineLight">
-                  <Link to="/login">Se connecter</Link>
-                </Button>
-              </div>
+        <section ref={ctaAnim.ref} className="lp-frame-section relative">
+          {/* Plongeoir posé sur le bord haut du cadre (essai) */}
+          <Plongeoir />
+          <Frame className="lp-frame-cta">
+          <img
+            src="/plav-cocotte.svg"
+            alt=""
+            aria-hidden="true"
+            className={`lp-cta-cocotte pointer-events-none plav-drift ${ctaAnim.visible ? "" : "lp-paused"}`}
+          />
+          <div className="relative z-10 mx-auto text-center">
+            <span id="lp-cta-landing" className="lp-cta-landing">
+              <img src="/plav-cocotte.svg" alt="" className="mx-auto mb-8 h-24 w-24 md:h-32 md:w-32 object-contain plav-spin-in" />
+              {/* Éclaboussures depuis le centre de la cocotte, quand Cocotte s'y pose (essai) */}
+              <span id="lp-splash" className="lp-splash" aria-hidden="true">
+                {[0, 1, 2].map((n) => <span key={`r${n}`} className="lp-splash-ring" style={{ "--n": n } as CSSProperties} />)}
+                {[-46, -30, -12, 10, 28, 44].map((dx, n) => (
+                  <span key={`d${n}`} className="lp-splash-drop" style={{ "--n": n, "--dx": `${dx}px`, "--up": `${-30 - (n % 3) * 12}px` } as CSSProperties} />
+                ))}
+              </span>
+            </span>
+            <p className="t-corps-l text-blanc/80">Cocotte a déjà plongé.</p>
+            <h2 className="lp-cta-title mt-4">À ton <span className="t-accent text-jaune-300">tour{"\u202F!"}</span></h2>
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" variant="secondary">
+                <Link to="/register">Créer un compte gratuitement <ArrowRight /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outlineLight">
+                <Link to="/login">Se connecter</Link>
+              </Button>
             </div>
           </div>
+          </Frame>
         </section>
       )}
 
       {/* ── Footer ── */}
-      <footer id="contact" className="relative border-t border-sable/30 bg-white/60 backdrop-blur py-12">
-        <div className="container mx-auto px-6">
+      <footer id="contact" className="relative py-12">
+        <div className="container mx-auto px-4 sm:px-6">
+          {/* Encadré : le pied de page se distingue nettement du reste de la page. */}
+          <div className="rounded-[var(--radius-carte)] border border-bordure bg-blanc/90 p-6 shadow-[var(--ombre-carte)] backdrop-blur md:p-10">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <BrandName className="h-12" />
               </div>
-              <p className="text-sm text-encre/60">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
+              <p className="text-sm text-encre">La plateforme de billetterie étudiante pour les assos qui gèrent.</p>
             </div>
             <div>
-              <h4 className="t-surtitre mb-3 text-bordeaux-600">Navigation</h4>
-              <ul className="space-y-2 text-sm text-encre/70">
-                <li><a href="#evenements" className="hover:text-bordeaux-600 transition-colors">Événements</a></li>
-                <li><a href="#fonctionnalites" className="hover:text-bordeaux-600 transition-colors">Fonctionnalités</a></li>
-                <li><Link to="/login" className="hover:text-bordeaux-600 transition-colors">Connexion</Link></li>
-                <li><Link to="/register" className="hover:text-bordeaux-600 transition-colors">Inscription</Link></li>
+              <h4 className="t-surtitre mb-3 text-bordeaux-800">Navigation</h4>
+              <ul className="space-y-2 text-sm text-encre">
+                <li><a href="#evenements" className="hover:text-bordeaux-800 transition-colors">Événements</a></li>
+                <li><a href="#fonctionnalites" className="hover:text-bordeaux-800 transition-colors">Fonctionnalités</a></li>
+                <li><a href="#lp-how-title" className="hover:text-bordeaux-800 transition-colors">Comment ça marche</a></li>
+                <li><a href={APP_DOWNLOAD_URL} className="hover:text-bordeaux-800 transition-colors">Télécharger l'application</a></li>
+                <li><Link to="/login" className="hover:text-bordeaux-800 transition-colors">Connexion</Link></li>
+                <li><Link to="/register" className="hover:text-bordeaux-800 transition-colors">Inscription</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="t-surtitre mb-3 text-bordeaux-600">À propos</h4>
-              <ul className="space-y-2 text-sm text-encre/70">
-                <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-600 transition-colors">Organisateur</Link></li>
-                <li><Link to="/about" hash="participant" className="hover:text-bordeaux-600 transition-colors">Participant</Link></li>
-                <li><Link to="/about" hash="benevole" className="hover:text-bordeaux-600 transition-colors">Bénévole</Link></li>
+              <h4 className="t-surtitre mb-3 text-bordeaux-800">À propos</h4>
+              <ul className="space-y-2 text-sm text-encre">
+                <li><Link to="/about" hash="organisateur" className="hover:text-bordeaux-800 transition-colors">Organisateur</Link></li>
+                <li><Link to="/about" hash="participant" className="hover:text-bordeaux-800 transition-colors">Participant</Link></li>
+                <li><Link to="/about" hash="benevole" className="hover:text-bordeaux-800 transition-colors">Bénévole</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="t-surtitre mb-3 text-bordeaux-600">Contact</h4>
-              <div className="flex items-center gap-2 text-sm text-encre/70 mb-4">
-                <Mail className="h-4 w-4" /><span>support@plav.app</span>
-              </div>
+              <h4 className="t-surtitre mb-3 text-bordeaux-800">Contact</h4>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-2 text-sm text-encre mb-4 hover:text-bordeaux-800 transition-colors">
+                <Mail className="h-4 w-4" /><span>{CONTACT_EMAIL}</span>
+              </a>
               <div className="flex items-center gap-3">
-                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="Instagram">
+                <a href="https://instagram.com/plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="Facebook">
+                <a href="https://facebook.com/plav.app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="Facebook">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="YouTube">
+                <a href="https://youtube.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="YouTube">
                   <Youtube className="h-5 w-5" />
                 </a>
-                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre/50 hover:text-bordeaux-600 transition-colors" aria-label="TikTok">
+                <a href="https://tiktok.com/@plav_app" target="_blank" rel="noopener noreferrer" className="text-encre hover:text-bordeaux-800 transition-colors" aria-label="TikTok">
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
                   </svg>
@@ -353,168 +406,282 @@ function Landing() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-sable/30 pt-6 text-center text-xs text-encre/40">
-            © {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.
+          <div className="mt-8 flex flex-col items-center gap-3 border-t border-bordure pt-6 text-xs text-encre md:flex-row md:justify-between">
+            <span>© {new Date().getFullYear()} <BrandName className="h-5 align-middle" />. Tous droits réservés.</span>
+            <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+              {LEGAL_LINKS.map((l) => (
+                <Link key={l.to} to={l.to} className="hover:text-bordeaux-800 transition-colors">{l.label}</Link>
+              ))}
+            </nav>
+          </div>
           </div>
         </div>
       </footer>
+
+      {/* Cocotte, la mascotte : prend le relais de la cocotte posée dans le titre (essai) */}
+      <CocotteCompanion />
     </div>
   );
 }
 
 const HOW_CARDS = [
-  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: Calendar },
-  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min — premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
-  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-creme)", accent: "var(--jaune-100)", icon: TrendingUp  },
-  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-creme)", accent: "var(--jaune-300)", icon: QrCode      },
+  { step: "01", title: "Tu crées l'event",         desc: "Titre, date, lieu, capa, image. C'est publié en moins d'une minute.",                                    cta: "Créer un event",        to: "/register", bg: "var(--bordeaux-600)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: Calendar },
+  { step: "02", title: "Les gens s'inscrivent",    desc: "Un clic pour réserver. La place est bloquée 15 min\u202F: premiers arrivés, premiers servis.",                 cta: "Voir les events",       to: "/events/",  bg: "var(--jaune-300)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: Timer       },
+  { step: "03", title: "Tu suis tout",             desc: "Inscriptions, remplissage, présences. Tout est dans ton dashboard, en direct.",                            cta: "Mon espace",            to: "/register", bg: "var(--bordeaux-500)", fg: "var(--neutre-blanc)", accent: "var(--jaune-100)", icon: TrendingUp  },
+  { step: "04", title: "T'accueilles le jour J",   desc: "QR code unique par inscrit. Tu scannes à l'entrée, c'est validé. Rien à imprimer, rien à gérer.",         cta: "Commencer",             to: "/register", bg: "var(--bordeaux-800)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: QrCode      },
 ];
 
-function StackedHowItWorks() {
+type HowCard = { step: string; title: string; desc: string; cta?: string; to?: string; bg: string; fg: string; accent: string; icon: typeof Calendar };
+
+/** Parcours participant (ESSAI design-tests) : en miroir des cartes organisateur, fonds un cran différents. */
+const HOW_CARDS_PART: HowCard[] = [
+  { step: "01", title: "Tu trouves ta soirée",       desc: "Cocotte a mis les plus attendues en grand. Filtre par date ou par places dispo.", bg: "var(--bordeaux-500)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: Search },
+  { step: "02", title: "Tu réserves en un clic",     desc: "Ta place est gardée 15 min, le temps de confirmer.",                              bg: "var(--jaune-200)", fg: "var(--bordeaux-600)", accent: "var(--bordeaux-600)", icon: MousePointerClick },
+  { step: "03", title: "Tu reçois ton billet",       desc: "Confirmation par email, et ton QR code t'attend dans ton espace.",                bg: "var(--bordeaux-600)", fg: "var(--neutre-blanc)", accent: "var(--jaune-100)", icon: Ticket },
+  { step: "04", title: "Tu entres en deux secondes", desc: "Tu montres ton QR, on le scanne, c'est parti.",                                  cta: "Voir les soirées", to: "/events/", bg: "var(--bordeaux-700)", fg: "var(--neutre-blanc)", accent: "var(--jaune-300)", icon: ScanLine },
+];
+
+/** Hauteur de la zone où le titre « Comment ça marche ? » reste collé (sous l'en-tête). */
+const HOW_TITLE_TOP = 110;
+const HOW_STEP = 16; // décalage entre deux cartes empilées
+
+/**
+ * Haut de page (ESSAI design-tests) : mesure la hauteur réelle du bloc hors titre (étiquette,
+ * sous-titre, boutons, trait, chiffres, avec leurs espaces) et la donne au CSS (--hero-rest),
+ * qui en déduit la taille du titre pour que tout tienne dans l'écran. Recalculée au redimensionnement.
+ */
+function useHeroRest() {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const grid = ref.current;
+    if (!grid) return;
+    const q = (c: string) => grid.querySelector<HTMLElement>(c);
+    const calc = () => {
+      const badge = q(".lp-hero-badge");
+      const title = q(".lp-hero-title");
+      const stats = q(".lp-hero-stats");
+      if (!badge || !title || !stats) return;
+      // offset* : positions sans les transform des animations d'apparition
+      const rest = stats.offsetTop + stats.offsetHeight - badge.offsetTop - title.offsetHeight;
+      grid.style.setProperty("--hero-rest", `${rest}px`);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    for (const c of [".lp-hero-badge", ".lp-hero-sub", ".lp-hero-actions", ".lp-hero-stats"]) {
+      const el = q(c);
+      if (el) ro.observe(el);
+    }
+    ro.observe(grid);
+    window.addEventListener("resize", calc);
+    return () => { ro.disconnect(); window.removeEventListener("resize", calc); };
+  }, []);
+  return ref;
+}
+
+/**
+ * Géométrie de l'empilement (ESSAI design-tests), recalculée selon l'écran :
+ * - les cartes se collent toujours sous le titre (jamais par-dessus ni dessous) ;
+ * - le titre et chaque carte reçoivent une marge basse calculée pour qu'ils se décollent tous
+ *   au même instant, quand la dernière carte se pose : ils remontent alors ensemble.
+ */
+function useHowStack() {
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [g, setG] = useState<{ top0: number; h: number; titleMb: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    const calc = () => {
+      const vh = window.innerHeight;
+      const titleBottom = HOW_TITLE_TOP + el.offsetHeight;
+      const n = HOW_CARDS.length;
+      // Ordinateur : la première rangée se colle ~10 px sous la ligne de base des étiquettes
+      // « Tu organises / Tu participes » (interligne 1 : la ligne de base est ~0,155 em au-dessus du bas de la boîte)
+      const labels = el.querySelector<HTMLElement>(".lp-how-labels");
+      const labelFs = labels ? parseFloat(getComputedStyle(labels.querySelector(".lp-how-label") ?? labels).fontSize) : 0;
+      const top0 = labels?.offsetParent
+        ? HOW_TITLE_TOP + labels.offsetTop + labels.offsetHeight - 0.155 * labelFs + 10
+        : Math.max(vh * 0.5 - 180, titleBottom + 16);
+      const h = Math.max(240, Math.min(420, vh * 0.58, vh - top0 - (n - 1) * HOW_STEP - 16));
+      const lastBottom = top0 + (n - 1) * HOW_STEP + h; // bas de la dernière carte une fois posée
+      setG({ top0, h, titleMb: lastBottom - titleBottom });
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    window.addEventListener("resize", calc);
+    return () => { ro.disconnect(); window.removeEventListener("resize", calc); };
+  }, []);
+  return { titleRef, g };
+}
+
+type HowSide = "orga" | "part";
+const HOW_SIDES: { id: HowSide; label: string; tab: string }[] = [
+  { id: "orga", label: "Tu organises", tab: "J'organise" },
+  { id: "part", label: "Tu participes", tab: "Je participe" },
+];
+
+/** Une carte de la pile (même forme pour les deux parcours). */
+function HowCardView({ card, side }: { card: HowCard; side: HowSide }) {
   return (
-    <section style={{ background: "transparent", paddingTop: "4rem" }}>
-      <div style={{
-        position:   "sticky",
-        top:        110,
-        zIndex:     6,
+    <div
+      className={`lp-how-card lp-how-card-${side}`}
+      style={{ backgroundColor: card.bg, ["--how-accent" as string]: card.accent } as CSSProperties}
+    >
+      <span className="lp-how-number">{card.step}</span>
+      <card.icon className="lp-how-icon" style={{ color: card.accent }} strokeWidth={2} aria-hidden="true" />
+      <div className="lp-how-body">
+        <div>
+          <h3 className="t-titre-2 lp-how-title" style={{ color: card.fg }}>{card.title}</h3>
+          <p className="t-corps" style={{ marginTop: "1rem", color: card.fg }}>{card.desc}</p>
+        </div>
+        {card.cta && card.to && (
+          <div style={{ marginTop: "1.5rem" }}>
+            <Link to={card.to}>
+              <button
+                className="t-bouton"
+                style={{ height: "var(--hauteur-controle)", borderRadius: "var(--radius-moyen)", border: `2px solid ${card.accent}`, color: card.accent, padding: "0 24px", background: "transparent", cursor: "pointer" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                {card.cta}
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Interrupteur « J'organise / Je participe » (écrans étroits) : onglets accessibles au clavier. */
+function HowTabs({ side, onChange }: { side: HowSide; onChange: (s: HowSide) => void }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onKey = (e: ReactKeyboardEvent, i: number) => {
+    let j = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % HOW_SIDES.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + HOW_SIDES.length) % HOW_SIDES.length;
+    else if (e.key === "Home") j = 0;
+    else if (e.key === "End") j = HOW_SIDES.length - 1;
+    if (j < 0) return;
+    e.preventDefault();
+    onChange(HOW_SIDES[j].id);
+    refs.current[j]?.focus();
+  };
+  return (
+    <div role="tablist" aria-label="Parcours" className="lp-how-tabs">
+      {HOW_SIDES.map((s, i) => (
+        <button
+          key={s.id}
+          ref={(el) => { refs.current[i] = el; }}
+          type="button"
+          role="tab"
+          id={`lp-how-tab-${s.id}`}
+          aria-selected={side === s.id}
+          aria-controls="lp-how-panel"
+          tabIndex={side === s.id ? 0 : -1}
+          className="lp-how-tab"
+          onClick={() => onChange(s.id)}
+          onKeyDown={(e) => onKey(e, i)}
+        >
+          {s.tab}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function StackedHowItWorks() {
+  const { titleRef, g } = useHowStack();
+  const reduced = usePrefersReducedMotion();
+  const [side, setSide] = useState<HowSide>("orga");
+  const n = HOW_CARDS.length;
+  // Avant la mesure (rendu serveur) : valeurs d'origine
+  const cardTop = (i: number) => (g ? `${g.top0 + i * HOW_STEP}px` : `calc(50vh - 180px + ${i * HOW_STEP}px)`);
+  const cardH = g ? `${g.h}px` : "min(420px, 58vh)";
+  return (
+    <section style={{ background: "transparent", paddingTop: "4rem" }} className={reduced ? "lp-how is-static" : "lp-how"}>
+      {/* Titre et cartes dans le même conteneur : le titre se décolle avec les dernières cartes */}
+      <div>
+      <div ref={titleRef} style={{
+        position:   reduced ? "relative" : "sticky",
+        top:        reduced ? undefined : HOW_TITLE_TOP,
+        zIndex:     0,
         width:      "100%",
-        textAlign:  "center",
+        textAlign:  "left",
         padding:    "1rem 0 1.5rem",
-        background: "linear-gradient(to bottom, var(--bg-page) 70%, transparent 100%)",
+        background: "transparent",
+        // Marge basse = écart jusqu'au bas des dernières cartes posées : il se décolle en même temps qu'elles
+        marginBottom: g && !reduced ? g.titleMb : 0,
       }}>
-        <h2 style={{ color: "var(--text-title)" }}>
-          Comment ça marche ?
-        </h2>
+        {/* Même style et même alignement que les autres grands titres (« Simple. Complet. ») */}
+        <div className="container mx-auto px-4 sm:px-6">
+          <RevealTitle id="lp-how-title" text={"Comment ça marche\u202F?"} accent="marche" className="lp-section-title" style={{ color: "var(--text-title)" }} />
+          {/* Ordinateur : une étiquette au-dessus de chaque colonne */}
+          <div className="lp-how-labels" aria-hidden="true">
+            {HOW_SIDES.map((s) => <p key={s.id} className="lp-how-label">{s.label}</p>)}
+          </div>
+          {/* Écrans étroits : une seule pile, au choix */}
+          <HowTabs side={side} onChange={setSide} />
+        </div>
       </div>
 
-      <div>
-        <div style={{ height: "4vh" }} />
+        {/* La marge négative annule celle du titre dans la mise en page (les marges fusionnent) */}
+        <div style={{ height: reduced ? 0 : "4vh", marginTop: g && !reduced ? -g.titleMb : 0 }} />
 
+        {/* Les deux parcours avancent ensemble : chaque rangée (étape 01 orga + étape 01 participant…) est collée d'un bloc */}
+        <div id="lp-how-panel" role="tabpanel" aria-labelledby={`lp-how-tab-${side}`} style={{ display: "contents" }}>
         {HOW_CARDS.flatMap((card, i) => [
           <div
             key={`card-${card.step}`}
+            className="lp-how-row container mx-auto px-4 sm:px-6"
+            data-side={side}
             style={{
-              position:        "sticky",
-              top:             `calc(50vh - 180px + ${i * 16}px)`,
-              zIndex:          i + 1,
-              marginLeft:      "auto",
-              marginRight:     "auto",
-              width:           "min(860px, 92vw)",
-              height:          "min(420px, 58vh)",
-              borderRadius:    "var(--radius-carte)",
-              overflow:        "hidden",
-              backgroundColor: card.bg,
-              boxShadow:       "var(--ombre-menu)",
-            }}
+              position:     reduced ? "relative" : "sticky",
+              top:          reduced ? undefined : cardTop(i),
+              zIndex:       i + 1,
+              // Toutes les rangées se décollent au même instant que la dernière (marge = écart restant)
+              marginBottom: reduced ? 16 : (n - 1 - i) * HOW_STEP,
+              height:       reduced ? "auto" : cardH,
+            } as CSSProperties}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 h-full">
-              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(1.5rem, 5vw, 2.5rem)" }}>
-                <div>
-                  <span style={{ display: "block", fontSize: "clamp(48px, 12vw, 88px)", lineHeight: 0.85, color: card.accent, opacity: 0.35, fontWeight: 900, fontFamily: "var(--font-titre)", userSelect: "none" }}>
-                    {card.step}
-                  </span>
-                  <h3 className="t-titre-2" style={{ marginTop: "0.5rem", color: card.fg }}>
-                    {card.title}
-                  </h3>
-                  <p className="t-corps" style={{ marginTop: "1rem", color: card.fg }}>
-                    {card.desc}
-                  </p>
-                </div>
-                <div style={{ marginTop: "1.5rem" }}>
-                  <Link to={card.to}>
-                    <button
-                      className="t-bouton"
-                      style={{ height: "var(--hauteur-controle)", borderRadius: "var(--radius-moyen)", border: `2px solid ${card.accent}`, color: card.accent, padding: "0 24px", background: "transparent", cursor: "pointer" }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-                    >
-                      {card.cta}
-                    </button>
-                  </Link>
-                </div>
-              </div>
-              <div className="hidden sm:flex" style={{ alignItems: "center", justifyContent: "center", opacity: 0.16 }}>
-                <card.icon style={{ width: 150, height: 150, color: card.accent }} strokeWidth={2} />
-              </div>
-            </div>
+            <HowCardView card={card} side="orga" />
+            <HowCardView card={HOW_CARDS_PART[i]} side="part" />
           </div>,
 
+          // Espace de défilement entre deux rangées (la marge ajoutée est déduite) ; rien après la
+          // dernière : la pile se termine quand elle se pose.
           <div
             key={`spacer-${i}`}
-            style={{ height: i < HOW_CARDS.length - 1 ? "50vh" : "20vh" }}
+            style={{ height: i < n - 1 && !reduced ? `calc(50vh - ${(n - 1 - i) * HOW_STEP}px)` : 0 }}
           />,
         ])}
+        </div>
       </div>
     </section>
   );
 }
 
-function EventGrid({ events, muted = false, user }: { events: any[]; muted?: boolean; user: any }) {
+function EventGrid({ events }: { events: any[]; muted?: boolean; user: any }) {
   const likes = useLikes(useMemo(() => events.map((e) => e.id), [events]));
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {events.map((e) => {
+    <EventMosaic
+      events={events}
+      likes={likes}
+      showUnlimited
+      placeOf={(e) => e.location || "En ligne"}
+      renderBadges={(e) => {
         const taken = takenOf(e);
-        const pct = e.capacity > 0 ? Math.min(100, Math.round((taken / e.capacity) * 100)) : 0;
         const isFull = e.capacity > 0 && taken >= e.capacity;
         const remaining = e.capacity - taken;
-
         return (
-          <Link key={e.id} to="/events/$eventId" params={{ eventId: e.id }}>
-            <Card className={`group h-full overflow-hidden border transition-all duration-300 hover:shadow-glow hover:-translate-y-1 ${muted ? "opacity-60" : ""}`}>
-              {e.cover_image_url ? (
-                <div className="relative h-40 w-full overflow-hidden bg-muted">
-                  <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  <div className="absolute right-2 top-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
-                    {isFull ? <Badge variant="destructive">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
-                      : null}
-                  </div>
-                </div>
-              ) : (
-                <div className="relative h-2 bg-gradient-vibrant">
-                  <div className="absolute -bottom-3 right-2 flex gap-1">
-                    {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600 text-xs"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
-                    {isFull ? <Badge variant="destructive" className="text-xs">Complet</Badge>
-                      : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
-                      : null}
-                  </div>
-                </div>
-              )}
-              <CardContent className="p-5">
-                <h3 className="text-lg font-semibold group-hover:text-primary line-clamp-2 mt-1 transition-colors">{e.title}</h3>
-                <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{e.description || "Aucune description."}</p>
-                <div className="mt-4 space-y-1.5 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="h-4 w-4 flex-shrink-0" />
-                    <span>{format(new Date(e.starts_at), "PPP 'à' p", { locale: fr })}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-4 w-4 flex-shrink-0" />
-                    <span className="line-clamp-1">{e.location || "En ligne"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Users className="h-4 w-4 flex-shrink-0" />
-                    <span>{taken} / {e.capacity > 0 ? e.capacity : "∞"}</span>
-                    <LikeButton className="ml-auto" count={likes.counts[e.id] ?? 0} liked={likes.mine.has(e.id)} onToggle={() => likes.toggle(e.id)} />
-                  </div>
-                </div>
-                {e.capacity > 0 && (
-                  <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full transition-all duration-500 ${isFull ? "bg-destructive" : remaining < 10 ? "bg-orange-500" : "bg-gradient-primary"}`} style={{ width: `${pct}%` }} />
-                  </div>
-                )}
-                <div className="mt-4 flex items-center justify-between">
-                  {e.price > 0 ? <span className="text-sm font-semibold text-bordeaux-600">{e.price} €</span>
-                    : <Badge variant="secondary" className="text-xs">Gratuit</Badge>}
-                  <span className="text-xs font-semibold text-bordeaux-600 flex items-center gap-1 group-hover:gap-2 transition-all">Voir <ChevronRight className="h-3 w-3" /></span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+          <>
+            {e.status === "private" && <Badge className="bg-bordeaux-600 hover:bg-bordeaux-600"><Lock className="mr-1 h-3 w-3" />Privé</Badge>}
+            {isFull ? <Badge variant="destructive">Complet</Badge>
+              : remaining > 0 && remaining < 10 ? <Badge variant="warning">{remaining} place{remaining > 1 ? "s" : ""}</Badge>
+              : null}
+          </>
         );
-      })}
-    </div>
+      }}
+    />
   );
 }

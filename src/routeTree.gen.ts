@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AideRouteImport } from './routes/aide'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as CguRouteImport } from './routes/cgu'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConfirmerEcoleRouteImport } from './routes/confirmer-ecole'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmailsRouteImport } from './routes/emails'
@@ -20,6 +23,7 @@ import { Route as FeedRouteImport } from './routes/feed'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
@@ -31,12 +35,16 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminDomainsRouteImport } from './routes/admin.domains'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as AlbumsAlbumIdRouteImport } from './routes/albums.$albumId'
 import { Route as AssociationsIndexRouteImport } from './routes/associations.index'
 import { Route as AssociationsAssociationIdRouteImport } from './routes/associations.$associationId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as DevCocotteRouteImport } from './routes/dev.cocotte'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 import { Route as EventsNewRouteImport } from './routes/events.new'
@@ -59,9 +67,24 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AideRoute = AideRouteImport.update({
+  id: '/aide',
+  path: '/aide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CguRoute = CguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfirmerEcoleRoute = ConfirmerEcoleRouteImport.update({
@@ -102,6 +125,11 @@ const LikesRoute = LikesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -159,9 +187,24 @@ const WaitlistRoute = WaitlistRouteImport.update({
   path: '/waitlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDomainsRoute = AdminDomainsRouteImport.update({
+  id: '/admin/domains',
+  path: '/admin/domains',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
   id: '/admin/schools',
   path: '/admin/schools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
@@ -188,6 +231,11 @@ const AssociationsAssociationIdRoute =
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevCocotteRoute = DevCocotteRouteImport.update({
+  id: '/dev/cocotte',
+  path: '/dev/cocotte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
@@ -250,7 +298,10 @@ const SchoolAdminAssociationsAssociationIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/aide': typeof AideRoute
   '/analytics': typeof AnalyticsRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
@@ -259,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/messages': typeof MessagesRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -270,11 +322,14 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/domains': typeof AdminDomainsRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dev/cocotte': typeof DevCocotteRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
@@ -282,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/admin/': typeof AdminIndexRoute
   '/associations/': typeof AssociationsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
@@ -291,7 +347,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/aide': typeof AideRoute
   '/analytics': typeof AnalyticsRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
@@ -300,6 +359,7 @@ export interface FileRoutesByTo {
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/messages': typeof MessagesRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -311,11 +371,14 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/domains': typeof AdminDomainsRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dev/cocotte': typeof DevCocotteRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
@@ -323,6 +386,7 @@ export interface FileRoutesByTo {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/admin': typeof AdminIndexRoute
   '/associations': typeof AssociationsIndexRoute
   '/events': typeof EventsIndexRoute
   '/school-admin': typeof SchoolAdminIndexRoute
@@ -333,7 +397,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/aide': typeof AideRoute
   '/analytics': typeof AnalyticsRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
@@ -342,6 +409,7 @@ export interface FileRoutesById {
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/messages': typeof MessagesRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -353,11 +421,14 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/verification': typeof VerificationRoute
   '/waitlist': typeof WaitlistRoute
+  '/admin/domains': typeof AdminDomainsRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/albums/$albumId': typeof AlbumsAlbumIdRoute
   '/associations/$associationId': typeof AssociationsAssociationIdRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dev/cocotte': typeof DevCocotteRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/new': typeof EventsNewRoute
   '/school-admin/members': typeof SchoolAdminMembersRoute
@@ -365,6 +436,7 @@ export interface FileRoutesById {
   '/school-admin/reviews': typeof SchoolAdminReviewsRoute
   '/school-admin/settings': typeof SchoolAdminSettingsRoute
   '/volunteer/$token': typeof VolunteerTokenRoute
+  '/admin/': typeof AdminIndexRoute
   '/associations/': typeof AssociationsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/school-admin/': typeof SchoolAdminIndexRoute
@@ -376,7 +448,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/aide'
     | '/analytics'
+    | '/cgu'
+    | '/confidentialite'
     | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
@@ -385,6 +460,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/likes'
     | '/login'
+    | '/mentions-legales'
     | '/messages'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -396,11 +472,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/domains'
     | '/admin/schools'
+    | '/admin/users'
     | '/admin/verifications'
     | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
+    | '/dev/cocotte'
     | '/events/$eventId'
     | '/events/new'
     | '/school-admin/members'
@@ -408,6 +487,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/admin/'
     | '/associations/'
     | '/events/'
     | '/school-admin/'
@@ -417,7 +497,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/aide'
     | '/analytics'
+    | '/cgu'
+    | '/confidentialite'
     | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
@@ -426,6 +509,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/likes'
     | '/login'
+    | '/mentions-legales'
     | '/messages'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -437,11 +521,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/domains'
     | '/admin/schools'
+    | '/admin/users'
     | '/admin/verifications'
     | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
+    | '/dev/cocotte'
     | '/events/$eventId'
     | '/events/new'
     | '/school-admin/members'
@@ -449,6 +536,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/admin'
     | '/associations'
     | '/events'
     | '/school-admin'
@@ -458,7 +546,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/aide'
     | '/analytics'
+    | '/cgu'
+    | '/confidentialite'
     | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
@@ -467,6 +558,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/likes'
     | '/login'
+    | '/mentions-legales'
     | '/messages'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -478,11 +570,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/verification'
     | '/waitlist'
+    | '/admin/domains'
     | '/admin/schools'
+    | '/admin/users'
     | '/admin/verifications'
     | '/albums/$albumId'
     | '/associations/$associationId'
     | '/auth/callback'
+    | '/dev/cocotte'
     | '/events/$eventId'
     | '/events/new'
     | '/school-admin/members'
@@ -490,6 +585,7 @@ export interface FileRouteTypes {
     | '/school-admin/reviews'
     | '/school-admin/settings'
     | '/volunteer/$token'
+    | '/admin/'
     | '/associations/'
     | '/events/'
     | '/school-admin/'
@@ -500,7 +596,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AideRoute: typeof AideRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  CguRoute: typeof CguRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConfirmerEcoleRoute: typeof ConfirmerEcoleRoute
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
@@ -509,6 +608,7 @@ export interface RootRouteChildren {
   FinanceRoute: typeof FinanceRoute
   LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
   MessagesRoute: typeof MessagesRoute
   MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   MyTicketsRoute: typeof MyTicketsRoute
@@ -520,11 +620,14 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   VerificationRoute: typeof VerificationRoute
   WaitlistRoute: typeof WaitlistRoute
+  AdminDomainsRoute: typeof AdminDomainsRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
   AlbumsAlbumIdRoute: typeof AlbumsAlbumIdRoute
   AssociationsAssociationIdRoute: typeof AssociationsAssociationIdRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  DevCocotteRoute: typeof DevCocotteRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   EventsNewRoute: typeof EventsNewRoute
   SchoolAdminMembersRoute: typeof SchoolAdminMembersRoute
@@ -532,6 +635,7 @@ export interface RootRouteChildren {
   SchoolAdminReviewsRoute: typeof SchoolAdminReviewsRoute
   SchoolAdminSettingsRoute: typeof SchoolAdminSettingsRoute
   VolunteerTokenRoute: typeof VolunteerTokenRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AssociationsIndexRoute: typeof AssociationsIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   SchoolAdminIndexRoute: typeof SchoolAdminIndexRoute
@@ -555,11 +659,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aide': {
+      id: '/aide'
+      path: '/aide'
+      fullPath: '/aide'
+      preLoaderRoute: typeof AideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics': {
       id: '/analytics'
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgu': {
+      id: '/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof CguRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confirmer-ecole': {
@@ -616,6 +741,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -695,11 +827,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/domains': {
+      id: '/admin/domains'
+      path: '/admin/domains'
+      fullPath: '/admin/domains'
+      preLoaderRoute: typeof AdminDomainsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/schools': {
       id: '/admin/schools'
       path: '/admin/schools'
       fullPath: '/admin/schools'
       preLoaderRoute: typeof AdminSchoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/verifications': {
@@ -735,6 +888,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/cocotte': {
+      id: '/dev/cocotte'
+      path: '/dev/cocotte'
+      fullPath: '/dev/cocotte'
+      preLoaderRoute: typeof DevCocotteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/': {
@@ -820,7 +980,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AideRoute: AideRoute,
   AnalyticsRoute: AnalyticsRoute,
+  CguRoute: CguRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   ConfirmerEcoleRoute: ConfirmerEcoleRoute,
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
@@ -829,6 +992,7 @@ const rootRouteChildren: RootRouteChildren = {
   FinanceRoute: FinanceRoute,
   LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
   MessagesRoute: MessagesRoute,
   MotDePasseOublieRoute: MotDePasseOublieRoute,
   MyTicketsRoute: MyTicketsRoute,
@@ -840,11 +1004,14 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   VerificationRoute: VerificationRoute,
   WaitlistRoute: WaitlistRoute,
+  AdminDomainsRoute: AdminDomainsRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
+  AdminUsersRoute: AdminUsersRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
   AlbumsAlbumIdRoute: AlbumsAlbumIdRoute,
   AssociationsAssociationIdRoute: AssociationsAssociationIdRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  DevCocotteRoute: DevCocotteRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   EventsNewRoute: EventsNewRoute,
   SchoolAdminMembersRoute: SchoolAdminMembersRoute,
@@ -852,6 +1019,7 @@ const rootRouteChildren: RootRouteChildren = {
   SchoolAdminReviewsRoute: SchoolAdminReviewsRoute,
   SchoolAdminSettingsRoute: SchoolAdminSettingsRoute,
   VolunteerTokenRoute: VolunteerTokenRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AssociationsIndexRoute: AssociationsIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   SchoolAdminIndexRoute: SchoolAdminIndexRoute,
@@ -862,12 +1030,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -175,7 +175,7 @@ function AssociationPage() {
         {association.description
           ? <p className="t-corps whitespace-pre-wrap text-encre">{association.description}</p>
           : <p className="t-corps text-gris-chaud">{canPost ? "Ajoute une description pour présenter ton association." : "Pas encore de description."}</p>}
-        <ul className="space-y-2.5 border-t border-sable pt-4 t-legende text-gris-chaud">
+        <ul className="space-y-2.5 border-t border-bordure pt-4 t-legende text-gris-chaud">
           {association.schools?.name && <li className="flex items-center gap-2"><GraduationCap className="h-4 w-4 shrink-0" />{association.schools.name}</li>}
           {association.instagram && (
             <li>
@@ -242,7 +242,7 @@ function AssociationPage() {
       </div>
 
       {/* En-tête : photo de couverture, logo et nom centrés */}
-      <section className="overflow-hidden rounded-[var(--radius-carte)] border border-sable bg-blanc shadow-[var(--ombre-carte)]">
+      <section className="overflow-hidden rounded-[var(--radius-carte)] border border-bordure bg-blanc shadow-[var(--ombre-carte)]">
         <div className="relative h-60 bg-gradient-vibrant md:h-80">
           {cover
             ? <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -286,7 +286,7 @@ function AssociationPage() {
 
           <dl className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {stats.map((s, i) => (
-              <div key={s.label} className={`flex items-baseline gap-1.5 ${i > 0 ? "sm:border-l sm:border-sable sm:pl-6" : ""}`}>
+              <div key={s.label} className={`flex items-baseline gap-1.5 ${i > 0 ? "sm:border-l sm:border-bordure sm:pl-6" : ""}`}>
                 <dt className="sr-only">{s.label}</dt>
                 <dd className="font-display text-2xl font-black text-bordeaux-600">{s.n}</dd>
                 <span className="t-legende text-gris-chaud">{s.label}</span>
@@ -305,12 +305,12 @@ function AssociationPage() {
             )}
           </div>
         </div>
-        {isParticipant && <div className="flex justify-center border-t border-sable px-5 py-2.5 md:px-8"><FollowHint following={following} /></div>}
+        {isParticipant && <div className="flex justify-center border-t border-bordure px-5 py-2.5 md:px-8"><FollowHint following={following} /></div>}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <Tabs defaultValue={upcoming.length || !posts.length ? "upcoming" : "news"} className="min-w-0">
-          <TabsList className="no-scrollbar h-auto w-full justify-start gap-6 overflow-x-auto rounded-none border-b border-sable bg-transparent p-0">
+          <TabsList className="no-scrollbar h-auto w-full justify-start gap-6 overflow-x-auto rounded-[var(--radius-carte)] border border-bordure bg-blanc px-5 py-0 shadow-[var(--ombre-carte)]">
             <TabsTrigger value="upcoming" className={TAB}><Calendar />À venir<Count n={upcoming.length} /></TabsTrigger>
             <TabsTrigger value="news" className={TAB}><Newspaper />Actualités<Count n={posts.length} /></TabsTrigger>
             <TabsTrigger value="photos" className={TAB}><Images />Photos</TabsTrigger>

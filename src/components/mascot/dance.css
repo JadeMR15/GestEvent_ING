@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Scène de danse : Cocotte et les créatrices de Plav' (ESSAI design-tests)
+   transform / opacity uniquement ; pause hors écran ; fixe avec prefers-reduced-motion.
+   ========================================================================== */
+
+/* ── Danseuse ── */
+.dz { position: relative; width: 100%; height: 100%; }
+.dz-fig { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.dz-limbs { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dz-limbs .ck-arm, .dz-limbs .ck-leg { transform-box: fill-box; }
+.dz-body {
+  position: absolute;
+  left: 20%;
+  top: 12.667%;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid var(--neutre-blanc);
+  box-shadow: 0 6px 16px rgba(109, 29, 48, 0.25);
+  overflow: hidden;
+  background: var(--bordeaux-600);
+  transform-origin: 50% 70%;
+}
+.dz-body img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 35%; /* centré sur le visage */
+  display: block;
+}
+.dz-initial {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font: 600 clamp(16px, 1.6vw, 24px) / 1 var(--font-titre);
+  color: var(--neutre-blanc);
+}
+
+/* Bulle avec le prénom */
+.dz-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  margin-bottom: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pilule);
+  background: var(--neutre-blanc);
+  color: var(--bordeaux-600);
+  font: 600 13px/1.2 var(--font-texte);
+  white-space: nowrap;
+  box-shadow: var(--ombre-carte);
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.9);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.dz-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  border: 6px solid transparent;
+  border-top-color: var(--neutre-blanc);
+  transform: translateX(-50%);
+}
+.is-hovered .dz-bubble { opacity: 1; transform: translate(-50%, 0) scale(1); }
+
+/* États */
+/* Le corps reste un cercle parfait : aucune mise à l'échelle non uniforme */
+.dz--repos .dz-fig { animation: dzRest 3.2s ease-in-out infinite alternate; }
+@keyframes dzRest { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+.dz--coucou .dz-arm-r { animation: ckWave 1s ease-in-out infinite; }
+.dz--saut .dz-fig { animation: dzJump 0.75s cubic-bezier(0.33, 0, 0.3, 1) both; }
+@keyframes dzJump {
+  0%, 100% { transform: none; }
+  18% { transform: translateY(4%); }
+  50% { transform: translateY(-34%); }
+  82% { transform: translateY(2%); }
+}
+.dz--saut .ck-leg { animation: ckTuck 0.75s ease-in-out both; }
+.dz--saut .dz-arm-l { animation: ckArmUpL 0.75s ease-in-out both; }
+.dz--saut .dz-arm-r { animation: ckArmUpR 0.75s ease-in-out both; }
+
+/* Danse : balancement, bras levés en alternance, petits pas ; décalage par danseuse */
+.dz--danse .dz-fig    { animation: dzSway 1.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.35s); }
+.dz--danse .dz-arm-l  { animation: dzArmL 1.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.35s); }
+.dz--danse .dz-arm-r  { animation: dzArmR 1.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.35s); }
+.dz--danse .dz-leg-l  { animation: ckStep 0.8s ease-in-out infinite alternate; animation-delay: calc(var(--i, 0) * -0.2s); }
+.dz--danse .dz-leg-r  { animation: ckStep 0.8s ease-in-out infinite alternate-reverse; animation-delay: calc(var(--i, 0) * -0.2s); }
+/* (keyframes dzSway / dzArmL / dzArmR : dans cocotte.css, partagées avec Cocotte) */
+
+/* ── La scène : posée sur le bord haut du cadre « Simple. Complet. » ── */
+/* Le groupe est dans la section du cadre, juste au-dessus du bord haut (pieds sur la ligne),
+   dans sa partie droite. Il est derrière le cadre : rien ne passe devant son contenu. */
+.lp-dance {
+  --dz-w: 67px;   /* largeur d'une danseuse (rond de 40 px = 60 %) */
+  --dz-h: 84px;
+  --ck-h: 58px;   /* Cocotte à la même échelle (corps ≈ 40 px) */
+  --gap: 2px;
+  position: absolute;
+  z-index: 0;
+  top: 80px;      /* = marge du haut de .lp-frame-section : bord haut du cadre */
+  right: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--gap);
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .lp-dance {
+    --dz-w: 93px;  /* rond de 56 px */
+    --dz-h: 117px;
+    --ck-h: 81px;  /* corps ≈ 56 px */
+    --gap: 14px;
+    top: 112px;
+    right: calc(28px + 56px);
+  }
+}
+
+/* Emplacements, pieds exactement sur le bord du cadre (le bas du dessin est un peu sous les pieds) */
+.lp-dancer-slot {
+  position: relative;
+  width: var(--dz-w);
+  height: var(--dz-h);
+  margin-bottom: calc(var(--dz-h) * -0.09); /* pieds à 91 % du dessin */
+  pointer-events: auto;
+}
+.lp-dance-spot {
+  width: calc(var(--ck-h) * 1300 / 1430);
+  height: var(--ck-h);
+  margin-bottom: calc(var(--ck-h) * -0.05);
+}
+/* Ordre : une danseuse à gauche, Cocotte, deux à droite */
+.lp-dancer-slot.d0 { order: 0; }
+.lp-dance-spot      { order: 1; }
+.lp-dancer-slot.d1 { order: 2; }
+.lp-dancer-slot.d2 { order: 3; }
+
+/* Arrivée : elles sautent depuis derrière le bord du cadre, une par une (~150 ms d'écart) */
+.lp-dancer-hop { width: 100%; height: 100%; opacity: 0; transform: translateY(110%); }
+.lp-dance.is-arrived .lp-dancer-hop {
+  animation: dzArrive 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  animation-delay: calc(var(--n, 0) * 150ms);
+}
+@keyframes dzArrive {
+  0%   { opacity: 1; transform: translateY(110%); }
+  55%  { opacity: 1; transform: translateY(-30%); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Pause hors écran */
+.lp-dance.is-paused *, .lp-dance.is-paused *::before { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-dance .lp-dancer-hop { opacity: 1; transform: none; animation: none !important; }
+  .dz *, .dz { animation: none !important; transition: none !important; }
+}

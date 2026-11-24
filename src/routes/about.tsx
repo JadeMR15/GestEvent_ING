@@ -1,3 +1,4 @@
+import { AppFooter } from "@/components/AppFooter";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Users, ClipboardList, Heart, ArrowLeft, ChevronRight } from "lucide-react";
@@ -73,9 +74,9 @@ function AboutPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-creme font-body text-encre">
+    <div className="min-h-screen bg-fond font-body text-encre">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-sable/30 bg-white/80 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-bordure/30 bg-white/80 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
             <img src="/plav-logotype.svg" alt="Plav'" className="h-10 w-auto object-contain" />
@@ -100,7 +101,7 @@ function AboutPage() {
             <a
               key={r.id}
               href={`#${r.id}`}
-              className="flex items-center gap-2 rounded-full border border-sable/40 bg-white px-5 py-2 text-sm font-medium text-bordeaux-600 hover:bg-jaune-100 transition-colors"
+              className="flex items-center gap-2 rounded-full border border-bordure/40 bg-white px-5 py-2 text-sm font-medium text-bordeaux-600 hover:bg-jaune-100 transition-colors"
             >
               <r.icon className="h-4 w-4" />
               {r.title}
@@ -115,7 +116,7 @@ function AboutPage() {
           <div
             key={role.id}
             id={role.id}
-            className={`scroll-mt-24 rounded-3xl border border-sable/20 bg-white p-8 md:p-12 shadow-sm flex flex-col ${
+            className={`scroll-mt-24 rounded-3xl border border-bordure/20 bg-white p-8 md:p-12 shadow-sm flex flex-col ${
               i % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"
             } gap-10 items-start`}
           >
@@ -148,11 +149,7 @@ function AboutPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-sable/30 bg-white/60 py-8">
-        <div className="container mx-auto px-6 text-center text-xs text-encre/40">
-          © {new Date().getFullYear()} Plav'. Tous droits réservés.
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 }

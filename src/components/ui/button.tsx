@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Charte Plav' § 4. Grand 48 px (défaut) / Petit 36 px ; Nunito Sans 600 ; icône 20 px, écart 8 px.
+// Charte Plav' § 4. Grand 48 px (défaut) / Petit 36 px ; Inter Tight 600 ; icône 20 px, écart 8 px.
 // Focus clavier : halo jaune (--focus-halo).
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap font-body font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:shadow-[var(--focus-halo)] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0",
@@ -13,19 +13,19 @@ const buttonVariants = cva(
       variant: {
         /* Secondaire — action importante : fond bordeaux 600, texte crème ; survol bordeaux 700 */
         default:
-          "bg-bordeaux-600 text-creme hover:bg-bordeaux-700 disabled:bg-sable disabled:text-gris-chaud",
+          "bg-bordeaux-600 text-blanc hover:bg-bordeaux-700 disabled:bg-bordure disabled:text-gris-chaud",
         /* Statut rouge (suppression, annulation) */
         destructive:
-          "bg-statut-rouge-500 text-blanc hover:bg-statut-rouge-700 disabled:bg-sable disabled:text-gris-chaud",
+          "bg-statut-rouge-500 text-blanc hover:bg-statut-rouge-700 disabled:bg-bordure disabled:text-gris-chaud",
         /* Contour — actions annexes : bordure 2 px bordeaux, survol bordeaux 100 */
         outline:
-          "border-2 border-bordeaux-600 bg-transparent text-bordeaux-600 hover:bg-bordeaux-100 disabled:border-sable disabled:text-gris-chaud",
+          "border-2 border-bordeaux-600 bg-transparent text-bordeaux-600 hover:bg-bordeaux-100 disabled:border-bordure disabled:text-gris-chaud",
         /* Principal — l'action clé de l'écran : fond jaune 300, texte bordeaux (jamais blanc) */
         secondary:
-          "bg-jaune-300 text-bordeaux-600 hover:bg-jaune-400 hover:text-bordeaux-700 disabled:bg-sable disabled:text-gris-chaud",
+          "bg-jaune-300 text-bordeaux-600 hover:bg-jaune-400 hover:text-bordeaux-700 disabled:bg-bordure disabled:text-gris-chaud",
         /* Contour clair — sur fond bordeaux : bordure 2 px crème, survol bordeaux 700 */
         outlineLight:
-          "border-2 border-creme bg-transparent text-creme hover:bg-bordeaux-700 disabled:border-bordeaux-400 disabled:text-bordeaux-300",
+          "border-2 border-blanc bg-transparent text-blanc hover:bg-bordeaux-700 disabled:border-bordeaux-400 disabled:text-bordeaux-300",
         /* Discret (hors charte : forme conservée, couleurs de la charte) */
         ghost: "text-bordeaux-600 hover:bg-bordeaux-100 hover:text-bordeaux-600 disabled:text-gris-chaud",
         link: "text-primary underline-offset-4 hover:underline",
