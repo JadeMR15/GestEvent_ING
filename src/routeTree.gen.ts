@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AideRouteImport } from './routes/aide'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as CguRouteImport } from './routes/cgu'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConfirmerEcoleRouteImport } from './routes/confirmer-ecole'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmailsRouteImport } from './routes/emails'
@@ -20,6 +23,7 @@ import { Route as FeedRouteImport } from './routes/feed'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
@@ -63,9 +67,24 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AideRoute = AideRouteImport.update({
+  id: '/aide',
+  path: '/aide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CguRoute = CguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfirmerEcoleRoute = ConfirmerEcoleRouteImport.update({
@@ -106,6 +125,11 @@ const LikesRoute = LikesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -274,7 +298,10 @@ const SchoolAdminAssociationsAssociationIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/aide': typeof AideRoute
   '/analytics': typeof AnalyticsRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
@@ -283,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/messages': typeof MessagesRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -319,7 +347,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/aide': typeof AideRoute
   '/analytics': typeof AnalyticsRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
@@ -328,6 +359,7 @@ export interface FileRoutesByTo {
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/messages': typeof MessagesRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -365,7 +397,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/aide': typeof AideRoute
   '/analytics': typeof AnalyticsRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-ecole': typeof ConfirmerEcoleRoute
   '/dashboard': typeof DashboardRoute
   '/emails': typeof EmailsRoute
@@ -374,6 +409,7 @@ export interface FileRoutesById {
   '/finance': typeof FinanceRoute
   '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/messages': typeof MessagesRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
   '/my-tickets': typeof MyTicketsRoute
@@ -412,7 +448,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/aide'
     | '/analytics'
+    | '/cgu'
+    | '/confidentialite'
     | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
@@ -421,6 +460,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/likes'
     | '/login'
+    | '/mentions-legales'
     | '/messages'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -457,7 +497,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/aide'
     | '/analytics'
+    | '/cgu'
+    | '/confidentialite'
     | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
@@ -466,6 +509,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/likes'
     | '/login'
+    | '/mentions-legales'
     | '/messages'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -502,7 +546,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/aide'
     | '/analytics'
+    | '/cgu'
+    | '/confidentialite'
     | '/confirmer-ecole'
     | '/dashboard'
     | '/emails'
@@ -511,6 +558,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/likes'
     | '/login'
+    | '/mentions-legales'
     | '/messages'
     | '/mot-de-passe-oublie'
     | '/my-tickets'
@@ -548,7 +596,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AideRoute: typeof AideRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  CguRoute: typeof CguRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConfirmerEcoleRoute: typeof ConfirmerEcoleRoute
   DashboardRoute: typeof DashboardRoute
   EmailsRoute: typeof EmailsRoute
@@ -557,6 +608,7 @@ export interface RootRouteChildren {
   FinanceRoute: typeof FinanceRoute
   LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
   MessagesRoute: typeof MessagesRoute
   MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   MyTicketsRoute: typeof MyTicketsRoute
@@ -607,11 +659,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aide': {
+      id: '/aide'
+      path: '/aide'
+      fullPath: '/aide'
+      preLoaderRoute: typeof AideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics': {
       id: '/analytics'
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgu': {
+      id: '/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof CguRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confirmer-ecole': {
@@ -668,6 +741,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -900,7 +980,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AideRoute: AideRoute,
   AnalyticsRoute: AnalyticsRoute,
+  CguRoute: CguRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   ConfirmerEcoleRoute: ConfirmerEcoleRoute,
   DashboardRoute: DashboardRoute,
   EmailsRoute: EmailsRoute,
@@ -909,6 +992,7 @@ const rootRouteChildren: RootRouteChildren = {
   FinanceRoute: FinanceRoute,
   LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
   MessagesRoute: MessagesRoute,
   MotDePasseOublieRoute: MotDePasseOublieRoute,
   MyTicketsRoute: MyTicketsRoute,
@@ -946,12 +1030,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

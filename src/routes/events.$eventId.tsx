@@ -4,6 +4,7 @@ import { SITE_URL } from "@/lib/site";
 import { useLikes } from "@/lib/likes";
 import { LikeButton } from "@/components/LikeButton";
 import { ShareButton } from "@/components/ShareButton";
+import { AddToCalendarButton } from "@/components/AddToCalendarButton";
 import { BrandName } from "@/components/BrandName";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
@@ -1101,9 +1102,10 @@ function EventDetail() {
         <CardContent className="p-5 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h1 className="not-italic">{event.title}</h1>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <LikeButton size="page" count={likes.counts[eventId] ?? 0} liked={likes.mine.has(eventId)} onToggle={() => likes.toggle(eventId)} />
               <ShareButton event={event} />
+              <AddToCalendarButton event={event} label="Agenda" />
               {isOwner && (
                 <>
                   <Button variant="outline" size="sm" asChild>

@@ -20,6 +20,7 @@ import { SchoolEmailForm } from "@/components/SchoolEmailForm";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { RoleAvatar } from "@/components/RoleAvatar";
+import { MyDataCard } from "@/components/MyDataCard";
 import { MySchoolBadge } from "@/components/SchoolBadge";
 import { imageExt } from "@/lib/image-encode";
 
@@ -415,6 +416,7 @@ function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+      <MyDataCard />
     </div>
   );
 }

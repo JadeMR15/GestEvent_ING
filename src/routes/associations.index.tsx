@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, GraduationCap, Loader2, Search, Users } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, GraduationCap, Loader2, Search, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { associationCoverUrl, useAssociationFallbacks } from "@/components/AssociationLogo";
 import { AssociationAvatar, FollowButton } from "@/components/social/SocialBits";
@@ -10,6 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/lib/schools";
 import { isPastEvent } from "@/lib/event-dates";
 import { fetchVisibleEvents, useFollows, type PublicAssociation } from "@/lib/social";
+
+const PAGE_SIZE = 12;
 
 export const Route = createFileRoute("/associations/")({
   component: () => (
@@ -29,6 +32,7 @@ function Directory() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [page, setPage] = useState(0);
   const ids = associations.map((a) => a.id);
   const follows = useFollows(ids);
   const fallbacks = useAssociationFallbacks(ids);
@@ -61,6 +65,13 @@ function Directory() {
         || a.name.localeCompare(b.name, "fr"));
   }, [associations, query, filter, follows.following, follows.counts, upcoming, schoolId]);
 
+  // Pagination : 12 associations par page (3 lignes de 4 sur grand écran).
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const current = Math.min(page, pageCount - 1);
+  const pageItems = visible.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
+  useEffect(() => { setPage(0); }, [query, filter]);
+  const goTo = (p: number) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
   const tabs: { value: Filter; label: string; show: boolean }[] = [
     { value: "all", label: "Toutes", show: true },
     { value: "mine", label: `Mes abonnements (${follows.following.size})`, show: true },
@@ -68,9 +79,9 @@ function Directory() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1>Associations</h1>
+        <h1 className="md:sr-only">Associations</h1>
         <p className="text-muted-foreground">Découvre les assos, abonne-toi et ne rate plus aucun de leurs événements.</p>
       </div>
 
@@ -98,8 +109,9 @@ function Directory() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((a) => {
+        <>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {pageItems.map((a) => {
             const followers = follows.counts[a.id] ?? 0;
             const next = upcoming[a.id] ?? 0;
             return (
@@ -135,6 +147,18 @@ function Directory() {
             );
           })}
         </div>
+        {pageCount > 1 && (
+          <nav aria-label="Pages des associations" className="flex items-center justify-center gap-3 pt-2">
+            <Button variant="outline" size="sm" onClick={() => goTo(current - 1)} disabled={current === 0}>
+              <ChevronLeft className="mr-1 h-4 w-4" />Précédent
+            </Button>
+            <span className="rounded-full bg-blanc px-3 py-1 text-sm text-encre">Page {current + 1} sur {pageCount}</span>
+            <Button variant="outline" size="sm" onClick={() => goTo(current + 1)} disabled={current >= pageCount - 1}>
+              Suivant<ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+          </nav>
+        )}
+        </>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { compressPhoto } from "@/lib/image-encode";
 import { db, schoolErrorMessage } from "@/lib/schools";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
@@ -160,9 +161,10 @@ function CreateEventPage() {
       if (item.type === "video" && item.videoUrl) {
         result.push({ url: item.videoUrl, type: "video", sort_order: i, caption: item.caption });
       } else if (item.file) {
-        const ext = item.file.name.split(".").pop() ?? "jpg";
+        // Photo compressée avant l'envoi (taille et qualité adaptées à l'affichage).
+        const { blob: photo, ext } = await compressPhoto(item.file);
         const path = `${eventId}/media_${i}.${ext}`;
-        const { error } = await supabase.storage.from("event-covers").upload(path, item.file, { upsert: true });
+        const { error } = await supabase.storage.from("event-covers").upload(path, photo, { upsert: true, contentType: photo.type || undefined });
         if (error) { toast.error(`Erreur upload ${item.file.name} : ${error.message}`); continue; }
         const { data } = supabase.storage.from("event-covers").getPublicUrl(path);
         result.push({ url: data.publicUrl, type: item.type, sort_order: i, caption: item.caption });

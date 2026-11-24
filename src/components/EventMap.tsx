@@ -5,6 +5,16 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+/** Échappe un texte avant de l'insérer dans le HTML de la bulle (titre, ville… saisis par les organisateurs). */
+function esc(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export default function EventMap({ events }: { events: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -80,11 +90,11 @@ export default function EventMap({ events }: { events: any[] }) {
         const marker = L.marker([e.latitude, e.longitude], { icon: pin });
         marker.bindPopup(
           `<div style="min-width:200px;font-family:var(--font-texte);line-height:1.5">
-            ${e.cover_image_url ? `<img src="${e.cover_image_url}" style="width:100%;height:80px;object-fit:cover;border-radius:var(--radius-petit);margin-bottom:8px;display:block" />` : ""}
-            <p style="font-weight:600;font-size:14px;margin:0 0 4px;color:var(--neutre-encre)">${e.title}</p>
+            ${e.cover_image_url ? `<img src="${esc(e.cover_image_url)}" style="width:100%;height:80px;object-fit:cover;border-radius:var(--radius-petit);margin-bottom:8px;display:block" />` : ""}
+            <p style="font-weight:600;font-size:14px;margin:0 0 4px;color:var(--neutre-encre)">${esc(e.title)}</p>
             <p style="font-size:13px;font-weight:500;color:var(--neutre-gris-chaud);margin:0 0 2px">📅 ${dateStr}</p>
-            ${e.city ? `<p style="font-size:13px;font-weight:500;color:var(--neutre-gris-chaud);margin:0 0 8px">📍 ${e.city}</p>` : ""}
-            <a href="/events/${e.id}" style="color:var(--bordeaux-600);font-weight:600;font-size:13px;text-decoration:none">Voir l'événement →</a>
+            ${e.city ? `<p style="font-size:13px;font-weight:500;color:var(--neutre-gris-chaud);margin:0 0 8px">📍 ${esc(e.city)}</p>` : ""}
+            <a href="/events/${encodeURIComponent(e.id)}" style="color:var(--bordeaux-600);font-weight:600;font-size:13px;text-decoration:none">Voir l'événement →</a>
           </div>`,
           { maxWidth: 260 }
         );

@@ -92,7 +92,7 @@ function Reviews({ school, refresh }: { school: School; refresh: () => Promise<v
           <CardContent className="grid gap-4 p-0 md:grid-cols-[220px_1fr]">
             <div className="h-40 bg-secondary md:h-full">
               {e.cover_image_url
-                ? <img src={e.cover_image_url} alt="" className="h-full w-full object-cover" />
+                ? <img src={e.cover_image_url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 : <div className="flex h-full items-center justify-center"><Calendar className="h-10 w-10 text-primary/40" /></div>}
             </div>
             <div className="space-y-3 p-5 md:pl-0">

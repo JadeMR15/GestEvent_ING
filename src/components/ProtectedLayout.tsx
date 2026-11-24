@@ -2,6 +2,7 @@ import { type ReactNode, useEffect } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { MobileHeader, MobileTabBar } from "./MobileNav";
 import { AppTopBar } from "./nav/AppTopBar";
+import { AppFooter } from "./AppFooter";
 import "./nav/app-shell.css";
 import { useAuth, type AppRole } from "@/hooks/useAuth";
 import { Loader2, ShieldAlert } from "lucide-react";
@@ -73,7 +74,9 @@ export function ProtectedLayout({ children, allow }: Props) {
           </div>
         </div>
       )}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-4 pb-28 md:px-4 md:pt-8 md:pb-8 lg:px-8">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-4 pb-8 md:px-4 md:pt-8 md:pb-8 lg:px-8">{children}</main>
+      {/* Pied de page aussi une fois connecté ; sur mobile, il reste au-dessus de la barre d'onglets. */}
+      <AppFooter className="pb-28 md:pb-6" />
       <MobileTabBar />
     </div>
   );

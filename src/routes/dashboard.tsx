@@ -237,7 +237,7 @@ function EventsDashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="app-caps text-gris-chaud">{format(new Date(), "EEEE d MMMM", { locale: fr })}</p>
-          <h1 className="not-italic mt-1">Dashboard</h1>
+          <h1 className="not-italic mt-1 md:sr-only">Dashboard</h1>
           <p className="text-muted-foreground">Vue d'ensemble de votre activité.</p>
         </div>
         <div className="flex flex-wrap gap-2">

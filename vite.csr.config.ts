@@ -6,7 +6,8 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 
 export default defineConfig({
   plugins: [
-    TanStackRouterVite({ target: "react", autoCodeSplitting: false }),
+    // Une page = un fichier : le visiteur ne télécharge que le code de la page ouverte.
+    TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
     react(),
     tailwindcss(),
     tsConfigPaths(),
