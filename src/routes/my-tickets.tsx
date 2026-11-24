@@ -9,6 +9,7 @@ import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AddToCalendarButton } from "@/components/AddToCalendarButton";
 import { Ticket, CheckCircle2, Clock, XCircle, Loader2, Download, ExternalLink, QrCode } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -154,9 +155,9 @@ function MyTicketsPage() {
   const past = withEvent.filter((t) => t.status === "cancelled" && !isPastEvent(t.events.starts_at));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1>Mes billets</h1>
+        <h1 className="md:sr-only">Mes billets</h1>
         <p className="text-sm text-muted-foreground md:text-base">Tes places et tes QR codes d'entrée.</p>
       </div>
 
@@ -171,7 +172,7 @@ function MyTicketsPage() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="space-y-5">
+        <div className="grid gap-4 lg:grid-cols-2">
           {active.map((reg) => {
             const ev = reg.events;
             if (!ev) return null;
@@ -184,7 +185,7 @@ function MyTicketsPage() {
               <div key={reg.id} className="overflow-hidden rounded-3xl border bg-card shadow-elegant">
                 {/* Haut du billet : l'événement */}
                 <Link to="/events/$eventId" params={{ eventId: ev.id }} className="tap relative block bg-gradient-primary p-5 text-primary-foreground">
-                  {ev.cover_image_url && <img src={ev.cover_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
+                  {ev.cover_image_url && <img src={ev.cover_image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
                   <img src="/plav-cocotte.svg" alt="" className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 opacity-15" />
                   <div className="relative">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.color}`}>
@@ -231,6 +232,7 @@ function MyTicketsPage() {
                           </div>
                           <p className="text-sm text-muted-foreground">Présente ce code à l'entrée.</p>
                           <code className="max-w-full break-all rounded bg-muted px-2 py-1 text-xs">{reg.qr_code}</code>
+                          <AddToCalendarButton event={ev} />
                           {canCancel && (
                             <button
                               className="mt-2 text-sm font-medium text-destructive"
